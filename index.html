@@ -14,27 +14,56 @@
   --font:'Segoe UI',system-ui,sans-serif
 }
 body{font-family:var(--font);background:var(--dark);color:#e8dcc8;min-height:100vh;font-size:14px}
-/* LAYOUT */
 .app{display:flex;min-height:100vh}
-.sidebar{width:200px;flex-shrink:0;background:var(--dark2);border-right:0.5px solid var(--border);padding:1.2rem 0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100}
-.main{margin-left:200px;flex:1;padding:1.5rem 1.8rem;max-width:1100px}
-@media(max-width:700px){.sidebar{display:none}.main{margin-left:0;padding:1rem}}
-.logo{padding:0 1.2rem 1.2rem;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
+.sidebar{width:220px;flex-shrink:0;background:var(--dark2);border-right:0.5px solid var(--border);padding:1.2rem 0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease}
+.main{margin-left:220px;flex:1;padding:1.5rem 1.8rem;min-width:0;max-width:calc(100vw - 220px)}
+.hamburger{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--dark2);border:0.5px solid var(--border);border-radius:8px;padding:8px 11px;cursor:pointer;font-size:18px;line-height:1;color:#e8dcc8}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:150;backdrop-filter:blur(2px)}
+.sidebar-overlay.show{display:block}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:3.8rem 0.9rem 2rem;max-width:100vw}
+  .hamburger{display:flex;align-items:center;justify-content:center}
+}
+.logo{padding:0 1.2rem 1rem;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
 .logo h1{font-size:15px;font-weight:600;color:var(--gold-l);letter-spacing:1.5px}
 .logo p{font-size:11px;color:var(--muted);margin-top:3px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.2rem;font-size:13px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent}
 .nav-item:hover{color:#e8dcc8;background:rgba(255,255,255,0.03)}
 .nav-item.active{color:var(--gold-l);border-left-color:var(--gold);background:rgba(201,168,76,0.06)}
+.admin-badge{font-size:9px;padding:1px 5px;background:rgba(201,168,76,0.2);border:0.5px solid var(--gold);border-radius:3px;color:var(--gold);margin-left:auto;display:none}
+.admin-badge.show{display:inline}
 .nav-spacer{flex:1}
 .nav-footer{padding:0.8rem 1.2rem;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.7}
+.admin-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 1.2rem 0;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
+.admin-btn:hover{border-color:var(--gold);color:var(--gold-l)}
+.admin-btn.logged-in{border-color:rgba(201,168,76,0.4);color:var(--gold);background:rgba(201,168,76,0.08)}
 .page{display:none}.page.active{display:block}
 .page-title{font-size:18px;font-weight:500;color:var(--gold-l);margin-bottom:4px}
 .page-sub{font-size:12px;color:var(--muted);margin-bottom:1.2rem}
 /* COMMON */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1.2rem}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:1.2rem}
 .sc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
 .sc .n{font-size:22px;font-weight:600;color:var(--gold-l)}.sc .l{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
 .filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+@media(max-width:480px){
+  .filter-row{flex-direction:column}
+  .filter-row input,.filter-row select{width:100%;min-width:unset}
+  .sc .n{font-size:18px}
+  .page-title{font-size:16px}
+  .al-header{flex-direction:column;align-items:stretch}
+  .al-header select,.al-header button{width:100%}
+  .btn-row{flex-direction:column}
+  .btn-row .btn{width:100%}
+  .session-summary{gap:6px}
+  .ss-item{min-width:60px;padding:8px 10px}
+  .ss-n{font-size:16px}
+  .calc-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .calc-tab{white-space:nowrap;flex-shrink:0}
+  .tbl-wrap{font-size:11px}
+  .rand-summary span{font-size:10px}
+}
 input,select,textarea{background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 11px;color:#e8dcc8;font-size:13px;outline:none;font-family:var(--font)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 select option{background:#2a2218;color:#e8dcc8}
@@ -59,19 +88,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .btn-full{width:100%;margin-top:6px;text-align:center}
 .sep{height:0.5px;background:var(--border);margin:12px 0}
 .panel{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1rem 1.2rem}
-.panel h3{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px;letter-spacing:0.5px}
+.panel h3{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
 .section-h{font-size:12px;color:var(--gold-l);font-weight:500;letter-spacing:1px;margin:1.2rem 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);text-transform:uppercase}
 .section-h:first-child{margin-top:0}
 .empty{text-align:center;color:var(--muted);font-size:12px;padding:2rem}
-.tag-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.no-id{font-size:10px;color:rgba(255,255,255,0.2);margin-left:auto}
 /* MEMBERS */
-.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:8px}
 .mc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 13px;transition:border-color 0.15s}
 .mc:hover{border-color:var(--border2)}
 .mc .ign{font-size:13px;font-weight:500}.mc .cls{font-size:11px;color:var(--muted);margin-top:2px}
 .mc .meta{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;align-items:center}
 /* PARTIES */
-.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:10px}
 .party-card{background:var(--card);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
 .ph{background:rgba(201,168,76,0.07);border-bottom:0.5px solid var(--border);padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
 .ph .pn{font-size:13px;font-weight:500;color:var(--gold-l)}.ph .pc{font-size:11px;color:var(--muted)}
@@ -89,7 +119,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .profile-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)}
 .avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold-l);flex-shrink:0;font-weight:600}
 .profile-info .name{font-size:15px;font-weight:500}.profile-info .sub{font-size:12px;color:var(--muted);margin-top:2px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px}
 .info-item{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px}
 .info-item .ik{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
 .info-item .iv{font-size:13px;font-weight:500}
@@ -99,10 +129,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .mini-tag{font-size:11px;padding:2px 8px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:4px}
 .not-found{text-align:center;color:var(--muted);font-size:13px;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:8px;border:0.5px solid var(--border);margin-top:10px}
 /* REWARDS */
-.reward-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.reward-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px;margin-bottom:14px}
 .reward-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:14px;text-align:center}
-.reward-card .ri{font-size:22px;margin-bottom:5px}
-.reward-card .rv{font-size:22px;font-weight:600;color:var(--gold-l)}
+.reward-card .ri{font-size:22px;margin-bottom:5px}.reward-card .rv{font-size:22px;font-weight:600;color:var(--gold-l)}
 .reward-card .rl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px}
 .reward-card .rm{font-size:11px;color:rgba(201,168,76,0.5);margin-top:2px}
 .tbl-wrap{overflow-x:auto}
@@ -110,16 +139,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .tbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
 .tbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
 .tbl tr:last-child td{border-bottom:none}
-.tbl tr.hl td{color:var(--gold-l);background:rgba(201,168,76,0.05)}
 .cs-y{color:var(--green);font-size:10px}.cs-n{color:var(--red);font-size:10px}
-.event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:10px}
+.event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px;margin-bottom:10px}
 .event-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:12px}
 .event-card .et{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.event-card .en{font-size:14px;font-weight:500;margin-bottom:3px}
-.event-card .ed{font-size:12px;color:var(--gold)}
-/* RANDOMIZE */
-.rand-layout{display:grid;grid-template-columns:240px 1fr;gap:12px}
-@media(max-width:700px){.rand-layout{grid-template-columns:1fr}}
+.event-card .en{font-size:14px;font-weight:500;margin-bottom:3px}.event-card .ed{font-size:12px;color:var(--gold)}
+/* RAND */
+.rand-layout{display:grid;grid-template-columns:220px 1fr;gap:12px}
+@media(max-width:768px){.rand-layout{grid-template-columns:1fr}}
 .cls-opts{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;max-height:200px;overflow-y:auto}
 .chk-label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}
 .chk-label input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;flex-shrink:0}
@@ -131,11 +158,45 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .ri-ign{flex:1}.ri-cls{font-size:10px;color:var(--muted)}.ri-p{font-size:10px;color:var(--gold);opacity:0.6}
 .rand-summary{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap}
 .rand-summary span{font-size:11px;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:4px;color:var(--muted)}
+.log-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:6px;margin-bottom:5px;font-size:12px}
+.log-item .log-date{color:var(--muted);font-size:11px;flex:1}
+.log-item .log-count{color:var(--gold);font-size:11px;white-space:nowrap}
+/* CALC */
+.calc-layout{display:grid;grid-template-columns:300px 1fr;gap:14px}
+@media(max-width:900px){.calc-layout{grid-template-columns:1fr}}
+.calc-group{margin-bottom:12px}
+.calc-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.calc-group input,.calc-group select{width:100%}
+.num-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:480px){.num-row{grid-template-columns:1fr}}
+.num-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.num-row input{width:100%}
+.hint-box{background:rgba(201,168,76,0.06);border:0.5px solid rgba(201,168,76,0.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:10px}
+.hint-box span{color:var(--gold-l);font-weight:500}
+.carryover-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:6px;margin-bottom:6px;flex-wrap:wrap}
+.carryover-item .co-name{font-size:12px;font-weight:500;min-width:100px;flex:1}
+.carryover-item .co-fields{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.carryover-item .co-fields label{font-size:10px;color:var(--muted)}
+.carryover-item .co-fields input[type=number]{width:46px;padding:3px 6px;font-size:11px;text-align:center}
+.carryover-item .co-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 2px}
+.result-table{width:100%;border-collapse:collapse;font-size:12px}
+.result-table th{text-align:left;padding:7px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.result-table td{padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);vertical-align:middle}
+.result-table tr:last-child td{border-bottom:none}
+.result-table tr.co-row td{color:var(--green)}
+.mvp-result{background:rgba(201,168,76,0.08);border:0.5px solid rgba(201,168,76,0.3);border-radius:8px;padding:12px;margin-top:10px}
+.mvp-result h4{font-size:12px;color:var(--gold-l);margin-bottom:8px;font-weight:500}
+.mvp-list{display:flex;flex-wrap:wrap;gap:6px}
+.mvp-tag{font-size:12px;padding:4px 10px;background:rgba(201,168,76,0.15);border:0.5px solid var(--gold);border-radius:5px;color:var(--gold-l)}
+.calc-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:12px}
+.calc-tab{padding:7px 14px;font-size:12px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:all 0.15s;font-family:var(--font)}
+.calc-tab.active{color:var(--gold-l);border-bottom-color:var(--gold)}
+.info-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3);margin-left:6px}
 /* TRACKER */
 .session-summary{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .ss-item{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:80px}
 .ss-n{font-size:20px;font-weight:600;color:var(--gold-l)}.ss-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
 .tc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
 .tc-head{padding:8px 11px;display:flex;align-items:center;gap:7px;border-bottom:0.5px solid rgba(255,255,255,0.05)}
 .tc-head input[type=checkbox]{accent-color:var(--gold);cursor:pointer;width:14px;height:14px;flex-shrink:0}
@@ -149,70 +210,55 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .no-session{text-align:center;color:var(--muted);padding:3rem;background:rgba(255,255,255,0.02);border-radius:10px;border:0.5px solid var(--border)}
 .no-session .big{font-size:32px;margin-bottom:8px}.no-session p{font-size:13px;margin-top:6px}
 .tk-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-.btn-row{display:flex;gap:6px;flex-wrap:wrap}
-/* CALC */
-.calc-layout{display:grid;grid-template-columns:320px 1fr;gap:14px}
-@media(max-width:800px){.calc-layout{grid-template-columns:1fr}}
-.calc-group{margin-bottom:14px}
-.calc-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
-.calc-group input,.calc-group select{width:100%}
-.num-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.num-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
-.num-row input{width:100%}
-.hint-box{background:rgba(201,168,76,0.06);border:0.5px solid rgba(201,168,76,0.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:10px}
-.hint-box span{color:var(--gold-l);font-weight:500}
-.carryover-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:6px;margin-bottom:6px;flex-wrap:wrap}
-.carryover-item .co-name{font-size:12px;font-weight:500;min-width:100px;flex:1}
-.carryover-item .co-fields{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.carryover-item .co-fields label{font-size:10px;color:var(--muted)}
-.carryover-item .co-fields input[type=number]{width:46px;padding:3px 6px;font-size:11px;text-align:center}
-.carryover-item .co-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 2px;line-height:1}
-.slot-page{margin-bottom:1.2rem}
-.slot-page-header{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;padding-bottom:4px;border-bottom:0.5px solid rgba(255,255,255,0.06)}
-.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
-.slot-cell{background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:7px;padding:10px 8px;text-align:center;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.slot-cell.mvp{border-color:rgba(201,168,76,0.45);background:rgba(201,168,76,0.07)}
-.slot-cell.white{border-color:rgba(200,200,230,0.3);background:rgba(200,200,230,0.05)}
-.slot-cell.redblk{border-color:rgba(220,80,80,0.3);background:rgba(220,80,80,0.05)}
-.slot-cell.carryover{border-color:rgba(126,200,160,0.35);background:rgba(126,200,160,0.06)}
-.slot-cell .sn{font-size:10px;color:var(--muted);margin-bottom:2px}
-.slot-cell .sv{font-size:12px;font-weight:500;word-break:break-word;line-height:1.3}
-.slot-cell .st{font-size:10px;color:var(--muted);margin-top:2px}
-.slot-cell.empty-slot{opacity:0.3}
-.result-table{width:100%;border-collapse:collapse;font-size:12px}
-.result-table th{text-align:left;padding:7px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
-.result-table td{padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);vertical-align:middle}
-.result-table tr:last-child td{border-bottom:none}
-.result-table tr.co-row td{color:var(--green)}
-.mvp-result{background:rgba(201,168,76,0.08);border:0.5px solid rgba(201,168,76,0.3);border-radius:8px;padding:12px;margin-top:10px}
-.mvp-result h4{font-size:12px;color:var(--gold-l);margin-bottom:8px;font-weight:500}
-.mvp-list{display:flex;flex-wrap:wrap;gap:6px}
-.mvp-tag{font-size:12px;padding:4px 10px;background:rgba(201,168,76,0.15);border:0.5px solid var(--gold);border-radius:5px;color:var(--gold-l)}
-.log-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:6px;margin-bottom:5px;font-size:12px}
-.log-item .log-date{color:var(--muted);font-size:11px;min-width:140px}
-.log-item .log-count{color:var(--gold);font-size:11px}
-.log-item .log-btn{margin-left:auto}
-.calc-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:12px}
-.calc-tab{padding:7px 14px;font-size:12px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:all 0.15s;font-family:var(--font)}
-.calc-tab.active{color:var(--gold-l);border-bottom-color:var(--gold)}
-.info-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3);margin-left:6px}
-.info-chip.warn{background:rgba(220,80,80,0.1);color:var(--red);border-color:rgba(220,80,80,0.25)}
+/* AUCTION LOG */
+.al-header{display:flex;gap:10px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.al-header select{flex:1;max-width:220px}
+.queue-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:13px;transition:background 0.1s}
+.queue-row:hover{background:rgba(255,255,255,0.02)}
+.queue-row:last-child{border-bottom:none}
+.q-num{min-width:32px;font-size:11px;color:var(--gold);font-weight:600}
+.q-name{flex:1;font-weight:500}
+.q-status{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap}
+.qs-done{background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3)}
+.qs-pending{background:rgba(220,80,80,0.1);color:var(--red);border:0.5px solid rgba(220,80,80,0.25)}
+.q-note{font-size:11px;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-actions{display:flex;gap:4px}
+.q-btn{padding:3px 8px;font-size:11px;border-radius:4px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
+.q-btn-done{background:rgba(126,200,160,0.1);border-color:rgba(126,200,160,0.3);color:var(--green)}
+.q-btn-undo{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--muted)}
+.al-stats{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.al-stat{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center;min-width:80px}
+.al-stat .n{font-size:18px;font-weight:600;color:var(--gold-l)}.al-stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.loading-overlay{text-align:center;color:var(--muted);font-size:12px;padding:2rem}
+/* MODAL */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--dark2);border:0.5px solid var(--border2);border-radius:12px;padding:1.5rem;width:340px;max-width:90vw}
+.modal h3{font-size:15px;font-weight:500;color:var(--gold-l);margin-bottom:1rem}
+.modal input{width:100%;margin-bottom:10px}
+.modal .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.modal-err{font-size:12px;color:var(--red);margin-bottom:8px;display:none}
 .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle}
+/* PASTE MODAL */
+.paste-area{width:100%;height:200px;resize:vertical;font-size:12px;line-height:1.7;margin-bottom:8px}
 </style>
 </head>
 <body>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 <div class="app">
-<nav class="sidebar">
+<nav class="sidebar" id="sidebar-el">
   <div class="logo"><h1>⚔ ROOC GM</h1><p>Guild Manager</p></div>
-  <div class="nav-item active" onclick="sw('members')"><span>👥</span> Members</div>
-  <div class="nav-item" onclick="sw('parties')"><span>🛡</span> Parties</div>
-  <div class="nav-item" onclick="sw('search')"><span>🔍</span> ค้นหาตัวเอง</div>
-  <div class="nav-item" onclick="sw('rewards')"><span>🪶</span> ขนนก & Rank</div>
-  <div class="nav-item" onclick="sw('randomize')"><span>🎰</span> สุ่มคิว</div>
-  <div class="nav-item" onclick="sw('calc')"><span>🧮</span> แจกของ</div>
-  <div class="nav-item" onclick="sw('tracker')"><span>✅</span> ติดตามรอบ</div>
+  <div class="nav-item active" onclick="sw('members');closeSidebar()"><span>👥</span> Members</div>
+  <div class="nav-item" onclick="sw('parties');closeSidebar()"><span>🛡</span> Parties</div>
+  <div class="nav-item" onclick="sw('search');closeSidebar()"><span>🔍</span> ค้นหาตัวเอง</div>
+  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span>🪶</span> ขนนก & Rank</div>
+  <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span>🎰</span> สุ่มคิว</div>
+  <div class="nav-item" onclick="sw('calc');closeSidebar()"><span>🧮</span> แจกของ</div>
+  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span>🏆</span> Auction Log</div>
+  <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span>✅</span> ติดตามรอบ</div>
   <div class="nav-spacer"></div>
-  <div class="nav-footer">ROOC Warmup (BOT)<br><span class="status-dot" id="sdot"></span><span id="snav">กำลังโหลด...</span></div>
+  <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
+  <div class="nav-footer"><span class="status-dot" id="sdot"></span><span id="snav">กำลังโหลด...</span></div>
 </nav>
 <main class="main">
 
@@ -242,16 +288,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="page-sub">ค้นหาด้วยชื่อ, Character ID, หรือ Discord ID</div>
   <div class="search-box">
     <h3>🛡 ปาร์ตี้ของฉัน</h3>
-    <div class="search-row">
-      <input type="text" id="si-party" placeholder="ชื่อตัวละคร / Character ID / Discord ID..." oninput="searchMe()">
-    </div>
+    <div class="search-row"><input type="text" id="si-party" placeholder="ชื่อ / Character ID / Discord ID..." oninput="searchMe()"></div>
     <div id="party-result"></div>
   </div>
   <div class="search-box">
     <h3>🏆 คิวประมูลของฉัน</h3>
-    <div class="search-row">
-      <input type="text" id="si-queue" placeholder="ชื่อตัวละคร / Character ID..." oninput="searchQueue()">
-    </div>
+    <div class="search-row"><input type="text" id="si-queue" placeholder="ชื่อตัวละคร..." oninput="searchMyQueue()"></div>
     <div id="queue-result"></div>
   </div>
 </div>
@@ -279,7 +321,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <!-- RANDOMIZE -->
 <div id="page-randomize" class="page">
   <div class="page-title">🎰 สุ่มคิว</div>
-  <div class="page-sub">สุ่มลำดับสมาชิก — ผลจะถูกบันทึกเป็น Log อัตโนมัติ</div>
+  <div class="page-sub">สุ่มลำดับสมาชิก — บันทึก Log อัตโนมัติ</div>
   <div class="rand-layout">
     <div class="panel">
       <h3>⚙ ตั้งค่า</h3>
@@ -308,8 +350,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
   <div class="sep" style="margin-top:1.5rem"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div class="section-h" style="margin:0;border:none">📁 Log การสุ่ม</div>
-    <button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearLogs()">ล้าง Log ทั้งหมด</button>
+    <div class="section-h" style="margin:0;border:none;padding:0">📁 Log การสุ่ม (localStorage)</div>
+    <button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearLogs()">ล้าง Log</button>
   </div>
   <div id="rand-log-list"><div class="empty">ยังไม่มี log</div></div>
 </div>
@@ -319,37 +361,24 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="page-title">🧮 คำนวณแจกของ</div>
   <div class="page-sub">คำนวณ Slot การ์ด ขนนก และ MVP Box</div>
   <div class="calc-layout">
-    <!-- LEFT PANEL -->
     <div>
       <div class="panel" style="margin-bottom:12px">
         <h3>🎁 รางวัลรอบนี้</h3>
         <div class="calc-group">
-          <label>Preset (ดึงจาก Rank)</label>
+          <label>Preset</label>
           <select id="calc-preset" style="width:100%;margin-bottom:8px" onchange="applyPreset()">
             <option value="">— กรอกเอง —</option>
-            <option value="or-1">Overrun อันดับ 1</option>
-            <option value="or-2">Overrun อันดับ 2</option>
-            <option value="or-3">Overrun อันดับ 3</option>
-            <option value="or-4">Overrun อันดับ 4</option>
-            <option value="or-5">Overrun อันดับ 5</option>
-            <option value="or-6">Overrun อันดับ 6</option>
-            <option value="or-7">Overrun อันดับ 7</option>
-            <option value="or-8">Overrun อันดับ 8</option>
-            <option value="gly-0">GL Cross✓ Peak King</option>
-            <option value="gly-1">GL Cross✓ Supream Warband</option>
-            <option value="gly-2">GL Cross✓ Honor Soul</option>
-            <option value="gly-3">GL Cross✓ The Chosen One</option>
-            <option value="gly-4">GL Cross✓ Glorious Legend</option>
-            <option value="gly-5">GL Cross✓ Immortal Myth</option>
-            <option value="gly-6">GL Cross✓ Eternal Monarch</option>
-            <option value="gly-7">GL Cross✓ Omni Ruler</option>
-            <option value="gln-0">GL Cross✗ Bright Sun</option>
-            <option value="gln-1">GL Cross✗ Glorious Moon</option>
-            <option value="gln-2">GL Cross✗ Shining Stars</option>
-            <option value="gln-3">GL Cross✗ Platinum</option>
-            <option value="gln-4">GL Cross✗ Gold</option>
-            <option value="gln-5">GL Cross✗ Silver</option>
-            <option value="gln-6">GL Cross✗ Bronze</option>
+            <option value="or-1">Overrun อันดับ 1</option><option value="or-2">Overrun อันดับ 2</option>
+            <option value="or-3">Overrun อันดับ 3</option><option value="or-4">Overrun อันดับ 4</option>
+            <option value="or-5">Overrun อันดับ 5</option><option value="or-6">Overrun อันดับ 6</option>
+            <option value="or-7">Overrun อันดับ 7</option><option value="or-8">Overrun อันดับ 8</option>
+            <option value="gly-0">GL Cross✓ Peak King</option><option value="gly-1">GL Cross✓ Supream Warband</option>
+            <option value="gly-2">GL Cross✓ Honor Soul</option><option value="gly-3">GL Cross✓ The Chosen One</option>
+            <option value="gly-4">GL Cross✓ Glorious Legend</option><option value="gly-5">GL Cross✓ Immortal Myth</option>
+            <option value="gly-6">GL Cross✓ Eternal Monarch</option><option value="gly-7">GL Cross✓ Omni Ruler</option>
+            <option value="gln-0">GL Cross✗ Bright Sun</option><option value="gln-1">GL Cross✗ Glorious Moon</option>
+            <option value="gln-2">GL Cross✗ Shining Stars</option><option value="gln-3">GL Cross✗ Platinum</option>
+            <option value="gln-4">GL Cross✗ Gold</option><option value="gln-5">GL Cross✗ Silver</option><option value="gln-6">GL Cross✗ Bronze</option>
           </select>
           <label class="chk-label" style="margin-bottom:8px"><input type="checkbox" id="x2" onchange="applyX2()"> รางวัล ×2 (event พิเศษ)</label>
         </div>
@@ -360,9 +389,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         </div>
         <div class="hint-box" id="calc-hint">กรอกจำนวนรางวัลและรายชื่อเพื่อดูค่าแนะนำ</div>
       </div>
-
       <div class="panel" style="margin-bottom:12px">
-        <h3>👥 คนในรอบนี้ <span style="font-size:11px;color:var(--muted);font-weight:400">(ตามลำดับคิว)</span></h3>
+        <h3>👥 คนในรอบนี้</h3>
         <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
           <select id="log-select" style="flex:1;font-size:12px"><option value="">— เลือกจาก Log —</option></select>
           <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="loadFromLog()">โหลด</button>
@@ -370,17 +398,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         <textarea id="c-members" rows="8" placeholder="วางรายชื่อ 1 คนต่อบรรทัด..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="updateHints()"></textarea>
         <div style="font-size:11px;color:var(--muted);margin-top:4px" id="member-count">0 คน</div>
       </div>
-
       <div class="panel" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3>⏳ คนตกค้าง <span id="co-badge" class="info-chip" style="display:none">0 คน</span></h3>
+          <h3>⏳ คนตกค้าง <span id="co-badge" style="display:none;font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3)">0 คน</span></h3>
           <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="addCarryover()">+ เพิ่ม</button>
         </div>
         <div id="co-list"><div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">ไม่มีคนตกค้าง</div></div>
         <div class="hint-box" id="co-hint" style="display:none;margin-top:8px"></div>
       </div>
-
-      <div class="panel" id="mvp-panel">
+      <div class="panel">
         <h3>🏆 MVP Box <span class="info-chip">เฉพาะ GL</span></h3>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
           <label style="font-size:12px;color:var(--muted)">จำนวน MVP Box</label>
@@ -390,21 +416,40 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         <div id="mvp-result-box" style="margin-top:10px"></div>
       </div>
     </div>
-
-    <!-- RIGHT PANEL -->
     <div>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
         <button class="btn btn-primary" onclick="runCalc()">▶ คำนวณ</button>
         <button class="btn btn-ghost" onclick="clearCalc()">↺ ล้างผล</button>
       </div>
       <div class="calc-tabs">
-        <button class="calc-tab active" onclick="swCalcTab('slots')">📦 Slot View</button>
-        <button class="calc-tab" onclick="swCalcTab('table')">📋 รายคน</button>
+        <button class="calc-tab active" onclick="swCalcTab('person')">👥 รายคน</button>
+        <button class="calc-tab" onclick="swCalcTab('card')">🃏 ตารางการ์ด</button>
+        <button class="calc-tab" onclick="swCalcTab('feather')">🪶 ตารางขนนก</button>
       </div>
-      <div id="calc-slots"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
-      <div id="calc-table" style="display:none"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
+      <div id="calc-person"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
+      <div id="calc-card" style="display:none"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
+      <div id="calc-feather" style="display:none"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
     </div>
   </div>
+</div>
+
+<!-- AUCTION LOG -->
+<div id="page-auction" class="page">
+  <div class="page-title">🏆 Auction Log</div>
+  <div class="page-sub">ประวัติคิวประมูลทั้งหมด — ดึงข้อมูลจาก Google Sheets</div>
+
+  <div class="al-header">
+    <select id="al-date-select" onchange="loadAuctionLog(this.value)" style="max-width:220px">
+      <option value="">— เลือกวันที่ —</option>
+    </select>
+    <button class="btn btn-ghost" onclick="loadAuctionDates()">🔄 รีเฟรช</button>
+    <!-- Admin only -->
+    <button class="btn btn-primary admin-only" style="display:none" onclick="openPasteModal()">📋 + เพิ่มคิว Manual</button>
+    <button class="btn btn-red admin-only" style="display:none" id="del-date-btn" onclick="deleteDateConfirm()">🗑 ลบวันนี้</button>
+  </div>
+
+  <div id="al-stats" class="al-stats"></div>
+  <div id="al-content"><div class="empty">เลือกวันที่เพื่อดูประวัติ</div></div>
 </div>
 
 <!-- TRACKER -->
@@ -418,44 +463,98 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 </main>
 </div>
+
+<!-- ADMIN MODAL -->
+<div id="admin-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeAdminModal()">
+  <div class="modal">
+    <h3>🔐 Admin Login</h3>
+    <div class="modal-err" id="admin-err">รหัสผ่านไม่ถูกต้อง</div>
+    <input type="password" id="admin-pass" placeholder="รหัสผ่าน..." onkeydown="if(event.key==='Enter')submitAdmin()">
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeAdminModal()">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="submitAdmin()">เข้าสู่ระบบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASTE MODAL -->
+<div id="paste-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closePasteModal()">
+  <div class="modal" style="width:480px">
+    <h3>📋 เพิ่มคิว Manual</h3>
+    <div style="margin-bottom:8px">
+      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">วันที่ (YYYY-MM-DD)</label>
+      <input type="text" id="paste-date" placeholder="เช่น 2025-06-07" style="width:100%;margin-bottom:10px">
+    </div>
+    <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">รายชื่อ (1 คนต่อบรรทัด) — จะต่อท้ายคิวเดิมของวันนั้น</label>
+    <textarea id="paste-names" class="paste-area" placeholder="ploysai&#10;Jiggy&#10;JOKER888&#10;..."></textarea>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px" id="paste-count">0 คน</div>
+    <div class="btn-row" style="justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closePasteModal()">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="submitPaste()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
+const GAS_URL='https://script.google.com/macros/s/AKfycbwHUKyKhzyDlz1by-Zi_7ahcD3ACCLIYQtI24dVfHV8ZFIFhBzOP6io3J7072vcvcDj/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
-let members=[],queueData=[],lastRand=[],trackerSession=[];
+const ADMIN_HASH='3d4f9b2e1a8c7f0e6d5b4a3c2e1f9d8b7a6c5e4f3d2b1a9c8e7f6d5b4a3c2e1';
+let members=[],queueData=[],lastRand=[],trackerSession=[],coList=[],isAdmin=false,currentALDate='';
 const CFG={max_card:1,max_white:4,max_red:7};
 const REWARDS={
-  overrun:[
-    {rank:'1',card:20,white:150,red:170},{rank:'2',card:20,white:140,red:160},
-    {rank:'3',card:20,white:140,red:160},{rank:'4',card:15,white:120,red:150},
-    {rank:'5',card:15,white:120,red:150},{rank:'6',card:15,white:120,red:150},
-    {rank:'7',card:12,white:100,red:150},{rank:'8',card:12,white:100,red:150}
-  ],
-  'gl-y':[
-    {rank:'1. Peak King',card:23,white:90,red:105},{rank:'2. Supream Warband',card:21,white:87,red:105},
-    {rank:'3. Honor Soul',card:20,white:84,red:105},{rank:'4. The Chosen One',card:19,white:81,red:105},
-    {rank:'5. Glorious Legend',card:18,white:78,red:105},{rank:'6. Immortal Myth',card:17,white:75,red:105},
-    {rank:'7. Eternal Monarch',card:16,white:72,red:105},{rank:'8. Omni Ruler',card:15,white:69,red:105}
-  ],
-  'gl-n':[
-    {rank:'1. Bright Sun',card:8,white:60,red:105},{rank:'2. Glorious Moon',card:7,white:55,red:100},
-    {rank:'3. Shining Stars',card:6,white:50,red:90},{rank:'4. Platinum',card:5,white:45,red:80},
-    {rank:'5. Gold',card:4,white:40,red:70},{rank:'6. Silver',card:2,white:35,red:60},
-    {rank:'7. Bronze',card:2,white:30,red:50}
-  ]
+  overrun:[{rank:'1',card:20,white:150,red:170},{rank:'2',card:20,white:140,red:160},{rank:'3',card:20,white:140,red:160},{rank:'4',card:15,white:120,red:150},{rank:'5',card:15,white:120,red:150},{rank:'6',card:15,white:120,red:150},{rank:'7',card:12,white:100,red:150},{rank:'8',card:12,white:100,red:150}],
+  'gl-y':[{rank:'1. Peak King',card:23,white:90,red:105},{rank:'2. Supream Warband',card:21,white:87,red:105},{rank:'3. Honor Soul',card:20,white:84,red:105},{rank:'4. The Chosen One',card:19,white:81,red:105},{rank:'5. Glorious Legend',card:18,white:78,red:105},{rank:'6. Immortal Myth',card:17,white:75,red:105},{rank:'7. Eternal Monarch',card:16,white:72,red:105},{rank:'8. Omni Ruler',card:15,white:69,red:105}],
+  'gl-n':[{rank:'1. Bright Sun',card:8,white:60,red:105},{rank:'2. Glorious Moon',card:7,white:55,red:100},{rank:'3. Shining Stars',card:6,white:50,red:90},{rank:'4. Platinum',card:5,white:45,red:80},{rank:'5. Gold',card:4,white:40,red:70},{rank:'6. Silver',card:2,white:35,red:60},{rank:'7. Bronze',card:2,white:30,red:50}]
 };
+
+/* HASH util */
+async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+
+/* ADMIN */
+function openAdminModal(){if(isAdmin){logoutAdmin();return}document.getElementById('admin-modal').style.display='flex';document.getElementById('admin-pass').focus()}
+function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
+async function submitAdmin(){
+  const pw=document.getElementById('admin-pass').value;
+  const h=await sha256(pw);
+  // ตรวจกับ password จริง
+  if(pw==='$aiphanWM8'){
+    isAdmin=true;closeAdminModal();
+    document.getElementById('admin-btn').textContent='🔓 Admin (ออกจากระบบ)';
+    document.getElementById('admin-btn').classList.add('logged-in');
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
+    document.querySelectorAll('.admin-badge').forEach(el=>el.classList.add('show'));
+    renderAuctionAdminControls();
+  } else {
+    document.getElementById('admin-err').style.display='block';
+    document.getElementById('admin-pass').value='';
+  }
+}
+function logoutAdmin(){
+  if(!confirm('ออกจาก Admin mode?'))return;
+  isAdmin=false;
+  document.getElementById('admin-btn').textContent='🔐 Admin Login';
+  document.getElementById('admin-btn').classList.remove('logged-in');
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.admin-badge').forEach(el=>el.classList.remove('show'));
+}
+function renderAuctionAdminControls(){
+  if(isAdmin){document.querySelectorAll('.admin-only').forEach(el=>el.style.display='')}
+}
 
 /* NAV */
 function sw(t){
-  const pages=['members','parties','search','rewards','randomize','calc','tracker'];
+  const pages=['members','parties','search','rewards','randomize','calc','auction','tracker'];
   document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='parties')renderParties();
   if(t==='rewards')initRewards();
   if(t==='calc')refreshLogSelect();
+  if(t==='auction')loadAuctionDates();
 }
 
-/* DATA LOAD */
+/* DATA */
 async function loadData(){
   const setS=(ok,msg)=>{
     document.getElementById('stxt').textContent=msg;
@@ -466,89 +565,57 @@ async function loadData(){
   };
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
-    const [mr,qr]=await Promise.all([
-      fetch(mkUrl('Members')).then(r=>r.text()),
-      fetch(mkUrl('Queue_BOT')).then(r=>r.text()).catch(()=>null)
-    ]);
+    const mr=await fetch(mkUrl('Members')).then(r=>r.text());
     const mj=parse(mr);
     const cols=mj.table.cols.map(c=>c.label.toLowerCase().replace(/\s+/g,'_'));
     const get=(v,k)=>{const i=cols.findIndex(c=>c.includes(k));return i>=0&&v[i]?String(v[i].v||'').trim():''};
-    members=mj.table.rows.map(r=>{
-      const v=r.c||[];
-      return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),noted:get(v,'noted')};
-    }).filter(m=>m.ign);
-    if(qr){try{const qj=parse(qr);queueData=qj.table.rows.map(r=>(r.c||[]).map(c=>c?String(c.v||'').trim():''))}catch(e){}}
-    setS(true,`โหลดสำเร็จ · ${members.length} สมาชิก · ดึงจาก Google Sheets`);
+    members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),noted:get(v,'noted')}}).filter(m=>m.ign);
+    setS(true,`โหลดสำเร็จ · ${members.length} สมาชิก`);
     buildFilters();renderStats();renderMembers();buildClsOpts();
-  }catch(e){
-    setS(false,'โหลดไม่สำเร็จ — ตรวจ Share settings');
-    document.getElementById('member-grid').innerHTML='<div class="empty" style="color:var(--red)">❌ ไม่สามารถดึงข้อมูลได้<br><br>ตรวจสอบว่า Google Sheets ตั้งเป็น "Anyone with the link can view"</div>';
-  }
+  }catch(e){setS(false,'โหลดไม่สำเร็จ — ตรวจ Share settings')}
 }
 
 function buildFilters(){
   const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
   const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
-  [document.getElementById('fc'),document.getElementById('fp'),document.getElementById('rand-party')].forEach((el,i)=>{
-    if(i===0)cls.forEach(c=>el.add(new Option(c,c)));
-    else pts.forEach(p=>el.add(new Option('Party '+p,p)));
-  });
+  document.getElementById('fc').innerHTML='<option value="">ทุก Class</option>'+cls.map(c=>`<option>${c}</option>`).join('');
+  ['fp','rand-party'].forEach(id=>{document.getElementById(id).innerHTML='<option value="">ทุก Party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('')});
 }
-
 function renderStats(){
-  const t=members.length,sub=members.filter(m=>m.noted.includes('ตัวรอง')).length;
-  const abs=members.filter(m=>m.noted.toLowerCase().includes('absent')).length;
-  const pts=new Set(members.map(m=>m.party).filter(Boolean)).size;
-  const wid=members.filter(m=>m.char_id).length;
+  const t=members.length,sub=members.filter(m=>m.noted.includes('ตัวรอง')).length,abs=members.filter(m=>m.noted.toLowerCase().includes('absent')).length,pts=new Set(members.map(m=>m.party).filter(Boolean)).size,wid=members.filter(m=>m.char_id).length;
   document.getElementById('stats-row').innerHTML=[[t,'สมาชิก'],[pts,'Parties'],[wid,'มี Char ID'],[sub,'ตัวรอง'],[abs,'Absent']].map(([n,l])=>`<div class="sc"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 }
-
 function renderMembers(){
-  const q=(document.getElementById('search-m').value||'').toLowerCase();
-  const fc=document.getElementById('fc').value,fp=document.getElementById('fp').value;
-  const f=members.filter(m=>{
-    if(q&&!(m.ign.toLowerCase().includes(q)||m.char_id.includes(q)))return false;
-    if(fc&&m.class!==fc)return false;
-    if(fp&&String(m.party)!==fp)return false;
-    return true;
-  });
+  const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,fp=document.getElementById('fp').value;
+  const f=members.filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||m.char_id.includes(q)))return false;if(fc&&m.class!==fc)return false;if(fp&&String(m.party)!==fp)return false;return true});
   const g=document.getElementById('member-grid');
   if(!f.length){g.innerHTML='<div class="empty">ไม่พบสมาชิก</div>';return}
-  g.innerHTML=f.map(m=>{
-    const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');
-    const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';
-    return`<div class="mc"><div class="ign">${m.ign}</div><div class="cls">${m.class}${m.char_id?' · '+m.char_id:''}</div><div class="meta">${m.party?'<span class="badge b-party">P'+m.party+'</span>':''}<span class="badge b-cls">${m.class}</span>${nt}${!m.char_id?'<span class="no-id">ไม่มี ID</span>':''}</div></div>`;
-  }).join('');
+  g.innerHTML=f.map(m=>{const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';return`<div class="mc"><div class="ign">${m.ign}</div><div class="cls">${m.class}${m.char_id?' · '+m.char_id:''}</div><div class="meta">${m.party?'<span class="badge b-party">P'+m.party+'</span>':''}<span class="badge b-cls">${m.class}</span>${nt}${!m.char_id?'<span class="no-id">ไม่มี ID</span>':''}</div></div>`}).join('');
 }
-
 function renderParties(){
-  const pts={};
-  members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
+  const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
   document.getElementById('party-view').innerHTML=Object.keys(pts).sort((a,b)=>+a-+b).map(p=>`<div class="party-card"><div class="ph"><span class="pn">⚔ Party ${p}</span><span class="pc">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');return`<div class="pm-row"><div class="pm-dot"></div><div class="pm-ign">${m.ign}</div><div class="pm-cls">${m.class}</div>${isSub?'<div class="pm-note">ตัวรอง</div>':isAbs?'<div class="pm-note">Absent</div>':''}</div>`}).join('')}</div></div>`).join('');
 }
-
 function searchMe(){
-  const q=(document.getElementById('si-party').value||'').toLowerCase().trim();
-  const el=document.getElementById('party-result');
+  const q=(document.getElementById('si-party').value||'').toLowerCase().trim(),el=document.getElementById('party-result');
   if(!q){el.innerHTML='';return}
   const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q)));
   if(!found.length){el.innerHTML='<div class="not-found">ไม่พบสมาชิก</div>';return}
-  el.innerHTML=found.map(m=>{
-    const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
-    const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');
-    const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';
-    return`<div class="result-profile"><div class="profile-header"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="profile-info"><div class="name">${m.ign} ${nt}</div><div class="sub">${m.class} · Party ${m.party||'N/A'}</div></div></div><div class="info-grid"><div class="info-item"><div class="ik">Character ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="info-item"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div><div class="info-item"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div><div class="info-item"><div class="ik">Status</div><div class="iv">${m.noted||'ปกติ'}</div></div></div>${mates.length?`<div class="party-mates"><h4>เพื่อนร่วม Party ${m.party}</h4><div class="mini-list">${mates.map(x=>`<span class="mini-tag">${x.ign}</span>`).join('')}</div></div>`:''}</div>`;
-  }).join('');
+  el.innerHTML=found.map(m=>{const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';return`<div class="result-profile"><div class="profile-header"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="profile-info"><div class="name">${m.ign} ${nt}</div><div class="sub">${m.class} · Party ${m.party||'N/A'}</div></div></div><div class="info-grid"><div class="info-item"><div class="ik">Character ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="info-item"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div><div class="info-item"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div><div class="info-item"><div class="ik">Status</div><div class="iv">${m.noted||'ปกติ'}</div></div></div>${mates.length?`<div class="party-mates"><h4>เพื่อนร่วม Party ${m.party}</h4><div class="mini-list">${mates.map(x=>`<span class="mini-tag">${x.ign}</span>`).join('')}</div></div>`:''}</div>`}).join('');
 }
 
-function searchQueue(){
-  const q=(document.getElementById('si-queue').value||'').toLowerCase().trim();
-  const el=document.getElementById('queue-result');
+/* SEARCH QUEUE */
+function searchMyQueue(){
+  const q=(document.getElementById('si-queue').value||'').toLowerCase().trim(),el=document.getElementById('queue-result');
   if(!q){el.innerHTML='';return}
-  const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.includes(q)));
-  if(!found.length){el.innerHTML='<div class="not-found">ไม่พบสมาชิก</div>';return}
-  if(!queueData.length){el.innerHTML=`<div class="not-found">ยังไม่มีข้อมูลคิวใน Queue_BOT<br><small>พบสมาชิก: ${found.map(m=>m.ign).join(', ')}</small></div>`;return}
-  el.innerHTML='<div class="not-found">ค้นหาใน Queue_BOT: '+found.map(m=>m.ign).join(', ')+'</div>';
+  if(!currentALDate){el.innerHTML='<div class="not-found">โปรดเปิดหน้า Auction Log ก่อนเพื่อโหลดข้อมูลคิว</div>';return}
+  el.innerHTML='<div class="loading-overlay">กำลังค้นหา...</div>';
+  gasGet('getLog&date='+currentALDate).then(r=>{
+    if(!r.ok){el.innerHTML='<div class="not-found">โหลดข้อมูลไม่ได้</div>';return}
+    const found=r.rows.filter(row=>row.member_name.toLowerCase().includes(q));
+    if(!found.length){el.innerHTML='<div class="not-found">ไม่พบ "'+q+'" ในคิววันที่ '+currentALDate+'</div>';return}
+    el.innerHTML=found.map(row=>`<div class="result-profile" style="margin-top:8px"><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${row.member_name[0].toUpperCase()}</div><div><div style="font-size:14px;font-weight:500">${row.member_name}</div><div style="font-size:12px;color:var(--muted)">คิว #${row.position} · ${row.queue_date}</div></div><span class="q-status ${row.status==='done'?'qs-done':'qs-pending'}" style="margin-left:auto">${row.status==='done'?'✓ ดึงแล้ว':'⏳ รอดึง'}</span></div></div>`).join('');
+  });
 }
 
 /* REWARDS */
@@ -558,32 +625,18 @@ function initRewards(){
   te.onchange=upd;upd();
   const tbody=document.getElementById('reward-tbody');
   if(tbody.children.length)return;
-  tbody.innerHTML=[...REWARDS.overrun.map(r=>`<tr><td>Overrun</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-y'].map(r=>`<tr><td>Guild League</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-n'].map(r=>`<tr><td>Guild League</td><td class="cs-n">✗</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`)].join('');
+  tbody.innerHTML=[...REWARDS.overrun.map(r=>`<tr><td>Overrun</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-y'].map(r=>`<tr><td>GL</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-n'].map(r=>`<tr><td>GL</td><td class="cs-n">✗</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`)].join('');
 }
 function calcReward(){
-  const r=REWARDS[document.getElementById('rw-type').value][+document.getElementById('rw-rank').value];
-  if(!r)return;
-  document.getElementById('reward-cards').innerHTML=`<div class="reward-card"><div class="ri">🃏</div><div class="rv">${r.card}</div><div class="rl">Card</div><div class="rm">max ${CFG.max_card}/คน</div></div><div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.white}</div><div class="rl">White Feather</div><div class="rm">max ${CFG.max_white}/คน</div></div><div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.red}</div><div class="rl">Red/Black</div><div class="rm">max ${CFG.max_red}/คน</div></div>`;
+  const r=REWARDS[document.getElementById('rw-type').value][+document.getElementById('rw-rank').value];if(!r)return;
+  document.getElementById('reward-cards').innerHTML=`<div class="reward-card"><div class="ri">🃏</div><div class="rv">${r.card}</div><div class="rl">Card</div><div class="rm">max ${CFG.max_card}/คน</div></div><div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.white}</div><div class="rl">White</div><div class="rm">max ${CFG.max_white}/คน</div></div><div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.red}</div><div class="rl">Red/Black</div><div class="rm">max ${CFG.max_red}/คน</div></div>`;
 }
 
-/* RANDOMIZE + LOG */
-function buildClsOpts(){
-  const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
-  document.getElementById('cls-opts').innerHTML=cls.map(c=>`<label class="chk-label"><input type="checkbox" class="cls-ck" value="${c}" checked> ${c}</label>`).join('');
-}
-
+/* RANDOMIZE */
+function buildClsOpts(){const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();document.getElementById('cls-opts').innerHTML=cls.map(c=>`<label class="chk-label"><input type="checkbox" class="cls-ck" value="${c}" checked> ${c}</label>`).join('')}
 function doRand(){
-  const exSub=document.getElementById('excl-sub').checked;
-  const exAbs=document.getElementById('excl-abs').checked;
-  const pt=document.getElementById('rand-party').value;
-  const cls=[...document.querySelectorAll('.cls-ck:checked')].map(c=>c.value);
-  let pool=members.filter(m=>{
-    if(exSub&&m.noted.includes('ตัวรอง'))return false;
-    if(exAbs&&m.noted.toLowerCase().includes('absent'))return false;
-    if(pt&&String(m.party)!==pt)return false;
-    if(!cls.includes(m.class))return false;
-    return true;
-  });
+  const exSub=document.getElementById('excl-sub').checked,exAbs=document.getElementById('excl-abs').checked,pt=document.getElementById('rand-party').value,cls=[...document.querySelectorAll('.cls-ck:checked')].map(c=>c.value);
+  let pool=members.filter(m=>{if(exSub&&m.noted.includes('ตัวรอง'))return false;if(exAbs&&m.noted.toLowerCase().includes('absent'))return false;if(pt&&String(m.party)!==pt)return false;if(!cls.includes(m.class))return false;return true});
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   lastRand=pool;
   if(!pool.length){document.getElementById('result-list').innerHTML='<div class="empty">ไม่มีสมาชิกที่ตรงเงื่อนไข</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none';return}
@@ -592,319 +645,184 @@ function doRand(){
   document.getElementById('copy-btn').style.display='block';
   saveLog(pool);renderLogList();
 }
-
-function saveLog(pool){
-  const logs=getLogs();
-  const entry={id:Date.now(),date:new Date().toLocaleString('th-TH'),members:pool.map(m=>m.ign)};
-  logs.unshift(entry);
-  if(logs.length>20)logs.pop();
-  localStorage.setItem('rooc_rand_logs',JSON.stringify(logs));
-}
+function saveLog(pool){const logs=getLogs();logs.unshift({id:Date.now(),date:new Date().toLocaleString('th-TH'),members:pool.map(m=>m.ign)});if(logs.length>20)logs.pop();localStorage.setItem('rooc_rand_logs',JSON.stringify(logs))}
 function getLogs(){try{return JSON.parse(localStorage.getItem('rooc_rand_logs')||'[]')}catch(e){return[]}}
-function clearLogs(){if(confirm('ล้าง log ทั้งหมด?')){localStorage.removeItem('rooc_rand_logs');renderLogList();refreshLogSelect()}}
-
+function clearLogs(){if(confirm('ล้าง log?')){localStorage.removeItem('rooc_rand_logs');renderLogList();refreshLogSelect()}}
 function renderLogList(){
-  const logs=getLogs();
-  const el=document.getElementById('rand-log-list');
+  const logs=getLogs(),el=document.getElementById('rand-log-list');
   if(!logs.length){el.innerHTML='<div class="empty">ยังไม่มี log</div>';return}
-  el.innerHTML=logs.map(l=>`<div class="log-item"><div class="log-date">📅 ${l.date}</div><div class="log-count">${l.members.length} คน</div><div class="log-btn"><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="useLog(${l.id})">ใช้รายชื่อนี้</button></div></div>`).join('');
+  el.innerHTML=logs.map(l=>`<div class="log-item"><div class="log-date">📅 ${l.date}</div><div class="log-count">${l.members.length} คน</div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="sendLogToCalc(${l.id})">🧮 แจกของ</button></div>`).join('');
 }
-
-function useLog(id){
-  const log=getLogs().find(l=>l.id===id);
-  if(!log)return;
-  document.getElementById('c-members').value=log.members.join('\n');
-  updateHints();
-  sw('calc');
-}
-
-function refreshLogSelect(){
-  const logs=getLogs();
-  const sel=document.getElementById('log-select');
-  sel.innerHTML='<option value="">— เลือกจาก Log —</option>';
-  logs.forEach(l=>sel.add(new Option(`${l.date} (${l.members.length} คน)`,l.id)));
-}
-
-function loadFromLog(){
-  const id=+document.getElementById('log-select').value;
-  if(!id)return;
-  const log=getLogs().find(l=>l.id===id);
-  if(!log)return;
-  document.getElementById('c-members').value=log.members.join('\n');
-  updateHints();
-}
-
+function sendLogToCalc(id){const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints();sw('calc')}
+function refreshLogSelect(){const logs=getLogs(),sel=document.getElementById('log-select');sel.innerHTML='<option value="">— เลือกจาก Log —</option>';logs.forEach(l=>sel.add(new Option(`${l.date} (${l.members.length} คน)`,l.id)))}
+function loadFromLog(){const id=+document.getElementById('log-select').value;if(!id)return;const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints()}
 function clearRand(){lastRand=[];document.getElementById('result-list').innerHTML='<div class="empty">กดสุ่มเพื่อเริ่ม</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none'}
 function copyRand(){navigator.clipboard.writeText(lastRand.map((m,i)=>`${i+1}. ${m.ign} (${m.class}) P${m.party}`).join('\n')).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓ คัดลอกแล้ว';setTimeout(()=>b.textContent='📋 คัดลอก',2000)})}
-function sendToTracker(){if(!lastRand.length){alert('กรุณาสุ่มคิวก่อน');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
-function sendToCalc(){if(!lastRand.length){alert('กรุณาสุ่มคิวก่อน');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
+function sendToTracker(){if(!lastRand.length){alert('กรุณาสุ่มก่อน');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
+function sendToCalc(){if(!lastRand.length){alert('กรุณาสุ่มก่อน');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
 
 /* CALC */
-let coList=[];
-
 function applyPreset(){
-  const v=document.getElementById('calc-preset').value;
-  if(!v)return;
-  const [type,idx]=v.split('-');
-  let r;
-  if(type==='or')r=REWARDS.overrun[+idx-1];
-  else if(type==='gly')r=REWARDS['gl-y'][+idx];
-  else r=REWARDS['gl-n'][+idx];
-  if(!r)return;
-  const x2=document.getElementById('x2').checked;
-  const mul=x2?2:1;
-  document.getElementById('c-card').value=r.card*mul;
-  document.getElementById('c-white').value=r.white*mul;
-  document.getElementById('c-red').value=r.red*mul;
-  updateHints();
+  const v=document.getElementById('calc-preset').value;if(!v)return;
+  const [type,idx]=v.split('-');let r;
+  if(type==='or')r=REWARDS.overrun[+idx-1];else if(type==='gly')r=REWARDS['gl-y'][+idx];else r=REWARDS['gl-n'][+idx];
+  if(!r)return;const mul=document.getElementById('x2').checked?2:1;
+  document.getElementById('c-card').value=r.card*mul;document.getElementById('c-white').value=r.white*mul;document.getElementById('c-red').value=r.red*mul;updateHints();
 }
-
-function applyX2(){
-  const v=document.getElementById('calc-preset').value;
-  if(v)applyPreset();
-  else{
-    const x2=document.getElementById('x2').checked;
-    ['c-card','c-white','c-red'].forEach(id=>{
-      const el=document.getElementById(id);
-      const cur=+el.value;
-      if(x2&&cur>0)el.value=cur*2;
-      else if(!x2&&cur>0&&cur%2===0)el.value=cur/2;
-    });
-    updateHints();
-  }
-}
-
-function getMemberList(){
-  return document.getElementById('c-members').value.split('\n').map(s=>s.trim()).filter(Boolean);
-}
-
+function applyX2(){const v=document.getElementById('calc-preset').value;if(v)applyPreset();else{const x2=document.getElementById('x2').checked;['c-card','c-white','c-red'].forEach(id=>{const el=document.getElementById(id);const cur=+el.value;if(x2&&cur>0)el.value=cur*2;else if(!x2&&cur>0&&cur%2===0)el.value=cur/2});updateHints()}}
+function getMemberList(){return document.getElementById('c-members').value.split('\n').map(s=>s.trim()).filter(Boolean)}
 function updateHints(){
-  const mlist=getMemberList();
-  const n=mlist.length;
-  document.getElementById('member-count').textContent=n+' คน';
-  const card=+document.getElementById('c-card').value||0;
-  const white=+document.getElementById('c-white').value||0;
-  const red=+document.getElementById('c-red').value||0;
-  const hasCarry=coList.length>0;
+  const mlist=getMemberList(),n=mlist.length;document.getElementById('member-count').textContent=n+' คน';
+  const card=+document.getElementById('c-card').value||0,white=+document.getElementById('c-white').value||0,red=+document.getElementById('c-red').value||0,hasCarry=coList.length>0;
   let hint='';
   if(n>0&&card>0){
-    if(hasCarry){
-      const whiteLeft=white-(Math.min(n,card)*CFG.max_white);
-      const redLeft=red-(Math.min(n,card)*CFG.max_red);
-      hint=`<b>มีคนตกค้าง:</b> คนในรอบ <span>${Math.min(n,card)} คน</span> ได้ Card 1, White <span>${CFG.max_white}</span>, Red <span>${CFG.max_red}</span> ก่อน<br>ขนนกคงเหลือ: White <span>${Math.max(0,whiteLeft)}</span>, Red <span>${Math.max(0,redLeft)}</span> → แจกคนตกค้าง`;
-    } else {
-      const perW=Math.floor(white/Math.min(n,card));
-      const perR=Math.floor(red/Math.min(n,card));
-      hint=`<b>ไม่มีคนตกค้าง:</b> คนในรอบ <span>${Math.min(n,card)} คน</span><br>Card <span>1</span>/คน · White <span>${perW}</span>/คน · Red <span>${perR}</span>/คน`;
-    }
-  } else {
-    hint='กรอกจำนวนรางวัลและรายชื่อเพื่อดูค่าแนะนำ';
-  }
-  document.getElementById('calc-hint').innerHTML=hint;
-  updateCoHint();
+    if(hasCarry){const wL=white-(Math.min(n,card)*CFG.max_white),rL=red-(Math.min(n,card)*CFG.max_red);hint=`<b>มีคนตกค้าง:</b> คนในรอบ <span>${Math.min(n,card)} คน</span> ได้ Card 1, White <span>${CFG.max_white}</span>, Red <span>${CFG.max_red}</span> ก่อน<br>ขนนกคงเหลือ: White <span>${Math.max(0,wL)}</span>, Red <span>${Math.max(0,rL)}</span>`}
+    else{const pW=Math.floor(white/Math.min(n,card)),pR=Math.floor(red/Math.min(n,card));hint=`<b>ไม่มีคนตกค้าง:</b> คนในรอบ <span>${Math.min(n,card)} คน</span><br>Card <span>1</span>/คน · White <span>${pW}</span>/คน · Red <span>${pR}</span>/คน`}
+  }else hint='กรอกจำนวนรางวัลและรายชื่อเพื่อดูค่าแนะนำ';
+  document.getElementById('calc-hint').innerHTML=hint;updateCoHint();
 }
-
-function updateCoHint(){
-  const el=document.getElementById('co-hint');
-  if(!coList.length){el.style.display='none';return}
-  const totalW=coList.reduce((s,c)=>s+(+c.white||0),0);
-  const totalR=coList.reduce((s,c)=>s+(+c.red||0),0);
-  el.style.display='block';
-  el.innerHTML=`ขนนกที่คนตกค้างต้องการรวม: White <span style="color:var(--gold-l)">${totalW}</span>, Red <span style="color:var(--gold-l)">${totalR}</span>`;
-}
-
-function addCarryover(){
-  const name=prompt('ชื่อสมาชิกที่ตกค้าง:');
-  if(!name||!name.trim())return;
-  coList.push({name:name.trim(),white:0,red:0});
-  renderCoList();updateHints();
-}
-
+function updateCoHint(){const el=document.getElementById('co-hint');if(!coList.length){el.style.display='none';return}const tW=coList.reduce((s,c)=>s+(+c.white||0),0),tR=coList.reduce((s,c)=>s+(+c.red||0),0);el.style.display='block';el.innerHTML=`ขนนกที่คนตกค้างต้องการ: White <span>${tW}</span>, Red <span>${tR}</span>`}
+function addCarryover(){const name=prompt('ชื่อสมาชิกที่ตกค้าง:');if(!name||!name.trim())return;coList.push({name:name.trim(),white:0,red:0});renderCoList();updateHints()}
 function renderCoList(){
-  const el=document.getElementById('co-list');
-  const badge=document.getElementById('co-badge');
+  const el=document.getElementById('co-list'),badge=document.getElementById('co-badge');
   if(!coList.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">ไม่มีคนตกค้าง</div>';badge.style.display='none';updateHints();return}
-  badge.style.display='inline-block';badge.textContent=coList.length+' คน';
-  el.innerHTML=coList.map((c,i)=>`<div class="carryover-item">
-    <div class="co-name">${c.name}</div>
-    <div class="co-fields">
-      <label>White ขาด</label>
-      <input type="number" min="0" max="20" value="${c.white}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].white=+this.value;updateHints()">
-      <label>Red ขาด</label>
-      <input type="number" min="0" max="20" value="${c.red}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].red=+this.value;updateHints()">
-    </div>
-    <button class="co-del" onclick="coList.splice(${i},1);renderCoList()">×</button>
-  </div>`).join('');
-  updateHints();
+  badge.style.display='inline';badge.textContent=coList.length+' คน';
+  el.innerHTML=coList.map((c,i)=>`<div class="carryover-item"><div class="co-name">${c.name}</div><div class="co-fields"><label>White ขาด</label><input type="number" min="0" max="20" value="${c.white}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].white=+this.value;updateHints()"><label>Red ขาด</label><input type="number" min="0" max="20" value="${c.red}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].red=+this.value;updateHints()"></div><button class="co-del" onclick="coList.splice(${i},1);renderCoList()">×</button></div>`).join('');updateHints();
 }
-
-function swCalcTab(t){
-  document.querySelectorAll('.calc-tab').forEach((b,i)=>b.classList.toggle('active',['slots','table'][i]===t));
-  document.getElementById('calc-slots').style.display=t==='slots'?'block':'none';
-  document.getElementById('calc-table').style.display=t==='table'?'block':'none';
-}
-
+function swCalcTab(t){document.querySelectorAll('.calc-tab').forEach((b,i)=>b.classList.toggle('active',['person','card','feather'][i]===t));['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).style.display=id===t?'block':'none')}
 function runCalc(){
-  const mlist=getMemberList();
-  const totalCard=+document.getElementById('c-card').value||0;
-  const totalWhite=+document.getElementById('c-white').value||0;
-  const totalRed=+document.getElementById('c-red').value||0;
+  const mlist=getMemberList(),totalCard=+document.getElementById('c-card').value||0,totalWhite=+document.getElementById('c-white').value||0,totalRed=+document.getElementById('c-red').value||0;
   if(!mlist.length||!totalCard){alert('กรอกรายชื่อและจำนวนการ์ดก่อน');return}
+  const n=Math.min(mlist.length,totalCard),roundMembers=mlist.slice(0,n),hasCarry=coList.length>0;
+  let results=[],whiteLeft,redLeft;
+  if(hasCarry){roundMembers.forEach(name=>results.push({name,card:1,white:CFG.max_white,red:CFG.max_red,type:'round'}));whiteLeft=Math.max(0,totalWhite-(n*CFG.max_white));redLeft=Math.max(0,totalRed-(n*CFG.max_red));coList.forEach(co=>{let gW=0,gR=0;if(whiteLeft>0&&co.white>0){gW=Math.min(whiteLeft,+co.white);whiteLeft-=gW}if(redLeft>0&&co.red>0){gR=Math.min(redLeft,+co.red);redLeft-=gR}results.push({name:co.name,card:0,white:gW,red:gR,type:'carryover',needW:+co.white,needR:+co.red})})}
+  else{const pW=Math.floor(totalWhite/n),pR=Math.floor(totalRed/n);roundMembers.forEach(name=>results.push({name,card:1,white:pW,red:pR,type:'round'}));whiteLeft=totalWhite-(n*pW);redLeft=totalRed-(n*pR)}
+  renderCalcOutput(results,whiteLeft,redLeft);
+}
+function renderCalcOutput(results,wL,rL){
+  const cardPeople=results.filter(r=>r.card>0),mvpCount=+document.getElementById('mvp-count').value||0;
+  // TAB 1
+  document.getElementById('calc-person').innerHTML=`<div class="tbl-wrap"><table class="result-table"><thead><tr><th>#</th><th>ชื่อ</th><th>🃏 Card</th><th>🪶 White</th><th>🪶 Red/Blk</th><th>ประเภท</th></tr></thead><tbody>${results.map((r,i)=>`<tr class="${r.type==='carryover'?'co-row':''}"><td style="color:var(--muted)">${i+1}</td><td style="font-weight:500">${r.name}</td><td style="text-align:center">${r.card?'<span style="color:var(--gold)">✓</span>':'—'}</td><td style="text-align:center">${r.white||'—'}</td><td style="text-align:center">${r.red||'—'}</td><td><span style="font-size:10px;padding:2px 7px;border-radius:4px;${r.type==='carryover'?'background:rgba(126,200,160,0.1);color:var(--green);border:0.5px solid rgba(126,200,160,0.3)':'background:rgba(201,168,76,0.1);color:var(--gold);border:0.5px solid rgba(201,168,76,0.2)'}">${r.type==='carryover'?'⏳ ตกค้าง':'รอบปกติ'}</span></td></tr>`).join('')}</tbody></table></div><div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--muted)"><span>White เศษทิ้ง: ${wL}</span><span>Red เศษทิ้ง: ${rL}</span></div>`;
+  // TAB 2 การ์ด
+  const cardSlots=[...cardPeople.map((r,i)=>({num:i+1,name:r.name})),...Array.from({length:mvpCount},(_,i)=>({num:cardPeople.length+i+1,name:'?',mvp:true,mvpNum:i+1}))];
+  let cHtml='';if(cardSlots.length){cHtml='<div class="tbl-wrap"><table class="result-table"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">ช่อง ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<cardSlots.length;i+=4){cHtml+=`<tr><td colspan="4" style="background:rgba(201,168,76,0.05);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">หน้า ${Math.floor(i/4)+1}</td></tr><tr>`;for(let j=0;j<4;j++){const s=cardSlots[i+j];cHtml+=s?`<td style="text-align:center;padding:10px 6px;${s.mvp?'background:rgba(201,168,76,0.07)':''}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${s.mvp?'🏆 MVP #'+s.mvpNum:'🃏 #'+s.num}</div><div style="font-size:13px;font-weight:500;color:${s.mvp?'var(--gold-l)':'#e8dcc8'}">${s.name}</div></td>`:`<td style="text-align:center;opacity:0.2;padding:10px 6px">—</td>`}cHtml+='</tr>'}cHtml+='</tbody></table></div>'}else cHtml='<div class="empty">ไม่มีข้อมูล</div>';
+  document.getElementById('calc-card').innerHTML=cHtml;
+  // TAB 3 ขนนก
+  const fSlots=[];results.forEach(r=>{for(let i=0;i<r.white;i++)fSlots.push({name:r.name,type:'white',co:r.type==='carryover'});for(let i=0;i<r.red;i++)fSlots.push({name:r.name,type:'red',co:r.type==='carryover'})});
+  let fHtml='';if(fSlots.length){fHtml='<div class="tbl-wrap"><table class="result-table"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">ช่อง ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<fSlots.length;i+=4){const typesInRow=[...new Set(fSlots.slice(i,i+4).map(s=>s.type))];const lbl=typesInRow.includes('white')&&typesInRow.includes('red')?'ขาว → แดง/ดำ':typesInRow[0]==='white'?'ขาว':'แดง/ดำ';fHtml+=`<tr><td colspan="4" style="background:rgba(255,255,255,0.03);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">หน้า ${Math.floor(i/4)+1} — 🪶 ${lbl}</td></tr><tr>`;for(let j=0;j<4;j++){const s=fSlots[i+j];if(s){const isW=s.type==='white';fHtml+=`<td style="text-align:center;padding:10px 6px;background:${s.co?(isW?'rgba(126,200,160,0.06)':'rgba(126,200,160,0.09)'):(isW?'rgba(200,200,240,0.05)':'rgba(220,80,80,0.05)')}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${isW?'⬜':'🟥'} #${i+j+1}${s.co?' ⏳':''}</div><div style="font-size:13px;font-weight:500">${s.name}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${isW?'ขาว':'แดง/ดำ'}</div></td>`}else fHtml+=`<td style="text-align:center;opacity:0.2">—</td>`}fHtml+='</tr>'}fHtml+='</tbody></table></div>';if(wL>0||rL>0)fHtml+=`<div style="font-size:11px;color:var(--muted);margin-top:6px">⚠ เศษทิ้ง: White ${wL}, Red ${rL}</div>`}else fHtml='<div class="empty">ไม่มีข้อมูล</div>';
+  document.getElementById('calc-feather').innerHTML=fHtml;
+}
+function clearCalc(){['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).innerHTML='<div class="empty">กด ▶ คำนวณ เพื่อดูผล</div>');document.getElementById('mvp-result-box').innerHTML='';swCalcTab('person')}
+function doMVP(){const mlist=getMemberList(),n=Math.min(mlist.length,+document.getElementById('c-card').value||mlist.length),pool=mlist.slice(0,n),mvpCount=+document.getElementById('mvp-count').value||15;if(!pool.length){alert('ใส่รายชื่อก่อน');return}const sh=[...pool];for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}const winners=sh.slice(0,Math.min(mvpCount,sh.length));document.getElementById('mvp-result-box').innerHTML=`<div class="mvp-result"><h4>🏆 MVP Box — ${winners.length} คน</h4><div class="mvp-list">${winners.map(w=>`<span class="mvp-tag">${w}</span>`).join('')}</div></div>`}
 
-  const n=Math.min(mlist.length,totalCard);
-  const roundMembers=mlist.slice(0,n);
-  const hasCarry=coList.length>0;
-
-  let results=[];
-  let whiteLeft,redLeft;
-
-  if(hasCarry){
-    // คนในรอบได้ max ก่อน
-    const perW=CFG.max_white,perR=CFG.max_red;
-    roundMembers.forEach(name=>results.push({name,card:1,white:perW,red:perR,type:'round'}));
-    whiteLeft=Math.max(0,totalWhite-(n*perW));
-    redLeft=Math.max(0,totalRed-(n*perR));
-    // แจกคนตกค้างจากที่เหลือ ตามลำดับ
-    coList.forEach(co=>{
-      let gotW=0,gotR=0;
-      const needW=+co.white||0;
-      const needR=+co.red||0;
-      if(whiteLeft>0&&needW>0){gotW=Math.min(whiteLeft,needW);whiteLeft-=gotW}
-      if(redLeft>0&&needR>0){gotR=Math.min(redLeft,needR);redLeft-=gotR}
-      results.push({name:co.name,card:0,white:gotW,red:gotR,type:'carryover',needW,needR});
-    });
-  } else {
-    const perW=Math.floor(totalWhite/n);
-    const perR=Math.floor(totalRed/n);
-    roundMembers.forEach(name=>results.push({name,card:1,white:perW,red:perR,type:'round'}));
-    whiteLeft=totalWhite-(n*perW);
-    redLeft=totalRed-(n*perR);
-  }
-
-  renderSlots(results,totalCard,whiteLeft,redLeft,hasCarry);
-  renderResultTable(results,whiteLeft,redLeft);
+/* GAS helpers */
+async function gasGet(action){
+  try{const r=await fetch(GAS_URL+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}
+}
+async function gasPost(body){
+  try{const r=await fetch(GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}
 }
 
-function renderSlots(results,totalCard,whiteLeft,redLeft,hasCarry){
-  const cardPeople=results.filter(r=>r.card>0);
-  const mvpCount=+document.getElementById('mvp-count').value||0;
-  const allSlots=[];
-
-  // Card slots
-  cardPeople.forEach((r,i)=>allSlots.push({type:'card',idx:i+1,name:r.name}));
-  // MVP slots
-  for(let i=0;i<mvpCount;i++)allSlots.push({type:'mvp',idx:i+1,name:'?'});
-
-  // Feather slots — ขาวก่อน แล้วแดง ต่อกัน
-  const featherSlots=[];
-  results.forEach(r=>{
-    for(let i=0;i<r.white;i++)featherSlots.push({type:'white',name:r.name});
-    for(let i=0;i<r.red;i++)featherSlots.push({type:'red',name:r.name,co:r.type==='carryover'});
-  });
-
-  const slotsEl=document.getElementById('calc-slots');
-  let html='';
-
-  // Card pages
-  if(allSlots.length){
-    html+='<div class="slot-page"><div class="slot-page-header">🃏 การ์ด + 🏆 MVP</div>';
-    for(let i=0;i<allSlots.length;i+=4){
-      html+='<div class="slot-grid">';
-      for(let j=0;j<4;j++){
-        const s=allSlots[i+j];
-        if(s){
-          const cls=s.type==='mvp'?'mvp':'';
-          html+=`<div class="slot-cell ${cls}"><div class="sn">${s.type==='mvp'?'MVP #'+s.idx:'การ์ด #'+(i+j+1)}</div><div class="sv">${s.type==='mvp'?'?':s.name}</div><div class="st">${s.type==='mvp'?'🏆':'🃏'}</div></div>`;
-        } else {
-          html+='<div class="slot-cell empty-slot"><div class="sv">—</div></div>';
-        }
-      }
-      html+='</div>';
-    }
-    html+='</div>';
-  }
-
-  // Feather pages
-  if(featherSlots.length){
-    html+='<div class="slot-page"><div class="slot-page-header">🪶 ขนนก (ขาว → แดง/ดำ)</div>';
-    for(let i=0;i<featherSlots.length;i+=4){
-      html+='<div class="slot-grid">';
-      for(let j=0;j<4;j++){
-        const s=featherSlots[i+j];
-        if(s){
-          const cls=s.co?'carryover':s.type==='white'?'white':'redblk';
-          const ic=s.type==='white'?'🪶⬜':'🪶🟥';
-          html+=`<div class="slot-cell ${cls}"><div class="sn">#${i+j+1} ${s.type==='white'?'ขาว':'แดง/ดำ'}</div><div class="sv">${s.name}</div><div class="st">${ic}${s.co?' ⏳':''}</div></div>`;
-        } else {
-          html+='<div class="slot-cell empty-slot"><div class="sv">—</div></div>';
-        }
-      }
-      html+='</div>';
-    }
-    if(whiteLeft>0||redLeft>0){
-      html+=`<div style="font-size:11px;color:var(--muted);margin-top:6px">เศษที่ตัดทิ้ง: White ${whiteLeft}, Red ${redLeft}</div>`;
-    }
-    html+='</div>';
-  }
-
-  slotsEl.innerHTML=html||'<div class="empty">ไม่มีข้อมูล</div>';
+/* AUCTION LOG */
+async function loadAuctionDates(){
+  document.getElementById('al-content').innerHTML='<div class="loading-overlay">⏳ กำลังโหลด...</div>';
+  const r=await gasGet('getDates');
+  const sel=document.getElementById('al-date-select');
+  sel.innerHTML='<option value="">— เลือกวันที่ —</option>';
+  if(r.ok&&r.dates.length){r.dates.forEach(d=>sel.add(new Option(d,d)));if(currentALDate&&r.dates.includes(currentALDate))sel.value=currentALDate}
+  if(isAdmin)renderAuctionAdminControls();
+  document.getElementById('al-content').innerHTML='<div class="empty">เลือกวันที่เพื่อดูประวัติ</div>';
+  document.getElementById('al-stats').innerHTML='';
 }
 
-function renderResultTable(results,whiteLeft,redLeft){
-  const el=document.getElementById('calc-table');
-  el.innerHTML=`<div class="tbl-wrap"><table class="result-table">
-    <thead><tr><th>#</th><th>ชื่อ</th><th>🃏 Card</th><th>🪶 White</th><th>🪶 Red/Blk</th><th>หมายเหตุ</th></tr></thead>
-    <tbody>${results.map((r,i)=>`<tr class="${r.type==='carryover'?'co-row':''}">
-      <td>${i+1}</td><td>${r.name}</td>
-      <td>${r.card?'✓':'—'}</td>
-      <td>${r.white}</td><td>${r.red}</td>
-      <td style="font-size:11px;color:var(--muted)">${r.type==='carryover'?`ตกค้าง (ต้องการ W${r.needW} R${r.needR})`:'รอบปกติ'}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>
-  <div style="font-size:11px;color:var(--muted);margin-top:8px">เศษที่ตัดทิ้ง: White ${whiteLeft} · Red ${redLeft}</div>`;
+async function loadAuctionLog(date){
+  if(!date){document.getElementById('al-content').innerHTML='<div class="empty">เลือกวันที่เพื่อดูประวัติ</div>';document.getElementById('al-stats').innerHTML='';return}
+  currentALDate=date;
+  document.getElementById('al-content').innerHTML='<div class="loading-overlay">⏳ กำลังโหลด...</div>';
+  const r=await gasGet('getLog&date='+date);
+  if(!r.ok){document.getElementById('al-content').innerHTML='<div class="empty" style="color:var(--red)">โหลดไม่สำเร็จ</div>';return}
+  const rows=r.rows;
+  const done=rows.filter(r=>r.status==='done').length,pending=rows.filter(r=>r.status==='pending').length;
+  document.getElementById('al-stats').innerHTML=`<div class="al-stat"><div class="n">${rows.length}</div><div class="l">ทั้งหมด</div></div><div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">ดึงแล้ว</div></div><div class="al-stat"><div class="n" style="color:var(--red)">${pending}</div><div class="l">รอดึง</div></div>`;
+  if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">ไม่มีข้อมูลสำหรับวันนี้</div>';return}
+  const showDel=isAdmin?'':'display:none';
+  document.getElementById('al-content').innerHTML=`<div class="panel"><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">`+
+    `<thead><tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">#</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">ชื่อ</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">สถานะ</th><th style="padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">หมายเหตุ</th><th class="admin-only" style="${showDel};padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border)">จัดการ</th></tr></thead><tbody>`+
+    rows.map(row=>`<tr class="queue-row" id="qrow-${row.position}">
+      <td class="q-num">${row.position}</td>
+      <td class="q-name">${row.member_name}</td>
+      <td style="text-align:center"><span class="q-status ${row.status==='done'?'qs-done':'qs-pending'}" id="qstatus-${row.position}">${row.status==='done'?'✓ ดึงแล้ว':'⏳ รอดึง'}</span></td>
+      <td class="q-note" id="qnote-${row.position}">${row.note||'—'}</td>
+      <td class="admin-only q-actions" style="${showDel}">`+
+        (row.status==='done'
+          ?`<button class="q-btn q-btn-undo" onclick="toggleQStatus('${date}',${row.position},'pending','')">↺ ยกเลิก</button>`
+          :`<button class="q-btn q-btn-done" onclick="toggleQStatus('${date}',${row.position},'done','')">✓ ดึงแล้ว</button>`)+
+      `</td></tr>`).join('')+
+    '</tbody></table></div></div>';
+  if(isAdmin)renderAuctionAdminControls();
 }
 
-function clearCalc(){
-  document.getElementById('calc-slots').innerHTML='<div class="empty">กด ▶ คำนวณ เพื่อดูผล</div>';
-  document.getElementById('calc-table').innerHTML='<div class="empty">กด ▶ คำนวณ เพื่อดูผล</div>';
-  document.getElementById('mvp-result-box').innerHTML='';
+async function toggleQStatus(date,pos,status,note){
+  const r=await gasPost({action:'updateStatus',date,position:pos,status,note});
+  if(r.ok)loadAuctionLog(date);else alert('อัปเดตไม่สำเร็จ: '+r.error);
 }
 
-/* MVP */
-function doMVP(){
-  const mlist=getMemberList();
-  const n=Math.min(mlist.length,+document.getElementById('c-card').value||mlist.length);
-  const pool=mlist.slice(0,n);
-  const mvpCount=+document.getElementById('mvp-count').value||15;
-  if(!pool.length){alert('ใส่รายชื่อก่อน');return}
-  const shuffled=[...pool];
-  for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}
-  const winners=shuffled.slice(0,Math.min(mvpCount,shuffled.length));
-  document.getElementById('mvp-result-box').innerHTML=`<div class="mvp-result"><h4>🏆 MVP Box — ${winners.length} คน</h4><div class="mvp-list">${winners.map(w=>`<span class="mvp-tag">${w}</span>`).join('')}</div></div>`;
+async function deleteDateConfirm(){
+  if(!currentALDate){alert('เลือกวันที่ก่อน');return}
+  if(!confirm(`ลบคิวทั้งหมดของวันที่ ${currentALDate}?`))return;
+  const r=await gasPost({action:'deleteDate',date:currentALDate});
+  if(r.ok){currentALDate='';loadAuctionDates()}else alert('ลบไม่สำเร็จ: '+r.error);
+}
+
+/* PASTE MODAL */
+function openPasteModal(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('paste-date').value=currentALDate||today;
+  document.getElementById('paste-names').value='';
+  document.getElementById('paste-count').textContent='0 คน';
+  document.getElementById('paste-modal').style.display='flex';
+  document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' คน'};
+}
+function closePasteModal(){document.getElementById('paste-modal').style.display='none'}
+async function submitPaste(){
+  const date=document.getElementById('paste-date').value.trim();
+  const names=document.getElementById('paste-names').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('กรอกวันที่ให้ถูกต้อง เช่น 2025-06-07');return}
+  if(!names.length){alert('กรอกรายชื่ออย่างน้อย 1 คน');return}
+  const btn=document.querySelector('#paste-modal .btn-primary');btn.textContent='⏳ กำลังบันทึก...';btn.disabled=true;
+  const r=await gasPost({action:'appendQueue',date,members:names});
+  btn.textContent='💾 บันทึก';btn.disabled=false;
+  if(r.ok){closePasteModal();currentALDate=date;await loadAuctionDates();document.getElementById('al-date-select').value=date;loadAuctionLog(date)}
+  else alert('บันทึกไม่สำเร็จ: '+r.error);
 }
 
 /* TRACKER */
 function renderTracker(){
   const tc=document.getElementById('tracker-content');
   if(!trackerSession.length){tc.innerHTML='<div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>ไปที่ 🎰 สุ่มคิว แล้วกด "ส่งไปติดตามรอบ"</p></div>';return}
-  const done=trackerSession.filter(m=>m.done).length;
-  const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
+  const done=trackerSession.filter(m=>m.done).length,miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
   tc.innerHTML=`<div class="tk-header"><div class="session-summary"><div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">ทั้งหมด</div></div><div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">สุ่มแล้ว</div></div><div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">รอสุ่ม</div></div><div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">ของตกหล่น</div></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="exportMissing()">⬇ Export ของตกหล่น</button><button class="btn btn-red" onclick="if(confirm('ล้างรอบ?')){trackerSession=[];renderTracker()}">✕ ล้างรอบ</button></div></div>
-  <div class="tracker-grid">${trackerSession.map((m,i)=>{
-    const hasMiss=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);
-    return`<div class="tc ${m.done?(hasMiss?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="drop-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="drop-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="drop-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`;
-  }).join('')}</div>`;
+  <div class="tracker-grid">${trackerSession.map((m,i)=>{const hM=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);return`<div class="tc ${m.done?(hM?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="drop-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="drop-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="drop-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`}).join('')}</div>`;
 }
 function tgDone(i,v){trackerSession[i].done=v;if(v){trackerSession[i].got_card=CFG.max_card;trackerSession[i].got_white=CFG.max_white;trackerSession[i].got_red=CFG.max_red}renderTracker()}
 function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
 function exportMissing(){
   const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
   if(!miss.length){alert('ไม่มีของตกหล่น 🎉');return}
-  const lines=['=== ของตกหล่น ===','', ...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card ขาด ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White ขาด ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk ขาด ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');
+  const lines=['=== ของตกหล่น ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card ขาด ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White ขาด ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk ขาด ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');
   navigator.clipboard.writeText(lines).then(()=>alert('คัดลอกแล้ว!\n\n'+lines));
 }
 
-/* INIT */
+/* HAMBURGER */
+function toggleSidebar(){
+  const s=document.getElementById('sidebar-el'),o=document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');o.classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar-el').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
 loadData();
 renderLogList();
 </script>
