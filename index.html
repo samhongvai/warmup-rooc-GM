@@ -35,6 +35,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .nav-item.active{color:var(--orange-l);border-left-color:var(--orange);background:var(--orange-dim)}
 .nav-item .ni{font-size:15px;width:18px;text-align:center}
 .nav-spacer{flex:1}
+.nav-section{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:10px 1rem 4px;opacity:0.6}
+.nav-divider{height:0.5px;background:var(--border);margin:6px 1rem}
 .admin-btn{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 1rem 6px;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
 .admin-btn:hover{border-color:var(--orange-border);color:var(--orange-l)}
 .admin-btn.on{border-color:var(--orange-border);color:var(--orange);background:var(--orange-dim)}
@@ -127,10 +129,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .pc-head.main .pn{color:var(--green);font-size:12px;font-weight:500}
 .pc-head.sec .pn{color:var(--amber);font-size:12px;font-weight:500}
 .pc-count{font-size:10px;color:var(--muted)}
-.pm-body{padding:7px 11px;display:flex;flex-direction:column;gap:4px}
-.pm{display:flex;justify-content:space-between;align-items:center;font-size:11px}
-.pm-name{color:var(--text)}
+.pm-body{padding:0;display:flex;flex-direction:column}
+.pm{display:flex;align-items:center;gap:8px;padding:5px 11px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
+.pm:last-child{border-bottom:none}
+.pm-bar{width:3px;border-radius:2px;align-self:stretch;min-height:22px;flex-shrink:0}
+.pm-bar.bs{background:var(--green);opacity:0.6}
+.pm-bar.ba{background:var(--amber);opacity:0.6}
+.pm-bar.bd{background:var(--red);opacity:0.6}
+.pm-info{display:flex;flex-direction:column;flex:1;min-width:0}
+.pm-name{color:rgba(242,232,216,0.88);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-cls-label{font-size:10px;color:var(--muted)}
 .pm-note{font-size:10px;color:var(--red)}
+.pm-note-leave{font-size:10px;color:var(--blue)}
 
 /* SEARCH */
 .sbox{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
@@ -317,21 +327,26 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <nav class="sidebar" id="sidebar-el">
   <div class="logo-area">
     <div class="logo-img-wrap">
-      <img src="logo.jpg" alt="Warmup Guild" class="logo-img">
+      <img src="logo.png" alt="Warmup Guild" class="logo-img">
     </div>
     <div class="logo-text">
       <h1>Warmup</h1>
       <p>Guild Manager</p>
     </div>
   </div>
-  <div class="nav-item active" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
+  <div class="nav-section">Member Zone</div>
+  <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span>Search</div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span>Party</div>
-  <div class="nav-item" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span>Search</div>
+  <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
+  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
   <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span class="ni">🪶</span>Rewards</div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">Guild Management</div>
   <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span class="ni">🎰</span>Randomize</div>
   <div class="nav-item" onclick="sw('calc');closeSidebar()"><span class="ni">🧮</span>Calculator</div>
-  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
   <div class="nav-item" onclick="sw('attendance');closeSidebar()"><span class="ni">📋</span>Attendance</div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">Audit Log</div>
   <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
@@ -340,7 +355,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <main class="main">
 
 <!-- MEMBERS -->
-<div id="page-members" class="page active">
+<div id="page-members" class="page">
   <div class="page-title">Members</div>
   <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
   <div class="type-summary" id="type-summary"></div>
@@ -374,7 +389,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 </div>
 
 <!-- SEARCH -->
-<div id="page-search" class="page">
+<div id="page-search" class="page active">
   <div class="page-title">Search</div>
   <div class="page-sub">Find your party and auction queue position</div>
   <div class="sbox">
@@ -649,7 +664,7 @@ function submitAdmin(){
 
 /* NAV */
 function sw(t){
-  const pages=['members','party','search','rewards','randomize','calc','auction','attendance','tracker'];
+  const pages=['search','party','members','auction','rewards','randomize','calc','attendance','tracker'];
   document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
@@ -715,7 +730,8 @@ function renderParty(){
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
   const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
-  const mkSection=(list,isMain)=>list.map(p=>{const isM=isMain;return`<div class="pc"><div class="pc-head ${isM?'main':'sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const type=getType(m.class),tc=getTypeCls(type);const noteTag=m.noted&&m.noted.includes('ตัวรอง')?'<span class="pm-note">ตัวรอง</span>':m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'))?'<span style="font-size:10px;color:var(--blue)">แจ้งลา</span>':'';return`<div class="pm"><span class="pm-name">${m.ign}</span><div style="display:flex;align-items:center;gap:4px"><span class="badge ${tc}" style="font-size:9px;padding:1px 5px">${m.class}</span>${noteTag}</div></div>`}).join('')}</div></div>`}).join('');
+  const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
+  const mkSection=(list,isMain)=>list.map(p=>{const isM=isMain;return`<div class="pc"><div class="pc-head ${isM?'main':'sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const type=getType(m.class),tb=typeBar(type);const isSub=m.noted&&m.noted.includes('ตัวรอง');const isLeave=m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'));const noteTag=isSub?'<span class="pm-note">ตัวรอง</span>':isLeave?`<span class="pm-note-leave">${m.noted}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class}</div></div>${noteTag}</div>`}).join('')}</div></div>`}).join('');
   document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">Party 9+</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
