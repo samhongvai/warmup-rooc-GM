@@ -240,6 +240,44 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle}
 /* PASTE MODAL */
 .paste-area{width:100%;height:200px;resize:vertical;font-size:12px;line-height:1.7;margin-bottom:8px}
+
+/* CLASS TYPE COLORS */
+.type-support{color:#7ec8a0;font-size:10px;font-weight:500}
+.type-allround{color:#f0d080;font-size:10px;font-weight:500}
+.type-dps{color:#e07070;font-size:10px;font-weight:500}
+.cls-support{background:rgba(126,200,160,0.12);color:#7ec8a0;border:0.5px solid rgba(126,200,160,0.3)}
+.cls-allround{background:rgba(240,208,128,0.12);color:#f0d080;border:0.5px solid rgba(240,208,128,0.3)}
+.cls-dps{background:rgba(224,112,112,0.12);color:#e07070;border:0.5px solid rgba(224,112,112,0.3)}
+/* MEMBERS TABLE */
+.members-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.members-tbl th{text-align:left;padding:7px 8px;color:var(--muted);font-weight:500;border-bottom:0.5px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;font-size:11px;text-transform:uppercase;letter-spacing:0.8px}
+.members-tbl th:hover{color:#e8dcc8}
+.members-tbl th.sort-asc::after{content:' ↑';color:var(--gold)}
+.members-tbl th.sort-desc::after{content:' ↓';color:var(--gold)}
+.members-tbl td{padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:12px}
+.members-tbl tr:last-child td{border-bottom:none}
+.members-tbl tr:hover td{background:rgba(255,255,255,0.025)}
+.m-num{color:var(--muted);font-size:11px;width:28px;text-align:center}
+.m-noted{font-size:11px;color:var(--muted)}
+/* SUMMARY PILLS */
+.type-summary{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.type-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.tp-support{background:rgba(126,200,160,0.12);color:#7ec8a0;border:0.5px solid rgba(126,200,160,0.3)}
+.tp-allround{background:rgba(240,208,128,0.12);color:#f0d080;border:0.5px solid rgba(240,208,128,0.3)}
+.tp-dps{background:rgba(224,112,112,0.12);color:#e07070;border:0.5px solid rgba(224,112,112,0.3)}
+/* PARTY HEAD COLORS */
+.ph-main{background:rgba(126,200,160,0.08);border-bottom:0.5px solid rgba(126,200,160,0.2)}
+.ph-main .pn{color:#7ec8a0}
+.ph-sec{background:rgba(240,208,128,0.07);border-bottom:0.5px solid rgba(240,208,128,0.18)}
+.ph-sec .pn{color:#f0d080}
+.ph-field{font-size:10px;color:var(--muted)}
+/* RAND RESULT TABLE */
+.rand-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.rand-tbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.rand-tbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
+.rand-tbl tr:last-child td{border-bottom:none}
+.rand-tbl tr:hover td{background:rgba(255,255,255,0.025)}
+.saved-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(126,200,160,0.12);color:#7ec8a0;border:0.5px solid rgba(126,200,160,0.3);margin-left:6px}
 </style>
 </head>
 <body>
@@ -249,13 +287,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <nav class="sidebar" id="sidebar-el">
   <div class="logo"><h1>⚔ ROOC GM</h1><p>Guild Manager</p></div>
   <div class="nav-item active" onclick="sw('members');closeSidebar()"><span>👥</span> Members</div>
-  <div class="nav-item" onclick="sw('parties');closeSidebar()"><span>🛡</span> Parties</div>
-  <div class="nav-item" onclick="sw('search');closeSidebar()"><span>🔍</span> ค้นหาตัวเอง</div>
-  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span>🪶</span> ขนนก & Rank</div>
-  <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span>🎰</span> สุ่มคิว</div>
-  <div class="nav-item" onclick="sw('calc');closeSidebar()"><span>🧮</span> แจกของ</div>
+  <div class="nav-item" onclick="sw('parties');closeSidebar()"><span>🛡</span> Party</div>
+  <div class="nav-item" onclick="sw('search');closeSidebar()"><span>🔍</span> Search</div>
+  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span>🪶</span> Rewards</div>
+  <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span>🎰</span> Randomize</div>
+  <div class="nav-item" onclick="sw('calc');closeSidebar()"><span>🧮</span> Calculator</div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span>🏆</span> Auction Log</div>
-  <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span>✅</span> ติดตามรอบ</div>
+  <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span>✅</span> Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
   <div class="nav-footer"><span class="status-dot" id="sdot"></span><span id="snav">กำลังโหลด...</span></div>
@@ -264,21 +302,35 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <!-- MEMBERS -->
 <div id="page-members" class="page active">
-  <div class="page-title">👥 Members</div>
-  <div class="page-sub"><span class="status-dot" id="dot"></span><span id="stxt">กำลังโหลด...</span></div>
-  <div class="stats-row" id="stats-row"></div>
+  <div class="page-title">Members</div>
+  <div class="page-sub"><span class="status-dot" id="dot"></span><span id="stxt">Loading...</span></div>
+  <div class="type-summary" id="type-summary"></div>
   <div class="filter-row">
-    <input type="text" id="search-m" placeholder="ค้นหาชื่อ / Character ID..." oninput="renderMembers()">
-    <select id="fc" onchange="renderMembers()"><option value="">ทุก Class</option></select>
-    <select id="fp" onchange="renderMembers()"><option value="">ทุก Party</option></select>
+    <input type="text" id="search-m" placeholder="Search name / ID..." oninput="renderMembers()">
+    <select id="fc" onchange="renderMembers()"><option value="">All classes</option></select>
+    <select id="ft" onchange="renderMembers()"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
+    <select id="fp" onchange="renderMembers()"><option value="">All parties</option></select>
   </div>
-  <div class="member-grid" id="member-grid"><div class="empty">กำลังโหลด...</div></div>
+  <div class="tbl-wrap"><table class="members-tbl" id="members-tbl">
+    <thead><tr>
+      <th class="m-num">#</th>
+      <th id="th-name" onclick="sortMembers('ign')">Name</th>
+      <th id="th-class" onclick="sortMembers('class')">Class</th>
+      <th id="th-type" onclick="sortMembers('type')">Type</th>
+      <th id="th-party" onclick="sortMembers('party')">Party</th>
+      <th id="th-char" onclick="sortMembers('char_id')">Char ID</th>
+      <th id="th-discord" onclick="sortMembers('discord')">Discord</th>
+      <th id="th-noted" onclick="sortMembers('noted')">Noted</th>
+    </tr></thead>
+    <tbody id="member-tbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+  </table></div>
+  <div style="font-size:11px;color:var(--muted);margin-top:6px" id="member-count-label"></div>
 </div>
 
 <!-- PARTIES -->
 <div id="page-parties" class="page">
-  <div class="page-title">🛡 Parties</div>
-  <div class="page-sub">ปาร์ตี้ทั้งหมดในกิลด์</div>
+  <div class="page-title">Party</div>
+  <div class="page-sub" id="party-sub"></div>
   <div class="party-grid" id="party-view"></div>
 </div>
 
@@ -320,40 +372,38 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <!-- RANDOMIZE -->
 <div id="page-randomize" class="page">
-  <div class="page-title">🎰 สุ่มคิว</div>
-  <div class="page-sub">สุ่มลำดับสมาชิก — บันทึก Log อัตโนมัติ</div>
+  <div class="page-title">Randomize</div>
+  <div class="page-sub">Draw queue order — auto-saves to Auction Log on each draw</div>
   <div class="rand-layout">
     <div class="panel">
-      <h3>⚙ ตั้งค่า</h3>
-      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">กรอง Party</label>
-      <select id="rand-party" style="width:100%;margin-bottom:10px"><option value="">ทุก Party</option></select>
-      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">กรอง Class</label>
-      <div class="cls-opts" id="cls-opts"></div>
+      <h3>Filters</h3>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Filter by party</label>
+      <select id="rand-party" style="width:100%;margin-bottom:10px"><option value="">All parties</option></select>
       <div class="sep"></div>
-      <label class="chk-label" style="margin-bottom:5px"><input type="checkbox" id="excl-sub" checked> ไม่รวมตัวรอง</label>
-      <label class="chk-label"><input type="checkbox" id="excl-abs" checked> ไม่รวม Absent</label>
+      <label class="chk-label" style="margin-bottom:6px"><input type="checkbox" id="excl-sub" checked> Exclude ตัวรอง</label>
+      <div style="font-size:11px;color:var(--muted);background:rgba(128,180,232,0.08);border:0.5px solid rgba(128,180,232,0.2);border-radius:6px;padding:7px 10px;margin-bottom:10px;line-height:1.5">All classes included · แจ้งลา still drawn</div>
       <div class="btns-col">
-        <button class="btn btn-primary btn-full" onclick="doRand()">🎰 สุ่มคิว</button>
-        <button class="btn btn-ghost btn-full" onclick="clearRand()">↺ รีเซ็ต</button>
-        <button class="btn btn-green btn-full" onclick="sendToTracker()">✅ ส่งไปติดตามรอบ</button>
-        <button class="btn btn-primary btn-full" onclick="sendToCalc()">🧮 ส่งไปแจกของ</button>
+        <button class="btn btn-primary btn-full" onclick="doRand()">🎰 Draw Queue</button>
+        <button class="btn btn-ghost btn-full" onclick="clearRand()">↺ Reset</button>
+        <button class="btn btn-green btn-full" onclick="sendToTracker()">✅ Send to Tracker</button>
+        <button class="btn btn-primary btn-full" onclick="sendToCalc()">🧮 Send to Calculator</button>
       </div>
     </div>
     <div class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h3>📋 ผลสุ่ม</h3>
-        <button id="copy-btn" onclick="copyRand()" style="display:none;padding:4px 10px;background:transparent;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font)">📋 คัดลอก</button>
+        <h3>Result <span id="rand-saved-chip"></span></h3>
+        <button id="copy-btn" onclick="copyRand()" style="display:none;padding:4px 10px;background:transparent;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font)">Copy</button>
       </div>
       <div class="rand-summary" id="rand-summary"></div>
-      <div class="result-list" id="result-list"><div class="empty">กดสุ่มเพื่อเริ่ม</div></div>
+      <div id="result-list"><div class="empty">Press Draw Queue to start</div></div>
     </div>
   </div>
   <div class="sep" style="margin-top:1.5rem"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div class="section-h" style="margin:0;border:none;padding:0">📁 Log การสุ่ม (localStorage)</div>
-    <button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearLogs()">ล้าง Log</button>
+    <div class="section-h" style="margin:0;border:none;padding:0">Draw Log (local)</div>
+    <button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearLogs()">Clear Log</button>
   </div>
-  <div id="rand-log-list"><div class="empty">ยังไม่มี log</div></div>
+  <div id="rand-log-list"><div class="empty">No logs yet</div></div>
 </div>
 
 <!-- CALC -->
@@ -457,7 +507,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="page-title">✅ ติดตามรอบการสุ่ม</div>
   <div class="page-sub">ติ๊กสมาชิกที่สุ่มแล้ว และบันทึกของที่ได้รับจริง</div>
   <div id="tracker-content">
-    <div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>ไปที่ 🎰 สุ่มคิว แล้วกด "ส่งไปติดตามรอบ"</p></div>
+    <div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>Go to Randomize and press "Send to Tracker"</p></div>
   </div>
 </div>
 
@@ -575,26 +625,92 @@ async function loadData(){
   }catch(e){setS(false,'โหลดไม่สำเร็จ — ตรวจ Share settings')}
 }
 
+const CLASS_TYPE={
+  'High Priest':'Support','Minstrel':'Support','Gypsy':'Support',
+  'Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder',
+  'Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)',
+  'Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)',
+  'Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'
+};
+function getType(cls){return CLASS_TYPE[cls]||'Attack (DPS)'}
+function getTypeClass(t){return t==='Support'?'cls-support':t==='All Rounder'?'cls-allround':'cls-dps'}
+function getTypeLabel(t){return t==='Support'?'<span class="type-support">Support</span>':t==='All Rounder'?'<span class="type-allround">All Rounder</span>':'<span class="type-dps">DPS</span>'}
+
 function buildFilters(){
   const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
   const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
-  document.getElementById('fc').innerHTML='<option value="">ทุก Class</option>'+cls.map(c=>`<option>${c}</option>`).join('');
-  ['fp','rand-party'].forEach(id=>{document.getElementById(id).innerHTML='<option value="">ทุก Party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('')});
+  document.getElementById('fc').innerHTML='<option value="">All classes</option>'+cls.map(c=>`<option>${c}</option>`).join('');
+  ['fp','rand-party'].forEach(id=>{document.getElementById(id).innerHTML='<option value="">All parties</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('')});
 }
 function renderStats(){
-  const t=members.length,sub=members.filter(m=>m.noted.includes('ตัวรอง')).length,abs=members.filter(m=>m.noted.toLowerCase().includes('absent')).length,pts=new Set(members.map(m=>m.party).filter(Boolean)).size,wid=members.filter(m=>m.char_id).length;
-  document.getElementById('stats-row').innerHTML=[[t,'สมาชิก'],[pts,'Parties'],[wid,'มี Char ID'],[sub,'ตัวรอง'],[abs,'Absent']].map(([n,l])=>`<div class="sc"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  const t=members.length,sub=members.filter(m=>m.noted.includes('ตัวรอง')).length;
+  const pts=new Set(members.map(m=>m.party).filter(Boolean)).size,wid=members.filter(m=>m.char_id).length;
+  const supCount=members.filter(m=>getType(m.class)==='Support').length;
+  const arCount=members.filter(m=>getType(m.class)==='All Rounder').length;
+  const dpsCount=members.filter(m=>getType(m.class)==='Attack (DPS)').length;
+  document.getElementById('stats-row').innerHTML=[[t,'Members'],[pts,'Parties'],[wid,'Char ID'],[sub,'ตัวรอง']].map(([n,l])=>`<div class="sc"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  document.getElementById('type-summary').innerHTML=`<span class="type-pill tp-support">Support · ${supCount}</span><span class="type-pill tp-allround">All Rounder · ${arCount}</span><span class="type-pill tp-dps">Attack (DPS) · ${dpsCount}</span>`;
+}
+let memberSortKey='party',memberSortDir=1,memberRunNum=[];
+function sortMembers(key){
+  if(memberSortKey===key)memberSortDir*=-1;else{memberSortKey=key;memberSortDir=1}
+  document.querySelectorAll('.members-tbl th').forEach(th=>th.className=th.className.replace(/ ?sort-(asc|desc)/g,''));
+  const thMap={'ign':'th-name','class':'th-class','type':'th-type','party':'th-party','char_id':'th-char','discord':'th-discord','noted':'th-noted'};
+  const thEl=document.getElementById(thMap[key]);if(thEl)thEl.classList.add(memberSortDir===1?'sort-asc':'sort-desc');
+  renderMembers();
 }
 function renderMembers(){
-  const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,fp=document.getElementById('fp').value;
-  const f=members.filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||m.char_id.includes(q)))return false;if(fc&&m.class!==fc)return false;if(fp&&String(m.party)!==fp)return false;return true});
-  const g=document.getElementById('member-grid');
-  if(!f.length){g.innerHTML='<div class="empty">ไม่พบสมาชิก</div>';return}
-  g.innerHTML=f.map(m=>{const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';return`<div class="mc"><div class="ign">${m.ign}</div><div class="cls">${m.class}${m.char_id?' · '+m.char_id:''}</div><div class="meta">${m.party?'<span class="badge b-party">P'+m.party+'</span>':''}<span class="badge b-cls">${m.class}</span>${nt}${!m.char_id?'<span class="no-id">ไม่มี ID</span>':''}</div></div>`}).join('');
+  const q=(document.getElementById('search-m').value||'').toLowerCase();
+  const fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
+  let f=members.filter(m=>{
+    if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;
+    if(fc&&m.class!==fc)return false;
+    if(ft&&getType(m.class)!==ft)return false;
+    if(fp&&String(m.party)!==fp)return false;
+    return true;
+  });
+  f.sort((a,b)=>{
+    let av,bv;
+    if(memberSortKey==='type'){av=getType(a.class);bv=getType(b.class)}
+    else{av=a[memberSortKey]||'';bv=b[memberSortKey]||''}
+    if(memberSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*memberSortDir}
+    return String(av).localeCompare(String(bv))*memberSortDir;
+  });
+  const tbody=document.getElementById('member-tbody');
+  if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('member-count-label').textContent='';return}
+  tbody.innerHTML=f.map((m,i)=>{
+    const type=getType(m.class),tc=getTypeClass(type),tl=getTypeLabel(type);
+    const noted=m.noted&&m.noted.trim()?`<span class="m-noted">${m.noted}</span>`:`<span style="color:rgba(255,255,255,0.18)">—</span>`;
+    return`<tr>
+      <td class="m-num">${i+1}</td>
+      <td style="font-weight:500">${m.ign}</td>
+      <td><span class="badge ${tc}">${m.class}</span></td>
+      <td>${tl}</td>
+      <td>${m.party||'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td>
+      <td>${noted}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('member-count-label').textContent=`Showing ${f.length} of ${members.length} members`;
 }
 function renderParties(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
-  document.getElementById('party-view').innerHTML=Object.keys(pts).sort((a,b)=>+a-+b).map(p=>`<div class="party-card"><div class="ph"><span class="pn">⚔ Party ${p}</span><span class="pc">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');return`<div class="pm-row"><div class="pm-dot"></div><div class="pm-ign">${m.ign}</div><div class="pm-cls">${m.class}</div>${isSub?'<div class="pm-note">ตัวรอง</div>':isAbs?'<div class="pm-note">Absent</div>':''}</div>`}).join('')}</div></div>`).join('');
+  const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
+  const mainCount=sorted.filter(p=>+p<=8).length,secCount=sorted.filter(p=>+p>8).length;
+  const subEl=document.getElementById('party-sub');
+  if(subEl)subEl.textContent=(mainCount?mainCount+' สนามหลัก':'')+(mainCount&&secCount?' · ':'')+(secCount?secCount+' สนามรอง':'');
+  document.getElementById('party-view').innerHTML=sorted.map(p=>{
+    const isMain=+p<=8;
+    const headCls=isMain?'ph ph-main':'ph ph-sec';
+    const field=isMain?'สนามหลัก':'สนามรอง';
+    return`<div class="party-card"><div class="${headCls}"><span class="pn">Party ${p}</span><span class="ph-field">${field}</span></div><div class="pm-body">${pts[p].map(m=>{
+      const isSub=m.noted&&m.noted.includes('ตัวรอง');
+      const isLeave=m.noted&&m.noted.includes('แจ้งลา');
+      const type=getType(m.class),tc=getTypeClass(type);
+      return`<div class="pm-row"><div class="pm-dot"></div><div class="pm-ign">${m.ign}</div><div class="pm-cls" style="display:flex;gap:4px;align-items:center"><span class="badge ${tc}" style="font-size:9px;padding:1px 5px">${m.class}</span>${isSub?'<span class="pm-note">ตัวรอง</span>':isLeave?'<span class="pm-note">แจ้งลา</span>':''}</div></div>`;
+    }).join('')}</div></div>`;
+  }).join('');
 }
 function searchMe(){
   const q=(document.getElementById('si-party').value||'').toLowerCase().trim(),el=document.getElementById('party-result');
@@ -634,32 +750,48 @@ function calcReward(){
 
 /* RANDOMIZE */
 function buildClsOpts(){const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();document.getElementById('cls-opts').innerHTML=cls.map(c=>`<label class="chk-label"><input type="checkbox" class="cls-ck" value="${c}" checked> ${c}</label>`).join('')}
-function doRand(){
-  const exSub=document.getElementById('excl-sub').checked,exAbs=document.getElementById('excl-abs').checked,pt=document.getElementById('rand-party').value,cls=[...document.querySelectorAll('.cls-ck:checked')].map(c=>c.value);
-  let pool=members.filter(m=>{if(exSub&&m.noted.includes('ตัวรอง'))return false;if(exAbs&&m.noted.toLowerCase().includes('absent'))return false;if(pt&&String(m.party)!==pt)return false;if(!cls.includes(m.class))return false;return true});
+async function doRand(){
+  const exSub=document.getElementById('excl-sub').checked;
+  const pt=document.getElementById('rand-party').value;
+  let pool=members.filter(m=>{
+    if(exSub&&m.noted&&m.noted.includes('ตัวรอง'))return false;
+    if(pt&&String(m.party)!==pt)return false;
+    return true;
+  });
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   lastRand=pool;
-  if(!pool.length){document.getElementById('result-list').innerHTML='<div class="empty">ไม่มีสมาชิกที่ตรงเงื่อนไข</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none';return}
-  document.getElementById('rand-summary').innerHTML=`<span>${pool.length} คน</span><span>${[...new Set(pool.map(m=>m.party))].length} Parties</span>`;
-  document.getElementById('result-list').innerHTML=pool.map((m,i)=>`<div class="ri-row"><div class="ri-num">${i+1}</div><div class="ri-ign">${m.ign}</div><div class="ri-cls">${m.class}</div><div class="ri-p">P${m.party}</div></div>`).join('');
+  const chipEl=document.getElementById('rand-saved-chip');
+  if(chipEl)chipEl.innerHTML='';
+  if(!pool.length){document.getElementById('result-list').innerHTML='<div class="empty">No eligible members</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none';return}
+  document.getElementById('rand-summary').innerHTML=`<span>${pool.length} members</span><span>${[...new Set(pool.map(m=>m.party))].length} parties</span>`;
+  document.getElementById('result-list').innerHTML=`<div class="tbl-wrap"><table class="rand-tbl">
+    <thead><tr><th>#</th><th>Name</th><th>Char ID</th><th>Discord</th></tr></thead>
+    <tbody>${pool.map((m,i)=>`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td></tr>`).join('')}</tbody>
+  </table></div>`;
   document.getElementById('copy-btn').style.display='block';
   saveLog(pool);renderLogList();
+  const today=new Date().toISOString().slice(0,10);
+  const r=await gasPost({action:'appendQueue',date:today,members:pool.map(m=>m.ign)});
+  if(chipEl){
+    if(r.ok)chipEl.innerHTML='<span class="saved-chip">✓ Saved to '+today+'</span>';
+    else chipEl.innerHTML='<span style="font-size:10px;color:var(--red)">Save failed</span>';
+  }
 }
 function saveLog(pool){const logs=getLogs();logs.unshift({id:Date.now(),date:new Date().toLocaleString('th-TH'),members:pool.map(m=>m.ign)});if(logs.length>20)logs.pop();localStorage.setItem('rooc_rand_logs',JSON.stringify(logs))}
 function getLogs(){try{return JSON.parse(localStorage.getItem('rooc_rand_logs')||'[]')}catch(e){return[]}}
-function clearLogs(){if(confirm('ล้าง log?')){localStorage.removeItem('rooc_rand_logs');renderLogList();refreshLogSelect()}}
+function clearLogs(){if(confirm('Clear all draw logs?')){localStorage.removeItem('rooc_rand_logs');renderLogList();refreshLogSelect()}}
 function renderLogList(){
   const logs=getLogs(),el=document.getElementById('rand-log-list');
-  if(!logs.length){el.innerHTML='<div class="empty">ยังไม่มี log</div>';return}
-  el.innerHTML=logs.map(l=>`<div class="log-item"><div class="log-date">📅 ${l.date}</div><div class="log-count">${l.members.length} คน</div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="sendLogToCalc(${l.id})">🧮 แจกของ</button></div>`).join('');
+  if(!logs.length){el.innerHTML='<div class="empty">No logs yet</div>';return}
+  el.innerHTML=logs.map(l=>`<div class="log-item"><div class="log-date">📅 ${l.date}</div><div class="log-count">${l.members.length} members</div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="sendLogToCalc(${l.id})">🧮 Calculator</button></div>`).join('');
 }
 function sendLogToCalc(id){const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints();sw('calc')}
 function refreshLogSelect(){const logs=getLogs(),sel=document.getElementById('log-select');sel.innerHTML='<option value="">— เลือกจาก Log —</option>';logs.forEach(l=>sel.add(new Option(`${l.date} (${l.members.length} คน)`,l.id)))}
 function loadFromLog(){const id=+document.getElementById('log-select').value;if(!id)return;const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints()}
-function clearRand(){lastRand=[];document.getElementById('result-list').innerHTML='<div class="empty">กดสุ่มเพื่อเริ่ม</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none'}
-function copyRand(){navigator.clipboard.writeText(lastRand.map((m,i)=>`${i+1}. ${m.ign} (${m.class}) P${m.party}`).join('\n')).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓ คัดลอกแล้ว';setTimeout(()=>b.textContent='📋 คัดลอก',2000)})}
-function sendToTracker(){if(!lastRand.length){alert('กรุณาสุ่มก่อน');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
-function sendToCalc(){if(!lastRand.length){alert('กรุณาสุ่มก่อน');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
+function clearRand(){lastRand=[];document.getElementById('result-list').innerHTML='<div class="empty">Press Draw Queue to start</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none'}
+function copyRand(){navigator.clipboard.writeText(lastRand.map((m,i)=>`${i+1}. ${m.ign} | ${m.char_id||'-'} | ${m.discord||'-'}`).join('\n')).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='Copy',2000)})}
+function sendToTracker(){if(!lastRand.length){alert('Please draw queue first');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
+function sendToCalc(){if(!lastRand.length){alert('Please draw queue first');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
 
 /* CALC */
 function applyPreset(){
@@ -799,7 +931,7 @@ async function submitPaste(){
 /* TRACKER */
 function renderTracker(){
   const tc=document.getElementById('tracker-content');
-  if(!trackerSession.length){tc.innerHTML='<div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>ไปที่ 🎰 สุ่มคิว แล้วกด "ส่งไปติดตามรอบ"</p></div>';return}
+  if(!trackerSession.length){tc.innerHTML='<div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>Go to Randomize and press "Send to Tracker"</p></div>';return}
   const done=trackerSession.filter(m=>m.done).length,miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
   tc.innerHTML=`<div class="tk-header"><div class="session-summary"><div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">ทั้งหมด</div></div><div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">สุ่มแล้ว</div></div><div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">รอสุ่ม</div></div><div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">ของตกหล่น</div></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="exportMissing()">⬇ Export ของตกหล่น</button><button class="btn btn-red" onclick="if(confirm('ล้างรอบ?')){trackerSession=[];renderTracker()}">✕ ล้างรอบ</button></div></div>
   <div class="tracker-grid">${trackerSession.map((m,i)=>{const hM=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);return`<div class="tc ${m.done?(hM?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="drop-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="drop-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="drop-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`}).join('')}</div>`;
