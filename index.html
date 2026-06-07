@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔ ROOC Guild Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a84c;--gold-light:#f0d080;--gold-dim:rgba(201,168,76,0.18);
+  --dark:#18150f;--dark2:#1e1a12;--card:rgba(255,255,255,0.038);
+  --border:rgba(201,168,76,0.18);--border2:rgba(201,168,76,0.35);
+  --muted:rgba(255,255,255,0.42);--red:#e07070;--green:#7ec8a0;--blue:#80b4e8;
+  --font:'Segoe UI',system-ui,sans-serif
+}
+body{font-family:var(--font);background:var(--dark);color:#e8dcc8;min-height:100vh;font-size:14px}
+a{color:var(--gold-light);text-decoration:none}
+
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:200px;flex-shrink:0;background:var(--dark2);border-right:0.5px solid var(--border);padding:1.2rem 0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column}
+.main{margin-left:200px;flex:1;padding:1.5rem 1.8rem;max-width:1100px}
+.logo{padding:0 1.2rem 1.2rem;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
+.logo h1{font-size:15px;font-weight:600;color:var(--gold-light);letter-spacing:1.5px}
+.logo p{font-size:11px;color:var(--muted);margin-top:3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.2rem;font-size:13px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{color:#e8dcc8;background:rgba(255,255,255,0.03)}
+.nav-item.active{color:var(--gold-light);border-left-color:var(--gold);background:rgba(201,168,76,0.06)}
+.nav-item .ic{font-size:16px;width:20px;text-align:center}
+.nav-spacer{flex:1}
+.nav-footer{padding:0.8rem 1.2rem;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.6}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:18px;font-weight:500;color:var(--gold-light);margin-bottom:4px;letter-spacing:0.5px}
+.page-sub{font-size:12px;color:var(--muted);margin-bottom:1.2rem}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1.2rem}
+.sc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+.sc .n{font-size:22px;font-weight:600;color:var(--gold-light)}.sc .l{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+
+/* FILTERS */
+.filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+.filter-row input,.filter-row select,input,select{background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 11px;color:#e8dcc8;font-size:13px;outline:none;font-family:var(--font)}
+.filter-row input{flex:1;min-width:160px}
+.filter-row input::placeholder,input::placeholder{color:var(--muted)}
+select option{background:#2a2218;color:#e8dcc8}
+input:focus,select:focus{border-color:var(--border2)}
+
+/* MEMBER CARDS */
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.mc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 13px;transition:border-color 0.15s}
+.mc:hover{border-color:var(--border2)}
+.mc .ign{font-size:13px;font-weight:500;color:#e8dcc8}.mc .cls{font-size:11px;color:var(--muted);margin-top:2px}
+.mc .meta{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500}
+.b-party{background:rgba(201,168,76,0.12);color:var(--gold);border:0.5px solid rgba(201,168,76,0.22)}
+.b-absent{background:rgba(220,80,80,0.12);color:var(--red);border:0.5px solid rgba(220,80,80,0.22)}
+.b-sub{background:rgba(140,140,140,0.12);color:#aaa;border:0.5px solid rgba(140,140,140,0.22)}
+.b-cls{background:rgba(80,140,210,0.1);color:var(--blue);border:0.5px solid rgba(80,140,210,0.2)}
+.no-id{font-size:10px;color:rgba(255,255,255,0.2);margin-left:auto}
+
+/* PARTIES */
+.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.party-card{background:var(--card);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
+.ph{background:rgba(201,168,76,0.07);border-bottom:0.5px solid var(--border);padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
+.ph .pn{font-size:13px;font-weight:500;color:var(--gold-light)}.ph .pc{font-size:11px;color:var(--muted)}
+.pm-body{padding:8px 13px}
+.pm-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:12px}
+.pm-row:last-child{border-bottom:none}
+.pm-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:0.5;flex-shrink:0}
+.pm-ign{flex:1;color:#e8dcc8}.pm-cls{font-size:10px;color:var(--muted)}.pm-note{font-size:10px;color:var(--red)}
+
+/* SEARCH */
+.search-box{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
+.search-box h3{font-size:13px;font-weight:500;color:var(--gold-light);margin-bottom:10px}
+.search-row{display:flex;gap:8px}
+.search-row input{flex:1}
+.btn{padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer;font-family:var(--font);transition:all 0.15s;border:0.5px solid}
+.btn-primary{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light)}
+.btn-primary:hover{background:rgba(201,168,76,0.28)}
+.btn-ghost{background:transparent;border-color:rgba(255,255,255,0.15);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--border2);color:#e8dcc8}
+.btn-green{background:rgba(126,200,160,0.12);border-color:rgba(126,200,160,0.4);color:var(--green)}
+.btn-green:hover{background:rgba(126,200,160,0.2)}
+.btn-danger{background:rgba(220,80,80,0.1);border-color:rgba(220,80,80,0.3);color:var(--red)}
+.btn-full{width:100%;margin-top:6px}
+
+.result-profile{background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:8px;padding:1rem;margin-top:10px}
+.profile-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold-light);flex-shrink:0;font-weight:600}
+.profile-info .name{font-size:15px;font-weight:500;color:#e8dcc8}.profile-info .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.info-item{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px}
+.info-item .ik{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.info-item .iv{font-size:13px;color:#e8dcc8;font-weight:500}
+.party-mates{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
+.party-mates h4{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.mini-list{display:flex;flex-wrap:wrap;gap:5px}
+.mini-tag{font-size:11px;padding:2px 8px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:4px;color:#e8dcc8}
+.not-found{text-align:center;color:var(--muted);font-size:13px;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:8px;border:0.5px solid var(--border);margin-top:10px}
+
+/* REWARDS */
+.section-h{font-size:13px;color:var(--gold-light);font-weight:500;letter-spacing:1px;margin-bottom:10px;padding-bottom:7px;border-bottom:0.5px solid var(--border);margin-top:1.2rem}
+.section-h:first-child{margin-top:0}
+.rank-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.rank-row label{font-size:12px;color:var(--muted)}
+.reward-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.reward-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.reward-card .ri{font-size:22px;margin-bottom:5px}
+.reward-card .rv{font-size:22px;font-weight:600;color:var(--gold-light)}
+.reward-card .rl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px}
+.reward-card .rm{font-size:11px;color:rgba(201,168,76,0.5);margin-top:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.tbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);color:#e8dcc8}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.hl td{color:var(--gold-light);background:rgba(201,168,76,0.05)}
+.tbl-wrap{overflow-x:auto}
+.cs-y{color:var(--green);font-size:10px}.cs-n{color:var(--red);font-size:10px}
+.event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:10px}
+.event-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:12px}
+.event-card .et{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.event-card .en{font-size:14px;font-weight:500;color:#e8dcc8;margin-bottom:3px}
+.event-card .ed{font-size:12px;color:var(--gold)}
+
+/* RANDOMIZE */
+.rand-layout{display:grid;grid-template-columns:240px 1fr;gap:12px}
+@media(max-width:700px){.rand-layout{grid-template-columns:1fr}.sidebar{display:none}.main{margin-left:0}}
+.panel{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1rem}
+.panel h3{font-size:13px;font-weight:500;color:var(--gold-light);margin-bottom:10px;letter-spacing:0.5px}
+.cls-opts{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;max-height:200px;overflow-y:auto}
+.cls-opts label,.chk-label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}
+.cls-opts input[type=checkbox],.chk-label input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px}
+.btns-col{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.result-list{max-height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.ri-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;font-size:12px;background:rgba(255,255,255,0.025);animation:fi 0.2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.ri-num{color:var(--gold);font-weight:600;min-width:20px;font-size:11px}
+.ri-ign{flex:1;color:#e8dcc8}.ri-cls{font-size:10px;color:var(--muted)}.ri-p{font-size:10px;color:var(--gold);opacity:0.6}
+.rand-summary{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.rand-summary span{font-size:11px;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:4px;color:var(--muted)}
+.copy-btn{padding:5px 12px;background:transparent;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:11px;cursor:pointer;margin-top:8px;transition:all 0.15s;font-family:var(--font)}
+.copy-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* TRACKER */
+.session-summary{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ss-item{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:80px}
+.ss-n{font-size:20px;font-weight:600;color:var(--gold-light)}.ss-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.tc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
+.tc-head{padding:8px 11px;display:flex;align-items:center;gap:7px;border-bottom:0.5px solid rgba(255,255,255,0.05)}
+.tc-head input[type=checkbox]{accent-color:var(--gold);cursor:pointer;width:14px;height:14px;flex-shrink:0}
+.tc-ign{font-size:12px;font-weight:500;color:#e8dcc8;flex:1}.tc-p{font-size:10px;color:var(--gold);opacity:0.7}
+.tc-body{padding:7px 11px}
+.drop-row{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0}
+.drop-row label{color:var(--muted);flex:1}.drop-row span{color:var(--muted);font-size:10px}
+.drop-row input[type=number]{width:52px;background:rgba(255,255,255,0.05);border:0.5px solid var(--border);border-radius:4px;padding:3px 6px;color:#e8dcc8;font-size:11px;outline:none;text-align:center;font-family:var(--font)}
+.tc.tc-done{border-color:rgba(126,200,160,0.25)}.tc.tc-done .tc-ign{text-decoration:line-through;color:var(--muted)}
+.tc.tc-miss{border-color:rgba(220,80,80,0.3);background:rgba(220,80,80,0.04)}
+.no-session{text-align:center;color:var(--muted);padding:3rem;background:rgba(255,255,255,0.02);border-radius:10px;border:0.5px solid var(--border)}
+.no-session .big{font-size:32px;margin-bottom:8px}.no-session p{font-size:13px;margin-top:6px}
+.tk-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.sep{height:0.5px;background:var(--border);margin:12px 0}
+.empty{text-align:center;color:var(--muted);font-size:12px;padding:2rem}
+.status-bar{font-size:11px;color:var(--muted);margin-bottom:1.2rem}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<div class="app">
+<nav class="sidebar">
+  <div class="logo">
+    <h1>⚔ ROOC GM</h1>
+    <p>Guild Manager</p>
+  </div>
+  <div class="nav-item active" onclick="sw('members')"><span class="ic">👥</span> Members</div>
+  <div class="nav-item" onclick="sw('parties')"><span class="ic">🛡</span> Parties</div>
+  <div class="nav-item" onclick="sw('search')"><span class="ic">🔍</span> ค้นหาตัวเอง</div>
+  <div class="nav-item" onclick="sw('rewards')"><span class="ic">🪶</span> ขนนก & Rank</div>
+  <div class="nav-item" onclick="sw('randomize')"><span class="ic">🎰</span> สุ่มคิว</div>
+  <div class="nav-item" onclick="sw('tracker')"><span class="ic">✅</span> ติดตามรอบ</div>
+  <div class="nav-spacer"></div>
+  <div class="nav-footer">
+    ROOC Warmup (BOT)<br>
+    <span id="nav-status">กำลังโหลด...</span>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- MEMBERS -->
+<div id="page-members" class="page active">
+  <div class="page-title">👥 Members</div>
+  <div class="page-sub status-bar"><span class="status-dot" id="dot"></span><span id="status-text">กำลังโหลดข้อมูล...</span></div>
+  <div class="stats-row" id="stats-row"></div>
+  <div class="filter-row">
+    <input type="text" id="search-m" placeholder="ค้นหาชื่อ / Character ID..." oninput="renderMembers()">
+    <select id="fc" onchange="renderMembers()"><option value="">ทุก Class</option></select>
+    <select id="fp" onchange="renderMembers()"><option value="">ทุก Party</option></select>
+  </div>
+  <div class="member-grid" id="member-grid"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- PARTIES -->
+<div id="page-parties" class="page">
+  <div class="page-title">🛡 Parties</div>
+  <div class="page-sub">ปาร์ตี้ทั้งหมดในกิลด์</div>
+  <div class="party-grid" id="party-view"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- SEARCH -->
+<div id="page-search" class="page">
+  <div class="page-title">🔍 ค้นหาตัวเอง</div>
+  <div class="page-sub">ค้นหาด้วยชื่อ, Character ID, หรือ Discord ID</div>
+
+  <div class="search-box">
+    <h3>🛡 ปาร์ตี้ของฉัน</h3>
+    <div class="search-row">
+      <input type="text" id="si-party" placeholder="ชื่อตัวละคร / Character ID / Discord ID..." oninput="searchMe()">
+      <button class="btn btn-primary" onclick="searchMe()">ค้นหา</button>
+    </div>
+    <div id="party-result"></div>
+  </div>
+
+  <div class="search-box">
+    <h3>🏆 คิวประมูลของฉัน</h3>
+    <div class="search-row">
+      <input type="text" id="si-queue" placeholder="ชื่อตัวละคร / Character ID..." oninput="searchQueue()">
+      <button class="btn btn-primary" onclick="searchQueue()">ค้นหา</button>
+    </div>
+    <div id="queue-result"></div>
+  </div>
+</div>
+
+<!-- REWARDS -->
+<div id="page-rewards" class="page">
+  <div class="page-title">🪶 ขนนก & Rank</div>
+  <div class="page-sub">ตารางรางวัลและกำหนดการกิจกรรม</div>
+
+  <div class="section-h">⚙ คำนวณรางวัลตามอันดับ</div>
+  <div class="rank-row">
+    <label>ประเภท</label>
+    <select id="rw-type" onchange="calcReward()">
+      <option value="overrun">Overrun (Cross-Server)</option>
+      <option value="gl-y">Guild League — Cross-Server ✓</option>
+      <option value="gl-n">Guild League — Cross-Server ✗</option>
+    </select>
+    <label>อันดับ</label>
+    <select id="rw-rank" onchange="calcReward()"></select>
+  </div>
+  <div class="reward-cards" id="reward-cards"></div>
+
+  <div class="section-h">📅 กำหนดการ</div>
+  <div class="event-grid">
+    <div class="event-card"><div class="et">กิจกรรม</div><div class="en">Guild League</div><div class="ed">อังคาร &amp; พฤหัสบดี</div></div>
+    <div class="event-card"><div class="et">กิจกรรม</div><div class="en">Overrun</div><div class="ed">เสาร์</div></div>
+    <div class="event-card"><div class="et">ประกาศผล</div><div class="en">Guild League Rank</div><div class="ed">จันทร์ (ทุกสัปดาห์)</div></div>
+  </div>
+
+  <div class="section-h">📋 ตารางรางวัลเต็ม</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Type</th><th>Cross</th><th>Rank</th><th>Card</th><th>White Feather</th><th>Red/Black</th></tr></thead>
+      <tbody id="reward-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RANDOMIZE -->
+<div id="page-randomize" class="page">
+  <div class="page-title">🎰 สุ่มคิว</div>
+  <div class="page-sub">สุ่มลำดับสมาชิกสำหรับรับรางวัล</div>
+  <div class="rand-layout">
+    <div class="panel">
+      <h3>⚙ ตั้งค่า</h3>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">กรอง Party</label>
+      <select id="rand-party" style="width:100%;margin-bottom:10px"><option value="">ทุก Party</option></select>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">กรอง Class</label>
+      <div class="cls-opts" id="cls-opts"></div>
+      <div class="sep"></div>
+      <label class="chk-label" style="margin-bottom:5px"><input type="checkbox" id="excl-sub" checked> ไม่รวมตัวรอง</label>
+      <label class="chk-label"><input type="checkbox" id="excl-abs" checked> ไม่รวม Absent</label>
+      <div class="btns-col">
+        <button class="btn btn-primary btn-full" onclick="doRand()">🎰 สุ่มคิว</button>
+        <button class="btn btn-ghost btn-full" onclick="clearRand()">↺ รีเซ็ต</button>
+        <button class="btn btn-green btn-full" onclick="sendToTracker()">✅ ส่งไปติดตามรอบ</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3>📋 ผลสุ่ม</h3>
+        <button class="copy-btn" id="copy-btn" onclick="copyRand()" style="display:none">📋 คัดลอก</button>
+      </div>
+      <div class="rand-summary" id="rand-summary"></div>
+      <div class="result-list" id="result-list"><div class="empty">กดสุ่มเพื่อเริ่ม</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div id="page-tracker" class="page">
+  <div class="page-title">✅ ติดตามรอบการสุ่ม</div>
+  <div class="page-sub">ติ๊กสมาชิกที่สุ่มแล้ว และบันทึกของที่ได้รับจริง</div>
+  <div id="tracker-content">
+    <div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>ไปที่ 🎰 สุ่มคิว แล้วกด "ส่งไปติดตามรอบ"</p></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
+const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
+
+let members=[],queueData=[],lastRand=[],trackerSession=[];
+const CFG={max_card:1,max_white:4,max_red:7};
+
+const REWARDS={
+  overrun:[
+    {rank:'1',card:20,white:150,red:170},{rank:'2',card:20,white:140,red:160},
+    {rank:'3',card:20,white:140,red:160},{rank:'4',card:15,white:120,red:150},
+    {rank:'5',card:15,white:120,red:150},{rank:'6',card:15,white:120,red:150},
+    {rank:'7',card:12,white:100,red:150},{rank:'8',card:12,white:100,red:150}
+  ],
+  'gl-y':[
+    {rank:'1. Peak King',card:23,white:90,red:105},{rank:'2. Supream Warband',card:21,white:87,red:105},
+    {rank:'3. Honor Soul',card:20,white:84,red:105},{rank:'4. The Chosen One',card:19,white:81,red:105},
+    {rank:'5. Glorious Legend',card:18,white:78,red:105},{rank:'6. Immortal Myth',card:17,white:75,red:105},
+    {rank:'7. Eternal Monarch',card:16,white:72,red:105},{rank:'8. Omni Ruler',card:15,white:69,red:105}
+  ],
+  'gl-n':[
+    {rank:'1. Bright Sun',card:8,white:60,red:105},{rank:'2. Glorious Moon',card:7,white:55,red:100},
+    {rank:'3. Shining Stars',card:6,white:50,red:90},{rank:'4. Platinum',card:5,white:45,red:80},
+    {rank:'5. Gold',card:4,white:40,red:70},{rank:'6. Silver',card:2,white:35,red:60},
+    {rank:'7. Bronze',card:2,white:30,red:50}
+  ]
+};
+
+function sw(t){
+  const pages=['members','parties','search','rewards','randomize','tracker'];
+  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+t).classList.add('active');
+  if(t==='parties')renderParties();
+  if(t==='rewards')initRewards();
+}
+
+async function loadData(){
+  const setStatus=(ok,msg)=>{
+    document.getElementById('status-text').textContent=msg;
+    document.getElementById('nav-status').textContent=ok?`${members.length} สมาชิก`:'Error';
+    const dot=document.getElementById('dot');
+    dot.style.background=ok?'var(--green)':'var(--red)';
+  };
+  try{
+    const parse=txt=>{
+      const json=JSON.parse(txt.replace(/^[^{]*/,'').replace(/[^}]*$/,''));
+      return json;
+    };
+    const [mr,qr]=await Promise.all([
+      fetch(mkUrl('Members')).then(r=>r.text()),
+      fetch(mkUrl('Queue_BOT')).then(r=>r.text()).catch(()=>null)
+    ]);
+    const mj=parse(mr);
+    const cols=mj.table.cols.map(c=>c.label.toLowerCase().replace(/\s+/g,'_'));
+    const get=(v,k)=>{const i=cols.findIndex(c=>c.includes(k));return i>=0&&v[i]?String(v[i].v||'').trim():''};
+    members=mj.table.rows.map(r=>{
+      const v=r.c||[];
+      return{
+        class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),
+        char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),
+        party:get(v,'party'),noted:get(v,'noted')
+      };
+    }).filter(m=>m.ign);
+
+    if(qr){try{const qj=parse(qr);queueData=qj.table.rows.map(r=>(r.c||[]).map(c=>c?String(c.v||'').trim():''))}catch(e){}}
+
+    setStatus(true,`โหลดสำเร็จ · ${members.length} สมาชิก · ดึงจาก Google Sheets`);
+    buildFilters();renderStats();renderMembers();buildClsOpts();
+  }catch(e){
+    setStatus(false,'โหลดไม่สำเร็จ — ตรวจสอบ Share settings');
+    document.getElementById('member-grid').innerHTML='<div class="empty" style="color:var(--red)">❌ ไม่สามารถดึงข้อมูลได้<br><br>ตรวจสอบว่า Google Sheets ตั้งเป็น "Anyone with the link can view"</div>';
+  }
+}
+
+function buildFilters(){
+  const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
+  const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
+  const fc=document.getElementById('fc'),fp=document.getElementById('fp'),rp=document.getElementById('rand-party');
+  cls.forEach(c=>fc.add(new Option(c,c)));
+  pts.forEach(p=>{fp.add(new Option('Party '+p,p));rp.add(new Option('Party '+p,p))});
+}
+
+function renderStats(){
+  const total=members.length,subs=members.filter(m=>m.noted.includes('ตัวรอง')).length;
+  const abs=members.filter(m=>m.noted.toLowerCase().includes('absent')).length;
+  const pts=new Set(members.map(m=>m.party).filter(Boolean)).size;
+  const wid=members.filter(m=>m.char_id).length;
+  document.getElementById('stats-row').innerHTML=[
+    [total,'สมาชิก'],[pts,'Parties'],[wid,'มี Char ID'],[subs,'ตัวรอง'],[abs,'Absent']
+  ].map(([n,l])=>`<div class="sc"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+}
+
+function renderMembers(){
+  const q=(document.getElementById('search-m').value||'').toLowerCase();
+  const fc=document.getElementById('fc').value,fp=document.getElementById('fp').value;
+  const f=members.filter(m=>{
+    if(q&&!(m.ign.toLowerCase().includes(q)||m.char_id.includes(q)))return false;
+    if(fc&&m.class!==fc)return false;
+    if(fp&&String(m.party)!==fp)return false;
+    return true;
+  });
+  const g=document.getElementById('member-grid');
+  if(!f.length){g.innerHTML='<div class="empty">ไม่พบสมาชิก</div>';return}
+  g.innerHTML=f.map(m=>{
+    const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');
+    const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';
+    return`<div class="mc"><div class="ign">${m.ign}</div><div class="cls">${m.class}${m.char_id?' · ID: '+m.char_id:''}</div><div class="meta">${m.party?'<span class="badge b-party">P'+m.party+'</span>':''}<span class="badge b-cls">${m.class}</span>${nt}${!m.char_id?'<span class="no-id">ไม่มี ID</span>':''}</div></div>`;
+  }).join('');
+}
+
+function renderParties(){
+  const pts={};
+  members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
+  const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
+  document.getElementById('party-view').innerHTML=sorted.map(p=>{
+    return`<div class="party-card"><div class="ph"><span class="pn">⚔ Party ${p}</span><span class="pc">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{
+      const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');
+      return`<div class="pm-row"><div class="pm-dot"></div><div class="pm-ign">${m.ign}</div><div class="pm-cls">${m.class}</div>${isSub?'<div class="pm-note">ตัวรอง</div>':isAbs?'<div class="pm-note">Absent</div>':''}</div>`;
+    }).join('')}</div></div>`;
+  }).join('');
+}
+
+function searchMe(){
+  const q=(document.getElementById('si-party').value||'').toLowerCase().trim();
+  const el=document.getElementById('party-result');
+  if(!q){el.innerHTML='';return}
+  const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q)));
+  if(!found.length){el.innerHTML='<div class="not-found">ไม่พบสมาชิกที่ตรงกัน</div>';return}
+  el.innerHTML=found.map(m=>{
+    const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
+    const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');
+    const nt=isSub?'<span class="badge b-sub" style="font-size:11px">ตัวรอง</span>':isAbs?'<span class="badge b-absent" style="font-size:11px">Absent</span>':'';
+    return`<div class="result-profile">
+      <div class="profile-header">
+        <div class="avatar">${m.ign.charAt(0).toUpperCase()}</div>
+        <div class="profile-info"><div class="name">${m.ign} ${nt}</div><div class="sub">${m.class} · Party ${m.party||'N/A'}</div></div>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><div class="ik">Character ID</div><div class="iv">${m.char_id||'—'}</div></div>
+        <div class="info-item"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div>
+        <div class="info-item"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div>
+        <div class="info-item"><div class="ik">Status</div><div class="iv">${m.noted||'ปกติ'}</div></div>
+      </div>
+      ${mates.length?`<div class="party-mates"><h4>เพื่อนร่วม Party ${m.party}</h4><div class="mini-list">${mates.map(x=>`<span class="mini-tag">${x.ign}</span>`).join('')}</div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function searchQueue(){
+  const q=(document.getElementById('si-queue').value||'').toLowerCase().trim();
+  const el=document.getElementById('queue-result');
+  if(!q){el.innerHTML='';return}
+  const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.includes(q)));
+  if(!found.length){el.innerHTML='<div class="not-found">ไม่พบสมาชิก</div>';return}
+  if(!queueData.length){
+    el.innerHTML=`<div class="not-found">ยังไม่มีข้อมูลคิวใน Queue_BOT<br><small>พบสมาชิก: ${found.map(m=>m.ign).join(', ')}</small></div>`;
+    return;
+  }
+  const results=[];
+  found.forEach(m=>{
+    queueData.forEach((row,ri)=>{
+      row.forEach((cell,ci)=>{
+        if(cell&&(cell.toLowerCase().includes(q)||cell===m.char_id)){
+          results.push({member:m,row:ri+1,col:ci+1,val:cell});
+        }
+      });
+    });
+  });
+  el.innerHTML=results.length
+    ?results.map(r=>`<div class="result-profile"><strong>${r.member.ign}</strong> — พบในแถว ${r.row}</div>`).join('')
+    :'<div class="not-found">ไม่พบคิวของสมาชิกนี้ใน Queue_BOT</div>';
+}
+
+function initRewards(){
+  const te=document.getElementById('rw-type'),re=document.getElementById('rw-rank');
+  function upd(){
+    re.innerHTML='';
+    REWARDS[te.value].forEach((r,i)=>re.add(new Option(r.rank,i)));
+    calcReward();
+  }
+  te.onchange=upd;upd();
+  const tbody=document.getElementById('reward-tbody');
+  if(tbody.innerHTML)return;
+  tbody.innerHTML=[
+    ...REWARDS.overrun.map(r=>`<tr><td>Overrun</td><td class="cs-y">Cross ✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),
+    ...REWARDS['gl-y'].map(r=>`<tr><td>Guild League</td><td class="cs-y">Cross ✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),
+    ...REWARDS['gl-n'].map(r=>`<tr><td>Guild League</td><td class="cs-n">Cross ✗</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`)
+  ].join('');
+}
+
+function calcReward(){
+  const type=document.getElementById('rw-type').value;
+  const idx=+document.getElementById('rw-rank').value;
+  const r=REWARDS[type][idx];if(!r)return;
+  document.getElementById('reward-cards').innerHTML=`
+    <div class="reward-card"><div class="ri">🃏</div><div class="rv">${r.card}</div><div class="rl">Card</div><div class="rm">max ${CFG.max_card}/คน</div></div>
+    <div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.white}</div><div class="rl">White Feather</div><div class="rm">max ${CFG.max_white}/คน</div></div>
+    <div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.red}</div><div class="rl">Red/Black Feather</div><div class="rm">max ${CFG.max_red}/คน</div></div>
+  `;
+}
+
+function buildClsOpts(){
+  const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
+  document.getElementById('cls-opts').innerHTML=cls.map(c=>`<label class="cls-opts" style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" class="cls-ck" value="${c}" checked style="accent-color:var(--gold)"> ${c}</label>`).join('');
+}
+
+function doRand(){
+  const exSub=document.getElementById('excl-sub').checked;
+  const exAbs=document.getElementById('excl-abs').checked;
+  const pt=document.getElementById('rand-party').value;
+  const cls=[...document.querySelectorAll('.cls-ck:checked')].map(c=>c.value);
+  let pool=members.filter(m=>{
+    if(exSub&&m.noted.includes('ตัวรอง'))return false;
+    if(exAbs&&m.noted.toLowerCase().includes('absent'))return false;
+    if(pt&&String(m.party)!==pt)return false;
+    if(!cls.includes(m.class))return false;
+    return true;
+  });
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  lastRand=pool;
+  const sum=document.getElementById('rand-summary');
+  const list=document.getElementById('result-list');
+  const cb=document.getElementById('copy-btn');
+  if(!pool.length){list.innerHTML='<div class="empty">ไม่มีสมาชิกที่ตรงเงื่อนไข</div>';sum.innerHTML='';cb.style.display='none';return}
+  sum.innerHTML=`<span>${pool.length} คน</span><span>${[...new Set(pool.map(m=>m.party))].length} Parties</span>`;
+  list.innerHTML=pool.map((m,i)=>`<div class="ri-row"><div class="ri-num">${i+1}</div><div class="ri-ign">${m.ign}</div><div class="ri-cls">${m.class}</div><div class="ri-p">P${m.party}</div></div>`).join('');
+  cb.style.display='block';
+}
+
+function clearRand(){lastRand=[];document.getElementById('result-list').innerHTML='<div class="empty">กดสุ่มเพื่อเริ่ม</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none'}
+
+function copyRand(){
+  const t=lastRand.map((m,i)=>`${i+1}. ${m.ign} (${m.class}) P${m.party}`).join('\n');
+  navigator.clipboard.writeText(t).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓ คัดลอกแล้ว';setTimeout(()=>b.textContent='📋 คัดลอก',2000)});
+}
+
+function sendToTracker(){
+  if(!lastRand.length){alert('กรุณาสุ่มคิวก่อน');return}
+  trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));
+  renderTracker();sw('tracker');
+}
+
+function renderTracker(){
+  const tc=document.getElementById('tracker-content');
+  if(!trackerSession.length){tc.innerHTML='<div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>ไปที่ 🎰 สุ่มคิว แล้วกด "ส่งไปติดตามรอบ"</p></div>';return}
+  const done=trackerSession.filter(m=>m.done).length;
+  const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
+  tc.innerHTML=`
+    <div class="tk-header">
+      <div class="session-summary">
+        <div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">ทั้งหมด</div></div>
+        <div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">สุ่มแล้ว</div></div>
+        <div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">รอสุ่ม</div></div>
+        <div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">ของตกหล่น</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="exportMissing()">⬇ Export ของตกหล่น</button>
+        <button class="btn btn-danger" onclick="if(confirm('ล้างรอบสุ่ม?')){trackerSession=[];renderTracker()}">✕ ล้างรอบ</button>
+      </div>
+    </div>
+    <div class="tracker-grid">${trackerSession.map((m,i)=>{
+      const hasMiss=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);
+      return`<div class="tc ${m.done?(hasMiss?'tc-miss':'tc-done'):''}">
+        <div class="tc-head">
+          <input type="checkbox" ${m.done?'checked':''} onchange="toggleDone(${i},this.checked)">
+          <div class="tc-ign">${i+1}. ${m.ign}</div>
+          <div class="tc-p">P${m.party}</div>
+        </div>
+        ${m.done?`<div class="tc-body">
+          <div class="drop-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div>
+          <div class="drop-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div>
+          <div class="drop-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div>
+        </div>`:''}
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function toggleDone(i,v){
+  trackerSession[i].done=v;
+  if(v){trackerSession[i].got_card=CFG.max_card;trackerSession[i].got_white=CFG.max_white;trackerSession[i].got_red=CFG.max_red}
+  renderTracker();
+}
+function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
+
+function exportMissing(){
+  const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
+  if(!miss.length){alert('ไม่มีของตกหล่น 🎉');return}
+  const lines=['=== ของตกหล่น — ต้องสุ่มรอบถัดไป ===','',
+    ...miss.map(m=>{
+      const p=[];
+      if(m.got_card<CFG.max_card)p.push(`Card ขาด ${CFG.max_card-m.got_card}`);
+      if(m.got_white<CFG.max_white)p.push(`White ขาด ${CFG.max_white-m.got_white}`);
+      if(m.got_red<CFG.max_red)p.push(`Red/Blk ขาด ${CFG.max_red-m.got_red}`);
+      return`${m.ign} (P${m.party}): ${p.join(', ')}`;
+    })
+  ].join('\n');
+  navigator.clipboard.writeText(lines).then(()=>alert('คัดลอกรายการของตกหล่นแล้ว!\n\n'+lines));
+}
+
+loadData();
+</script>
+</body>
+</html>
