@@ -1,373 +1,412 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔ ROOC Guild Manager</title>
+<title>Warmup Guild Manager</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --gold:#c9a84c;--gold-l:#f0d080;--gold-dim:rgba(201,168,76,0.15);
-  --dark:#18150f;--dark2:#1e1a12;--card:rgba(255,255,255,0.038);
-  --border:rgba(201,168,76,0.18);--border2:rgba(201,168,76,0.38);
-  --muted:rgba(255,255,255,0.42);--red:#e07070;--green:#7ec8a0;--blue:#80b4e8;
+  --bg:#0f0d0b;--bg2:#141109;--bg3:#1c1710;
+  --card:rgba(255,255,255,0.035);--card2:rgba(255,255,255,0.055);
+  --orange:#E8732A;--orange-l:#F5A06A;--orange-dim:rgba(232,115,42,0.12);--orange-border:rgba(232,115,42,0.3);
+  --gold:#C9A84C;--gold-l:#F0D080;--gold-dim:rgba(201,168,76,0.1);
+  --border:rgba(232,115,42,0.13);--border2:rgba(232,115,42,0.32);
+  --text:#F2E8D8;--muted:rgba(242,232,216,0.45);--faint:rgba(242,232,216,0.22);
+  --green:#5DBF8A;--green-dim:rgba(93,191,138,0.1);--green-b:rgba(93,191,138,0.28);
+  --red:#E0706A;--red-dim:rgba(224,112,106,0.1);--red-b:rgba(224,112,106,0.28);
+  --amber:#D4A044;--amber-dim:rgba(212,160,68,0.1);--amber-b:rgba(212,160,68,0.28);
+  --blue:#6BA3D6;--blue-dim:rgba(107,163,214,0.1);--blue-b:rgba(107,163,214,0.28);
   --font:'Segoe UI',system-ui,sans-serif
 }
-body{font-family:var(--font);background:var(--dark);color:#e8dcc8;min-height:100vh;font-size:14px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .app{display:flex;min-height:100vh}
-.sidebar{width:220px;flex-shrink:0;background:var(--dark2);border-right:0.5px solid var(--border);padding:1.2rem 0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease}
-.main{margin-left:220px;flex:1;padding:1.5rem 1.8rem;min-width:0;max-width:calc(100vw - 220px)}
-.hamburger{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--dark2);border:0.5px solid var(--border);border-radius:8px;padding:8px 11px;cursor:pointer;font-size:18px;line-height:1;color:#e8dcc8}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:150;backdrop-filter:blur(2px)}
-.sidebar-overlay.show{display:block}
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding:3.8rem 0.9rem 2rem;max-width:100vw}
-  .hamburger{display:flex;align-items:center;justify-content:center}
-}
-.logo{padding:0 1.2rem 1rem;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
-.logo h1{font-size:15px;font-weight:600;color:var(--gold-l);letter-spacing:1.5px}
-.logo p{font-size:11px;color:var(--muted);margin-top:3px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.2rem;font-size:13px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent}
-.nav-item:hover{color:#e8dcc8;background:rgba(255,255,255,0.03)}
-.nav-item.active{color:var(--gold-l);border-left-color:var(--gold);background:rgba(201,168,76,0.06)}
-.admin-badge{font-size:9px;padding:1px 5px;background:rgba(201,168,76,0.2);border:0.5px solid var(--gold);border-radius:3px;color:var(--gold);margin-left:auto;display:none}
-.admin-badge.show{display:inline}
+
+/* SIDEBAR */
+.sidebar{width:210px;flex-shrink:0;background:var(--bg2);border-right:0.5px solid var(--border);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease}
+.logo-area{padding:1rem 1rem 0.8rem;border-bottom:0.5px solid var(--border);margin-bottom:0.6rem}
+.logo-img-wrap{width:100%;display:flex;justify-content:center;margin-bottom:8px}
+.logo-img{width:72px;height:72px;object-fit:contain;border-radius:10px}
+.logo-text{text-align:center}
+.logo-text h1{font-size:15px;font-weight:600;color:var(--gold-l);letter-spacing:2px}
+.logo-text p{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 1rem;font-size:12px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{color:var(--text);background:rgba(232,115,42,0.04)}
+.nav-item.active{color:var(--orange-l);border-left-color:var(--orange);background:var(--orange-dim)}
+.nav-item .ni{font-size:15px;width:18px;text-align:center}
 .nav-spacer{flex:1}
-.nav-footer{padding:0.8rem 1.2rem;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.7}
-.admin-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 1.2rem 0;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
-.admin-btn:hover{border-color:var(--gold);color:var(--gold-l)}
-.admin-btn.logged-in{border-color:rgba(201,168,76,0.4);color:var(--gold);background:rgba(201,168,76,0.08)}
+.admin-btn{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 1rem 6px;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
+.admin-btn:hover{border-color:var(--orange-border);color:var(--orange-l)}
+.admin-btn.on{border-color:var(--orange-border);color:var(--orange);background:var(--orange-dim)}
+.nav-footer{padding:0.6rem 1rem;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.7}
+.sdot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:4px;vertical-align:middle}
+.hamburger{display:none;position:fixed;top:11px;left:11px;z-index:300;background:var(--bg2);border:0.5px solid var(--border);border-radius:7px;padding:7px 10px;cursor:pointer;font-size:17px;color:var(--text)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150}
+.sidebar-overlay.show{display:block}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0!important;padding:3.5rem 0.9rem 2rem!important;max-width:100vw!important}.hamburger{display:flex;align-items:center}}
+
+/* MAIN */
+.main{margin-left:210px;flex:1;padding:1.5rem 1.8rem;min-width:0;max-width:calc(100vw - 210px)}
 .page{display:none}.page.active{display:block}
-.page-title{font-size:18px;font-weight:500;color:var(--gold-l);margin-bottom:4px}
-.page-sub{font-size:12px;color:var(--muted);margin-bottom:1.2rem}
+.page-title{font-size:18px;font-weight:500;color:var(--gold-l);margin-bottom:3px;letter-spacing:0.5px}
+.page-sub{font-size:12px;color:var(--muted);margin-bottom:1rem}
+
 /* COMMON */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:1.2rem}
-.sc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
-.sc .n{font-size:22px;font-weight:600;color:var(--gold-l)}.sc .l{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
-.filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
-@media(max-width:480px){
-  .filter-row{flex-direction:column}
-  .filter-row input,.filter-row select{width:100%;min-width:unset}
-  .sc .n{font-size:18px}
-  .page-title{font-size:16px}
-  .al-header{flex-direction:column;align-items:stretch}
-  .al-header select,.al-header button{width:100%}
-  .btn-row{flex-direction:column}
-  .btn-row .btn{width:100%}
-  .session-summary{gap:6px}
-  .ss-item{min-width:60px;padding:8px 10px}
-  .ss-n{font-size:16px}
-  .calc-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .calc-tab{white-space:nowrap;flex-shrink:0}
-  .tbl-wrap{font-size:11px}
-  .rand-summary span{font-size:10px}
-}
-input,select,textarea{background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 11px;color:#e8dcc8;font-size:13px;outline:none;font-family:var(--font)}
+input,select,textarea{background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;outline:none;font-family:var(--font)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
-select option{background:#2a2218;color:#e8dcc8}
+select option{background:#1c1710;color:var(--text)}
 input:focus,select:focus,textarea:focus{border-color:var(--border2)}
-.filter-row input{flex:1;min-width:160px}
-.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500}
-.b-party{background:rgba(201,168,76,0.12);color:var(--gold);border:0.5px solid rgba(201,168,76,0.22)}
-.b-absent{background:rgba(220,80,80,0.12);color:var(--red);border:0.5px solid rgba(220,80,80,0.22)}
-.b-sub{background:rgba(140,140,140,0.12);color:#aaa;border:0.5px solid rgba(140,140,140,0.22)}
-.b-cls{background:rgba(80,140,210,0.1);color:var(--blue);border:0.5px solid rgba(80,140,210,0.2)}
-.no-id{font-size:10px;color:rgba(255,255,255,0.2);margin-left:auto}
-.btn{padding:7px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:var(--font);transition:all 0.15s;border:0.5px solid;line-height:1.4}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
 .btn:active{transform:scale(0.97)}
-.btn-primary{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-l)}
-.btn-primary:hover{background:rgba(201,168,76,0.25)}
-.btn-ghost{background:transparent;border-color:rgba(255,255,255,0.15);color:var(--muted)}
-.btn-ghost:hover{border-color:var(--border2);color:#e8dcc8}
-.btn-green{background:rgba(126,200,160,0.12);border-color:rgba(126,200,160,0.4);color:var(--green)}
-.btn-green:hover{background:rgba(126,200,160,0.22)}
-.btn-red{background:rgba(220,80,80,0.1);border-color:rgba(220,80,80,0.3);color:var(--red)}
-.btn-red:hover{background:rgba(220,80,80,0.18)}
+.btn-primary{background:var(--orange-dim);border-color:var(--orange);color:var(--orange-l)}
+.btn-primary:hover{background:rgba(232,115,42,0.22)}
+.btn-ghost{background:transparent;border-color:rgba(255,255,255,0.12);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.btn-green{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
+.btn-red{background:var(--red-dim);border-color:var(--red-b);color:var(--red)}
 .btn-full{width:100%;margin-top:6px;text-align:center}
 .sep{height:0.5px;background:var(--border);margin:12px 0}
 .panel{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1rem 1.2rem}
 .panel h3{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
-.section-h{font-size:12px;color:var(--gold-l);font-weight:500;letter-spacing:1px;margin:1.2rem 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);text-transform:uppercase}
+.section-h{font-size:11px;color:var(--gold);font-weight:500;letter-spacing:1.2px;text-transform:uppercase;margin:1rem 0 8px;padding-bottom:5px;border-bottom:0.5px solid var(--border)}
 .section-h:first-child{margin-top:0}
-.empty{text-align:center;color:var(--muted);font-size:12px;padding:2rem}
-.btn-row{display:flex;gap:6px;flex-wrap:wrap}
-.no-id{font-size:10px;color:rgba(255,255,255,0.2);margin-left:auto}
-/* MEMBERS */
-.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:8px}
-.mc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 13px;transition:border-color 0.15s}
-.mc:hover{border-color:var(--border2)}
-.mc .ign{font-size:13px;font-weight:500}.mc .cls{font-size:11px;color:var(--muted);margin-top:2px}
-.mc .meta{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;align-items:center}
-/* PARTIES */
-.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:10px}
-.party-card{background:var(--card);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
-.ph{background:rgba(201,168,76,0.07);border-bottom:0.5px solid var(--border);padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
-.ph .pn{font-size:13px;font-weight:500;color:var(--gold-l)}.ph .pc{font-size:11px;color:var(--muted)}
-.pm-body{padding:8px 13px}
-.pm-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:12px}
-.pm-row:last-child{border-bottom:none}
-.pm-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:0.5;flex-shrink:0}
-.pm-ign{flex:1}.pm-cls{font-size:10px;color:var(--muted)}.pm-note{font-size:10px;color:var(--red)}
+.empty{text-align:center;color:var(--muted);font-size:12px;padding:2.5rem}
+.loading{text-align:center;color:var(--muted);font-size:12px;padding:2rem;opacity:0.7}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:1.2rem}
+.sc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+.sc .n{font-size:20px;font-weight:500;color:var(--gold-l)}.sc .l{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+
+/* TYPE PILLS */
+.type-summary{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.tp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.tp-s{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
+.tp-a{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
+.tp-d{background:var(--red-dim);color:var(--red);border:0.5px solid var(--red-b)}
+
+/* FILTER */
+.filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+.filter-row input{flex:1;min-width:140px}
+@media(max-width:480px){.filter-row{flex-direction:column}.filter-row input,.filter-row select{width:100%}}
+
+/* BADGES */
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500}
+.b-s{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
+.b-a{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
+.b-d{background:var(--red-dim);color:var(--red);border:0.5px solid var(--red-b)}
+.b-note{background:rgba(107,163,214,0.1);color:var(--blue);border:0.5px solid var(--blue-b)}
+
+/* MEMBERS TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:0.5px solid var(--border)}
+.mtbl{width:100%;border-collapse:collapse;font-size:12px}
+.mtbl th{text-align:left;padding:7px 9px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;user-select:none;background:rgba(0,0,0,0.2)}
+.mtbl th:hover{color:var(--text)}
+.mtbl th.asc::after{content:' ↑';color:var(--orange)}
+.mtbl th.desc::after{content:' ↓';color:var(--orange)}
+.mtbl td{padding:7px 9px;border-bottom:0.5px solid rgba(232,115,42,0.06);vertical-align:middle}
+.mtbl tr:last-child td{border-bottom:none}
+.mtbl tr:hover td{background:rgba(232,115,42,0.035)}
+.m-num{color:var(--faint);font-size:11px;width:28px;text-align:center}
+.type-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle;flex-shrink:0}
+.td-s{background:var(--green)}.td-a{background:var(--amber)}.td-d{background:var(--red)}
+
+/* PARTY */
+.field-section{margin-bottom:1.5rem}
+.field-section:last-child{margin-bottom:0}
+.field-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid var(--border)}
+.field-head h4{font-size:13px;font-weight:500;color:var(--text)}
+.field-tag{font-size:10px;padding:2px 9px;border-radius:12px;font-weight:500}
+.ft-main{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
+.ft-sec{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
+.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
+.pc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
+.pc-head{padding:8px 11px;display:flex;justify-content:space-between;align-items:center}
+.pc-head.main{background:rgba(93,191,138,0.08);border-bottom:0.5px solid var(--green-b)}
+.pc-head.sec{background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b)}
+.pc-head.main .pn{color:var(--green);font-size:12px;font-weight:500}
+.pc-head.sec .pn{color:var(--amber);font-size:12px;font-weight:500}
+.pc-count{font-size:10px;color:var(--muted)}
+.pm-body{padding:7px 11px;display:flex;flex-direction:column;gap:4px}
+.pm{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.pm-name{color:var(--text)}
+.pm-note{font-size:10px;color:var(--red)}
+
 /* SEARCH */
-.search-box{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
-.search-box h3{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
-.search-row{display:flex;gap:8px}
-.search-row input{flex:1}
-.result-profile{background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:8px;padding:1rem;margin-top:10px}
-.profile-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)}
-.avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold-l);flex-shrink:0;font-weight:600}
-.profile-info .name{font-size:15px;font-weight:500}.profile-info .sub{font-size:12px;color:var(--muted);margin-top:2px}
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px}
-.info-item{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px}
-.info-item .ik{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
-.info-item .iv{font-size:13px;font-weight:500}
-.party-mates{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
-.party-mates h4{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.mini-list{display:flex;flex-wrap:wrap;gap:5px}
-.mini-tag{font-size:11px;padding:2px 8px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:4px}
-.not-found{text-align:center;color:var(--muted);font-size:13px;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:8px;border:0.5px solid var(--border);margin-top:10px}
+.sbox{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
+.sbox h3{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
+.srow{display:flex;gap:8px}.srow input{flex:1}
+.profile{background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:8px;padding:1rem;margin-top:10px}
+.phead{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--orange-dim);border:1.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--orange-l);flex-shrink:0;font-weight:600}
+.pinfo .name{font-size:15px;font-weight:500}.pinfo .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.igrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px}
+.ii{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px}
+.ii .ik{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.ii .iv{font-size:13px;font-weight:500}
+.mates{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
+.mates h4{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.mtags{display:flex;flex-wrap:wrap;gap:5px}
+.mtag{font-size:11px;padding:2px 8px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:4px}
+.nf{text-align:center;color:var(--muted);font-size:13px;padding:1.2rem;background:rgba(255,255,255,0.02);border-radius:8px;border:0.5px solid var(--border);margin-top:10px}
+
 /* REWARDS */
-.reward-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px;margin-bottom:14px}
-.reward-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:14px;text-align:center}
-.reward-card .ri{font-size:22px;margin-bottom:5px}.reward-card .rv{font-size:22px;font-weight:600;color:var(--gold-l)}
-.reward-card .rl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px}
-.reward-card .rm{font-size:11px;color:rgba(201,168,76,0.5);margin-top:2px}
-.tbl-wrap{overflow-x:auto}
-.tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
-.tbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
-.tbl tr:last-child td{border-bottom:none}
+.rw-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px;margin-bottom:12px}
+.rw-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.rw-card .ri{font-size:20px;margin-bottom:4px}.rw-card .rv{font-size:20px;font-weight:500;color:var(--gold-l)}
+.rw-card .rl{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.rw-card .rm{font-size:11px;color:rgba(201,168,76,0.5);margin-top:2px}
+.evts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px;margin-bottom:10px}
+.evt{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:11px}
+.evt .et{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.evt .en{font-size:13px;font-weight:500;margin-bottom:2px}.evt .ed{font-size:12px;color:var(--gold)}
+.rtbl{width:100%;border-collapse:collapse;font-size:12px}
+.rtbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.rtbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);color:var(--text)}
+.rtbl tr:last-child td{border-bottom:none}
 .cs-y{color:var(--green);font-size:10px}.cs-n{color:var(--red);font-size:10px}
-.event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px;margin-bottom:10px}
-.event-card{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:12px}
-.event-card .et{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.event-card .en{font-size:14px;font-weight:500;margin-bottom:3px}.event-card .ed{font-size:12px;color:var(--gold)}
+
 /* RAND */
 .rand-layout{display:grid;grid-template-columns:220px 1fr;gap:12px}
 @media(max-width:768px){.rand-layout{grid-template-columns:1fr}}
-.cls-opts{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;max-height:200px;overflow-y:auto}
-.chk-label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}
-.chk-label input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;flex-shrink:0}
+.chk{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:5px}
+.chk input{accent-color:var(--orange);width:13px;height:13px;flex-shrink:0}
 .btns-col{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-.result-list{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
-.ri-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;font-size:12px;background:rgba(255,255,255,0.025);animation:fi 0.2s ease}
+.rl{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.rrow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;font-size:12px;background:rgba(255,255,255,0.025);animation:fi 0.2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
-.ri-num{color:var(--gold);font-weight:600;min-width:20px;font-size:11px}
-.ri-ign{flex:1}.ri-cls{font-size:10px;color:var(--muted)}.ri-p{font-size:10px;color:var(--gold);opacity:0.6}
-.rand-summary{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap}
-.rand-summary span{font-size:11px;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:4px;color:var(--muted)}
-.log-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:6px;margin-bottom:5px;font-size:12px}
-.log-item .log-date{color:var(--muted);font-size:11px;flex:1}
-.log-item .log-count{color:var(--gold);font-size:11px;white-space:nowrap}
+.rnum{color:var(--gold);font-weight:600;min-width:20px;font-size:11px}
+.rign{flex:1;color:var(--text)}.rcls{font-size:10px;color:var(--muted)}.rp{font-size:10px;color:var(--gold);opacity:0.6}
+.rsumm{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.rsumm span{font-size:11px;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:4px;color:var(--muted)}
+.saved-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b);margin-left:6px}
+.rand-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.rand-tbl th{text-align:left;padding:5px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.rand-tbl td{padding:5px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);color:var(--text)}
+.rand-tbl tr:last-child td{border-bottom:none}
+.rand-tbl tr:hover td{background:rgba(232,115,42,0.03)}
+.log-item{display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,0.025);border-radius:6px;margin-bottom:5px;font-size:12px}
+.log-item .ld{color:var(--muted);font-size:11px;flex:1}.log-item .lc{color:var(--gold);font-size:11px;white-space:nowrap}
+
 /* CALC */
 .calc-layout{display:grid;grid-template-columns:300px 1fr;gap:14px}
 @media(max-width:900px){.calc-layout{grid-template-columns:1fr}}
-.calc-group{margin-bottom:12px}
-.calc-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
-.calc-group input,.calc-group select{width:100%}
 .num-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 @media(max-width:480px){.num-row{grid-template-columns:1fr}}
 .num-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
 .num-row input{width:100%}
-.hint-box{background:rgba(201,168,76,0.06);border:0.5px solid rgba(201,168,76,0.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:10px}
-.hint-box span{color:var(--gold-l);font-weight:500}
-.carryover-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:6px;margin-bottom:6px;flex-wrap:wrap}
-.carryover-item .co-name{font-size:12px;font-weight:500;min-width:100px;flex:1}
-.carryover-item .co-fields{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.carryover-item .co-fields label{font-size:10px;color:var(--muted)}
-.carryover-item .co-fields input[type=number]{width:46px;padding:3px 6px;font-size:11px;text-align:center}
-.carryover-item .co-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 2px}
-.result-table{width:100%;border-collapse:collapse;font-size:12px}
-.result-table th{text-align:left;padding:7px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
-.result-table td{padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);vertical-align:middle}
-.result-table tr:last-child td{border-bottom:none}
-.result-table tr.co-row td{color:var(--green)}
-.mvp-result{background:rgba(201,168,76,0.08);border:0.5px solid rgba(201,168,76,0.3);border-radius:8px;padding:12px;margin-top:10px}
-.mvp-result h4{font-size:12px;color:var(--gold-l);margin-bottom:8px;font-weight:500}
-.mvp-list{display:flex;flex-wrap:wrap;gap:6px}
-.mvp-tag{font-size:12px;padding:4px 10px;background:rgba(201,168,76,0.15);border:0.5px solid var(--gold);border-radius:5px;color:var(--gold-l)}
-.calc-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:12px}
-.calc-tab{padding:7px 14px;font-size:12px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:all 0.15s;font-family:var(--font)}
-.calc-tab.active{color:var(--gold-l);border-bottom-color:var(--gold)}
-.info-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3);margin-left:6px}
+.hint-box{background:var(--gold-dim);border:0.5px solid rgba(201,168,76,0.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:10px}
+.hint-box b{color:var(--text)}.hint-box span{color:var(--gold-l);font-weight:500}
+.co-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:6px;margin-bottom:6px;flex-wrap:wrap}
+.co-item .co-name{font-size:12px;font-weight:500;min-width:90px;flex:1;color:var(--text)}
+.co-fields{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.co-fields label{font-size:10px;color:var(--muted)}
+.co-fields input[type=number]{width:46px;padding:3px 6px;font-size:11px;text-align:center}
+.co-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 2px}
+.ctabs{display:flex;border-bottom:0.5px solid var(--border);margin-bottom:12px;overflow-x:auto}
+.ctab{padding:7px 14px;font-size:12px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;font-family:var(--font)}
+.ctab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
+.rtable{width:100%;border-collapse:collapse;font-size:12px}
+.rtable th{text-align:left;padding:7px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;text-transform:uppercase;white-space:nowrap}
+.rtable td{padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);vertical-align:middle;color:var(--text)}
+.rtable tr:last-child td{border-bottom:none}
+.rtable tr.co-row td{color:var(--green)}
+.mvp-res{background:var(--gold-dim);border:0.5px solid rgba(201,168,76,0.25);border-radius:8px;padding:12px;margin-top:10px}
+.mvp-res h4{font-size:12px;color:var(--gold-l);margin-bottom:8px;font-weight:500}
+.mvp-tags{display:flex;flex-wrap:wrap;gap:6px}
+.mvp-tag{font-size:12px;padding:3px 9px;background:var(--gold-dim);border:0.5px solid var(--gold);border-radius:5px;color:var(--gold-l)}
+.info-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b);margin-left:5px}
+
 /* TRACKER */
-.session-summary{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.ss-item{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:80px}
-.ss-n{font-size:20px;font-weight:600;color:var(--gold-l)}.ss-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
+.ss-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ss-item{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;min-width:80px}
+.ss-n{font-size:18px;font-weight:600;color:var(--gold-l)}.ss-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.tk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
 .tc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
-.tc-head{padding:8px 11px;display:flex;align-items:center;gap:7px;border-bottom:0.5px solid rgba(255,255,255,0.05)}
-.tc-head input[type=checkbox]{accent-color:var(--gold);cursor:pointer;width:14px;height:14px;flex-shrink:0}
-.tc-ign{font-size:12px;font-weight:500;flex:1}.tc-p{font-size:10px;color:var(--gold);opacity:0.7}
+.tc-head{padding:7px 11px;display:flex;align-items:center;gap:7px;border-bottom:0.5px solid rgba(255,255,255,0.05)}
+.tc-head input[type=checkbox]{accent-color:var(--orange);cursor:pointer;width:14px;height:14px;flex-shrink:0}
+.tc-ign{font-size:12px;font-weight:500;flex:1;color:var(--text)}.tc-p{font-size:10px;color:var(--gold);opacity:0.7}
 .tc-body{padding:7px 11px}
-.drop-row{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0}
-.drop-row label{color:var(--muted);flex:1}.drop-row span{color:var(--muted);font-size:10px}
-.drop-row input[type=number]{width:52px;padding:3px 6px;text-align:center}
-.tc.tc-done{border-color:rgba(126,200,160,0.25)}.tc.tc-done .tc-ign{text-decoration:line-through;color:var(--muted)}
-.tc.tc-miss{border-color:rgba(220,80,80,0.3);background:rgba(220,80,80,0.04)}
-.no-session{text-align:center;color:var(--muted);padding:3rem;background:rgba(255,255,255,0.02);border-radius:10px;border:0.5px solid var(--border)}
-.no-session .big{font-size:32px;margin-bottom:8px}.no-session p{font-size:13px;margin-top:6px}
-.tk-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-/* AUCTION LOG */
-.al-header{display:flex;gap:10px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
-.al-header select{flex:1;max-width:220px}
-.queue-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:13px;transition:background 0.1s}
-.queue-row:hover{background:rgba(255,255,255,0.02)}
-.queue-row:last-child{border-bottom:none}
-.q-num{min-width:32px;font-size:11px;color:var(--gold);font-weight:600}
-.q-name{flex:1;font-weight:500}
-.q-status{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap}
-.qs-done{background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3)}
-.qs-pending{background:rgba(220,80,80,0.1);color:var(--red);border:0.5px solid rgba(220,80,80,0.25)}
-.q-note{font-size:11px;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.q-actions{display:flex;gap:4px}
+.dp-row{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0}
+.dp-row label{color:var(--muted);flex:1}.dp-row span{color:var(--muted);font-size:10px}
+.dp-row input[type=number]{width:52px;padding:3px 6px;text-align:center}
+.tc.tc-done{border-color:rgba(93,191,138,0.25)}.tc.tc-done .tc-ign{text-decoration:line-through;color:var(--muted)}
+.tc.tc-miss{border-color:var(--red-b);background:var(--red-dim)}
+.no-sess{text-align:center;color:var(--muted);padding:3rem;background:rgba(255,255,255,0.02);border-radius:10px;border:0.5px solid var(--border)}
+.no-sess .big{font-size:32px;margin-bottom:8px}.no-sess p{font-size:13px;margin-top:6px}
+.tk-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+
+/* AUCTION */
+.al-head{display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.al-head select{flex:1;max-width:220px}
+.au-tabs{display:flex;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
+.au-tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;font-family:var(--font)}
+.au-tab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
+.al-stats{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.al-stat{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center;min-width:75px}
+.al-stat .n{font-size:18px;font-weight:500;color:var(--gold-l)}.al-stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.qrow{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:0.5px solid rgba(232,115,42,0.06);font-size:12px;transition:background 0.1s}
+.qrow:hover{background:rgba(232,115,42,0.03)}.qrow:last-child{border-bottom:none}
+.q-num{min-width:30px;font-size:11px;color:var(--faint)}
+.q-name{flex:1;font-weight:500;color:var(--text)}.q-id{font-size:11px;color:var(--muted)}
+.qs{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap}
+.qs-done{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
+.qs-pend{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
 .q-btn{padding:3px 8px;font-size:11px;border-radius:4px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
-.q-btn-done{background:rgba(126,200,160,0.1);border-color:rgba(126,200,160,0.3);color:var(--green)}
-.q-btn-undo{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--muted)}
-.al-stats{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
-.al-stat{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center;min-width:80px}
-.al-stat .n{font-size:18px;font-weight:600;color:var(--gold-l)}.al-stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-.loading-overlay{text-align:center;color:var(--muted);font-size:12px;padding:2rem}
+.q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
+.q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
+
+/* ATTENDANCE */
+.att-tabs{display:flex;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
+.att-tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;font-family:var(--font)}
+.att-tab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
+.att-sessions-list{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
+.att-session-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--card);border:0.5px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color 0.15s;font-size:12px}
+.att-session-row:hover{border-color:var(--border2)}
+.att-session-row.active{border-color:var(--orange-border);background:var(--orange-dim)}
+.att-session-row .as-date{font-weight:500;flex:1;color:var(--text)}
+.att-session-row .as-type{font-size:11px;color:var(--muted)}
+.att-session-row .as-stats{display:flex;gap:8px;font-size:11px}
+.att-bar-top{background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.att-bar-top .abd{font-size:13px;font-weight:500;color:var(--orange-l)}
+.att-bar-top .abm{font-size:11px;color:var(--muted);margin-top:2px}
+.att-ctrs{display:flex;gap:6px}
+.att-ctr{background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:5px 10px;text-align:center}
+.att-ctr .acn{font-size:16px;font-weight:500}.att-ctr .acl{font-size:10px;color:var(--muted);margin-top:1px}
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));gap:6px}
+.att-card{background:var(--card);border:0.5px solid var(--border);border-radius:7px;padding:8px 10px;display:flex;align-items:center;gap:8px;transition:border-color 0.15s}
+.att-card.present{border-color:var(--green-b);background:rgba(93,191,138,0.06)}
+.att-card.absent{border-color:var(--red-b);background:rgba(224,112,106,0.06)}
+.att-card.leave{border-color:var(--blue-b);background:var(--blue-dim)}
+.att-info{flex:1;min-width:0}
+.att-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.att-noted{font-size:10px;color:var(--blue);margin-top:1px}
+.att-miss{font-size:10px;padding:1px 5px;border-radius:3px;background:var(--red-dim);color:var(--red);border:0.5px solid var(--red-b);white-space:nowrap;flex-shrink:0}
+.att-select{font-size:11px;padding:3px 6px;border-radius:4px;background:var(--card2);border:0.5px solid var(--border);color:var(--text);cursor:pointer;flex-shrink:0}
+.att-card.present .att-select{border-color:var(--green-b);color:var(--green)}
+.att-card.absent .att-select{border-color:var(--red-b);color:var(--red)}
+.att-card.leave .att-select{border-color:var(--blue-b);color:var(--blue)}
+.sum-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.sum-tbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.sum-tbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);color:var(--text)}
+.sum-tbl tr:last-child td{border-bottom:none}
+.rate-bar{height:5px;border-radius:3px;background:rgba(255,255,255,0.08);width:80px;overflow:hidden;display:inline-block;vertical-align:middle}
+.rate-fill{height:100%;border-radius:3px;background:var(--green)}
+.rate-fill.low{background:var(--red)}
+.new-session-form{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem}
+.new-session-form h4{font-size:12px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
+.form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.form-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
+.form-row input,.form-row select{font-size:12px;padding:6px 9px}
+
 /* MODAL */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.modal{background:var(--dark2);border:0.5px solid var(--border2);border-radius:12px;padding:1.5rem;width:340px;max-width:90vw}
+.modal-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--bg3);border:0.5px solid var(--border2);border-radius:12px;padding:1.5rem;width:340px;max-width:90vw}
 .modal h3{font-size:15px;font-weight:500;color:var(--gold-l);margin-bottom:1rem}
 .modal input{width:100%;margin-bottom:10px}
-.modal .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
 .modal-err{font-size:12px;color:var(--red);margin-bottom:8px;display:none}
-.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle}
-/* PASTE MODAL */
-.paste-area{width:100%;height:200px;resize:vertical;font-size:12px;line-height:1.7;margin-bottom:8px}
-
-/* CLASS TYPE COLORS */
-.type-support{color:#7ec8a0;font-size:10px;font-weight:500}
-.type-allround{color:#f0d080;font-size:10px;font-weight:500}
-.type-dps{color:#e07070;font-size:10px;font-weight:500}
-.cls-support{background:rgba(126,200,160,0.12);color:#7ec8a0;border:0.5px solid rgba(126,200,160,0.3)}
-.cls-allround{background:rgba(240,208,128,0.12);color:#f0d080;border:0.5px solid rgba(240,208,128,0.3)}
-.cls-dps{background:rgba(224,112,112,0.12);color:#e07070;border:0.5px solid rgba(224,112,112,0.3)}
-/* MEMBERS TABLE */
-.members-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.members-tbl th{text-align:left;padding:7px 8px;color:var(--muted);font-weight:500;border-bottom:0.5px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;font-size:11px;text-transform:uppercase;letter-spacing:0.8px}
-.members-tbl th:hover{color:#e8dcc8}
-.members-tbl th.sort-asc::after{content:' ↑';color:var(--gold)}
-.members-tbl th.sort-desc::after{content:' ↓';color:var(--gold)}
-.members-tbl td{padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:12px}
-.members-tbl tr:last-child td{border-bottom:none}
-.members-tbl tr:hover td{background:rgba(255,255,255,0.025)}
-.m-num{color:var(--muted);font-size:11px;width:28px;text-align:center}
-.m-noted{font-size:11px;color:var(--muted)}
-/* SUMMARY PILLS */
-.type-summary{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.type-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500}
-.tp-support{background:rgba(126,200,160,0.12);color:#7ec8a0;border:0.5px solid rgba(126,200,160,0.3)}
-.tp-allround{background:rgba(240,208,128,0.12);color:#f0d080;border:0.5px solid rgba(240,208,128,0.3)}
-.tp-dps{background:rgba(224,112,112,0.12);color:#e07070;border:0.5px solid rgba(224,112,112,0.3)}
-/* PARTY HEAD COLORS */
-.ph-main{background:rgba(126,200,160,0.08);border-bottom:0.5px solid rgba(126,200,160,0.2)}
-.ph-main .pn{color:#7ec8a0}
-.ph-sec{background:rgba(240,208,128,0.07);border-bottom:0.5px solid rgba(240,208,128,0.18)}
-.ph-sec .pn{color:#f0d080}
-.ph-field{font-size:10px;color:var(--muted)}
-/* RAND RESULT TABLE */
-.rand-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.rand-tbl th{text-align:left;padding:6px 8px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:1px}
-.rand-tbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
-.rand-tbl tr:last-child td{border-bottom:none}
-.rand-tbl tr:hover td{background:rgba(255,255,255,0.025)}
-.saved-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(126,200,160,0.12);color:#7ec8a0;border:0.5px solid rgba(126,200,160,0.3);margin-left:6px}
+.paste-area{width:100%;height:180px;resize:vertical;font-size:12px;line-height:1.7;margin-bottom:8px}
 </style>
 </head>
 <body>
-<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app">
 <nav class="sidebar" id="sidebar-el">
-  <div class="logo"><h1>⚔ ROOC GM</h1><p>Guild Manager</p></div>
-  <div class="nav-item active" onclick="sw('members');closeSidebar()"><span>👥</span> Members</div>
-  <div class="nav-item" onclick="sw('parties');closeSidebar()"><span>🛡</span> Party</div>
-  <div class="nav-item" onclick="sw('search');closeSidebar()"><span>🔍</span> Search</div>
-  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span>🪶</span> Rewards</div>
-  <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span>🎰</span> Randomize</div>
-  <div class="nav-item" onclick="sw('calc');closeSidebar()"><span>🧮</span> Calculator</div>
-  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span>🏆</span> Auction Log</div>
-  <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span>✅</span> Tracker</div>
+  <div class="logo-area">
+    <div class="logo-img-wrap">
+      <img src="logo.jpg" alt="Warmup Guild" class="logo-img">
+    </div>
+    <div class="logo-text">
+      <h1>Warmup</h1>
+      <p>Guild Manager</p>
+    </div>
+  </div>
+  <div class="nav-item active" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
+  <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span>Party</div>
+  <div class="nav-item" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span>Search</div>
+  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span class="ni">🪶</span>Rewards</div>
+  <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span class="ni">🎰</span>Randomize</div>
+  <div class="nav-item" onclick="sw('calc');closeSidebar()"><span class="ni">🧮</span>Calculator</div>
+  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
+  <div class="nav-item" onclick="sw('attendance');closeSidebar()"><span class="ni">📋</span>Attendance</div>
+  <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
-  <div class="nav-footer"><span class="status-dot" id="sdot"></span><span id="snav">กำลังโหลด...</span></div>
+  <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
 </nav>
 <main class="main">
 
 <!-- MEMBERS -->
 <div id="page-members" class="page active">
   <div class="page-title">Members</div>
-  <div class="page-sub"><span class="status-dot" id="dot"></span><span id="stxt">Loading...</span></div>
+  <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
   <div class="type-summary" id="type-summary"></div>
   <div class="filter-row">
     <input type="text" id="search-m" placeholder="Search name / ID..." oninput="renderMembers()">
     <select id="fc" onchange="renderMembers()"><option value="">All classes</option></select>
     <select id="ft" onchange="renderMembers()"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
-    <select id="fp" onchange="renderMembers()"><option value="">All parties</option></select>
+    <select id="fp" onchange="renderMembers()"><option value="">All party</option></select>
   </div>
-  <div class="tbl-wrap"><table class="members-tbl" id="members-tbl">
+  <div class="tbl-wrap"><table class="mtbl">
     <thead><tr>
       <th class="m-num">#</th>
-      <th id="th-name" onclick="sortMembers('ign')">Name</th>
-      <th id="th-class" onclick="sortMembers('class')">Class</th>
-      <th id="th-type" onclick="sortMembers('type')">Type</th>
-      <th id="th-party" onclick="sortMembers('party')">Party</th>
-      <th id="th-char" onclick="sortMembers('char_id')">Char ID</th>
-      <th id="th-discord" onclick="sortMembers('discord')">Discord</th>
-      <th id="th-noted" onclick="sortMembers('noted')">Noted</th>
+      <th id="th-ign" onclick="sortM('ign')">Name</th>
+      <th id="th-class" onclick="sortM('class')">Class</th>
+      <th id="th-type" onclick="sortM('type')">Type</th>
+      <th id="th-party" onclick="sortM('party')">Party</th>
+      <th id="th-char" onclick="sortM('char_id')">Char ID</th>
+      <th id="th-discord" onclick="sortM('discord')">Discord</th>
+      <th id="th-noted" onclick="sortM('noted')">Noted</th>
     </tr></thead>
-    <tbody id="member-tbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
   </table></div>
-  <div style="font-size:11px;color:var(--muted);margin-top:6px" id="member-count-label"></div>
+  <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
 
-<!-- PARTIES -->
-<div id="page-parties" class="page">
+<!-- PARTY -->
+<div id="page-party" class="page">
   <div class="page-title">Party</div>
   <div class="page-sub" id="party-sub"></div>
-  <div class="party-grid" id="party-view"></div>
+  <div id="party-content"><div class="loading">Loading...</div></div>
 </div>
 
 <!-- SEARCH -->
 <div id="page-search" class="page">
-  <div class="page-title">🔍 ค้นหาตัวเอง</div>
-  <div class="page-sub">ค้นหาด้วยชื่อ, Character ID, หรือ Discord ID</div>
-  <div class="search-box">
-    <h3>🛡 ปาร์ตี้ของฉัน</h3>
-    <div class="search-row"><input type="text" id="si-party" placeholder="ชื่อ / Character ID / Discord ID..." oninput="searchMe()"></div>
+  <div class="page-title">Search</div>
+  <div class="page-sub">Find your party and auction queue position</div>
+  <div class="sbox">
+    <h3>🛡 My Party</h3>
+    <div class="srow"><input type="text" id="si-party" placeholder="Name / Character ID / Discord ID..." oninput="searchMe()"></div>
     <div id="party-result"></div>
   </div>
-  <div class="search-box">
-    <h3>🏆 คิวประมูลของฉัน</h3>
-    <div class="search-row"><input type="text" id="si-queue" placeholder="ชื่อตัวละคร..." oninput="searchMyQueue()"></div>
+  <div class="sbox">
+    <h3>🏆 My Auction Queue</h3>
+    <div class="srow"><input type="text" id="si-queue" placeholder="Name / Character ID..." oninput="searchMyQueue()"></div>
     <div id="queue-result"></div>
   </div>
 </div>
 
 <!-- REWARDS -->
 <div id="page-rewards" class="page">
-  <div class="page-title">🪶 ขนนก & Rank</div>
-  <div class="page-sub">ตารางรางวัลและกำหนดการกิจกรรม</div>
-  <div class="section-h">⚙ คำนวณรางวัลตามอันดับ</div>
+  <div class="page-title">Rewards</div>
+  <div class="page-sub">Reward table and event schedule</div>
+  <div class="section-h">Calculate by rank</div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
     <select id="rw-type" onchange="calcReward()" style="width:auto"><option value="overrun">Overrun (Cross-Server)</option><option value="gl-y">Guild League — Cross ✓</option><option value="gl-n">Guild League — Cross ✗</option></select>
     <select id="rw-rank" onchange="calcReward()" style="width:auto"></select>
   </div>
-  <div class="reward-cards" id="reward-cards"></div>
-  <div class="section-h">📅 กำหนดการ</div>
-  <div class="event-grid">
-    <div class="event-card"><div class="et">กิจกรรม</div><div class="en">Guild League</div><div class="ed">อังคาร &amp; พฤหัสบดี</div></div>
-    <div class="event-card"><div class="et">กิจกรรม</div><div class="en">Overrun</div><div class="ed">เสาร์</div></div>
-    <div class="event-card"><div class="et">ประกาศผล</div><div class="en">GL Rank</div><div class="ed">จันทร์ (ทุกสัปดาห์)</div></div>
+  <div class="rw-cards" id="reward-cards"></div>
+  <div class="section-h">Schedule</div>
+  <div class="evts">
+    <div class="evt"><div class="et">Event</div><div class="en">Guild League</div><div class="ed">Tuesday &amp; Thursday</div></div>
+    <div class="evt"><div class="et">Event</div><div class="en">Overrun</div><div class="ed">Saturday</div></div>
+    <div class="evt"><div class="et">GL Rank announced</div><div class="en">Every Monday</div><div class="ed">Weekly</div></div>
   </div>
-  <div class="section-h">📋 ตารางรางวัลเต็ม</div>
-  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Type</th><th>Cross</th><th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th></tr></thead><tbody id="reward-tbody"></tbody></table></div>
+  <div class="section-h">Full reward table</div>
+  <div class="tbl-wrap"><table class="rtbl"><thead><tr><th>Type</th><th>Cross</th><th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th></tr></thead><tbody id="reward-tbody"></tbody></table></div>
 </div>
 
 <!-- RANDOMIZE -->
@@ -378,10 +417,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div class="panel">
       <h3>Filters</h3>
       <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Filter by party</label>
-      <select id="rand-party" style="width:100%;margin-bottom:10px"><option value="">All parties</option></select>
+      <select id="rand-party" style="width:100%;margin-bottom:10px"><option value="">All party</option></select>
       <div class="sep"></div>
-      <label class="chk-label" style="margin-bottom:6px"><input type="checkbox" id="excl-sub" checked> Exclude ตัวรอง</label>
-      <div style="font-size:11px;color:var(--muted);background:rgba(128,180,232,0.08);border:0.5px solid rgba(128,180,232,0.2);border-radius:6px;padding:7px 10px;margin-bottom:10px;line-height:1.5">All classes included · แจ้งลา still drawn</div>
+      <label class="chk" style="margin-bottom:6px"><input type="checkbox" id="excl-sub" checked> Exclude ตัวรอง</label>
+      <div style="font-size:11px;color:var(--muted);background:var(--blue-dim);border:0.5px solid var(--blue-b);border-radius:6px;padding:7px 10px;margin-bottom:10px;line-height:1.5">All classes included · แจ้งลา still drawn</div>
       <div class="btns-col">
         <button class="btn btn-primary btn-full" onclick="doRand()">🎰 Draw Queue</button>
         <button class="btn btn-ghost btn-full" onclick="clearRand()">↺ Reset</button>
@@ -394,7 +433,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         <h3>Result <span id="rand-saved-chip"></span></h3>
         <button id="copy-btn" onclick="copyRand()" style="display:none;padding:4px 10px;background:transparent;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font)">Copy</button>
       </div>
-      <div class="rand-summary" id="rand-summary"></div>
+      <div class="rsumm" id="rand-summary"></div>
       <div id="result-list"><div class="empty">Press Draw Queue to start</div></div>
     </div>
   </div>
@@ -406,108 +445,140 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div id="rand-log-list"><div class="empty">No logs yet</div></div>
 </div>
 
-<!-- CALC -->
+<!-- CALCULATOR -->
 <div id="page-calc" class="page">
-  <div class="page-title">🧮 คำนวณแจกของ</div>
-  <div class="page-sub">คำนวณ Slot การ์ด ขนนก และ MVP Box</div>
+  <div class="page-title">Calculator</div>
+  <div class="page-sub">Calculate card slots, feather allocation, and MVP Box</div>
   <div class="calc-layout">
     <div>
       <div class="panel" style="margin-bottom:12px">
-        <h3>🎁 รางวัลรอบนี้</h3>
-        <div class="calc-group">
-          <label>Preset</label>
+        <h3>Reward this round</h3>
+        <div style="margin-bottom:8px">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Preset</label>
           <select id="calc-preset" style="width:100%;margin-bottom:8px" onchange="applyPreset()">
-            <option value="">— กรอกเอง —</option>
-            <option value="or-1">Overrun อันดับ 1</option><option value="or-2">Overrun อันดับ 2</option>
-            <option value="or-3">Overrun อันดับ 3</option><option value="or-4">Overrun อันดับ 4</option>
-            <option value="or-5">Overrun อันดับ 5</option><option value="or-6">Overrun อันดับ 6</option>
-            <option value="or-7">Overrun อันดับ 7</option><option value="or-8">Overrun อันดับ 8</option>
-            <option value="gly-0">GL Cross✓ Peak King</option><option value="gly-1">GL Cross✓ Supream Warband</option>
-            <option value="gly-2">GL Cross✓ Honor Soul</option><option value="gly-3">GL Cross✓ The Chosen One</option>
-            <option value="gly-4">GL Cross✓ Glorious Legend</option><option value="gly-5">GL Cross✓ Immortal Myth</option>
-            <option value="gly-6">GL Cross✓ Eternal Monarch</option><option value="gly-7">GL Cross✓ Omni Ruler</option>
-            <option value="gln-0">GL Cross✗ Bright Sun</option><option value="gln-1">GL Cross✗ Glorious Moon</option>
-            <option value="gln-2">GL Cross✗ Shining Stars</option><option value="gln-3">GL Cross✗ Platinum</option>
-            <option value="gln-4">GL Cross✗ Gold</option><option value="gln-5">GL Cross✗ Silver</option><option value="gln-6">GL Cross✗ Bronze</option>
+            <option value="">— Custom —</option>
+            <option value="or-1">Overrun Rank 1</option><option value="or-2">Overrun Rank 2</option><option value="or-3">Overrun Rank 3</option><option value="or-4">Overrun Rank 4</option><option value="or-5">Overrun Rank 5</option><option value="or-6">Overrun Rank 6</option><option value="or-7">Overrun Rank 7</option><option value="or-8">Overrun Rank 8</option>
+            <option value="gly-0">GL Cross✓ Peak King</option><option value="gly-1">GL Cross✓ Supream Warband</option><option value="gly-2">GL Cross✓ Honor Soul</option><option value="gly-3">GL Cross✓ The Chosen One</option><option value="gly-4">GL Cross✓ Glorious Legend</option><option value="gly-5">GL Cross✓ Immortal Myth</option><option value="gly-6">GL Cross✓ Eternal Monarch</option><option value="gly-7">GL Cross✓ Omni Ruler</option>
+            <option value="gln-0">GL Cross✗ Bright Sun</option><option value="gln-1">GL Cross✗ Glorious Moon</option><option value="gln-2">GL Cross✗ Shining Stars</option><option value="gln-3">GL Cross✗ Platinum</option><option value="gln-4">GL Cross✗ Gold</option><option value="gln-5">GL Cross✗ Silver</option><option value="gln-6">GL Cross✗ Bronze</option>
           </select>
-          <label class="chk-label" style="margin-bottom:8px"><input type="checkbox" id="x2" onchange="applyX2()"> รางวัล ×2 (event พิเศษ)</label>
+          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="x2" onchange="applyX2()"> Reward ×2 (special event)</label>
         </div>
         <div class="num-row" style="margin-bottom:10px">
-          <div><label>🃏 Card รวม</label><input type="number" id="c-card" min="0" value="0" oninput="updateHints()"></div>
-          <div><label>🪶 White รวม</label><input type="number" id="c-white" min="0" value="0" oninput="updateHints()"></div>
-          <div><label>🪶 Red/Blk รวม</label><input type="number" id="c-red" min="0" value="0" oninput="updateHints()"></div>
+          <div><label>🃏 Card total</label><input type="number" id="c-card" min="0" value="0" oninput="updateHints()"></div>
+          <div><label>🪶 White total</label><input type="number" id="c-white" min="0" value="0" oninput="updateHints()"></div>
+          <div><label>🪶 Red/Blk total</label><input type="number" id="c-red" min="0" value="0" oninput="updateHints()"></div>
         </div>
-        <div class="hint-box" id="calc-hint">กรอกจำนวนรางวัลและรายชื่อเพื่อดูค่าแนะนำ</div>
+        <div class="hint-box" id="calc-hint">Enter reward amounts and member list to see allocation</div>
       </div>
       <div class="panel" style="margin-bottom:12px">
-        <h3>👥 คนในรอบนี้</h3>
+        <h3>Members this round</h3>
         <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-          <select id="log-select" style="flex:1;font-size:12px"><option value="">— เลือกจาก Log —</option></select>
-          <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="loadFromLog()">โหลด</button>
+          <select id="log-select" style="flex:1;font-size:12px"><option value="">— Load from Log —</option></select>
+          <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="loadFromLog()">Load</button>
         </div>
-        <textarea id="c-members" rows="8" placeholder="วางรายชื่อ 1 คนต่อบรรทัด..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="updateHints()"></textarea>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px" id="member-count">0 คน</div>
+        <textarea id="c-members" rows="7" placeholder="Paste names, one per line..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="updateHints()"></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px" id="member-count">0 members</div>
       </div>
       <div class="panel" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3>⏳ คนตกค้าง <span id="co-badge" style="display:none;font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(126,200,160,0.12);color:var(--green);border:0.5px solid rgba(126,200,160,0.3)">0 คน</span></h3>
-          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="addCarryover()">+ เพิ่ม</button>
+          <h3>Carryover <span id="co-badge" style="display:none;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)">0</span></h3>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="addCarryover()">+ Add</button>
         </div>
-        <div id="co-list"><div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">ไม่มีคนตกค้าง</div></div>
+        <div id="co-list"><div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No carryover</div></div>
         <div class="hint-box" id="co-hint" style="display:none;margin-top:8px"></div>
       </div>
       <div class="panel">
-        <h3>🏆 MVP Box <span class="info-chip">เฉพาะ GL</span></h3>
+        <h3>MVP Box <span class="info-chip">GL only</span></h3>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <label style="font-size:12px;color:var(--muted)">จำนวน MVP Box</label>
+          <label style="font-size:12px;color:var(--muted)">Count</label>
           <input type="number" id="mvp-count" value="15" min="0" style="width:70px">
         </div>
-        <button class="btn btn-primary btn-full" onclick="doMVP()">🎲 สุ่ม MVP</button>
+        <button class="btn btn-primary btn-full" onclick="doMVP()">🎲 Draw MVP</button>
         <div id="mvp-result-box" style="margin-top:10px"></div>
       </div>
     </div>
     <div>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="runCalc()">▶ คำนวณ</button>
-        <button class="btn btn-ghost" onclick="clearCalc()">↺ ล้างผล</button>
+        <button class="btn btn-primary" onclick="runCalc()">▶ Calculate</button>
+        <button class="btn btn-ghost" onclick="clearCalc()">↺ Reset</button>
       </div>
-      <div class="calc-tabs">
-        <button class="calc-tab active" onclick="swCalcTab('person')">👥 รายคน</button>
-        <button class="calc-tab" onclick="swCalcTab('card')">🃏 ตารางการ์ด</button>
-        <button class="calc-tab" onclick="swCalcTab('feather')">🪶 ตารางขนนก</button>
+      <div class="ctabs">
+        <button class="ctab active" onclick="swCalcTab('person')">👥 Per member</button>
+        <button class="ctab" onclick="swCalcTab('card')">🃏 Card slots</button>
+        <button class="ctab" onclick="swCalcTab('feather')">🪶 Feather slots</button>
       </div>
-      <div id="calc-person"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
-      <div id="calc-card" style="display:none"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
-      <div id="calc-feather" style="display:none"><div class="empty">กด ▶ คำนวณ เพื่อดูผล</div></div>
+      <div id="calc-person"><div class="empty">Press ▶ Calculate to view results</div></div>
+      <div id="calc-card" style="display:none"><div class="empty">Press ▶ Calculate to view results</div></div>
+      <div id="calc-feather" style="display:none"><div class="empty">Press ▶ Calculate to view results</div></div>
     </div>
   </div>
 </div>
 
-<!-- AUCTION LOG -->
+<!-- AUCTION -->
 <div id="page-auction" class="page">
-  <div class="page-title">🏆 Auction Log</div>
-  <div class="page-sub">ประวัติคิวประมูลทั้งหมด — ดึงข้อมูลจาก Google Sheets</div>
-
-  <div class="al-header">
-    <select id="al-date-select" onchange="loadAuctionLog(this.value)" style="max-width:220px">
-      <option value="">— เลือกวันที่ —</option>
-    </select>
-    <button class="btn btn-ghost" onclick="loadAuctionDates()">🔄 รีเฟรช</button>
-    <!-- Admin only -->
-    <button class="btn btn-primary admin-only" style="display:none" onclick="openPasteModal()">📋 + เพิ่มคิว Manual</button>
-    <button class="btn btn-red admin-only" style="display:none" id="del-date-btn" onclick="deleteDateConfirm()">🗑 ลบวันนี้</button>
+  <div class="page-title">Auction</div>
+  <div class="page-sub">Queue management and history</div>
+  <div class="au-tabs">
+    <button class="au-tab active" onclick="swAuTab('queue')">Current Queue</button>
+    <button class="au-tab" onclick="swAuTab('history')">History</button>
   </div>
+  <div id="au-queue">
+    <div class="al-head">
+      <select id="al-date-select" onchange="loadAuctionLog(this.value)" style="max-width:220px"><option value="">— Select date —</option></select>
+      <button class="btn btn-ghost" onclick="loadAuctionDates()">🔄</button>
+      <button class="btn btn-primary admin-only" style="display:none" onclick="openPasteModal()">+ Add Manual</button>
+      <button class="btn btn-red admin-only" style="display:none" onclick="deleteDateConfirm()">🗑 Delete</button>
+    </div>
+    <div id="al-stats" class="al-stats"></div>
+    <div id="al-content"><div class="empty">Select a date to view queue</div></div>
+  </div>
+  <div id="au-history" style="display:none">
+    <div id="au-hist-content"><div class="loading">Loading history...</div></div>
+  </div>
+</div>
 
-  <div id="al-stats" class="al-stats"></div>
-  <div id="al-content"><div class="empty">เลือกวันที่เพื่อดูประวัติ</div></div>
+<!-- ATTENDANCE -->
+<div id="page-attendance" class="page">
+  <div class="page-title">Attendance</div>
+  <div class="page-sub">Track war participation · Admin can create sessions and mark attendance</div>
+  <div class="att-tabs">
+    <button class="att-tab active" onclick="swAttTab('overview')">Overview</button>
+    <button class="att-tab" onclick="swAttTab('daily')">Daily Check</button>
+  </div>
+  <div id="att-overview">
+    <div class="tbl-wrap" style="margin-top:4px">
+      <table class="sum-tbl">
+        <thead><tr><th>#</th><th>Name</th><th>Party</th><th>Sessions</th><th>Present</th><th>Absent</th><th>Leave</th><th>Rate</th></tr></thead>
+        <tbody id="att-summary-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="att-daily" style="display:none">
+    <div id="new-session-wrap" class="admin-only" style="display:none;margin-bottom:1rem">
+      <div class="new-session-form">
+        <h4>+ New Session (Admin)</h4>
+        <div class="form-row">
+          <div><label>Date</label><input type="date" id="att-new-date" style="width:150px"></div>
+          <div><label>Type</label>
+            <select id="att-new-type" style="width:140px">
+              <option>Guild League</option><option>Overrun</option><option>Other</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="createAttSession()" style="margin-top:18px">Create Session</button>
+        </div>
+      </div>
+    </div>
+    <div class="att-sessions-list" id="att-sessions-list"><div class="loading">Loading sessions...</div></div>
+    <div id="att-daily-content"></div>
+  </div>
 </div>
 
 <!-- TRACKER -->
 <div id="page-tracker" class="page">
-  <div class="page-title">✅ ติดตามรอบการสุ่ม</div>
-  <div class="page-sub">ติ๊กสมาชิกที่สุ่มแล้ว และบันทึกของที่ได้รับจริง</div>
+  <div class="page-title">Tracker</div>
+  <div class="page-sub">Track who has drawn and log actual drops received</div>
   <div id="tracker-content">
-    <div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>Go to Randomize and press "Send to Tracker"</p></div>
+    <div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Go to Randomize and press "Send to Tracker"</p></div>
   </div>
 </div>
 
@@ -515,103 +586,87 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 </div>
 
 <!-- ADMIN MODAL -->
-<div id="admin-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeAdminModal()">
+<div id="admin-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeAdminModal()">
   <div class="modal">
     <h3>🔐 Admin Login</h3>
-    <div class="modal-err" id="admin-err">รหัสผ่านไม่ถูกต้อง</div>
-    <input type="password" id="admin-pass" placeholder="รหัสผ่าน..." onkeydown="if(event.key==='Enter')submitAdmin()">
-    <div class="btn-row">
-      <button class="btn btn-ghost" onclick="closeAdminModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="submitAdmin()">เข้าสู่ระบบ</button>
+    <div class="modal-err" id="admin-err">Incorrect password</div>
+    <input type="password" id="admin-pass" placeholder="Password..." onkeydown="if(event.key==='Enter')submitAdmin()">
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeAdminModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAdmin()">Login</button>
     </div>
   </div>
 </div>
 
 <!-- PASTE MODAL -->
-<div id="paste-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closePasteModal()">
+<div id="paste-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closePasteModal()">
   <div class="modal" style="width:480px">
-    <h3>📋 เพิ่มคิว Manual</h3>
+    <h3>📋 Add Queue Manual</h3>
     <div style="margin-bottom:8px">
-      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">วันที่ (YYYY-MM-DD)</label>
-      <input type="text" id="paste-date" placeholder="เช่น 2025-06-07" style="width:100%;margin-bottom:10px">
+      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Date (YYYY-MM-DD)</label>
+      <input type="text" id="paste-date" placeholder="e.g. 2025-06-07" style="width:100%;margin-bottom:10px">
     </div>
-    <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">รายชื่อ (1 คนต่อบรรทัด) — จะต่อท้ายคิวเดิมของวันนั้น</label>
+    <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Names (one per line)</label>
     <textarea id="paste-names" class="paste-area" placeholder="ploysai&#10;Jiggy&#10;JOKER888&#10;..."></textarea>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px" id="paste-count">0 คน</div>
-    <div class="btn-row" style="justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closePasteModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="submitPaste()">💾 บันทึก</button>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px" id="paste-count">0 members</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closePasteModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPaste()">💾 Save</button>
     </div>
   </div>
 </div>
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS_URL='https://script.google.com/macros/s/AKfycbwHUKyKhzyDlz1by-Zi_7ahcD3ACCLIYQtI24dVfHV8ZFIFhBzOP6io3J7072vcvcDj/exec';
+const GAS='https://script.google.com/macros/s/AKfycbwHUKyKhzyDlz1by-Zi_7ahcD3ACCLIYQtI24dVfHV8ZFIFhBzOP6io3J7072vcvcDj/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
-const ADMIN_HASH='3d4f9b2e1a8c7f0e6d5b4a3c2e1f9d8b7a6c5e4f3d2b1a9c8e7f6d5b4a3c2e1';
-let members=[],queueData=[],lastRand=[],trackerSession=[],coList=[],isAdmin=false,currentALDate='';
 const CFG={max_card:1,max_white:4,max_red:7};
 const REWARDS={
   overrun:[{rank:'1',card:20,white:150,red:170},{rank:'2',card:20,white:140,red:160},{rank:'3',card:20,white:140,red:160},{rank:'4',card:15,white:120,red:150},{rank:'5',card:15,white:120,red:150},{rank:'6',card:15,white:120,red:150},{rank:'7',card:12,white:100,red:150},{rank:'8',card:12,white:100,red:150}],
   'gl-y':[{rank:'1. Peak King',card:23,white:90,red:105},{rank:'2. Supream Warband',card:21,white:87,red:105},{rank:'3. Honor Soul',card:20,white:84,red:105},{rank:'4. The Chosen One',card:19,white:81,red:105},{rank:'5. Glorious Legend',card:18,white:78,red:105},{rank:'6. Immortal Myth',card:17,white:75,red:105},{rank:'7. Eternal Monarch',card:16,white:72,red:105},{rank:'8. Omni Ruler',card:15,white:69,red:105}],
   'gl-n':[{rank:'1. Bright Sun',card:8,white:60,red:105},{rank:'2. Glorious Moon',card:7,white:55,red:100},{rank:'3. Shining Stars',card:6,white:50,red:90},{rank:'4. Platinum',card:5,white:45,red:80},{rank:'5. Gold',card:4,white:40,red:70},{rank:'6. Silver',card:2,white:35,red:60},{rank:'7. Bronze',card:2,white:30,red:50}]
 };
+const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
+function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
+function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
+function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
+function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
-/* HASH util */
-async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+let members=[],lastRand=[],trackerSession=[],coList=[],isAdmin=false,currentALDate='';
+
+/* HAMBURGER */
+function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');s.classList.toggle('open');o.classList.toggle('show')}
+function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
 /* ADMIN */
-function openAdminModal(){if(isAdmin){logoutAdmin();return}document.getElementById('admin-modal').style.display='flex';document.getElementById('admin-pass').focus()}
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none')}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
-async function submitAdmin(){
+function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
-  const h=await sha256(pw);
-  // ตรวจกับ password จริง
-  if(pw==='$aiphanWM8'){
-    isAdmin=true;closeAdminModal();
-    document.getElementById('admin-btn').textContent='🔓 Admin (ออกจากระบบ)';
-    document.getElementById('admin-btn').classList.add('logged-in');
-    document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
-    document.querySelectorAll('.admin-badge').forEach(el=>el.classList.add('show'));
-    renderAuctionAdminControls();
-  } else {
-    document.getElementById('admin-err').style.display='block';
-    document.getElementById('admin-pass').value='';
-  }
-}
-function logoutAdmin(){
-  if(!confirm('ออกจาก Admin mode?'))return;
-  isAdmin=false;
-  document.getElementById('admin-btn').textContent='🔐 Admin Login';
-  document.getElementById('admin-btn').classList.remove('logged-in');
-  document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
-  document.querySelectorAll('.admin-badge').forEach(el=>el.classList.remove('show'));
-}
-function renderAuctionAdminControls(){
-  if(isAdmin){document.querySelectorAll('.admin-only').forEach(el=>el.style.display='')}
+  if(pw==='$aiphanWM8'){isAdmin=true;closeAdminModal();document.getElementById('admin-btn').textContent='🔓 Admin (on)';document.getElementById('admin-btn').classList.add('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');document.getElementById('new-session-wrap').style.display=''}
+  else{document.getElementById('admin-err').style.display='block';document.getElementById('admin-pass').value=''}
 }
 
 /* NAV */
 function sw(t){
-  const pages=['members','parties','search','rewards','randomize','calc','auction','tracker'];
+  const pages=['members','party','search','rewards','randomize','calc','auction','attendance','tracker'];
   document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
-  if(t==='parties')renderParties();
+  if(t==='party')renderParty();
   if(t==='rewards')initRewards();
   if(t==='calc')refreshLogSelect();
   if(t==='auction')loadAuctionDates();
+  if(t==='attendance')loadAttendance();
 }
 
-/* DATA */
+/* DATA LOAD */
 async function loadData(){
-  const setS=(ok,msg)=>{
+  const setS=(ok,msg,clr='var(--green)')=>{
     document.getElementById('stxt').textContent=msg;
-    document.getElementById('snav').textContent=ok?members.length+' สมาชิก':'Error';
-    const c=ok?'var(--green)':'var(--red)';
-    document.getElementById('dot').style.background=c;
-    document.getElementById('sdot').style.background=c;
+    document.getElementById('snav').textContent=ok?members.length+' members':'Error';
+    document.getElementById('dot').style.background=clr;
+    document.getElementById('sdot').style.background=clr;
   };
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
@@ -620,117 +675,68 @@ async function loadData(){
     const cols=mj.table.cols.map(c=>c.label.toLowerCase().replace(/\s+/g,'_'));
     const get=(v,k)=>{const i=cols.findIndex(c=>c.includes(k));return i>=0&&v[i]?String(v[i].v||'').trim():''};
     members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),noted:get(v,'noted')}}).filter(m=>m.ign);
-    setS(true,`โหลดสำเร็จ · ${members.length} สมาชิก`);
-    buildFilters();renderStats();renderMembers();buildClsOpts();
-  }catch(e){setS(false,'โหลดไม่สำเร็จ — ตรวจ Share settings')}
+    setS(true,`Loaded · ${members.length} members`);
+    buildFilters();renderStats();renderMembers();
+  }catch(e){setS(false,'Load failed — check Sheet share settings','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data. Make sure Google Sheets is set to "Anyone with the link can view"</td></tr>'}
 }
-
-const CLASS_TYPE={
-  'High Priest':'Support','Minstrel':'Support','Gypsy':'Support',
-  'Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder',
-  'Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)',
-  'Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)',
-  'Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'
-};
-function getType(cls){return CLASS_TYPE[cls]||'Attack (DPS)'}
-function getTypeClass(t){return t==='Support'?'cls-support':t==='All Rounder'?'cls-allround':'cls-dps'}
-function getTypeLabel(t){return t==='Support'?'<span class="type-support">Support</span>':t==='All Rounder'?'<span class="type-allround">All Rounder</span>':'<span class="type-dps">DPS</span>'}
 
 function buildFilters(){
   const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
   const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
   document.getElementById('fc').innerHTML='<option value="">All classes</option>'+cls.map(c=>`<option>${c}</option>`).join('');
-  ['fp','rand-party'].forEach(id=>{document.getElementById(id).innerHTML='<option value="">All parties</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('')});
+  ['fp','rand-party'].forEach(id=>{document.getElementById(id).innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('')});
 }
+
 function renderStats(){
-  const t=members.length,sub=members.filter(m=>m.noted.includes('ตัวรอง')).length;
+  const t=members.length,sub=members.filter(m=>m.noted&&m.noted.includes('ตัวรอง')).length;
   const pts=new Set(members.map(m=>m.party).filter(Boolean)).size,wid=members.filter(m=>m.char_id).length;
-  const supCount=members.filter(m=>getType(m.class)==='Support').length;
-  const arCount=members.filter(m=>getType(m.class)==='All Rounder').length;
-  const dpsCount=members.filter(m=>getType(m.class)==='Attack (DPS)').length;
-  document.getElementById('stats-row').innerHTML=[[t,'Members'],[pts,'Parties'],[wid,'Char ID'],[sub,'ตัวรอง']].map(([n,l])=>`<div class="sc"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
-  document.getElementById('type-summary').innerHTML=`<span class="type-pill tp-support">Support · ${supCount}</span><span class="type-pill tp-allround">All Rounder · ${arCount}</span><span class="type-pill tp-dps">Attack (DPS) · ${dpsCount}</span>`;
+  const supC=members.filter(m=>getType(m.class)==='Support').length;
+  const arC=members.filter(m=>getType(m.class)==='All Rounder').length;
+  const dpsC=members.filter(m=>getType(m.class)==='Attack (DPS)').length;
+  document.getElementById('stats-row')||document.getElementById('page-members').insertAdjacentHTML('afterbegin','<div class="stats-row" id="stats-row"></div>');
+  document.getElementById('type-summary').innerHTML=`<span class="tp tp-s">Support · ${supC}</span><span class="tp tp-a">All Rounder · ${arC}</span><span class="tp tp-d">Attack (DPS) · ${dpsC}</span>`;
 }
-let memberSortKey='party',memberSortDir=1,memberRunNum=[];
-function sortMembers(key){
-  if(memberSortKey===key)memberSortDir*=-1;else{memberSortKey=key;memberSortDir=1}
-  document.querySelectorAll('.members-tbl th').forEach(th=>th.className=th.className.replace(/ ?sort-(asc|desc)/g,''));
-  const thMap={'ign':'th-name','class':'th-class','type':'th-type','party':'th-party','char_id':'th-char','discord':'th-discord','noted':'th-noted'};
-  const thEl=document.getElementById(thMap[key]);if(thEl)thEl.classList.add(memberSortDir===1?'sort-asc':'sort-desc');
-  renderMembers();
-}
+
+let mSortKey='party',mSortDir=1;
+function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','type','party','char_id','discord','noted'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',type:'th-type',party:'th-party',char_id:'th-char',discord:'th-discord',noted:'th-noted'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
 function renderMembers(){
-  const q=(document.getElementById('search-m').value||'').toLowerCase();
-  const fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
-  let f=members.filter(m=>{
-    if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;
-    if(fc&&m.class!==fc)return false;
-    if(ft&&getType(m.class)!==ft)return false;
-    if(fp&&String(m.party)!==fp)return false;
-    return true;
-  });
-  f.sort((a,b)=>{
-    let av,bv;
-    if(memberSortKey==='type'){av=getType(a.class);bv=getType(b.class)}
-    else{av=a[memberSortKey]||'';bv=b[memberSortKey]||''}
-    if(memberSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*memberSortDir}
-    return String(av).localeCompare(String(bv))*memberSortDir;
-  });
-  const tbody=document.getElementById('member-tbody');
-  if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('member-count-label').textContent='';return}
-  tbody.innerHTML=f.map((m,i)=>{
-    const type=getType(m.class),tc=getTypeClass(type),tl=getTypeLabel(type);
-    const noted=m.noted&&m.noted.trim()?`<span class="m-noted">${m.noted}</span>`:`<span style="color:rgba(255,255,255,0.18)">—</span>`;
-    return`<tr>
-      <td class="m-num">${i+1}</td>
-      <td style="font-weight:500">${m.ign}</td>
-      <td><span class="badge ${tc}">${m.class}</span></td>
-      <td>${tl}</td>
-      <td>${m.party||'—'}</td>
-      <td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td>
-      <td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td>
-      <td>${noted}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('member-count-label').textContent=`Showing ${f.length} of ${members.length} members`;
+  const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
+  let f=members.filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
+  f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
+  const tbody=document.getElementById('m-tbody');
+  if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type),tl=getTypeLabel(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}">${m.class}</span></td><td>${tl}</td><td style="color:var(--muted)">${m.party||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
+  document.getElementById('m-count').textContent=`Showing ${f.length} of ${members.length} members`;
 }
-function renderParties(){
+
+/* PARTY */
+function renderParty(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
-  const mainCount=sorted.filter(p=>+p<=8).length,secCount=sorted.filter(p=>+p>8).length;
-  const subEl=document.getElementById('party-sub');
-  if(subEl)subEl.textContent=(mainCount?mainCount+' สนามหลัก':'')+(mainCount&&secCount?' · ':'')+(secCount?secCount+' สนามรอง':'');
-  document.getElementById('party-view').innerHTML=sorted.map(p=>{
-    const isMain=+p<=8;
-    const headCls=isMain?'ph ph-main':'ph ph-sec';
-    const field=isMain?'สนามหลัก':'สนามรอง';
-    return`<div class="party-card"><div class="${headCls}"><span class="pn">Party ${p}</span><span class="ph-field">${field}</span></div><div class="pm-body">${pts[p].map(m=>{
-      const isSub=m.noted&&m.noted.includes('ตัวรอง');
-      const isLeave=m.noted&&m.noted.includes('แจ้งลา');
-      const type=getType(m.class),tc=getTypeClass(type);
-      return`<div class="pm-row"><div class="pm-dot"></div><div class="pm-ign">${m.ign}</div><div class="pm-cls" style="display:flex;gap:4px;align-items:center"><span class="badge ${tc}" style="font-size:9px;padding:1px 5px">${m.class}</span>${isSub?'<span class="pm-note">ตัวรอง</span>':isLeave?'<span class="pm-note">แจ้งลา</span>':''}</div></div>`;
-    }).join('')}</div></div>`;
-  }).join('');
+  const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
+  const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
+  const mkSection=(list,isMain)=>list.map(p=>{const isM=isMain;return`<div class="pc"><div class="pc-head ${isM?'main':'sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const type=getType(m.class),tc=getTypeCls(type);const noteTag=m.noted&&m.noted.includes('ตัวรอง')?'<span class="pm-note">ตัวรอง</span>':m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'))?'<span style="font-size:10px;color:var(--blue)">แจ้งลา</span>':'';return`<div class="pm"><span class="pm-name">${m.ign}</span><div style="display:flex;align-items:center;gap:4px"><span class="badge ${tc}" style="font-size:9px;padding:1px 5px">${m.class}</span>${noteTag}</div></div>`}).join('')}</div></div>`}).join('');
+  document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">Party 9+</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
+
+/* SEARCH */
 function searchMe(){
   const q=(document.getElementById('si-party').value||'').toLowerCase().trim(),el=document.getElementById('party-result');
   if(!q){el.innerHTML='';return}
   const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q)));
-  if(!found.length){el.innerHTML='<div class="not-found">ไม่พบสมาชิก</div>';return}
-  el.innerHTML=found.map(m=>{const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);const isSub=m.noted.includes('ตัวรอง'),isAbs=m.noted.toLowerCase().includes('absent');const nt=isSub?'<span class="badge b-sub">ตัวรอง</span>':isAbs?'<span class="badge b-absent">Absent</span>':'';return`<div class="result-profile"><div class="profile-header"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="profile-info"><div class="name">${m.ign} ${nt}</div><div class="sub">${m.class} · Party ${m.party||'N/A'}</div></div></div><div class="info-grid"><div class="info-item"><div class="ik">Character ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="info-item"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div><div class="info-item"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div><div class="info-item"><div class="ik">Status</div><div class="iv">${m.noted||'ปกติ'}</div></div></div>${mates.length?`<div class="party-mates"><h4>เพื่อนร่วม Party ${m.party}</h4><div class="mini-list">${mates.map(x=>`<span class="mini-tag">${x.ign}</span>`).join('')}</div></div>`:''}</div>`}).join('');
+  if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
+  el.innerHTML=found.map(m=>{const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);const type=getType(m.class),tc=getTypeCls(type);return`<div class="profile"><div class="phead"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="pinfo"><div class="name">${m.ign} ${m.noted?`<span class="badge b-note" style="font-size:11px">${m.noted}</span>`:''}</div><div class="sub"><span class="badge ${tc}" style="font-size:10px">${m.class}</span> · Party ${m.party||'N/A'}</div></div></div><div class="igrid"><div class="ii"><div class="ik">Char ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="ii"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div><div class="ii"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div><div class="ii"><div class="ik">Status</div><div class="iv">${m.noted||'Active'}</div></div></div>${mates.length?`<div class="mates"><h4>Party ${m.party} mates</h4><div class="mtags">${mates.map(x=>`<span class="mtag">${x.ign}</span>`).join('')}</div></div>`:''}</div>`}).join('');
 }
-
-/* SEARCH QUEUE */
 function searchMyQueue(){
   const q=(document.getElementById('si-queue').value||'').toLowerCase().trim(),el=document.getElementById('queue-result');
   if(!q){el.innerHTML='';return}
-  if(!currentALDate){el.innerHTML='<div class="not-found">โปรดเปิดหน้า Auction Log ก่อนเพื่อโหลดข้อมูลคิว</div>';return}
-  el.innerHTML='<div class="loading-overlay">กำลังค้นหา...</div>';
+  if(!currentALDate){el.innerHTML='<div class="nf">Open Auction first to load queue data</div>';return}
+  el.innerHTML='<div class="loading">Searching...</div>';
   gasGet('getLog&date='+currentALDate).then(r=>{
-    if(!r.ok){el.innerHTML='<div class="not-found">โหลดข้อมูลไม่ได้</div>';return}
+    if(!r.ok){el.innerHTML='<div class="nf">Cannot load queue</div>';return}
     const found=r.rows.filter(row=>row.member_name.toLowerCase().includes(q));
-    if(!found.length){el.innerHTML='<div class="not-found">ไม่พบ "'+q+'" ในคิววันที่ '+currentALDate+'</div>';return}
-    el.innerHTML=found.map(row=>`<div class="result-profile" style="margin-top:8px"><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${row.member_name[0].toUpperCase()}</div><div><div style="font-size:14px;font-weight:500">${row.member_name}</div><div style="font-size:12px;color:var(--muted)">คิว #${row.position} · ${row.queue_date}</div></div><span class="q-status ${row.status==='done'?'qs-done':'qs-pending'}" style="margin-left:auto">${row.status==='done'?'✓ ดึงแล้ว':'⏳ รอดึง'}</span></div></div>`).join('');
+    if(!found.length){el.innerHTML='<div class="nf">Not found in queue for '+currentALDate+'</div>';return}
+    el.innerHTML=found.map(row=>`<div class="profile" style="margin-top:8px"><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${row.member_name[0].toUpperCase()}</div><div><div style="font-size:14px;font-weight:500">${row.member_name}</div><div style="font-size:12px;color:var(--muted)">Queue #${row.position} · ${row.queue_date}</div></div><span class="qs ${row.status==='done'?'qs-done':'qs-pend'}" style="margin-left:auto">${row.status==='done'?'✓ Drawn':'⏳ Pending'}</span></div></div>`).join('');
   });
 }
 
@@ -739,221 +745,156 @@ function initRewards(){
   const te=document.getElementById('rw-type'),re=document.getElementById('rw-rank');
   function upd(){re.innerHTML='';REWARDS[te.value].forEach((r,i)=>re.add(new Option(r.rank,i)));calcReward()}
   te.onchange=upd;upd();
-  const tbody=document.getElementById('reward-tbody');
-  if(tbody.children.length)return;
+  const tbody=document.getElementById('reward-tbody');if(tbody.children.length)return;
   tbody.innerHTML=[...REWARDS.overrun.map(r=>`<tr><td>Overrun</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-y'].map(r=>`<tr><td>GL</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-n'].map(r=>`<tr><td>GL</td><td class="cs-n">✗</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`)].join('');
 }
-function calcReward(){
-  const r=REWARDS[document.getElementById('rw-type').value][+document.getElementById('rw-rank').value];if(!r)return;
-  document.getElementById('reward-cards').innerHTML=`<div class="reward-card"><div class="ri">🃏</div><div class="rv">${r.card}</div><div class="rl">Card</div><div class="rm">max ${CFG.max_card}/คน</div></div><div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.white}</div><div class="rl">White</div><div class="rm">max ${CFG.max_white}/คน</div></div><div class="reward-card"><div class="ri">🪶</div><div class="rv">${r.red}</div><div class="rl">Red/Black</div><div class="rm">max ${CFG.max_red}/คน</div></div>`;
-}
+function calcReward(){const r=REWARDS[document.getElementById('rw-type').value][+document.getElementById('rw-rank').value];if(!r)return;document.getElementById('reward-cards').innerHTML=`<div class="rw-card"><div class="ri">🃏</div><div class="rv">${r.card}</div><div class="rl">Card</div><div class="rm">max ${CFG.max_card}/member</div></div><div class="rw-card"><div class="ri">🪶</div><div class="rv">${r.white}</div><div class="rl">White</div><div class="rm">max ${CFG.max_white}/member</div></div><div class="rw-card"><div class="ri">🪶</div><div class="rv">${r.red}</div><div class="rl">Red/Black</div><div class="rm">max ${CFG.max_red}/member</div></div>`}
 
 /* RANDOMIZE */
-function buildClsOpts(){const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();document.getElementById('cls-opts').innerHTML=cls.map(c=>`<label class="chk-label"><input type="checkbox" class="cls-ck" value="${c}" checked> ${c}</label>`).join('')}
 async function doRand(){
-  const exSub=document.getElementById('excl-sub').checked;
-  const pt=document.getElementById('rand-party').value;
-  let pool=members.filter(m=>{
-    if(exSub&&m.noted&&m.noted.includes('ตัวรอง'))return false;
-    if(pt&&String(m.party)!==pt)return false;
-    return true;
-  });
+  const exSub=document.getElementById('excl-sub').checked,pt=document.getElementById('rand-party').value;
+  let pool=members.filter(m=>{if(exSub&&m.noted&&m.noted.includes('ตัวรอง'))return false;if(pt&&String(m.party)!==pt)return false;return true});
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   lastRand=pool;
-  const chipEl=document.getElementById('rand-saved-chip');
-  if(chipEl)chipEl.innerHTML='';
+  const chipEl=document.getElementById('rand-saved-chip');if(chipEl)chipEl.innerHTML='';
   if(!pool.length){document.getElementById('result-list').innerHTML='<div class="empty">No eligible members</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none';return}
-  document.getElementById('rand-summary').innerHTML=`<span>${pool.length} members</span><span>${[...new Set(pool.map(m=>m.party))].length} parties</span>`;
-  document.getElementById('result-list').innerHTML=`<div class="tbl-wrap"><table class="rand-tbl">
-    <thead><tr><th>#</th><th>Name</th><th>Char ID</th><th>Discord</th></tr></thead>
-    <tbody>${pool.map((m,i)=>`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td></tr>`).join('')}</tbody>
-  </table></div>`;
+  document.getElementById('rand-summary').innerHTML=`<span>${pool.length} members</span><span>${[...new Set(pool.map(m=>m.party))].length} party</span>`;
+  document.getElementById('result-list').innerHTML=`<div class="tbl-wrap"><table class="rand-tbl"><thead><tr><th>#</th><th>Name</th><th>Char ID</th><th>Discord</th></tr></thead><tbody>${pool.map((m,i)=>`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td></tr>`).join('')}</tbody></table></div>`;
   document.getElementById('copy-btn').style.display='block';
   saveLog(pool);renderLogList();
   const today=new Date().toISOString().slice(0,10);
   const r=await gasPost({action:'appendQueue',date:today,members:pool.map(m=>m.ign)});
-  if(chipEl){
-    if(r.ok)chipEl.innerHTML='<span class="saved-chip">✓ Saved to '+today+'</span>';
-    else chipEl.innerHTML='<span style="font-size:10px;color:var(--red)">Save failed</span>';
-  }
+  if(chipEl)chipEl.innerHTML=r.ok?'<span class="saved-chip">✓ Saved to '+today+'</span>':'<span style="font-size:10px;color:var(--red)">Save failed</span>';
 }
 function saveLog(pool){const logs=getLogs();logs.unshift({id:Date.now(),date:new Date().toLocaleString('th-TH'),members:pool.map(m=>m.ign)});if(logs.length>20)logs.pop();localStorage.setItem('rooc_rand_logs',JSON.stringify(logs))}
 function getLogs(){try{return JSON.parse(localStorage.getItem('rooc_rand_logs')||'[]')}catch(e){return[]}}
 function clearLogs(){if(confirm('Clear all draw logs?')){localStorage.removeItem('rooc_rand_logs');renderLogList();refreshLogSelect()}}
-function renderLogList(){
-  const logs=getLogs(),el=document.getElementById('rand-log-list');
-  if(!logs.length){el.innerHTML='<div class="empty">No logs yet</div>';return}
-  el.innerHTML=logs.map(l=>`<div class="log-item"><div class="log-date">📅 ${l.date}</div><div class="log-count">${l.members.length} members</div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="sendLogToCalc(${l.id})">🧮 Calculator</button></div>`).join('');
-}
-function sendLogToCalc(id){const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints();sw('calc')}
-function refreshLogSelect(){const logs=getLogs(),sel=document.getElementById('log-select');sel.innerHTML='<option value="">— เลือกจาก Log —</option>';logs.forEach(l=>sel.add(new Option(`${l.date} (${l.members.length} คน)`,l.id)))}
+function renderLogList(){const logs=getLogs(),el=document.getElementById('rand-log-list');if(!logs.length){el.innerHTML='<div class="empty">No logs yet</div>';return}el.innerHTML=logs.map(l=>`<div class="log-item"><div class="ld">📅 ${l.date}</div><div class="lc">${l.members.length} members</div><button class="btn btn-ghost" style="font-size:11px;padding:3px 9px" onclick="sendLogToCalc(${l.id})">🧮 Calculator</button></div>`).join('')}
+function refreshLogSelect(){const logs=getLogs(),sel=document.getElementById('log-select');sel.innerHTML='<option value="">— Load from Log —</option>';logs.forEach(l=>sel.add(new Option(`${l.date} (${l.members.length})`,l.id)))}
 function loadFromLog(){const id=+document.getElementById('log-select').value;if(!id)return;const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints()}
+function sendLogToCalc(id){const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints();sw('calc')}
 function clearRand(){lastRand=[];document.getElementById('result-list').innerHTML='<div class="empty">Press Draw Queue to start</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none'}
 function copyRand(){navigator.clipboard.writeText(lastRand.map((m,i)=>`${i+1}. ${m.ign} | ${m.char_id||'-'} | ${m.discord||'-'}`).join('\n')).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='Copy',2000)})}
-function sendToTracker(){if(!lastRand.length){alert('Please draw queue first');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
-function sendToCalc(){if(!lastRand.length){alert('Please draw queue first');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
+function sendToTracker(){if(!lastRand.length){alert('Draw queue first');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
+function sendToCalc(){if(!lastRand.length){alert('Draw queue first');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
 
 /* CALC */
-function applyPreset(){
-  const v=document.getElementById('calc-preset').value;if(!v)return;
-  const [type,idx]=v.split('-');let r;
-  if(type==='or')r=REWARDS.overrun[+idx-1];else if(type==='gly')r=REWARDS['gl-y'][+idx];else r=REWARDS['gl-n'][+idx];
-  if(!r)return;const mul=document.getElementById('x2').checked?2:1;
-  document.getElementById('c-card').value=r.card*mul;document.getElementById('c-white').value=r.white*mul;document.getElementById('c-red').value=r.red*mul;updateHints();
-}
+function applyPreset(){const v=document.getElementById('calc-preset').value;if(!v)return;const [type,idx]=v.split('-');let r;if(type==='or')r=REWARDS.overrun[+idx-1];else if(type==='gly')r=REWARDS['gl-y'][+idx];else r=REWARDS['gl-n'][+idx];if(!r)return;const mul=document.getElementById('x2').checked?2:1;document.getElementById('c-card').value=r.card*mul;document.getElementById('c-white').value=r.white*mul;document.getElementById('c-red').value=r.red*mul;updateHints()}
 function applyX2(){const v=document.getElementById('calc-preset').value;if(v)applyPreset();else{const x2=document.getElementById('x2').checked;['c-card','c-white','c-red'].forEach(id=>{const el=document.getElementById(id);const cur=+el.value;if(x2&&cur>0)el.value=cur*2;else if(!x2&&cur>0&&cur%2===0)el.value=cur/2});updateHints()}}
 function getMemberList(){return document.getElementById('c-members').value.split('\n').map(s=>s.trim()).filter(Boolean)}
-function updateHints(){
-  const mlist=getMemberList(),n=mlist.length;document.getElementById('member-count').textContent=n+' คน';
-  const card=+document.getElementById('c-card').value||0,white=+document.getElementById('c-white').value||0,red=+document.getElementById('c-red').value||0,hasCarry=coList.length>0;
-  let hint='';
-  if(n>0&&card>0){
-    if(hasCarry){const wL=white-(Math.min(n,card)*CFG.max_white),rL=red-(Math.min(n,card)*CFG.max_red);hint=`<b>มีคนตกค้าง:</b> คนในรอบ <span>${Math.min(n,card)} คน</span> ได้ Card 1, White <span>${CFG.max_white}</span>, Red <span>${CFG.max_red}</span> ก่อน<br>ขนนกคงเหลือ: White <span>${Math.max(0,wL)}</span>, Red <span>${Math.max(0,rL)}</span>`}
-    else{const pW=Math.floor(white/Math.min(n,card)),pR=Math.floor(red/Math.min(n,card));hint=`<b>ไม่มีคนตกค้าง:</b> คนในรอบ <span>${Math.min(n,card)} คน</span><br>Card <span>1</span>/คน · White <span>${pW}</span>/คน · Red <span>${pR}</span>/คน`}
-  }else hint='กรอกจำนวนรางวัลและรายชื่อเพื่อดูค่าแนะนำ';
-  document.getElementById('calc-hint').innerHTML=hint;updateCoHint();
-}
-function updateCoHint(){const el=document.getElementById('co-hint');if(!coList.length){el.style.display='none';return}const tW=coList.reduce((s,c)=>s+(+c.white||0),0),tR=coList.reduce((s,c)=>s+(+c.red||0),0);el.style.display='block';el.innerHTML=`ขนนกที่คนตกค้างต้องการ: White <span>${tW}</span>, Red <span>${tR}</span>`}
-function addCarryover(){const name=prompt('ชื่อสมาชิกที่ตกค้าง:');if(!name||!name.trim())return;coList.push({name:name.trim(),white:0,red:0});renderCoList();updateHints()}
-function renderCoList(){
-  const el=document.getElementById('co-list'),badge=document.getElementById('co-badge');
-  if(!coList.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">ไม่มีคนตกค้าง</div>';badge.style.display='none';updateHints();return}
-  badge.style.display='inline';badge.textContent=coList.length+' คน';
-  el.innerHTML=coList.map((c,i)=>`<div class="carryover-item"><div class="co-name">${c.name}</div><div class="co-fields"><label>White ขาด</label><input type="number" min="0" max="20" value="${c.white}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].white=+this.value;updateHints()"><label>Red ขาด</label><input type="number" min="0" max="20" value="${c.red}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].red=+this.value;updateHints()"></div><button class="co-del" onclick="coList.splice(${i},1);renderCoList()">×</button></div>`).join('');updateHints();
-}
-function swCalcTab(t){document.querySelectorAll('.calc-tab').forEach((b,i)=>b.classList.toggle('active',['person','card','feather'][i]===t));['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).style.display=id===t?'block':'none')}
+function updateHints(){const mlist=getMemberList(),n=mlist.length;document.getElementById('member-count').textContent=n+' members';const card=+document.getElementById('c-card').value||0,white=+document.getElementById('c-white').value||0,red=+document.getElementById('c-red').value||0,hasCarry=coList.length>0;let hint='';if(n>0&&card>0){if(hasCarry){const wL=white-(Math.min(n,card)*CFG.max_white),rL=red-(Math.min(n,card)*CFG.max_red);hint=`<b>With carryover:</b> ${Math.min(n,card)} members get Card 1, White <span>${CFG.max_white}</span>, Red <span>${CFG.max_red}</span> first<br>Remaining: White <span>${Math.max(0,wL)}</span>, Red <span>${Math.max(0,rL)}</span>`}else{const pW=Math.floor(white/Math.min(n,card)),pR=Math.floor(red/Math.min(n,card));hint=`<b>No carryover:</b> ${Math.min(n,card)} members · Card <span>1</span> · White <span>${pW}</span> · Red <span>${pR}</span> each`}}else hint='Enter reward amounts and member list to see allocation';document.getElementById('calc-hint').innerHTML=hint;updateCoHint()}
+function updateCoHint(){const el=document.getElementById('co-hint');if(!coList.length){el.style.display='none';return}const tW=coList.reduce((s,c)=>s+(+c.white||0),0),tR=coList.reduce((s,c)=>s+(+c.red||0),0);el.style.display='block';el.innerHTML=`Carryover needs: White <span>${tW}</span>, Red <span>${tR}</span>`}
+function addCarryover(){const name=prompt('Member name:');if(!name||!name.trim())return;coList.push({name:name.trim(),white:0,red:0});renderCoList();updateHints()}
+function renderCoList(){const el=document.getElementById('co-list'),badge=document.getElementById('co-badge');if(!coList.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No carryover</div>';badge.style.display='none';updateHints();return}badge.style.display='inline';badge.textContent=coList.length;el.innerHTML=coList.map((c,i)=>`<div class="co-item"><div class="co-name">${c.name}</div><div class="co-fields"><label>White</label><input type="number" min="0" max="20" value="${c.white}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].white=+this.value;updateHints()"><label>Red</label><input type="number" min="0" max="20" value="${c.red}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].red=+this.value;updateHints()"></div><button class="co-del" onclick="coList.splice(${i},1);renderCoList()">×</button></div>`).join('');updateHints()}
+function swCalcTab(t){document.querySelectorAll('.ctab').forEach((b,i)=>b.classList.toggle('active',['person','card','feather'][i]===t));['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).style.display=id===t?'block':'none')}
 function runCalc(){
   const mlist=getMemberList(),totalCard=+document.getElementById('c-card').value||0,totalWhite=+document.getElementById('c-white').value||0,totalRed=+document.getElementById('c-red').value||0;
-  if(!mlist.length||!totalCard){alert('กรอกรายชื่อและจำนวนการ์ดก่อน');return}
+  if(!mlist.length||!totalCard){alert('Enter member list and card count first');return}
   const n=Math.min(mlist.length,totalCard),roundMembers=mlist.slice(0,n),hasCarry=coList.length>0;
-  let results=[],whiteLeft,redLeft;
-  if(hasCarry){roundMembers.forEach(name=>results.push({name,card:1,white:CFG.max_white,red:CFG.max_red,type:'round'}));whiteLeft=Math.max(0,totalWhite-(n*CFG.max_white));redLeft=Math.max(0,totalRed-(n*CFG.max_red));coList.forEach(co=>{let gW=0,gR=0;if(whiteLeft>0&&co.white>0){gW=Math.min(whiteLeft,+co.white);whiteLeft-=gW}if(redLeft>0&&co.red>0){gR=Math.min(redLeft,+co.red);redLeft-=gR}results.push({name:co.name,card:0,white:gW,red:gR,type:'carryover',needW:+co.white,needR:+co.red})})}
-  else{const pW=Math.floor(totalWhite/n),pR=Math.floor(totalRed/n);roundMembers.forEach(name=>results.push({name,card:1,white:pW,red:pR,type:'round'}));whiteLeft=totalWhite-(n*pW);redLeft=totalRed-(n*pR)}
-  renderCalcOutput(results,whiteLeft,redLeft);
+  let results=[],wL,rL;
+  if(hasCarry){roundMembers.forEach(name=>results.push({name,card:1,white:CFG.max_white,red:CFG.max_red,type:'round'}));wL=Math.max(0,totalWhite-(n*CFG.max_white));rL=Math.max(0,totalRed-(n*CFG.max_red));coList.forEach(co=>{let gW=0,gR=0;if(wL>0&&co.white>0){gW=Math.min(wL,+co.white);wL-=gW}if(rL>0&&co.red>0){gR=Math.min(rL,+co.red);rL-=gR}results.push({name:co.name,card:0,white:gW,red:gR,type:'carryover',needW:+co.white,needR:+co.red})})}
+  else{const pW=Math.floor(totalWhite/n),pR=Math.floor(totalRed/n);roundMembers.forEach(name=>results.push({name,card:1,white:pW,red:pR,type:'round'}));wL=totalWhite-(n*pW);rL=totalRed-(n*pR)}
+  renderCalcOutput(results,wL,rL);
 }
 function renderCalcOutput(results,wL,rL){
+  document.getElementById('calc-person').innerHTML=`<div class="tbl-wrap"><table class="rtable"><thead><tr><th>#</th><th>Name</th><th>🃏 Card</th><th>🪶 White</th><th>🪶 Red/Blk</th><th>Type</th></tr></thead><tbody>${results.map((r,i)=>`<tr class="${r.type==='carryover'?'co-row':''}"><td style="color:var(--faint)">${i+1}</td><td style="font-weight:500">${r.name}</td><td style="text-align:center">${r.card?'<span style="color:var(--gold)">✓</span>':'—'}</td><td style="text-align:center">${r.white||'—'}</td><td style="text-align:center">${r.red||'—'}</td><td><span style="font-size:10px;padding:2px 7px;border-radius:4px;${r.type==='carryover'?'background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)':'background:var(--orange-dim);color:var(--orange-l);border:0.5px solid var(--orange-border)'}">${r.type==='carryover'?'⏳ Carryover':'Round'}</span></td></tr>`).join('')}</tbody></table></div><div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--muted)"><span>White remainder: ${wL}</span><span>Red remainder: ${rL}</span></div>`;
   const cardPeople=results.filter(r=>r.card>0),mvpCount=+document.getElementById('mvp-count').value||0;
-  // TAB 1
-  document.getElementById('calc-person').innerHTML=`<div class="tbl-wrap"><table class="result-table"><thead><tr><th>#</th><th>ชื่อ</th><th>🃏 Card</th><th>🪶 White</th><th>🪶 Red/Blk</th><th>ประเภท</th></tr></thead><tbody>${results.map((r,i)=>`<tr class="${r.type==='carryover'?'co-row':''}"><td style="color:var(--muted)">${i+1}</td><td style="font-weight:500">${r.name}</td><td style="text-align:center">${r.card?'<span style="color:var(--gold)">✓</span>':'—'}</td><td style="text-align:center">${r.white||'—'}</td><td style="text-align:center">${r.red||'—'}</td><td><span style="font-size:10px;padding:2px 7px;border-radius:4px;${r.type==='carryover'?'background:rgba(126,200,160,0.1);color:var(--green);border:0.5px solid rgba(126,200,160,0.3)':'background:rgba(201,168,76,0.1);color:var(--gold);border:0.5px solid rgba(201,168,76,0.2)'}">${r.type==='carryover'?'⏳ ตกค้าง':'รอบปกติ'}</span></td></tr>`).join('')}</tbody></table></div><div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--muted)"><span>White เศษทิ้ง: ${wL}</span><span>Red เศษทิ้ง: ${rL}</span></div>`;
-  // TAB 2 การ์ด
   const cardSlots=[...cardPeople.map((r,i)=>({num:i+1,name:r.name})),...Array.from({length:mvpCount},(_,i)=>({num:cardPeople.length+i+1,name:'?',mvp:true,mvpNum:i+1}))];
-  let cHtml='';if(cardSlots.length){cHtml='<div class="tbl-wrap"><table class="result-table"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">ช่อง ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<cardSlots.length;i+=4){cHtml+=`<tr><td colspan="4" style="background:rgba(201,168,76,0.05);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">หน้า ${Math.floor(i/4)+1}</td></tr><tr>`;for(let j=0;j<4;j++){const s=cardSlots[i+j];cHtml+=s?`<td style="text-align:center;padding:10px 6px;${s.mvp?'background:rgba(201,168,76,0.07)':''}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${s.mvp?'🏆 MVP #'+s.mvpNum:'🃏 #'+s.num}</div><div style="font-size:13px;font-weight:500;color:${s.mvp?'var(--gold-l)':'#e8dcc8'}">${s.name}</div></td>`:`<td style="text-align:center;opacity:0.2;padding:10px 6px">—</td>`}cHtml+='</tr>'}cHtml+='</tbody></table></div>'}else cHtml='<div class="empty">ไม่มีข้อมูล</div>';
+  let cHtml='';if(cardSlots.length){cHtml='<div class="tbl-wrap"><table class="rtable"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">Slot ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<cardSlots.length;i+=4){cHtml+=`<tr><td colspan="4" style="background:rgba(232,115,42,0.04);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">Page ${Math.floor(i/4)+1}</td></tr><tr>`;for(let j=0;j<4;j++){const s=cardSlots[i+j];cHtml+=s?`<td style="text-align:center;padding:10px 6px;${s.mvp?'background:var(--gold-dim)':''}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${s.mvp?'🏆 MVP #'+s.mvpNum:'🃏 #'+s.num}</div><div style="font-size:12px;font-weight:500;color:${s.mvp?'var(--gold-l)':'var(--text)'}">${s.name}</div></td>`:`<td style="text-align:center;opacity:0.2;padding:10px 6px">—</td>`}cHtml+='</tr>'}cHtml+='</tbody></table></div>'}else cHtml='<div class="empty">No data</div>';
   document.getElementById('calc-card').innerHTML=cHtml;
-  // TAB 3 ขนนก
   const fSlots=[];results.forEach(r=>{for(let i=0;i<r.white;i++)fSlots.push({name:r.name,type:'white',co:r.type==='carryover'});for(let i=0;i<r.red;i++)fSlots.push({name:r.name,type:'red',co:r.type==='carryover'})});
-  let fHtml='';if(fSlots.length){fHtml='<div class="tbl-wrap"><table class="result-table"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">ช่อง ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<fSlots.length;i+=4){const typesInRow=[...new Set(fSlots.slice(i,i+4).map(s=>s.type))];const lbl=typesInRow.includes('white')&&typesInRow.includes('red')?'ขาว → แดง/ดำ':typesInRow[0]==='white'?'ขาว':'แดง/ดำ';fHtml+=`<tr><td colspan="4" style="background:rgba(255,255,255,0.03);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">หน้า ${Math.floor(i/4)+1} — 🪶 ${lbl}</td></tr><tr>`;for(let j=0;j<4;j++){const s=fSlots[i+j];if(s){const isW=s.type==='white';fHtml+=`<td style="text-align:center;padding:10px 6px;background:${s.co?(isW?'rgba(126,200,160,0.06)':'rgba(126,200,160,0.09)'):(isW?'rgba(200,200,240,0.05)':'rgba(220,80,80,0.05)')}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${isW?'⬜':'🟥'} #${i+j+1}${s.co?' ⏳':''}</div><div style="font-size:13px;font-weight:500">${s.name}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${isW?'ขาว':'แดง/ดำ'}</div></td>`}else fHtml+=`<td style="text-align:center;opacity:0.2">—</td>`}fHtml+='</tr>'}fHtml+='</tbody></table></div>';if(wL>0||rL>0)fHtml+=`<div style="font-size:11px;color:var(--muted);margin-top:6px">⚠ เศษทิ้ง: White ${wL}, Red ${rL}</div>`}else fHtml='<div class="empty">ไม่มีข้อมูล</div>';
+  let fHtml='';if(fSlots.length){fHtml='<div class="tbl-wrap"><table class="rtable"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">Slot ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<fSlots.length;i+=4){const typesInRow=[...new Set(fSlots.slice(i,i+4).map(s=>s.type))];const lbl=typesInRow.includes('white')&&typesInRow.includes('red')?'White → Red/Black':typesInRow[0]==='white'?'White':'Red/Black';fHtml+=`<tr><td colspan="4" style="background:rgba(255,255,255,0.02);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">Page ${Math.floor(i/4)+1} — 🪶 ${lbl}</td></tr><tr>`;for(let j=0;j<4;j++){const s=fSlots[i+j];if(s){const isW=s.type==='white';fHtml+=`<td style="text-align:center;padding:10px 6px;background:${s.co?(isW?'rgba(93,191,138,0.06)':'rgba(93,191,138,0.09)'):(isW?'rgba(200,200,240,0.04)':'rgba(224,112,106,0.06)')}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${isW?'⬜':'🟥'} #${i+j+1}${s.co?' ⏳':''}</div><div style="font-size:12px;font-weight:500;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${isW?'White':'Red/Black'}</div></td>`}else fHtml+=`<td style="text-align:center;opacity:0.18">—</td>`}fHtml+='</tr>'}fHtml+='</tbody></table></div>';if(wL>0||rL>0)fHtml+=`<div style="font-size:11px;color:var(--muted);margin-top:6px">Remainder: White ${wL}, Red ${rL}</div>`}else fHtml='<div class="empty">No data</div>';
   document.getElementById('calc-feather').innerHTML=fHtml;
 }
-function clearCalc(){['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).innerHTML='<div class="empty">กด ▶ คำนวณ เพื่อดูผล</div>');document.getElementById('mvp-result-box').innerHTML='';swCalcTab('person')}
-function doMVP(){const mlist=getMemberList(),n=Math.min(mlist.length,+document.getElementById('c-card').value||mlist.length),pool=mlist.slice(0,n),mvpCount=+document.getElementById('mvp-count').value||15;if(!pool.length){alert('ใส่รายชื่อก่อน');return}const sh=[...pool];for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}const winners=sh.slice(0,Math.min(mvpCount,sh.length));document.getElementById('mvp-result-box').innerHTML=`<div class="mvp-result"><h4>🏆 MVP Box — ${winners.length} คน</h4><div class="mvp-list">${winners.map(w=>`<span class="mvp-tag">${w}</span>`).join('')}</div></div>`}
+function clearCalc(){['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).innerHTML='<div class="empty">Press ▶ Calculate to view results</div>');document.getElementById('mvp-result-box').innerHTML='';swCalcTab('person')}
+function doMVP(){const mlist=getMemberList(),n=Math.min(mlist.length,+document.getElementById('c-card').value||mlist.length),pool=mlist.slice(0,n),cnt=+document.getElementById('mvp-count').value||15;if(!pool.length){alert('Enter member list first');return}const sh=[...pool];for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}const winners=sh.slice(0,Math.min(cnt,sh.length));document.getElementById('mvp-result-box').innerHTML=`<div class="mvp-res"><h4>🏆 MVP Box — ${winners.length} members</h4><div class="mvp-tags">${winners.map(w=>`<span class="mvp-tag">${w}</span>`).join('')}</div></div>`}
 
-/* GAS helpers */
-async function gasGet(action){
-  try{const r=await fetch(GAS_URL+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}
-}
-async function gasPost(body){
-  try{const r=await fetch(GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}
-}
+/* GAS */
+async function gasGet(action){try{const r=await fetch(GAS+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
+async function gasPost(body){try{const r=await fetch(GAS,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
 
-/* AUCTION LOG */
+/* AUCTION */
+function swAuTab(t){document.querySelectorAll('.au-tab').forEach((b,i)=>b.classList.toggle('active',['queue','history'][i]===t));document.getElementById('au-queue').style.display=t==='queue'?'block':'none';document.getElementById('au-history').style.display=t==='history'?'block':'none';if(t==='history')loadAuHistory()}
 async function loadAuctionDates(){
-  document.getElementById('al-content').innerHTML='<div class="loading-overlay">⏳ กำลังโหลด...</div>';
-  const r=await gasGet('getDates');
   const sel=document.getElementById('al-date-select');
-  sel.innerHTML='<option value="">— เลือกวันที่ —</option>';
+  const r=await gasGet('getDates');
+  sel.innerHTML='<option value="">— Select date —</option>';
   if(r.ok&&r.dates.length){r.dates.forEach(d=>sel.add(new Option(d,d)));if(currentALDate&&r.dates.includes(currentALDate))sel.value=currentALDate}
-  if(isAdmin)renderAuctionAdminControls();
-  document.getElementById('al-content').innerHTML='<div class="empty">เลือกวันที่เพื่อดูประวัติ</div>';
-  document.getElementById('al-stats').innerHTML='';
+  document.querySelectorAll('.admin-only').forEach(el=>{if(isAdmin)el.style.display=''});
 }
-
 async function loadAuctionLog(date){
-  if(!date){document.getElementById('al-content').innerHTML='<div class="empty">เลือกวันที่เพื่อดูประวัติ</div>';document.getElementById('al-stats').innerHTML='';return}
+  if(!date){document.getElementById('al-content').innerHTML='<div class="empty">Select a date to view queue</div>';document.getElementById('al-stats').innerHTML='';return}
   currentALDate=date;
-  document.getElementById('al-content').innerHTML='<div class="loading-overlay">⏳ กำลังโหลด...</div>';
+  document.getElementById('al-content').innerHTML='<div class="loading">Loading...</div>';
   const r=await gasGet('getLog&date='+date);
-  if(!r.ok){document.getElementById('al-content').innerHTML='<div class="empty" style="color:var(--red)">โหลดไม่สำเร็จ</div>';return}
-  const rows=r.rows;
-  const done=rows.filter(r=>r.status==='done').length,pending=rows.filter(r=>r.status==='pending').length;
-  document.getElementById('al-stats').innerHTML=`<div class="al-stat"><div class="n">${rows.length}</div><div class="l">ทั้งหมด</div></div><div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">ดึงแล้ว</div></div><div class="al-stat"><div class="n" style="color:var(--red)">${pending}</div><div class="l">รอดึง</div></div>`;
-  if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">ไม่มีข้อมูลสำหรับวันนี้</div>';return}
-  const showDel=isAdmin?'':'display:none';
-  document.getElementById('al-content').innerHTML=`<div class="panel"><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">`+
-    `<thead><tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">#</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">ชื่อ</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">สถานะ</th><th style="padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">หมายเหตุ</th><th class="admin-only" style="${showDel};padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border)">จัดการ</th></tr></thead><tbody>`+
-    rows.map(row=>`<tr class="queue-row" id="qrow-${row.position}">
-      <td class="q-num">${row.position}</td>
-      <td class="q-name">${row.member_name}</td>
-      <td style="text-align:center"><span class="q-status ${row.status==='done'?'qs-done':'qs-pending'}" id="qstatus-${row.position}">${row.status==='done'?'✓ ดึงแล้ว':'⏳ รอดึง'}</span></td>
-      <td class="q-note" id="qnote-${row.position}">${row.note||'—'}</td>
-      <td class="admin-only q-actions" style="${showDel}">`+
-        (row.status==='done'
-          ?`<button class="q-btn q-btn-undo" onclick="toggleQStatus('${date}',${row.position},'pending','')">↺ ยกเลิก</button>`
-          :`<button class="q-btn q-btn-done" onclick="toggleQStatus('${date}',${row.position},'done','')">✓ ดึงแล้ว</button>`)+
-      `</td></tr>`).join('')+
-    '</tbody></table></div></div>';
-  if(isAdmin)renderAuctionAdminControls();
+  if(!r.ok){document.getElementById('al-content').innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  const rows=r.rows,done=rows.filter(r=>r.status==='done').length,pend=rows.filter(r=>r.status==='pending').length;
+  document.getElementById('al-stats').innerHTML=`<div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div><div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div><div class="al-stat"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">Pending</div></div>`;
+  if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">No data for this date</div>';return}
+  const adm=isAdmin;
+  document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">#</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Name</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>${adm?'<th style="padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border)">Action</th>':''}</tr></thead><tbody>${rows.map(row=>`<tr class="qrow" id="qr-${row.position}"><td class="q-num">${row.position}</td><td class="q-name">${row.member_name}</td><td style="text-align:center"><span class="qs ${row.status==='done'?'qs-done':'qs-pend'}">${row.status==='done'?'✓ Drawn':'⏳ Pending'}</span></td>${adm?`<td>${row.status==='done'?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`:`<button class="q-btn q-btn-done" onclick="toggleQ('${date}',${row.position},'done','')">✓ Mark drawn</button>`}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
 }
-
-async function toggleQStatus(date,pos,status,note){
-  const r=await gasPost({action:'updateStatus',date,position:pos,status,note});
-  if(r.ok)loadAuctionLog(date);else alert('อัปเดตไม่สำเร็จ: '+r.error);
-}
-
-async function deleteDateConfirm(){
-  if(!currentALDate){alert('เลือกวันที่ก่อน');return}
-  if(!confirm(`ลบคิวทั้งหมดของวันที่ ${currentALDate}?`))return;
-  const r=await gasPost({action:'deleteDate',date:currentALDate});
-  if(r.ok){currentALDate='';loadAuctionDates()}else alert('ลบไม่สำเร็จ: '+r.error);
-}
-
-/* PASTE MODAL */
-function openPasteModal(){
-  const today=new Date().toISOString().slice(0,10);
-  document.getElementById('paste-date').value=currentALDate||today;
-  document.getElementById('paste-names').value='';
-  document.getElementById('paste-count').textContent='0 คน';
-  document.getElementById('paste-modal').style.display='flex';
-  document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' คน'};
-}
+async function loadAuHistory(){const el=document.getElementById('au-hist-content');el.innerHTML='<div class="loading">Loading...</div>';const r=await gasGet('getDates');if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>`<div class="att-session-row" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${d}';loadAuctionLog('${d}')"><span class="as-date">${d}</span><span style="font-size:11px;color:var(--muted)">View →</span></div>`).join('')+'</div>'}
+async function toggleQ(date,pos,status,note){const r=await gasPost({action:'updateStatus',date,position:pos,status,note});if(r.ok)loadAuctionLog(date);else alert('Update failed: '+r.error)}
+async function deleteDateConfirm(){if(!currentALDate){alert('Select a date first');return}if(!confirm('Delete all queue entries for '+currentALDate+'?'))return;const r=await gasPost({action:'deleteDate',date:currentALDate});if(r.ok){currentALDate='';loadAuctionDates()}else alert('Delete failed: '+r.error)}
+function openPasteModal(){const today=new Date().toISOString().slice(0,10);document.getElementById('paste-date').value=currentALDate||today;document.getElementById('paste-names').value='';document.getElementById('paste-count').textContent='0 members';document.getElementById('paste-modal').style.display='flex';document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' members'}}
 function closePasteModal(){document.getElementById('paste-modal').style.display='none'}
-async function submitPaste(){
-  const date=document.getElementById('paste-date').value.trim();
-  const names=document.getElementById('paste-names').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('กรอกวันที่ให้ถูกต้อง เช่น 2025-06-07');return}
-  if(!names.length){alert('กรอกรายชื่ออย่างน้อย 1 คน');return}
-  const btn=document.querySelector('#paste-modal .btn-primary');btn.textContent='⏳ กำลังบันทึก...';btn.disabled=true;
-  const r=await gasPost({action:'appendQueue',date,members:names});
-  btn.textContent='💾 บันทึก';btn.disabled=false;
-  if(r.ok){closePasteModal();currentALDate=date;await loadAuctionDates();document.getElementById('al-date-select').value=date;loadAuctionLog(date)}
-  else alert('บันทึกไม่สำเร็จ: '+r.error);
+async function submitPaste(){const date=document.getElementById('paste-date').value.trim();const names=document.getElementById('paste-names').value.split('\n').map(s=>s.trim()).filter(Boolean);if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Enter valid date (YYYY-MM-DD)');return}if(!names.length){alert('Enter at least one name');return}const btn=document.querySelector('#paste-modal .btn-primary');btn.textContent='Saving...';btn.disabled=true;const r=await gasPost({action:'appendQueue',date,members:names});btn.textContent='💾 Save';btn.disabled=false;if(r.ok){closePasteModal();currentALDate=date;await loadAuctionDates();document.getElementById('al-date-select').value=date;loadAuctionLog(date)}else alert('Save failed: '+r.error)}
+
+/* ATTENDANCE */
+let currentAttDate='';
+async function loadAttendance(){loadAttSummary();loadAttSessions()}
+async function loadAttSummary(){
+  const tbody=document.getElementById('att-summary-tbody');
+  const r=await gasGet('getAttSummary');
+  if(!r.ok||!r.summary.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No attendance data yet</td></tr>';return}
+  tbody.innerHTML=r.summary.map((s,i)=>{const rate=s.sessions>0?Math.round((s.present/s.sessions)*100):0;const low=rate<80;return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:500">${s.member_name}</td><td style="color:var(--muted)">${findParty(s.member_name)}</td><td style="color:var(--muted)">${s.sessions}</td><td style="color:var(--green)">${s.present}</td><td style="${s.absent>0?'color:var(--red);font-weight:500':'color:var(--muted)'}">${s.absent}</td><td style="color:var(--blue)">${s.leave}</td><td><div class="rate-bar"><div class="rate-fill ${low?'low':''}" style="width:${rate}%"></div></div> <span style="font-size:11px;color:${low?'var(--red)':'var(--muted)'}">${rate}%</span></td></tr>`}).join('');
 }
+function findParty(name){const m=members.find(x=>x.ign===name);return m?'P'+m.party:'—'}
+async function loadAttSessions(){
+  const el=document.getElementById('att-sessions-list');
+  const r=await gasGet('getAttDates');
+  if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No sessions yet · Admin can create one</div>';return}
+  el.innerHTML=r.dates.map(d=>`<div class="att-session-row ${currentAttDate===d.date?'active':''}" onclick="loadAttSession('${d.date}')"><span class="as-date">${d.date}</span><span class="as-type">${d.type}</span><div class="as-stats"><span style="color:var(--green)">✓ ${d.present}</span><span style="color:var(--red)">✗ ${d.absent}</span><span style="color:var(--muted)">— ${d.total-d.present-d.absent}</span></div></div>`).join('');
+}
+async function loadAttSession(date){
+  currentAttDate=date;
+  loadAttSessions();
+  const el=document.getElementById('att-daily-content');
+  el.innerHTML='<div class="loading">Loading...</div>';
+  const r=await gasGet('getAttSession&date='+date);
+  if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  const rows=r.rows;
+  const present=rows.filter(r=>r.status==='present').length,absent=rows.filter(r=>r.status==='absent').length,leave=rows.filter(r=>r.status==='leave').length,unset=rows.filter(r=>!r.status).length;
+  const adm=isAdmin;
+  el.innerHTML=`<div class="att-bar-top"><div><div class="abd">${rows[0]?.type||'Session'} · ${date}</div><div class="abm">${adm?'Admin: use dropdown to mark attendance':'View only'}</div></div><div class="att-ctrs"><div class="att-ctr"><div class="acn" style="color:var(--green)">${present}</div><div class="acl">มา</div></div><div class="att-ctr"><div class="acn" style="color:var(--red)">${absent}</div><div class="acl">ขาด</div></div><div class="att-ctr"><div class="acn" style="color:var(--blue)">${leave}</div><div class="acl">ลา</div></div><div class="att-ctr"><div class="acn" style="color:var(--muted)">${unset}</div><div class="acl">ไม่ระบุ</div></div></div></div><div class="att-grid">${rows.map(row=>{const absent=row.status==='absent',present=row.status==='present',leave=row.status==='leave';const missCnt=0;return`<div class="att-card ${present?'present':absent?'absent':leave?'leave':''}" id="ac-${row.member_name.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="att-info"><div class="att-name">${row.member_name}</div><div class="att-sub">${findParty(row.member_name)}</div>${row.noted?`<div class="att-noted">📝 ${row.noted}</div>`:''}</div>${adm?`<select class="att-select" onchange="updateAtt('${date}','${row.member_name}',this.value)"><option value="" ${!row.status?'selected':''}>— ไม่ระบุ —</option><option value="present" ${present?'selected':''}>✓ มา</option><option value="absent" ${absent?'selected':''}>✗ ขาด</option><option value="leave" ${leave?'selected':''}>📝 ลา (${row.noted||'แจ้งลา'})</option></select>`:`<span class="qs ${present?'qs-done':absent?'qs-pend':''}" style="font-size:11px">${present?'✓ มา':absent?'✗ ขาด':leave?'📝 ลา':'—'}</span>`}</div>`}).join('')}</div>`;
+}
+async function updateAtt(date,member,status){
+  const r=await gasPost({action:'updateAttStatus',date,member_name:member,status});
+  if(r.ok){loadAttSession(date);loadAttSummary()}else alert('Update failed: '+r.error);
+}
+async function createAttSession(){
+  if(!isAdmin){alert('Admin only');return}
+  const date=document.getElementById('att-new-date').value;
+  const type=document.getElementById('att-new-type').value;
+  if(!date){alert('Select a date');return}
+  const memberData=members.map(m=>({name:m.ign,noted:m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'))?m.noted:''}));
+  const r=await gasPost({action:'createAttSession',date,type,members:memberData});
+  if(r.ok){alert(`Session created for ${date} with ${r.added} members`);loadAttSessions();loadAttSession(date)}else alert('Failed: '+r.error);
+}
+function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.classList.toggle('active',['overview','daily'][i]===t));document.getElementById('att-overview').style.display=t==='overview'?'block':'none';document.getElementById('att-daily').style.display=t==='daily'?'block':'none';if(t==='overview')loadAttSummary()}
 
 /* TRACKER */
 function renderTracker(){
   const tc=document.getElementById('tracker-content');
-  if(!trackerSession.length){tc.innerHTML='<div class="no-session"><div class="big">🎯</div><strong>ยังไม่มีรอบสุ่ม</strong><p>Go to Randomize and press "Send to Tracker"</p></div>';return}
+  if(!trackerSession.length){tc.innerHTML='<div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Go to Randomize and press "Send to Tracker"</p></div>';return}
   const done=trackerSession.filter(m=>m.done).length,miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
-  tc.innerHTML=`<div class="tk-header"><div class="session-summary"><div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">ทั้งหมด</div></div><div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">สุ่มแล้ว</div></div><div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">รอสุ่ม</div></div><div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">ของตกหล่น</div></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="exportMissing()">⬇ Export ของตกหล่น</button><button class="btn btn-red" onclick="if(confirm('ล้างรอบ?')){trackerSession=[];renderTracker()}">✕ ล้างรอบ</button></div></div>
-  <div class="tracker-grid">${trackerSession.map((m,i)=>{const hM=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);return`<div class="tc ${m.done?(hM?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="drop-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="drop-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="drop-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`}).join('')}</div>`;
+  tc.innerHTML=`<div class="tk-head"><div class="ss-row"><div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">Total</div></div><div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">Drawn</div></div><div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">Pending</div></div><div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">Missing</div></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="exportMissing()">⬇ Export Missing</button><button class="btn btn-red" onclick="if(confirm('Clear session?')){trackerSession=[];renderTracker()}">✕ Clear</button></div></div>
+  <div class="tk-grid">${trackerSession.map((m,i)=>{const hM=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);return`<div class="tc ${m.done?(hM?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="dp-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="dp-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="dp-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`}).join('')}</div>`;
 }
 function tgDone(i,v){trackerSession[i].done=v;if(v){trackerSession[i].got_card=CFG.max_card;trackerSession[i].got_white=CFG.max_white;trackerSession[i].got_red=CFG.max_red}renderTracker()}
 function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
-function exportMissing(){
-  const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
-  if(!miss.length){alert('ไม่มีของตกหล่น 🎉');return}
-  const lines=['=== ของตกหล่น ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card ขาด ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White ขาด ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk ขาด ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');
-  navigator.clipboard.writeText(lines).then(()=>alert('คัดลอกแล้ว!\n\n'+lines));
-}
-
-/* HAMBURGER */
-function toggleSidebar(){
-  const s=document.getElementById('sidebar-el'),o=document.getElementById('sidebar-overlay');
-  s.classList.toggle('open');o.classList.toggle('show');
-}
-function closeSidebar(){
-  document.getElementById('sidebar-el').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('show');
-}
+function exportMissing(){const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));if(!miss.length){alert('No missing drops 🎉');return}const lines=['=== Missing Drops ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card missing ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White missing ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk missing ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');navigator.clipboard.writeText(lines).then(()=>alert('Copied!\n\n'+lines))}
 
 loadData();
 renderLogList();
