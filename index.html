@@ -114,31 +114,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .td-s{background:var(--green)}.td-a{background:var(--amber)}.td-d{background:var(--red)}
 
 /* PARTY */
-.field-section{margin-bottom:1.5rem}
+.field-section{margin-bottom:1.8rem}
 .field-section:last-child{margin-bottom:0}
-.field-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid var(--border)}
-.field-head h4{font-size:13px;font-weight:500;color:var(--text)}
+.field-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid var(--border)}
+.field-head h4{font-size:14px;font-weight:500;color:var(--text)}
 .field-tag{font-size:10px;padding:2px 9px;border-radius:12px;font-weight:500}
 .ft-main{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
 .ft-sec{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
 .party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
-.pc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
-.pc-head{padding:8px 11px;display:flex;justify-content:space-between;align-items:center}
-.pc-head.main{background:rgba(93,191,138,0.08);border-bottom:0.5px solid var(--green-b)}
-.pc-head.sec{background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b)}
-.pc-head.main .pn{color:var(--green);font-size:12px;font-weight:500}
-.pc-head.sec .pn{color:var(--amber);font-size:12px;font-weight:500}
-.pc-count{font-size:10px;color:var(--muted)}
-.pm-body{padding:0;display:flex;flex-direction:column}
-.pm{display:flex;align-items:center;gap:8px;padding:5px 11px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
+.pc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.pc-head{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.pc-head.main{background:rgba(93,191,138,0.1);border-bottom:0.5px solid rgba(93,191,138,0.25)}
+.pc-head.sec{background:rgba(212,160,68,0.1);border-bottom:0.5px solid rgba(212,160,68,0.25)}
+.pc-head.main .pn{color:var(--green);font-size:13px;font-weight:500}
+.pc-head.sec .pn{color:var(--amber);font-size:13px;font-weight:500}
+.pc-count{font-size:11px;color:var(--muted)}
+.pm-body{padding:4px 0;display:flex;flex-direction:column}
+.pm{display:flex;align-items:stretch;gap:9px;padding:5px 12px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
 .pm:last-child{border-bottom:none}
-.pm-bar{width:3px;border-radius:2px;align-self:stretch;min-height:22px;flex-shrink:0}
-.pm-bar.bs{background:var(--green);opacity:0.6}
-.pm-bar.ba{background:var(--amber);opacity:0.6}
-.pm-bar.bd{background:var(--red);opacity:0.6}
-.pm-info{display:flex;flex-direction:column;flex:1;min-width:0}
-.pm-name{color:rgba(242,232,216,0.88);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pm-cls-label{font-size:10px;color:var(--muted)}
+.pm-bar{width:3px;border-radius:2px;flex-shrink:0;min-height:20px}
+.pm-bar.bs{background:var(--green);opacity:0.55}
+.pm-bar.ba{background:var(--amber);opacity:0.55}
+.pm-bar.bd{background:var(--red);opacity:0.55}
+.pm-info{display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
+.pm-name{color:rgba(242,232,216,0.9);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-cls-label{font-size:10px;color:var(--muted);margin-top:1px}
 .pm-note{font-size:10px;color:var(--red)}
 .pm-note-leave{font-size:10px;color:var(--blue)}
 
@@ -372,8 +372,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <th id="th-class" onclick="sortM('class')">Class</th>
       <th id="th-type" onclick="sortM('type')">Type</th>
       <th id="th-party" onclick="sortM('party')">Party</th>
-      <th id="th-char" onclick="sortM('char_id')">Char ID</th>
-      <th id="th-discord" onclick="sortM('discord')">Discord</th>
+      <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
+      <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
       <th id="th-noted" onclick="sortM('noted')">Noted</th>
     </tr></thead>
     <tbody id="m-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
@@ -654,11 +654,11 @@ function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=documen
 function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
 /* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none')}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');renderMembers()}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
 function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
-  if(pw==='$aiphanWM8'){isAdmin=true;closeAdminModal();document.getElementById('admin-btn').textContent='🔓 Admin (on)';document.getElementById('admin-btn').classList.add('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');document.getElementById('new-session-wrap').style.display=''}
+  if(pw==='$aiphanWM8'){isAdmin=true;closeAdminModal();document.getElementById('admin-btn').textContent='🔓 Admin (on)';document.getElementById('admin-btn').classList.add('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');document.getElementById('new-session-wrap').style.display='';document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');renderMembers()}
   else{document.getElementById('admin-err').style.display='block';document.getElementById('admin-pass').value=''}
 }
 
@@ -720,7 +720,7 @@ function renderMembers(){
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
   if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
-  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type),tl=getTypeLabel(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}">${m.class}</span></td><td>${tl}</td><td style="color:var(--muted)">${m.party||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
+  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type),tl=getTypeLabel(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}">${m.class}</span></td><td>${tl}</td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${members.length} members`;
 }
 
@@ -741,7 +741,7 @@ function searchMe(){
   if(!q){el.innerHTML='';return}
   const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q)));
   if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
-  el.innerHTML=found.map(m=>{const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);const type=getType(m.class),tc=getTypeCls(type);return`<div class="profile"><div class="phead"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="pinfo"><div class="name">${m.ign} ${m.noted?`<span class="badge b-note" style="font-size:11px">${m.noted}</span>`:''}</div><div class="sub"><span class="badge ${tc}" style="font-size:10px">${m.class}</span> · Party ${m.party||'N/A'}</div></div></div><div class="igrid"><div class="ii"><div class="ik">Char ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="ii"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div><div class="ii"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div><div class="ii"><div class="ik">Status</div><div class="iv">${m.noted||'Active'}</div></div></div>${mates.length?`<div class="mates"><h4>Party ${m.party} mates</h4><div class="mtags">${mates.map(x=>`<span class="mtag">${x.ign}</span>`).join('')}</div></div>`:''}</div>`}).join('');
+  el.innerHTML=found.map(m=>{const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);const type=getType(m.class),tc=getTypeCls(type);return`<div class="profile"><div class="phead"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="pinfo"><div class="name">${m.ign} ${m.noted?`<span class="badge b-note" style="font-size:11px">${m.noted}</span>`:''}</div><div class="sub"><span class="badge ${tc}" style="font-size:10px">${m.class}</span> · Party ${m.party||'N/A'}</div></div></div><div class="igrid">${isAdmin?`${isAdmin?`<div class="ii"><div class="ik">Char ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="ii"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div>`:''}<div class="ii"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div>`:\`\`}<div class="ii"><div class="ik">Status</div><div class="iv">${m.noted||'Active'}</div></div></div>${mates.length?`<div class="mates"><h4>Party ${m.party} mates</h4><div class="mtags">${mates.map(x=>`<span class="mtag">${x.ign}</span>`).join('')}</div></div>`:''}</div>`}).join('');
 }
 function searchMyQueue(){
   const q=(document.getElementById('si-queue').value||'').toLowerCase().trim(),el=document.getElementById('queue-result');
@@ -850,8 +850,9 @@ async function loadAuctionLog(date){
   const adm=isAdmin;
   document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">#</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Name</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>${adm?'<th style="padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border)">Action</th>':''}</tr></thead><tbody>${rows.map(row=>`<tr class="qrow" id="qr-${row.position}"><td class="q-num">${row.position}</td><td class="q-name">${row.member_name}</td><td style="text-align:center"><span class="qs ${row.status==='done'?'qs-done':'qs-pend'}">${row.status==='done'?'✓ Drawn':'⏳ Pending'}</span></td>${adm?`<td>${row.status==='done'?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`:`<button class="q-btn q-btn-done" onclick="toggleQ('${date}',${row.position},'done','')">✓ Mark drawn</button>`}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
 }
-async function loadAuHistory(){const el=document.getElementById('au-hist-content');el.innerHTML='<div class="loading">Loading...</div>';const r=await gasGet('getDates');if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>`<div class="att-session-row" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${d}';loadAuctionLog('${d}')"><span class="as-date">${d}</span><span style="font-size:11px;color:var(--muted)">View →</span></div>`).join('')+'</div>'}
+async function loadAuHistory(){const el=document.getElementById('au-hist-content');el.innerHTML='<div class="loading">Loading...</div>';const r=await gasGet('getDates');if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>{const clean=d.slice(0,10);return`<div class="att-session-row" style="display:flex;align-items:center;gap:10px"><span class="as-date" style="flex:1;cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">${clean}</span><span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">View →</span>${isAdmin?`<button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="deleteHistDate('${clean}')">🗑</button>`:''}</div>`}).join('')+'</div>'}
 async function toggleQ(date,pos,status,note){const r=await gasPost({action:'updateStatus',date,position:pos,status,note});if(r.ok)loadAuctionLog(date);else alert('Update failed: '+r.error)}
+async function deleteHistDate(date){if(!isAdmin){return}if(!confirm('Delete all entries for '+date+'?'))return;const r=await gasPost({action:'deleteDate',date});if(r.ok){loadAuHistory();loadAuctionDates()}else alert('Delete failed: '+r.error)}
 async function deleteDateConfirm(){if(!currentALDate){alert('Select a date first');return}if(!confirm('Delete all queue entries for '+currentALDate+'?'))return;const r=await gasPost({action:'deleteDate',date:currentALDate});if(r.ok){currentALDate='';loadAuctionDates()}else alert('Delete failed: '+r.error)}
 function openPasteModal(){const today=new Date().toISOString().slice(0,10);document.getElementById('paste-date').value=currentALDate||today;document.getElementById('paste-names').value='';document.getElementById('paste-count').textContent='0 members';document.getElementById('paste-modal').style.display='flex';document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' members'}}
 function closePasteModal(){document.getElementById('paste-modal').style.display='none'}
