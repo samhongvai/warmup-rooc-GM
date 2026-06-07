@@ -311,6 +311,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .form-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
 .form-row input,.form-row select{font-size:12px;padding:6px 9px}
 
+/* DONE DATE MODAL */
+.done-modal{background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:1.2rem;width:300px;max-width:90vw}
+.done-modal h4{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
+.date-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.date-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border:0.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;color:var(--text);transition:border-color 0.15s}
+.date-opt:hover{border-color:var(--border2)}
+.date-opt.selected{border-color:var(--orange);background:var(--orange-dim)}
+.date-opt input[type=radio]{accent-color:var(--orange)}
 /* MODAL */
 .modal-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal{background:var(--bg3);border:0.5px solid var(--border2);border-radius:12px;padding:1.5rem;width:340px;max-width:90vw}
@@ -600,6 +608,27 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 </main>
 </div>
 
+<!-- DONE DATE MODAL -->
+<div id="done-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeDoneModal()">
+  <div class="done-modal">
+    <h4>✓ Mark as Drawn</h4>
+    <div class="date-opts">
+      <label class="date-opt selected" id="opt-today">
+        <input type="radio" name="done-date-opt" value="today" checked onchange="selectDateOpt('today')">
+        <span>Today — <strong id="today-label"></strong></span>
+      </label>
+      <label class="date-opt" id="opt-custom">
+        <input type="radio" name="done-date-opt" value="custom" onchange="selectDateOpt('custom')">
+        <span>Other date</span>
+      </label>
+      <input type="date" id="custom-date-input" style="display:none;margin-top:2px;width:100%">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeDoneModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmDone()">✓ Confirm</button>
+    </div>
+  </div>
+</div>
 <!-- ADMIN MODAL -->
 <div id="admin-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeAdminModal()">
   <div class="modal">
@@ -633,7 +662,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbww1tGTKTSkes1FpQS6InX4ciWKBLkLpFAonW7ZNwYVvsrTI0HaV5HyH2WF2DJtxtf8/exec';
+const GAS='https://script.google.com/macros/s/AKfycbyZhntTzJivuadXBaBG2HEdN_F4Jvys1JIojPhc3B7wnRhm-wwa_T9iauL2de4bYGE1/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const REWARDS={
@@ -852,14 +881,76 @@ async function loadAuctionLog(date){
   document.getElementById('al-content').innerHTML='<div class="loading">Loading...</div>';
   const r=await gasGet('getLog&date='+date);
   if(!r.ok){document.getElementById('al-content').innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-  const rows=r.rows,done=rows.filter(r=>r.status==='done').length,pend=rows.filter(r=>r.status==='pending').length;
-  document.getElementById('al-stats').innerHTML=`<div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div><div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div><div class="al-stat"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">Pending</div></div>`;
+  const rows=r.rows;
+  const done=rows.filter(r=>r.status==='done').length;
+  const pend=rows.filter(r=>r.status==='pending').length;
+  document.getElementById('al-stats').innerHTML=`
+    <div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div>
+    <div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div>
+    <div class="al-stat"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">Pending</div></div>`;
   if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">No data for this date</div>';return}
   const adm=isAdmin;
-  document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">#</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Name</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>${adm?'<th style="padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border)">Action</th>':''}</tr></thead><tbody>${rows.map(row=>`<tr class="qrow" id="qr-${row.position}"><td class="q-num">${row.position}</td><td class="q-name">${row.member_name}</td><td style="text-align:center"><span class="qs ${row.status==='done'?'qs-done':'qs-pend'}">${row.status==='done'?'✓ Drawn':'⏳ Pending'}</span></td>${adm?`<td>${row.status==='done'?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`:`<button class="q-btn q-btn-done" onclick="toggleQ('${date}',${row.position},'done','')">✓ Mark drawn</button>`}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
+  let tbody='';
+  rows.forEach(row=>{
+    const isDone=row.status==='done';
+    const statusHtml=isDone
+      ?`<span class="qs qs-done">✓ Drawn</span>${row.done_date?` <span style="font-size:10px;color:var(--muted)">${row.done_date}</span>`:''}`
+      :`<span class="qs qs-pend">⏳ Pending</span>`;
+    const actionHtml=adm
+      ?(isDone
+        ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`
+        :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position})">✓ Mark drawn</button>`)
+      :'';
+    tbody+=`<tr class="qrow">
+      <td class="q-num">${row.position}</td>
+      <td class="q-name">${row.member_name}</td>
+      <td style="text-align:right">${statusHtml}</td>
+      ${adm?`<td style="text-align:right;width:120px">${actionHtml}</td>`:''}
+    </tr>`;
+  });
+  document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:40px">#</th>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Name</th>
+      <th style="text-align:right;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>
+      ${adm?`<th style="width:120px;border-bottom:0.5px solid var(--border)"></th>`:''}
+    </tr></thead>
+    <tbody>${tbody}</tbody>
+  </table></div>`;
 }
+
 async function loadAuHistory(){const el=document.getElementById('au-hist-content');el.innerHTML='<div class="loading">Loading...</div>';const r=await gasGet('getDates');if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>{const clean=d.slice(0,10);return`<div class="att-session-row" style="display:flex;align-items:center;gap:10px"><span class="as-date" style="flex:1;cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">${clean}</span><span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">View →</span>${isAdmin?`<button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="deleteHistDate('${clean}')">🗑</button>`:''}</div>`}).join('')+'</div>'}
-async function toggleQ(date,pos,status,note){const r=await gasPost({action:'updateStatus',date,position:pos,status,note});if(r.ok)loadAuctionLog(date);else alert('Update failed: '+r.error)}
+let _pendingDone={date:'',pos:0};
+function openDoneModal(date,pos){
+  _pendingDone={date,pos};
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('today-label').textContent=today;
+  document.getElementById('custom-date-input').value=today;
+  document.getElementById('custom-date-input').style.display='none';
+  document.querySelector('input[value="today"]').checked=true;
+  document.getElementById('opt-today').classList.add('selected');
+  document.getElementById('opt-custom').classList.remove('selected');
+  document.getElementById('done-modal').style.display='flex';
+}
+function closeDoneModal(){document.getElementById('done-modal').style.display='none'}
+function selectDateOpt(v){
+  document.getElementById('opt-today').classList.toggle('selected',v==='today');
+  document.getElementById('opt-custom').classList.toggle('selected',v==='custom');
+  document.getElementById('custom-date-input').style.display=v==='custom'?'block':'none';
+}
+async function confirmDone(){
+  const opt=document.querySelector('input[name="done-date-opt"]:checked').value;
+  const doneDate=opt==='today'?new Date().toISOString().slice(0,10):document.getElementById('custom-date-input').value;
+  if(!doneDate){alert('Please select a date');return}
+  closeDoneModal();
+  const r=await gasPost({action:'updateStatus',date:_pendingDone.date,position:_pendingDone.pos,status:'done',note:'',doneDate});
+  if(r.ok)loadAuctionLog(_pendingDone.date);else alert('Update failed: '+r.error);
+}
+async function toggleQ(date,pos,status,note){
+  if(status==='done'){openDoneModal(date,pos);return}
+  const r=await gasPost({action:'updateStatus',date,position:pos,status,note});
+  if(r.ok)loadAuctionLog(date);else alert('Update failed: '+r.error);
+}
 async function deleteHistDate(date){if(!isAdmin){return}if(!confirm('Delete all entries for '+date+'?'))return;const r=await gasPost({action:'deleteDate',date});if(r.ok){loadAuHistory();loadAuctionDates()}else alert('Delete failed: '+r.error)}
 async function deleteDateConfirm(){if(!currentALDate){alert('Select a date first');return}if(!confirm('Delete all queue entries for '+currentALDate+'?'))return;const r=await gasPost({action:'deleteDate',date:currentALDate});if(r.ok){currentALDate='';loadAuctionDates()}else alert('Delete failed: '+r.error)}
 function openPasteModal(){const today=new Date().toISOString().slice(0,10);document.getElementById('paste-date').value=currentALDate||today;document.getElementById('paste-names').value='';document.getElementById('paste-count').textContent='0 members';document.getElementById('paste-modal').style.display='flex';document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' members'}}
