@@ -289,6 +289,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .qs-done{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
 .qs-pend{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
 .q-btn{padding:3px 8px;font-size:11px;border-radius:4px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
+/* AUCTION TABLE FIXED LAYOUT */
+.au-fixed{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.au-fixed th{text-align:left;padding:7px 10px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2);overflow:hidden}
+.au-fixed td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;overflow:hidden}
+.au-fixed tr:last-child td{border-bottom:none}
+.au-fixed tr:hover td{background:rgba(232,115,42,0.025)}
+.au-col-num{width:36px}.au-col-name{}.au-col-status{width:168px}.au-col-fw{width:108px;text-align:center}.au-col-fd{width:108px;text-align:center}.au-col-act{width:128px;text-align:right}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
@@ -408,7 +415,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <div id="page-members" class="page">
   <div class="page-title">Members</div>
   <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
-  <div class="type-summary" id="type-summary"></div>
+  <div class="overview-box" id="class-overview" style="margin-bottom:14px"></div>
   <div class="filter-row">
     <input type="text" id="search-m" placeholder="Search name / ID..." oninput="renderMembers()">
     <select id="fc" onchange="renderMembers()"><option value="">All classes</option></select>
@@ -420,13 +427,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <th class="m-num">#</th>
       <th id="th-ign" onclick="sortM('ign')">Name</th>
       <th id="th-class" onclick="sortM('class')">Class</th>
-      <th id="th-type" onclick="sortM('type')">Type</th>
       <th id="th-party" onclick="sortM('party')">Party</th>
       <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
       <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
       <th id="th-noted" onclick="sortM('noted')">Noted</th>
     </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
   </table></div>
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
@@ -828,14 +834,14 @@ function renderStats(){
 }
 
 let mSortKey='party',mSortDir=1;
-function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','type','party','char_id','discord','noted'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',type:'th-type',party:'th-party',char_id:'th-char',discord:'th-discord',noted:'th-noted'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
+function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','party','char_id','discord','noted'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',party:'th-party',char_id:'th-char',discord:'th-discord',noted:'th-noted'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
   let f=members.filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
-  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type),tl=getTypeLabel(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;const dotColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block;margin-right:2px"></span>${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
+  if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;const dotColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block;margin-right:2px"></span>${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${members.length} members`;
 }
 
@@ -998,22 +1004,22 @@ async function loadAuctionLog(date){
     const wBar=(isDone&&fw!==null)?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
     const dBar=(isDone&&fd!==null)?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
     tbody+=`<tr class="qrow">
-      <td class="q-num">${row.position}</td>
-      <td class="q-name">${row.member_name}</td>
-      <td style="text-align:center">${statusHtml}</td>
-      <td class="fbar-cell">${wBar}</td>
-      <td class="fbar-cell">${dBar}</td>
-      ${adm?`<td style="text-align:right;width:120px">${actionHtml}</td>`:''}
+      <td class="au-col-num q-num">${row.position}</td>
+      <td class="au-col-name q-name">${row.member_name}</td>
+      <td class="au-col-status">${statusHtml}</td>
+      <td class="au-col-fw fbar-cell">${wBar}</td>
+      <td class="au-col-fd fbar-cell">${dBar}</td>
+      ${adm?`<td class="au-col-act">${actionHtml}</td>`:''}
     </tr>`;
   });
-  document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table style="width:100%;border-collapse:collapse">
+  document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table class="au-fixed">
     <thead><tr>
-      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:40px">#</th>
-      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Name</th>
-      <th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>
-      <th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:110px">🪶 White</th>
-      <th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:110px">🪶 Dark</th>
-      ${adm?`<th style="width:120px;border-bottom:0.5px solid var(--border)"></th>`:''}
+      <th class="au-col-num">#</th>
+      <th class="au-col-name">Name</th>
+      <th class="au-col-status">Status</th>
+      <th class="au-col-fw">🪶 White</th>
+      <th class="au-col-fd">🪶 Dark</th>
+      ${adm?`<th class="au-col-act"></th>`:''}
     </tr></thead>
     <tbody>${tbody}</tbody>
   </table></div>`;
