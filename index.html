@@ -297,18 +297,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .au-tbl td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle}
 .au-tbl tr:last-child td{border-bottom:none}
 .au-tbl tr:hover td{background:rgba(232,115,42,0.025)}
-/* AUCTION TABLE — mgr view fixed */
-.mgr-tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-.mgr-tbl th{text-align:left;padding:8px 10px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2)}
-.mgr-tbl td{padding:10px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;overflow:hidden}
+/* AUCTION TABLE — mgr view (auto layout, min-width based) */
+.mgr-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.mgr-tbl th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2);white-space:nowrap}
+.mgr-tbl td{padding:11px 12px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;white-space:nowrap}
 .mgr-tbl tr:last-child td{border-bottom:none}
 .mgr-tbl tr:hover td{background:rgba(232,115,42,0.025)}
-.col-num{width:40px;color:var(--faint);font-size:11px;text-align:center}
-.col-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.col-status{width:160px;white-space:nowrap}
-.col-fw{width:100px;text-align:center;white-space:nowrap}
-.col-fd{width:100px;text-align:center;white-space:nowrap}
-.col-act{width:128px;text-align:right;white-space:nowrap}
+.mgr-tbl .td-num{width:1%;color:var(--faint);font-size:11px;text-align:center;padding-right:8px}
+.mgr-tbl .td-name{width:99%;font-weight:500;white-space:nowrap;max-width:0}
+.mgr-tbl .td-status{white-space:nowrap}
+.mgr-tbl .td-bar{white-space:nowrap;text-align:center}
+.mgr-tbl .td-act{white-space:nowrap;text-align:right}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
@@ -1070,12 +1069,12 @@ async function loadAuctionLog(date,isMgr){
         ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','',true)">↺ Undo</button>`
         :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position},'${row.member_name.replace(/'/g,"\\'")}')">✓ Mark drawn</button>`;
       tbody+=`<tr class="qrow">
-        <td class="col-num">${row.position}</td>
-        <td class="col-name">${row.member_name}</td>
-        <td class="col-status">${statusHtml}</td>
-        <td class="col-fw fbar-cell">${wBar}</td>
-        <td class="col-fd fbar-cell">${dBar}</td>
-        <td class="col-act">${actionHtml}</td>
+        <td class="td-num">${row.position}</td>
+        <td class="td-name">${row.member_name}</td>
+        <td class="td-status">${statusHtml}</td>
+        <td class="td-bar fbar-cell">${wBar}</td>
+        <td class="td-bar fbar-cell">${dBar}</td>
+        <td class="td-act">${actionHtml}</td>
       </tr>`;
     } else {
       tbody+=`<tr class="qrow">
@@ -1089,21 +1088,13 @@ async function loadAuctionLog(date,isMgr){
   });
   if(isMgr){
     document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="mgr-tbl">
-      <colgroup>
-        <col style="width:40px">
-        <col>
-        <col style="width:160px">
-        <col style="width:100px">
-        <col style="width:100px">
-        <col style="width:128px">
-      </colgroup>
       <thead><tr>
-        <th class="col-num">#</th>
+        <th class="td-num">#</th>
         <th>Name</th>
-        <th class="col-status">Status</th>
-        <th class="col-fw">🪶 White</th>
-        <th class="col-fd">🪶 Dark</th>
-        <th class="col-act"></th>
+        <th class="td-status">Status</th>
+        <th class="td-bar" style="text-align:center">🪶 White</th>
+        <th class="td-bar" style="text-align:center">🪶 Dark</th>
+        <th class="td-act"></th>
       </tr></thead>
       <tbody>${tbody}</tbody>
     </table></div>`;
