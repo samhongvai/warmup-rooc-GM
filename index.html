@@ -292,10 +292,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 /* AUCTION TABLE FIXED LAYOUT */
 .au-fixed{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .au-fixed th{text-align:left;padding:7px 10px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2);overflow:hidden}
-.au-fixed td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;overflow:hidden}
+.au-fixed td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.au-fixed td.au-col-name{white-space:normal;word-break:break-word;font-weight:500}
 .au-fixed tr:last-child td{border-bottom:none}
 .au-fixed tr:hover td{background:rgba(232,115,42,0.025)}
-.au-col-num{width:36px}.au-col-name{}.au-col-status{width:168px}.au-col-fw{width:108px;text-align:center}.au-col-fd{width:108px;text-align:center}.au-col-act{width:128px;text-align:right}
+.au-col-num{width:36px}
+.au-col-name{min-width:0}
+.au-col-status{width:140px}
+.au-col-fw{width:100px;text-align:center}
+.au-col-fd{width:100px;text-align:center}
+.au-col-act{width:120px;text-align:right}
+@media(max-width:600px){.au-col-fw,.au-col-fd{display:none}.au-col-status{width:110px}.au-col-act{width:100px}}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
