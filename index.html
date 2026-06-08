@@ -80,6 +80,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .sc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
 .sc .n{font-size:20px;font-weight:500;color:var(--gold-l)}.sc .l{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
 
+/* OVERVIEW BOX */
+.overview-box{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px}
+.ov-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ov-header .ov-title{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+.ov-header .ov-total{font-size:13px;font-weight:500;color:var(--gold-l)}
+.ov-type{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.ov-type:last-of-type{margin-bottom:0}
+.ov-type-head{display:flex;justify-content:space-between;align-items:center}
+.ov-type-name{font-size:12px;font-weight:500}
+.ov-type-count{font-size:12px;font-weight:500}
+.ov-bar-wrap{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden}
+.ov-bar{height:100%;border-radius:2px;transition:width 0.5s ease}
+.ov-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ov-chip{font-size:10px;padding:2px 7px;border-radius:4px;display:inline-flex;align-items:center;gap:4px}
+.ov-chip .cn{font-weight:500}.ov-chip .cc{opacity:0.65}
+.ov-divider{height:0.5px;background:rgba(255,255,255,0.06);margin:8px 0}
+.ov-s .ov-type-name,.ov-s .ov-type-count{color:var(--green)}
+.ov-s .ov-bar{background:var(--green)}
+.ov-s .ov-chip{background:var(--green-dim);border:0.5px solid var(--green-b);color:var(--green)}
+.ov-a .ov-type-name,.ov-a .ov-type-count{color:var(--amber)}
+.ov-a .ov-bar{background:var(--amber)}
+.ov-a .ov-chip{background:var(--amber-dim);border:0.5px solid var(--amber-b);color:var(--amber)}
+.ov-d .ov-type-name,.ov-d .ov-type-count{color:var(--red)}
+.ov-d .ov-bar{background:var(--red)}
+.ov-d .ov-chip{background:var(--red-dim);border:0.5px solid var(--red-b);color:var(--red)}
 /* TYPE PILLS */
 .type-summary{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
 .tp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
@@ -266,6 +291,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .q-btn{padding:3px 8px;font-size:11px;border-radius:4px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
+/* FEATHER BAR */
+.fbar-cell{text-align:center}
+.fbar{position:relative;height:20px;width:88px;border-radius:4px;overflow:hidden;display:inline-block}
+.fbar .fbar-track{position:absolute;inset:0;background:rgba(255,255,255,0.05)}
+.fbar .fbar-fill{position:absolute;left:0;top:0;height:100%}
+.fbar .fbar-fill.fok{background:rgba(93,191,138,0.35)}
+.fbar .fbar-fill.fmiss{background:rgba(212,160,68,0.35)}
+.fbar .fbar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;letter-spacing:0.2px;text-shadow:0 1px 3px rgba(0,0,0,0.5);z-index:1;color:rgba(255,255,255,0.8)}
+/* FEATHER INPUTS IN MODAL */
+.feather-inputs{margin:10px 0 12px}
+.feather-inputs .fi-title{font-size:10px;color:var(--gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.feather-inputs .fi-hint{font-size:11px;color:var(--muted);background:rgba(212,160,68,0.07);border:0.5px solid var(--amber-b);border-radius:5px;padding:6px 9px;margin-bottom:8px;line-height:1.6}
+.feather-inputs .fi-row{display:flex;gap:8px}
+.fi-field{flex:1;text-align:center}
+.fi-field label{font-size:10px;color:var(--muted);display:block;margin-bottom:4px}
+.fi-field input{width:100%;text-align:center;font-size:18px;font-weight:600;padding:7px 6px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:6px;color:var(--text)}
+.fi-field .fi-max{font-size:10px;color:var(--muted);margin-top:3px}
 
 /* ATTENDANCE */
 .att-tabs{display:flex;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
@@ -610,8 +652,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <!-- DONE DATE MODAL -->
 <div id="done-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeDoneModal()">
-  <div class="done-modal">
-    <h4>✓ Mark as Drawn</h4>
+  <div class="done-modal" style="width:320px">
+    <h4>✓ Mark as Drawn — <span id="done-modal-name" style="color:var(--orange-l);font-size:12px"></span></h4>
     <div class="date-opts">
       <label class="date-opt selected" id="opt-today">
         <input type="radio" name="done-date-opt" value="today" checked onchange="selectDateOpt('today')">
@@ -622,6 +664,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         <span>Other date</span>
       </label>
       <input type="date" id="custom-date-input" style="display:none;margin-top:2px;width:100%">
+    </div>
+    <div class="feather-inputs">
+      <div class="fi-title">🪶 ขนนกที่ได้รับ</div>
+      <div class="fi-hint">เว้นว่าง = ได้ครบ (White <b id="fi-max-w">4</b> / Dark <b id="fi-max-d">7</b>) ระบบบันทึกเต็มให้</div>
+      <div class="fi-row">
+        <div class="fi-field">
+          <label>⬜ White</label>
+          <input type="number" id="fi-white" min="0" placeholder="4">
+          <div class="fi-max">max <span id="fi-max-w2">4</span></div>
+        </div>
+        <div class="fi-field">
+          <label>🟥 Dark / Red</label>
+          <input type="number" id="fi-dark" min="0" placeholder="7">
+          <div class="fi-max">max <span id="fi-max-d2">7</span></div>
+        </div>
+      </div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-ghost" onclick="closeDoneModal()">Cancel</button>
@@ -662,7 +720,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbyZhntTzJivuadXBaBG2HEdN_F4Jvys1JIojPhc3B7wnRhm-wwa_T9iauL2de4bYGE1/exec';
+const GAS='https://script.google.com/macros/s/AKfycbww1tGTKTSkes1FpQS6InX4ciWKBLkLpFAonW7ZNwYVvsrTI0HaV5HyH2WF2DJtxtf8/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const REWARDS={
@@ -732,13 +790,41 @@ function buildFilters(){
 }
 
 function renderStats(){
-  const t=members.length,sub=members.filter(m=>m.noted&&m.noted.includes('ตัวรอง')).length;
-  const pts=new Set(members.map(m=>m.party).filter(Boolean)).size,wid=members.filter(m=>m.char_id).length;
-  const supC=members.filter(m=>getType(m.class)==='Support').length;
-  const arC=members.filter(m=>getType(m.class)==='All Rounder').length;
-  const dpsC=members.filter(m=>getType(m.class)==='Attack (DPS)').length;
-  document.getElementById('stats-row')||document.getElementById('page-members').insertAdjacentHTML('afterbegin','<div class="stats-row" id="stats-row"></div>');
-  document.getElementById('type-summary').innerHTML=`<span class="tp tp-s">Support · ${supC}</span><span class="tp tp-a">All Rounder · ${arC}</span><span class="tp tp-d">Attack (DPS) · ${dpsC}</span>`;
+  const total=members.length;
+  const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]}; 
+  members.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
+  const byClass={};
+  members.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
+  const mkChips=(type)=>Object.entries(byClass)
+    .filter(([cls])=>getType(cls)===type)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([cls,n])=>`<span class="ov-chip"><span class="cn">${cls}</span><span class="cc">${n}</span></span>`)
+    .join('');
+  const supC=byType['Support'].length,arC=byType['All Rounder'].length,dpsC=byType['Attack (DPS)'].length;
+  const el=document.getElementById('class-overview');
+  if(!el)return;
+  el.innerHTML=`
+    <div class="ov-header">
+      <span class="ov-title">Class Overview</span>
+      <span class="ov-total">${total} members</span>
+    </div>
+    <div class="ov-type ov-s">
+      <div class="ov-type-head"><span class="ov-type-name">Support</span><span class="ov-type-count">${supC} คน</span></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(supC/total*100)}%"></div></div>
+      <div class="ov-chips">${mkChips('Support')}</div>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-type ov-a">
+      <div class="ov-type-head"><span class="ov-type-name">All Rounder</span><span class="ov-type-count">${arC} คน</span></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(arC/total*100)}%"></div></div>
+      <div class="ov-chips">${mkChips('All Rounder')}</div>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-type ov-d">
+      <div class="ov-type-head"><span class="ov-type-name">Attack (DPS)</span><span class="ov-type-count">${dpsC} คน</span></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(dpsC/total*100)}%"></div></div>
+      <div class="ov-chips">${mkChips('Attack (DPS)')}</div>
+    </div>`;
 }
 
 let mSortKey='party',mSortDir=1;
@@ -748,8 +834,8 @@ function renderMembers(){
   let f=members.filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
-  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type),tl=getTypeLabel(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}">${m.class}</span></td><td>${tl}</td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
+  if(!f.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type),tl=getTypeLabel(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;const dotColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block;margin-right:2px"></span>${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${members.length} members`;
 }
 
@@ -890,21 +976,32 @@ async function loadAuctionLog(date){
     <div class="al-stat"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">Pending</div></div>`;
   if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">No data for this date</div>';return}
   const adm=isAdmin;
+  const mkBar=(val,max,isOk)=>{
+    const pct=max>0?Math.round((val/max)*100):0;
+    const cls=isOk?'fok':'fmiss';
+    return`<div class="fbar"><div class="fbar-track"></div><div class="fbar-fill ${cls}" style="width:${pct}%"></div><span class="fbar-lbl">${val}/${max}</span></div>`;
+  };
   let tbody='';
   rows.forEach(row=>{
     const isDone=row.status==='done';
+    const fw=row.feather_white!=null&&row.feather_white!==''?+row.feather_white:null;
+    const fd=row.feather_dark!=null&&row.feather_dark!==''?+row.feather_dark:null;
     const statusHtml=isDone
-      ?`<span class="qs qs-done">✓ Drawn</span>${row.done_date?` <span style="font-size:10px;color:var(--muted)">${row.done_date}</span>`:''}`
+      ?`<span class="qs qs-done">✓ Drawn</span>${row.drawn_date?` <span style="font-size:10px;color:var(--muted)">${row.drawn_date}</span>`:''}`
       :`<span class="qs qs-pend">⏳ Pending</span>`;
     const actionHtml=adm
       ?(isDone
         ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`
-        :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position})">✓ Mark drawn</button>`)
+        :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position},'${row.member_name.replace(/'/g,"\\'")}')">✓ Mark drawn</button>`)
       :'';
+    const wBar=isDone&&fw!=null?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
+    const dBar=isDone&&fd!=null?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
     tbody+=`<tr class="qrow">
       <td class="q-num">${row.position}</td>
       <td class="q-name">${row.member_name}</td>
-      <td style="text-align:right">${statusHtml}</td>
+      <td style="text-align:center">${statusHtml}</td>
+      <td class="fbar-cell">${wBar}</td>
+      <td class="fbar-cell">${dBar}</td>
       ${adm?`<td style="text-align:right;width:120px">${actionHtml}</td>`:''}
     </tr>`;
   });
@@ -912,7 +1009,9 @@ async function loadAuctionLog(date){
     <thead><tr>
       <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:40px">#</th>
       <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Name</th>
-      <th style="text-align:right;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>
+      <th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>
+      <th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:110px">🪶 White</th>
+      <th style="text-align:center;padding:6px 8px;font-size:10px;color:var(--muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:1px;width:110px">🪶 Dark</th>
       ${adm?`<th style="width:120px;border-bottom:0.5px solid var(--border)"></th>`:''}
     </tr></thead>
     <tbody>${tbody}</tbody>
@@ -920,9 +1019,9 @@ async function loadAuctionLog(date){
 }
 
 async function loadAuHistory(){const el=document.getElementById('au-hist-content');el.innerHTML='<div class="loading">Loading...</div>';const r=await gasGet('getDates');if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>{const clean=d.slice(0,10);return`<div class="att-session-row" style="display:flex;align-items:center;gap:10px"><span class="as-date" style="flex:1;cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">${clean}</span><span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">View →</span>${isAdmin?`<button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="deleteHistDate('${clean}')">🗑</button>`:''}</div>`}).join('')+'</div>'}
-let _pendingDone={date:'',pos:0};
-function openDoneModal(date,pos){
-  _pendingDone={date,pos};
+let _pendingDone={date:'',pos:0,name:''};
+function openDoneModal(date,pos,name){
+  _pendingDone={date,pos,name};
   const today=new Date().toISOString().slice(0,10);
   document.getElementById('today-label').textContent=today;
   document.getElementById('custom-date-input').value=today;
@@ -930,6 +1029,15 @@ function openDoneModal(date,pos){
   document.querySelector('input[value="today"]').checked=true;
   document.getElementById('opt-today').classList.add('selected');
   document.getElementById('opt-custom').classList.remove('selected');
+  document.getElementById('done-modal-name').textContent=name||'';
+  document.getElementById('fi-white').value='';
+  document.getElementById('fi-dark').value='';
+  document.getElementById('fi-max-w').textContent=CFG.max_white;
+  document.getElementById('fi-max-d').textContent=CFG.max_red;
+  document.getElementById('fi-max-w2').textContent=CFG.max_white;
+  document.getElementById('fi-max-d2').textContent=CFG.max_red;
+  document.getElementById('fi-white').max=CFG.max_white;
+  document.getElementById('fi-dark').max=CFG.max_red;
   document.getElementById('done-modal').style.display='flex';
 }
 function closeDoneModal(){document.getElementById('done-modal').style.display='none'}
@@ -942,8 +1050,12 @@ async function confirmDone(){
   const opt=document.querySelector('input[name="done-date-opt"]:checked').value;
   const doneDate=opt==='today'?new Date().toISOString().slice(0,10):document.getElementById('custom-date-input').value;
   if(!doneDate){alert('Please select a date');return}
+  const fw=document.getElementById('fi-white').value;
+  const fd=document.getElementById('fi-dark').value;
+  const featherWhite=fw===''?CFG.max_white:Math.min(+fw,CFG.max_white);
+  const featherDark=fd===''?CFG.max_red:Math.min(+fd,CFG.max_red);
   closeDoneModal();
-  const r=await gasPost({action:'updateStatus',date:_pendingDone.date,position:_pendingDone.pos,status:'done',note:'',doneDate});
+  const r=await gasPost({action:'updateStatus',date:_pendingDone.date,position:_pendingDone.pos,status:'done',note:'',doneDate,featherWhite,featherDark});
   if(r.ok)loadAuctionLog(_pendingDone.date);else alert('Update failed: '+r.error);
 }
 async function toggleQ(date,pos,status,note){
@@ -988,7 +1100,7 @@ async function loadAttSession(date){
 async function updateAtt(date,member,status){
   const r=await gasPost({action:'updateAttStatus',date,member_name:member,status});
   if(r.ok){loadAttSession(date);loadAttSummary()}else alert('Update failed: '+r.error);
-}
+}https://github.com/samhongvai/warmup-rooc-GM/blob/main/index.html
 async function createAttSession(){
   if(!isAdmin){alert('Admin only');return}
   const date=document.getElementById('att-new-date').value;
