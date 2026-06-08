@@ -36,6 +36,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .nav-item .ni{font-size:15px;width:18px;text-align:center}
 .nav-spacer{flex:1}
 .nav-section{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:10px 1rem 4px;opacity:0.6}
+.nav-lock{font-size:9px;opacity:0.4;margin-left:auto}
 .nav-divider{height:0.5px;background:var(--border);margin:6px 1rem}
 .admin-btn{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 1rem 6px;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
 .admin-btn:hover{border-color:var(--orange-border);color:var(--orange-l)}
@@ -406,9 +407,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span class="ni">🪶</span>Rewards</div>
   <div class="nav-divider"></div>
   <div class="nav-section">Guild Management</div>
-  <div class="nav-item" onclick="sw('randomize');closeSidebar()"><span class="ni">🎰</span>Randomize</div>
-  <div class="nav-item" onclick="sw('calc');closeSidebar()"><span class="ni">🧮</span>Calculator</div>
-  <div class="nav-item" onclick="sw('attendance');closeSidebar()"><span class="ni">📋</span>Attendance</div>
+  <div class="nav-item" onclick="swAdmin('auctionmgr');closeSidebar()"><span class="ni">⚙️</span>Auction Manager<span class="nav-lock" id="lock-auctionmgr">🔒</span></div>
+  <div class="nav-item" onclick="swAdmin('randomize');closeSidebar()"><span class="ni">🎰</span>Randomize<span class="nav-lock" id="lock-randomize">🔒</span></div>
+  <div class="nav-item" onclick="swAdmin('calc');closeSidebar()"><span class="ni">🧮</span>Calculator<span class="nav-lock" id="lock-calc">🔒</span></div>
+  <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
   <div class="nav-divider"></div>
   <div class="nav-section">Audit Log</div>
   <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
@@ -592,26 +594,47 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 </div>
 
-<!-- AUCTION -->
+<!-- AUCTION (user view — read only) -->
 <div id="page-auction" class="page">
   <div class="page-title">Auction</div>
-  <div class="page-sub">Queue management and history</div>
+  <div class="page-sub">Queue status and history</div>
   <div class="au-tabs">
-    <button class="au-tab active" onclick="swAuTab('queue')">Current Queue</button>
-    <button class="au-tab" onclick="swAuTab('history')">History</button>
+    <button class="au-tab active" onclick="swAuTab('queue','auction')">Current Queue</button>
+    <button class="au-tab" onclick="swAuTab('history','auction')">History</button>
   </div>
   <div id="au-queue">
     <div class="al-head">
-      <select id="al-date-select" onchange="loadAuctionLog(this.value)" style="max-width:220px"><option value="">— Select date —</option></select>
-      <button class="btn btn-ghost" onclick="loadAuctionDates()">🔄</button>
-      <button class="btn btn-primary admin-only" style="display:none" onclick="openPasteModal()">+ Add Manual</button>
-      <button class="btn btn-red admin-only" style="display:none" onclick="deleteDateConfirm()">🗑 Delete</button>
+      <select id="al-date-select" onchange="loadAuctionLog(this.value,false)" style="max-width:220px"><option value="">— Select date —</option></select>
+      <button class="btn btn-ghost" onclick="loadAuctionDates(false)">🔄</button>
     </div>
     <div id="al-stats" class="al-stats"></div>
     <div id="al-content"><div class="empty">Select a date to view queue</div></div>
   </div>
   <div id="au-history" style="display:none">
     <div id="au-hist-content"><div class="loading">Loading history...</div></div>
+  </div>
+</div>
+
+<!-- AUCTION MANAGER (admin) -->
+<div id="page-auctionmgr" class="page">
+  <div class="page-title">Auction Manager</div>
+  <div class="page-sub">Admin — mark drawn, manage queue</div>
+  <div class="au-tabs">
+    <button class="au-tab active" onclick="swAuTab('queue','auctionmgr')">Current Queue</button>
+    <button class="au-tab" onclick="swAuTab('history','auctionmgr')">History</button>
+  </div>
+  <div id="mgr-queue">
+    <div class="al-head">
+      <select id="mgr-date-select" onchange="loadAuctionLog(this.value,true)" style="max-width:220px"><option value="">— Select date —</option></select>
+      <button class="btn btn-ghost" onclick="loadAuctionDates(true)">🔄</button>
+      <button class="btn btn-primary" onclick="openPasteModal()">+ Add Manual</button>
+      <button class="btn btn-red" onclick="deleteDateConfirm()">🗑 Delete</button>
+    </div>
+    <div id="mgr-stats" class="al-stats"></div>
+    <div id="mgr-content"><div class="empty">Select a date to view queue</div></div>
+  </div>
+  <div id="mgr-history" style="display:none">
+    <div id="mgr-hist-content"><div class="loading">Loading history...</div></div>
   </div>
 </div>
 
@@ -754,24 +777,44 @@ function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=documen
 function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
 /* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');renderMembers()}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();sw('search')}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
 function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
-  if(pw==='$aiphanWM8'){isAdmin=true;closeAdminModal();document.getElementById('admin-btn').textContent='🔓 Admin (on)';document.getElementById('admin-btn').classList.add('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');document.getElementById('new-session-wrap').style.display='';document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');renderMembers()}
-  else{document.getElementById('admin-err').style.display='block';document.getElementById('admin-pass').value=''}
+  if(pw==='$aiphanWM8'){
+    isAdmin=true;
+    closeAdminModal();
+    document.getElementById('admin-btn').textContent='🔓 Admin (on)';
+    document.getElementById('admin-btn').classList.add('on');
+    document.getElementById('new-session-wrap').style.display='';
+    document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
+    document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
+    renderMembers();
+    if(_pendingNav){sw(_pendingNav);_pendingNav='';}
+  } else {
+    document.getElementById('admin-err').style.display='block';
+    document.getElementById('admin-pass').value='';
+  }
 }
 
 /* NAV */
+const ADMIN_PAGES=['auctionmgr','randomize','calc','attendance','tracker'];
+let _pendingNav='';
+function swAdmin(t){
+  if(isAdmin){sw(t);return}
+  _pendingNav=t;
+  openAdminModal();
+}
 function sw(t){
-  const pages=['search','party','members','auction','rewards','randomize','calc','attendance','tracker'];
+  const pages=['search','party','members','auction','rewards','auctionmgr','randomize','calc','attendance','tracker'];
   document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
   if(t==='rewards')initRewards();
   if(t==='calc')refreshLogSelect();
-  if(t==='auction')loadAuctionDates();
+  if(t==='auction'){loadAuctionDates(false)}
+  if(t==='auctionmgr'){loadAuctionDates(true)}
   if(t==='attendance')loadAttendance();
 }
 
@@ -966,29 +1009,47 @@ async function gasGet(action){try{const r=await fetch(GAS+'?action='+action);ret
 async function gasPost(body){try{const r=await fetch(GAS,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
 
 /* AUCTION */
-function swAuTab(t){document.querySelectorAll('.au-tab').forEach((b,i)=>b.classList.toggle('active',['queue','history'][i]===t));document.getElementById('au-queue').style.display=t==='queue'?'block':'none';document.getElementById('au-history').style.display=t==='history'?'block':'none';if(t==='history')loadAuHistory()}
-async function loadAuctionDates(){
-  const sel=document.getElementById('al-date-select');
+function swAuTab(t,page){
+  const isMgr=page==='auctionmgr';
+  const prefix=isMgr?'mgr':'au';
+  const tabs=document.querySelectorAll('#page-'+page+' .au-tab');
+  tabs.forEach((b,i)=>b.classList.toggle('active',['queue','history'][i]===t));
+  document.getElementById(prefix+'-queue').style.display=t==='queue'?'block':'none';
+  document.getElementById(prefix+'-history').style.display=t==='history'?'block':'none';
+  if(t==='history')loadAuHistory(isMgr);
+}
+async function loadAuctionDates(isMgr){
+  const selId=isMgr?'mgr-date-select':'al-date-select';
+  const sel=document.getElementById(selId);
+  if(!sel)return;
   const r=await gasGet('getDates');
   sel.innerHTML='<option value="">— Select date —</option>';
-  if(r.ok&&r.dates.length){r.dates.forEach(d=>sel.add(new Option(d,d)));if(currentALDate&&r.dates.includes(currentALDate))sel.value=currentALDate}
-  document.querySelectorAll('.admin-only').forEach(el=>{if(isAdmin)el.style.display=''});
+  if(r.ok&&r.dates.length){
+    r.dates.forEach(d=>sel.add(new Option(d,d)));
+    if(currentALDate&&r.dates.includes(currentALDate))sel.value=currentALDate;
+  }
 }
-async function loadAuctionLog(date){
-  if(!date){document.getElementById('al-content').innerHTML='<div class="empty">Select a date to view queue</div>';document.getElementById('al-stats').innerHTML='';return}
+async function loadAuctionLog(date,isMgr){
+  const statsId=isMgr?'mgr-stats':'al-stats';
+  const contentId=isMgr?'mgr-content':'al-content';
+  if(!date){
+    document.getElementById(contentId).innerHTML='<div class="empty">Select a date to view queue</div>';
+    document.getElementById(statsId).innerHTML='';
+    return;
+  }
   currentALDate=date;
-  document.getElementById('al-content').innerHTML='<div class="loading">Loading...</div>';
+  document.getElementById(contentId).innerHTML='<div class="loading">Loading...</div>';
   const r=await gasGet('getLog&date='+date);
-  if(!r.ok){document.getElementById('al-content').innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  if(!r.ok){document.getElementById(contentId).innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
   const rows=r.rows;
   const done=rows.filter(r=>r.status==='done').length;
   const pend=rows.filter(r=>r.status==='pending').length;
-  document.getElementById('al-stats').innerHTML=`
+  document.getElementById(statsId).innerHTML=`
     <div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div>
     <div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div>
     <div class="al-stat"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">Pending</div></div>`;
-  if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">No data for this date</div>';return}
-  const adm=isAdmin;
+  if(!rows.length){document.getElementById(contentId).innerHTML='<div class="empty">No data for this date</div>';return}
+  const adm=isMgr;
   const mkBar=(val,max,isOk)=>{
     const v=isNaN(val)||val==null?0:+val;
     const pct=max>0?Math.round((v/max)*100):0;
@@ -1005,21 +1066,21 @@ async function loadAuctionLog(date){
       :`<span class="qs qs-pend">⏳ Pending</span>`;
     const actionHtml=adm
       ?(isDone
-        ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`
+        ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','',true)">↺ Undo</button>`
         :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position},'${row.member_name.replace(/'/g,"\\'")}')">✓ Mark drawn</button>`)
       :'';
     const wBar=(isDone&&fw!==null)?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
     const dBar=(isDone&&fd!==null)?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
     tbody+=`<tr class="qrow">
       <td class="au-col-num q-num">${row.position}</td>
-      <td class="au-col-name q-name">${row.member_name}</td>
+      <td class="au-col-name">${row.member_name}</td>
       <td class="au-col-status">${statusHtml}</td>
       <td class="au-col-fw fbar-cell">${wBar}</td>
       <td class="au-col-fd fbar-cell">${dBar}</td>
       ${adm?`<td class="au-col-act">${actionHtml}</td>`:''}
     </tr>`;
   });
-  document.getElementById('al-content').innerHTML=`<div class="tbl-wrap"><table class="au-fixed">
+  document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="au-fixed">
     <thead><tr>
       <th class="au-col-num">#</th>
       <th class="au-col-name">Name</th>
@@ -1031,8 +1092,23 @@ async function loadAuctionLog(date){
     <tbody>${tbody}</tbody>
   </table></div>`;
 }
-
-async function loadAuHistory(){const el=document.getElementById('au-hist-content');el.innerHTML='<div class="loading">Loading...</div>';const r=await gasGet('getDates');if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>{const clean=d.slice(0,10);return`<div class="att-session-row" style="display:flex;align-items:center;gap:10px"><span class="as-date" style="flex:1;cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">${clean}</span><span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="sw('auction');swAuTab('queue');document.getElementById('al-date-select').value='${clean}';loadAuctionLog('${clean}')">View →</span>${isAdmin?`<button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="deleteHistDate('${clean}')">🗑</button>`:''}</div>`}).join('')+'</div>'}
+async function loadAuHistory(isMgr){
+  const contentId=isMgr?'mgr-hist-content':'au-hist-content';
+  const el=document.getElementById(contentId);
+  el.innerHTML='<div class="loading">Loading...</div>';
+  const r=await gasGet('getDates');
+  if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}
+  const page=isMgr?'auctionmgr':'auction';
+  const selId=isMgr?'mgr-date-select':'al-date-select';
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>{
+    const clean=d.slice(0,10);
+    return`<div class="att-session-row" style="display:flex;align-items:center;gap:10px">
+      <span class="as-date" style="flex:1;cursor:pointer" onclick="sw('${page}');swAuTab('queue','${page}');document.getElementById('${selId}').value='${clean}';loadAuctionLog('${clean}',${isMgr})">${clean}</span>
+      <span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="sw('${page}');swAuTab('queue','${page}');document.getElementById('${selId}').value='${clean}';loadAuctionLog('${clean}',${isMgr})">View →</span>
+      ${isMgr?`<button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="deleteHistDate('${clean}')">🗑</button>`:''}
+    </div>`;
+  }).join('')+'</div>';
+}
 let _pendingDone={date:'',pos:0,name:''};
 function openDoneModal(date,pos,name){
   _pendingDone={date,pos,name};
@@ -1070,18 +1146,18 @@ async function confirmDone(){
   const featherDark=fd===''?CFG.max_red:Math.min(+fd,CFG.max_red);
   closeDoneModal();
   const r=await gasPost({action:'updateStatus',date:_pendingDone.date,position:_pendingDone.pos,status:'done',note:'',doneDate,featherWhite,featherDark});
-  if(r.ok)loadAuctionLog(_pendingDone.date);else alert('Update failed: '+r.error);
+  if(r.ok)loadAuctionLog(_pendingDone.date,true);else alert('Update failed: '+r.error);
 }
-async function toggleQ(date,pos,status,note){
-  if(status==='done'){openDoneModal(date,pos);return}
+async function toggleQ(date,pos,status,note,isMgr){
+  if(status==='done'){openDoneModal(date,pos,'');return}
   const r=await gasPost({action:'updateStatus',date,position:pos,status,note});
-  if(r.ok)loadAuctionLog(date);else alert('Update failed: '+r.error);
+  if(r.ok)loadAuctionLog(date,isMgr);else alert('Update failed: '+r.error);
 }
-async function deleteHistDate(date){if(!isAdmin){return}if(!confirm('Delete all entries for '+date+'?'))return;const r=await gasPost({action:'deleteDate',date});if(r.ok){loadAuHistory();loadAuctionDates()}else alert('Delete failed: '+r.error)}
-async function deleteDateConfirm(){if(!currentALDate){alert('Select a date first');return}if(!confirm('Delete all queue entries for '+currentALDate+'?'))return;const r=await gasPost({action:'deleteDate',date:currentALDate});if(r.ok){currentALDate='';loadAuctionDates()}else alert('Delete failed: '+r.error)}
+async function deleteHistDate(date){if(!confirm('Delete all entries for '+date+'?'))return;const r=await gasPost({action:'deleteDate',date});if(r.ok){loadAuHistory(true);loadAuctionDates(true)}else alert('Delete failed: '+r.error)}
+async function deleteDateConfirm(){if(!currentALDate){alert('Select a date first');return}if(!confirm('Delete all queue entries for '+currentALDate+'?'))return;const r=await gasPost({action:'deleteDate',date:currentALDate});if(r.ok){currentALDate='';loadAuctionDates(true)}else alert('Delete failed: '+r.error)}
 function openPasteModal(){const today=new Date().toISOString().slice(0,10);document.getElementById('paste-date').value=currentALDate||today;document.getElementById('paste-names').value='';document.getElementById('paste-count').textContent='0 members';document.getElementById('paste-modal').style.display='flex';document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' members'}}
 function closePasteModal(){document.getElementById('paste-modal').style.display='none'}
-async function submitPaste(){const date=document.getElementById('paste-date').value.trim();const names=document.getElementById('paste-names').value.split('\n').map(s=>s.trim()).filter(Boolean);if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Enter valid date (YYYY-MM-DD)');return}if(!names.length){alert('Enter at least one name');return}const btn=document.querySelector('#paste-modal .btn-primary');btn.textContent='Saving...';btn.disabled=true;const r=await gasPost({action:'appendQueue',date,members:names});btn.textContent='💾 Save';btn.disabled=false;if(r.ok){closePasteModal();currentALDate=date;await loadAuctionDates();document.getElementById('al-date-select').value=date;loadAuctionLog(date)}else alert('Save failed: '+r.error)}
+async function submitPaste(){const date=document.getElementById('paste-date').value.trim();const names=document.getElementById('paste-names').value.split('\n').map(s=>s.trim()).filter(Boolean);if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Enter valid date (YYYY-MM-DD)');return}if(!names.length){alert('Enter at least one name');return}const btn=document.querySelector('#paste-modal .btn-primary');btn.textContent='Saving...';btn.disabled=true;const r=await gasPost({action:'appendQueue',date,members:names});btn.textContent='💾 Save';btn.disabled=false;if(r.ok){closePasteModal();currentALDate=date;await loadAuctionDates(true);document.getElementById('mgr-date-select').value=date;loadAuctionLog(date,true)}else alert('Save failed: '+r.error)}
 
 /* ATTENDANCE */
 let currentAttDate='';
