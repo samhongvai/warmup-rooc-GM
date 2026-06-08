@@ -291,18 +291,24 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .qs-pend{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
 .q-btn{padding:3px 8px;font-size:11px;border-radius:4px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
 /* AUCTION TABLE FIXED LAYOUT */
-/* AUCTION TABLE — shared base */
-.au-tbl,.mgr-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.au-tbl th,.mgr-tbl th{text-align:left;padding:7px 10px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2);white-space:nowrap}
-.au-tbl td,.mgr-tbl td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle}
-.au-tbl tr:last-child td,.mgr-tbl tr:last-child td{border-bottom:none}
-.au-tbl tr:hover td,.mgr-tbl tr:hover td{background:rgba(232,115,42,0.025)}
-.col-num{width:36px;color:var(--faint);font-size:11px}
-.col-name{font-weight:500}
-.col-status{width:150px;white-space:nowrap}
-.col-fw{width:96px;text-align:center;white-space:nowrap}
-.col-fd{width:96px;text-align:center;white-space:nowrap}
-.col-act{width:130px;text-align:right;white-space:nowrap}
+/* AUCTION TABLE — user view */
+.au-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.au-tbl th{text-align:left;padding:7px 10px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2);white-space:nowrap}
+.au-tbl td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle}
+.au-tbl tr:last-child td{border-bottom:none}
+.au-tbl tr:hover td{background:rgba(232,115,42,0.025)}
+/* AUCTION TABLE — mgr view fixed */
+.mgr-tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.mgr-tbl th{text-align:left;padding:8px 10px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2)}
+.mgr-tbl td{padding:10px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;overflow:hidden}
+.mgr-tbl tr:last-child td{border-bottom:none}
+.mgr-tbl tr:hover td{background:rgba(232,115,42,0.025)}
+.col-num{width:40px;color:var(--faint);font-size:11px;text-align:center}
+.col-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.col-status{width:160px;white-space:nowrap}
+.col-fw{width:100px;text-align:center;white-space:nowrap}
+.col-fd{width:100px;text-align:center;white-space:nowrap}
+.col-act{width:128px;text-align:right;white-space:nowrap}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
@@ -617,24 +623,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <!-- AUCTION MANAGER (admin) -->
 <div id="page-auctionmgr" class="page">
   <div class="page-title">Auction Manager</div>
-  <div class="page-sub">Admin — mark drawn, manage queue</div>
-  <div class="au-tabs">
-    <button class="au-tab active" onclick="swAuTab('queue','auctionmgr')">Current Queue</button>
-    <button class="au-tab" onclick="swAuTab('history','auctionmgr')">History</button>
+  <div class="page-sub">Mark drawn · manage queue · sync to sheet</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <select id="mgr-date-select" onchange="loadAuctionLog(this.value,true)" style="width:180px"><option value="">— Select date —</option></select>
+    <button class="btn btn-ghost" onclick="loadAuctionDates(true)" style="padding:7px 10px">🔄</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-primary" onclick="openPasteModal()">+ Add Queue</button>
+    <button class="btn btn-red" onclick="deleteDateConfirm()">🗑 Delete date</button>
   </div>
-  <div id="mgr-queue">
-    <div class="al-head">
-      <select id="mgr-date-select" onchange="loadAuctionLog(this.value,true)" style="max-width:220px"><option value="">— Select date —</option></select>
-      <button class="btn btn-ghost" onclick="loadAuctionDates(true)">🔄</button>
-      <button class="btn btn-primary" onclick="openPasteModal()">+ Add Manual</button>
-      <button class="btn btn-red" onclick="deleteDateConfirm()">🗑 Delete</button>
-    </div>
-    <div id="mgr-stats" class="al-stats"></div>
-    <div id="mgr-content"><div class="empty">Select a date to view queue</div></div>
-  </div>
-  <div id="mgr-history" style="display:none">
-    <div id="mgr-hist-content"><div class="loading">Loading history...</div></div>
-  </div>
+  <div id="mgr-stats" class="al-stats"></div>
+  <div id="mgr-content"><div class="empty">Select a date to view queue</div></div>
 </div>
 
 <!-- ATTENDANCE -->
@@ -1013,8 +1011,10 @@ function swAuTab(t,page){
   const prefix=isMgr?'mgr':'au';
   const tabs=document.querySelectorAll('#page-'+page+' .au-tab');
   tabs.forEach((b,i)=>b.classList.toggle('active',['queue','history'][i]===t));
-  document.getElementById(prefix+'-queue').style.display=t==='queue'?'block':'none';
-  document.getElementById(prefix+'-history').style.display=t==='history'?'block':'none';
+  const qEl=document.getElementById(prefix+'-queue');
+  const hEl=document.getElementById(prefix+'-history');
+  if(qEl)qEl.style.display=t==='queue'?'block':'none';
+  if(hEl)hEl.style.display=t==='history'?'block':'none';
   if(t==='history')loadAuHistory(isMgr);
 }
 async function loadAuctionDates(isMgr){
@@ -1089,9 +1089,17 @@ async function loadAuctionLog(date,isMgr){
   });
   if(isMgr){
     document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="mgr-tbl">
+      <colgroup>
+        <col style="width:40px">
+        <col>
+        <col style="width:160px">
+        <col style="width:100px">
+        <col style="width:100px">
+        <col style="width:128px">
+      </colgroup>
       <thead><tr>
         <th class="col-num">#</th>
-        <th class="col-name">Name</th>
+        <th>Name</th>
         <th class="col-status">Status</th>
         <th class="col-fw">🪶 White</th>
         <th class="col-fd">🪶 Dark</th>
@@ -1102,11 +1110,11 @@ async function loadAuctionLog(date,isMgr){
   } else {
     document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
       <thead><tr>
-        <th class="col-num">#</th>
-        <th class="col-name">Name</th>
-        <th class="col-status">Status</th>
-        <th class="col-fw">🪶 White</th>
-        <th class="col-fd">🪶 Dark</th>
+        <th style="width:36px">#</th>
+        <th>Name</th>
+        <th style="width:150px">Status</th>
+        <th style="width:100px;text-align:center">🪶 White</th>
+        <th style="width:100px;text-align:center">🪶 Dark</th>
       </tr></thead>
       <tbody>${tbody}</tbody>
     </table></div>`;
