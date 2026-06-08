@@ -297,17 +297,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .au-tbl td{padding:9px 10px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle}
 .au-tbl tr:last-child td{border-bottom:none}
 .au-tbl tr:hover td{background:rgba(232,115,42,0.025)}
-/* AUCTION TABLE — mgr view (auto layout, min-width based) */
-.mgr-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.mgr-tbl th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.2);white-space:nowrap}
-.mgr-tbl td{padding:11px 12px;border-bottom:0.5px solid rgba(232,115,42,0.05);vertical-align:middle;white-space:nowrap}
-.mgr-tbl tr:last-child td{border-bottom:none}
-.mgr-tbl tr:hover td{background:rgba(232,115,42,0.025)}
-.mgr-tbl .td-num{width:1%;color:var(--faint);font-size:11px;text-align:center;padding-right:8px}
-.mgr-tbl .td-name{width:99%;font-weight:500;white-space:nowrap;max-width:0}
-.mgr-tbl .td-status{white-space:nowrap}
-.mgr-tbl .td-bar{white-space:nowrap;text-align:center}
-.mgr-tbl .td-act{white-space:nowrap;text-align:right}
+/* AUCTION MANAGER — flex rows */
+.mgr-list{display:flex;flex-direction:column;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
+.mgr-list-head{display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(0,0,0,0.25);border-bottom:0.5px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.mgr-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:0.5px solid rgba(232,115,42,0.05);transition:background 0.1s;font-size:12px}
+.mgr-row:last-child{border-bottom:none}
+.mgr-row:hover{background:rgba(232,115,42,0.03)}
+.mgr-col-num{width:28px;flex-shrink:0;color:var(--faint);font-size:11px;text-align:center}
+.mgr-col-name{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mgr-col-status{width:150px;flex-shrink:0}
+.mgr-col-bar{width:96px;flex-shrink:0;text-align:center}
+.mgr-col-act{width:120px;flex-shrink:0;text-align:right}
+@media(max-width:640px){.mgr-col-bar{display:none}.mgr-col-status{width:120px}.mgr-col-act{width:100px}}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
@@ -1068,36 +1069,37 @@ async function loadAuctionLog(date,isMgr){
       const actionHtml=isDone
         ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','',true)">↺ Undo</button>`
         :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position},'${row.member_name.replace(/'/g,"\\'")}')">✓ Mark drawn</button>`;
-      tbody+=`<tr class="qrow">
-        <td class="td-num">${row.position}</td>
-        <td class="td-name">${row.member_name}</td>
-        <td class="td-status">${statusHtml}</td>
-        <td class="td-bar fbar-cell">${wBar}</td>
-        <td class="td-bar fbar-cell">${dBar}</td>
-        <td class="td-act">${actionHtml}</td>
-      </tr>`;
+      tbody+=`<div class="mgr-row">
+        <div class="mgr-col-num">${row.position}</div>
+        <div class="mgr-col-name">${row.member_name}</div>
+        <div class="mgr-col-status">${statusHtml}</div>
+        <div class="mgr-col-bar">${wBar}</div>
+        <div class="mgr-col-bar">${dBar}</div>
+        <div class="mgr-col-act">${actionHtml}</div>
+      </div>`;
     } else {
       tbody+=`<tr class="qrow">
-        <td class="col-num">${row.position}</td>
-        <td class="col-name">${row.member_name}</td>
-        <td class="col-status">${statusHtml}</td>
-        <td class="col-fw fbar-cell">${wBar}</td>
-        <td class="col-fd fbar-cell">${dBar}</td>
+        <td style="width:36px;color:var(--faint);font-size:11px">${row.position}</td>
+        <td style="font-weight:500">${row.member_name}</td>
+        <td>${statusHtml}</td>
+        <td class="fbar-cell">${wBar}</td>
+        <td class="fbar-cell">${dBar}</td>
       </tr>`;
     }
   });
   if(isMgr){
-    document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="mgr-tbl">
-      <thead><tr>
-        <th class="td-num">#</th>
-        <th>Name</th>
-        <th class="td-status">Status</th>
-        <th class="td-bar" style="text-align:center">🪶 White</th>
-        <th class="td-bar" style="text-align:center">🪶 Dark</th>
-        <th class="td-act"></th>
-      </tr></thead>
-      <tbody>${tbody}</tbody>
-    </table></div>`;
+    document.getElementById(contentId).innerHTML=`
+      <div class="mgr-list">
+        <div class="mgr-list-head">
+          <div class="mgr-col-num">#</div>
+          <div class="mgr-col-name">Name</div>
+          <div class="mgr-col-status">Status</div>
+          <div class="mgr-col-bar" style="text-align:center">🪶 White</div>
+          <div class="mgr-col-bar" style="text-align:center">🪶 Dark</div>
+          <div class="mgr-col-act"></div>
+        </div>
+        ${tbody}
+      </div>`;
   } else {
     document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
       <thead><tr>
