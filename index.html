@@ -977,15 +977,16 @@ async function loadAuctionLog(date){
   if(!rows.length){document.getElementById('al-content').innerHTML='<div class="empty">No data for this date</div>';return}
   const adm=isAdmin;
   const mkBar=(val,max,isOk)=>{
-    const pct=max>0?Math.round((val/max)*100):0;
+    const v=isNaN(val)||val==null?0:+val;
+    const pct=max>0?Math.round((v/max)*100):0;
     const cls=isOk?'fok':'fmiss';
-    return`<div class="fbar"><div class="fbar-track"></div><div class="fbar-fill ${cls}" style="width:${pct}%"></div><span class="fbar-lbl">${val}/${max}</span></div>`;
+    return`<div class="fbar"><div class="fbar-track"></div><div class="fbar-fill ${cls}" style="width:${pct}%"></div><span class="fbar-lbl">${v}/${max}</span></div>`;
   };
   let tbody='';
   rows.forEach(row=>{
     const isDone=row.status==='done';
-    const fw=row.feather_white!=null&&row.feather_white!==''?+row.feather_white:null;
-    const fd=row.feather_dark!=null&&row.feather_dark!==''?+row.feather_dark:null;
+    const fw=(row.feather_white!=null&&row.feather_white!==''&&row.feather_white!==undefined)?+row.feather_white:null;
+    const fd=(row.feather_dark!=null&&row.feather_dark!==''&&row.feather_dark!==undefined)?+row.feather_dark:null;
     const statusHtml=isDone
       ?`<span class="qs qs-done">✓ Drawn</span>${row.drawn_date?` <span style="font-size:10px;color:var(--muted)">${row.drawn_date}</span>`:''}`
       :`<span class="qs qs-pend">⏳ Pending</span>`;
@@ -994,8 +995,8 @@ async function loadAuctionLog(date){
         ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','')">↺ Undo</button>`
         :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position},'${row.member_name.replace(/'/g,"\\'")}')">✓ Mark drawn</button>`)
       :'';
-    const wBar=isDone&&fw!=null?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
-    const dBar=isDone&&fd!=null?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
+    const wBar=(isDone&&fw!==null)?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
+    const dBar=(isDone&&fd!==null)?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
     tbody+=`<tr class="qrow">
       <td class="q-num">${row.position}</td>
       <td class="q-name">${row.member_name}</td>
@@ -1100,7 +1101,7 @@ async function loadAttSession(date){
 async function updateAtt(date,member,status){
   const r=await gasPost({action:'updateAttStatus',date,member_name:member,status});
   if(r.ok){loadAttSession(date);loadAttSummary()}else alert('Update failed: '+r.error);
-}https://github.com/samhongvai/warmup-rooc-GM/blob/main/index.html
+}
 async function createAttSession(){
   if(!isAdmin){alert('Admin only');return}
   const date=document.getElementById('att-new-date').value;
