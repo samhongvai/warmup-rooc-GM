@@ -298,17 +298,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .au-tbl tr:last-child td{border-bottom:none}
 .au-tbl tr:hover td{background:rgba(232,115,42,0.025)}
 /* AUCTION MANAGER — flex rows */
-.mgr-list{display:flex;flex-direction:column;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
-.mgr-list-head{display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(0,0,0,0.25);border-bottom:0.5px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.mgr-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:0.5px solid rgba(232,115,42,0.05);transition:background 0.1s;font-size:12px}
+.mgr-list{display:flex;flex-direction:column;border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
+.mgr-list-head,.mgr-row{display:flex;align-items:center;padding:0 4px}
+.mgr-list-head{background:rgba(0,0,0,0.25);border-bottom:0.5px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;height:34px}
+.mgr-row{border-bottom:0.5px solid rgba(232,115,42,0.05);font-size:12px;min-height:44px;transition:background 0.1s}
 .mgr-row:last-child{border-bottom:none}
 .mgr-row:hover{background:rgba(232,115,42,0.03)}
-.mgr-col-num{width:28px;flex-shrink:0;color:var(--faint);font-size:11px;text-align:center}
-.mgr-col-name{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mgr-col-status{width:150px;flex-shrink:0}
-.mgr-col-bar{width:96px;flex-shrink:0;text-align:center}
-.mgr-col-act{width:120px;flex-shrink:0;text-align:right}
-@media(max-width:640px){.mgr-col-bar{display:none}.mgr-col-status{width:120px}.mgr-col-act{width:100px}}
+.mc-num{width:40px;min-width:40px;max-width:40px;text-align:center;color:var(--faint);font-size:11px;padding:0 4px;flex-shrink:0}
+.mc-name{flex:1;min-width:80px;padding:0 8px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-status{width:170px;min-width:170px;max-width:170px;padding:0 8px;flex-shrink:0;white-space:nowrap}
+.mc-bar{width:96px;min-width:96px;max-width:96px;padding:0 4px;text-align:center;flex-shrink:0}
+.mc-act{width:124px;min-width:124px;max-width:124px;padding:0 8px;text-align:right;flex-shrink:0}
+@media(max-width:700px){.mc-bar{display:none}.mc-status{width:130px;min-width:130px;max-width:130px}.mc-act{width:104px;min-width:104px;max-width:104px}}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
