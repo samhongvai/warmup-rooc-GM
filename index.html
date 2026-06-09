@@ -636,9 +636,35 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <button class="au-tab" onclick="swAuTab('history','auction')">History</button>
   </div>
 
-  <!-- CURRENT QUEUE: auto-load all pending across all dates -->
+  <!-- CURRENT QUEUE: prediction on top, pending below -->
   <div id="au-queue">
     <div id="al-stats" class="al-stats"></div>
+    <!-- PREDICTION BOX -->
+    <div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:14px">
+      <div style="padding:11px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:600;color:var(--gold-l);flex:1">🎯 การประมูลในรอบถัดไป (คาดการณ์)</span>
+      </div>
+      <div style="padding:11px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;border-bottom:0.5px solid var(--border)">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Event</label>
+          <select id="pred-event" onchange="updatePredRanks()" style="font-size:12px;padding:6px 9px">
+            <option value="overrun">Overrun</option>
+            <option value="gl-y">Guild League — Cross ✓</option>
+            <option value="gl-n">Guild League — Cross ✗</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Rank</label>
+          <select id="pred-rank" onchange="renderPrediction()" style="font-size:12px;padding:6px 9px"></select>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding-bottom:6px">
+          <input type="checkbox" id="pred-x2" onchange="renderPrediction()" style="accent-color:var(--orange);width:14px;height:14px">
+          Reward ×2
+        </label>
+      </div>
+      <div id="pred-result" style="padding:12px 14px"></div>
+    </div>
+    <!-- PENDING LIST -->
     <div id="al-content"><div class="loading">Loading...</div></div>
   </div>
 
@@ -1177,7 +1203,8 @@ async function loadAuctionDates(isMgr){
   }
 }
 
-// โหลด pending ทั้งหมดข้ามทุก date อัตโนมัติ
+let _allPending=[];// global pending list sorted by queue_date + position
+
 async function loadAuctionPending(){
   const statsEl=document.getElementById('al-stats');
   const contentEl=document.getElementById('al-content');
@@ -1188,16 +1215,25 @@ async function loadAuctionPending(){
     statsEl.innerHTML='';
     return;
   }
-  // ดึงทุก date แล้วเก็บเฉพาะ pending
+  // ดึงทุก date เรียงจากเก่าสุด → ใหม่สุด แล้วเก็บ pending
   const pendingByDate=[];
-  for(const date of r.dates){
+  _allPending=[];
+  for(const date of [...r.dates].reverse()){
     const lr=await gasGet('getLog&date='+date);
     if(!lr.ok)continue;
-    const pending=lr.rows.filter(x=>x.status==='pending');
-    if(pending.length>0) pendingByDate.push({date,rows:lr.rows,pending});
+    const pending=lr.rows.filter(x=>x.status==='pending').sort((a,b)=>a.position-b.position);
+    if(pending.length>0){
+      pendingByDate.push({date,rows:lr.rows,pending});
+      _allPending.push(...pending.map(p=>({...p,queue_date:date})));
+    }
   }
-  const totalPending=pendingByDate.reduce((s,x)=>s+x.pending.length,0);
-  const totalAll=pendingByDate.reduce((s,x)=>s+x.rows.length,0);
+  // เรียง _allPending ตาม queue_date เก่าก่อน แล้วตาม position
+  _allPending.sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
+
+  // render prediction
+  updatePredRanks();
+
+  const totalPending=_allPending.length;
   if(totalPending===0){
     statsEl.innerHTML='';
     contentEl.innerHTML='<div class="empty" style="color:var(--green)">✅ ทุกคนได้ประมูลแล้ว</div>';
@@ -1206,25 +1242,82 @@ async function loadAuctionPending(){
   statsEl.innerHTML=`
     <div class="al-stat"><div class="n" style="color:var(--amber)">${totalPending}</div><div class="l">Pending</div></div>
     <div class="al-stat"><div class="n" style="color:var(--muted)">${pendingByDate.length}</div><div class="l">Queue date</div></div>`;
-  // render แต่ละ date เป็น section
-  contentEl.innerHTML=pendingByDate.map(({date,rows,pending})=>{
-    const done=rows.length-pending.length;
-    return`<div style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:500;color:var(--text)">📅 ${date}</span>
-        <span style="font-size:11px;color:var(--muted)">${done}/${rows.length} drawn</span>
-      </div>
-      <div style="border:0.5px solid var(--amber-b);border-radius:8px;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b);font-size:11px;font-weight:600;color:var(--amber)">
-          <span>⏳ อยู่ระหว่างรอคิวประมูล</span>
-          <span style="opacity:0.7;font-weight:400">${pending.length} คน</span>
+
+  const makeChips=(names,startIdx,cards)=>{
+    const inRound=names.filter((_,i)=>startIdx+i<cards);
+    const waiting=names.filter((_,i)=>startIdx+i>=cards);
+    let html='';
+    if(inRound.length) html+=`<div style="display:flex;flex-wrap:wrap;gap:4px">${inRound.map((n,i)=>`<span style="font-size:12px;font-weight:500;padding:3px 9px;border-radius:5px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b);display:inline-flex;align-items:center;gap:4px"><span style="font-size:10px;opacity:0.5;font-family:monospace">${String(startIdx+i+1).padStart(2,'0')}</span>${n}</span>`).join('')}</div>`;
+    if(inRound.length&&waiting.length) html+=`<div style="width:100%;height:0.5px;background:rgba(255,255,255,0.12);margin:7px 0"></div>`;
+    if(waiting.length) html+=`<div style="display:flex;flex-wrap:wrap;gap:4px">${waiting.map((n,i)=>`<span style="font-size:12px;padding:3px 9px;border-radius:5px;background:rgba(255,255,255,0.03);color:var(--faint);border:0.5px solid rgba(255,255,255,0.06);display:inline-flex;align-items:center;gap:4px"><span style="font-size:10px;opacity:0.35;font-family:monospace">${String(startIdx+inRound.length+i+1).padStart(2,'0')}</span>${n}</span>`).join('')}</div>`;
+    return html;
+  };
+
+  contentEl.innerHTML=`<div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden">
+    <div style="padding:9px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;font-weight:600;color:var(--text)">⏳ อยู่ระหว่างรอการประมูล</span>
+      <span style="font-size:11px;color:var(--muted)">${totalPending} คน · ${pendingByDate.length} วันที่สุ่ม</span>
+    </div>
+    ${pendingByDate.map(({date,rows,pending},gi)=>{
+      const done=rows.length-pending.length;
+      const startIdx=pendingByDate.slice(0,gi).reduce((s,x)=>s+x.pending.length,0);
+      return`<div style="border-bottom:0.5px solid rgba(232,115,42,0.07)">
+        <div style="padding:7px 14px;font-size:11px;color:var(--muted);background:rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:space-between">
+          <span>📅 ${date}</span><span>${done}/${rows.length} drawn · ${pending.length} คนรอ</span>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
-          ${pending.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(212,160,68,0.08);color:rgba(242,232,216,0.7);border:0.5px solid rgba(212,160,68,0.2)">${r.member_name}</span>`).join('')}
+        <div style="padding:8px 14px;display:flex;flex-direction:column;gap:7px" id="chips-${date}">
+          ${makeChips(pending.map(p=>p.member_name),startIdx,0)}
         </div>
+      </div>`;
+    }).join('')}
+    <div style="display:flex;gap:14px;padding:8px 14px;border-top:0.5px solid var(--border)">
+      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0"></span>ประมูลในรอบถัดไป</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0"></span>รอรอบถัดไป</span>
+    </div>
+  </div>`;
+
+  // store makeChips ref for re-render
+  window._makeChips=makeChips;
+  window._pendingByDate=pendingByDate;
+}
+
+function updatePredRanks(){
+  const type=document.getElementById('pred-event').value;
+  const sel=document.getElementById('pred-rank');
+  const ranks=REWARDS[type];
+  sel.innerHTML=ranks.map((r,i)=>`<option value="${i}">${r.rank}</option>`).join('');
+  renderPrediction();
+}
+
+function renderPrediction(){
+  const type=document.getElementById('pred-event').value;
+  const idx=+document.getElementById('pred-rank').value;
+  const x2=document.getElementById('pred-x2').checked;
+  const reward=REWARDS[type][idx];
+  const cards=reward?reward.card*(x2?2:1):0;
+  const el=document.getElementById('pred-result');
+  if(!_allPending.length){el.innerHTML='<div class="empty" style="font-size:12px">ไม่มีคิวค้าง</div>';return}
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(201,168,76,0.07);border:0.5px solid rgba(201,168,76,0.2);border-radius:7px">
+      <span style="font-size:20px">🃏</span>
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:700;color:var(--gold-l);line-height:1">${cards} <span style="font-size:13px;color:var(--muted);font-weight:400">card slots${x2?' <span style="font-size:11px;padding:1px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange-l);border:0.5px solid var(--orange-border)">×2</span>':''}</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">ดึง ${Math.min(cards,_allPending.length)} คนแรกจาก ${_allPending.length} คนที่รออยู่</div>
       </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:5px;border:0.5px solid var(--border)">
+      💡 เรียงตามลำดับคิวที่ค้างอยู่ · จำนวน card อาจเปลี่ยนตาม rank จริงในวันประมูล
     </div>`;
-  }).join('');
+  // re-render pending chips with new card count
+  if(window._makeChips&&window._pendingByDate){
+    window._pendingByDate.forEach(({date,pending},gi)=>{
+      const el2=document.getElementById('chips-'+date);
+      if(!el2)return;
+      const startIdx=window._pendingByDate.slice(0,gi).reduce((s,x)=>s+x.pending.length,0);
+      el2.innerHTML=window._makeChips(pending.map(p=>p.member_name),startIdx,cards);
+    });
+  }
+}
 }
 
 // History: ค้นหาด้วย char ID / ชื่อ
