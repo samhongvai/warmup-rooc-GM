@@ -168,10 +168,42 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .pm-note{font-size:10px;color:var(--red)}
 .pm-note-leave{font-size:10px;color:var(--blue)}
 
-/* SEARCH */
-.sbox{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
-.sbox h3{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
-.srow{display:flex;gap:8px}.srow input{flex:1}
+/* SEARCH CARD */
+.srch-card{background:var(--bg3);border:0.5px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.srch-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:0.5px solid var(--border)}
+.srch-avatar{width:34px;height:34px;border-radius:50%;background:rgba(232,115,42,0.08);border:0.5px solid rgba(232,115,42,0.18);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;opacity:0.65}
+.srch-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0}
+.srch-name{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap}
+.srch-sep{width:1px;height:14px;background:rgba(255,255,255,0.1);flex-shrink:0}
+.srch-item{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.srch-item .si{opacity:0.4;display:flex;align-items:center}
+.srch-item .si svg{width:12px;height:12px}
+.srch-item .sv{font-size:12px;color:rgba(242,232,216,0.55)}
+.srch-discord .si{color:#7289da;opacity:0.7}
+.srch-section{padding:12px 16px;border-bottom:0.5px solid rgba(232,115,42,0.07)}
+.srch-section:last-child{border-bottom:none}
+.srch-sec-lbl{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+/* party V3 */
+.party-v3{display:flex;gap:12px;align-items:flex-start}
+.party-v3-box{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;flex-shrink:0;padding:8px 0;background:rgba(232,115,42,0.06);border:0.5px solid rgba(232,115,42,0.15);border-radius:8px}
+.party-v3-num{font-size:22px;font-weight:700;color:var(--orange-l);line-height:1}
+.party-v3-lbl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.party-v3-right{flex:1}
+.party-v3-tlbl{font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.party-v3-chips{display:flex;flex-wrap:wrap;gap:5px}
+.party-v3-chip{font-size:12px;padding:3px 11px;border-radius:5px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);color:var(--muted)}
+/* queue box */
+.srch-queue{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.025);border:0.5px solid var(--border);border-radius:8px}
+.srch-q-pos{font-size:28px;font-weight:700;color:var(--gold-l);line-height:1;min-width:42px;text-align:center}
+.srch-q-info{flex:1}
+.srch-q-date{font-size:11px;color:var(--muted);margin-bottom:3px}
+.srch-q-total{font-size:12px;color:var(--text)}
+/* history table */
+.srch-hist{width:100%;border-collapse:collapse;font-size:12px}
+.srch-hist th{text-align:left;padding:5px 6px;color:var(--muted);font-weight:400;border-bottom:0.5px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.srch-hist td{padding:8px 6px;border-bottom:0.5px solid rgba(232,115,42,0.05)}
+.srch-hist tr:last-child td{border-bottom:none}
+.srch-pos{font-family:monospace;font-size:12px;color:var(--faint)}
 .profile{background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:8px;padding:1rem;margin-top:10px}
 .phead{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)}
 .avatar{width:42px;height:42px;border-radius:50%;background:var(--orange-dim);border:1.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--orange-l);flex-shrink:0;font-weight:600}
@@ -411,7 +443,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span>Party</div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
-  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span class="ni">🪶</span>Rewards</div>
   <div class="nav-divider"></div>
   <div class="nav-section">Guild Management</div>
   <div class="nav-item" onclick="swAdmin('auctionmgr');closeSidebar()"><span class="ni">⚙️</span>Auction Manager<span class="nav-lock" id="lock-auctionmgr">🔒</span></div>
@@ -419,7 +450,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-item" onclick="swAdmin('calc');closeSidebar()"><span class="ni">🧮</span>Calculator<span class="nav-lock" id="lock-calc">🔒</span></div>
   <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
   <div class="nav-divider"></div>
-  <div class="nav-section">Audit Log</div>
+  <div class="nav-section">Noted</div>
+  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span class="ni">🪶</span>Rewards</div>
   <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
@@ -463,17 +495,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <!-- SEARCH -->
 <div id="page-search" class="page active">
   <div class="page-title">Search</div>
-  <div class="page-sub">Find your party and auction queue position</div>
-  <div class="sbox">
-    <h3>🛡 My Party</h3>
-    <div class="srow"><input type="text" id="si-party" placeholder="Name / Character ID / Discord ID..." oninput="searchMe()"></div>
-    <div id="party-result"></div>
+  <div class="page-sub">ค้นหาด้วยชื่อตัวละครหรือ Character ID</div>
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <input type="text" id="si-main" placeholder="Character name / ID..." style="flex:1;font-size:14px;padding:10px 14px" oninput="searchMain()">
   </div>
-  <div class="sbox">
-    <h3>🏆 My Auction Queue</h3>
-    <div class="srow"><input type="text" id="si-queue" placeholder="Name / Character ID..." oninput="searchMyQueue()"></div>
-    <div id="queue-result"></div>
-  </div>
+  <div id="search-result"></div>
 </div>
 
 <!-- REWARDS -->
@@ -625,9 +651,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
       <!-- Mode 1: ค้นหาด้วย Char ID -->
       <div class="panel" style="padding:12px 14px">
-        <div class="section-h" style="margin-top:0">🔍 ค้นหาด้วย Character ID</div>
+        <div class="section-h" style="margin-top:0">🔍 ค้นหาด้วย ID หรือ ชื่อตัวละคร</div>
         <div style="display:flex;gap:8px">
-          <input type="text" id="hist-search-id" placeholder="Character ID / ชื่อ..." style="flex:1">
+          <input type="text" id="hist-search-id" placeholder="Character ID หรือ ชื่อตัวละคร..." style="flex:1">
           <button class="btn btn-primary" onclick="histSearchById()">ค้นหา</button>
         </div>
         <div id="hist-id-result" style="margin-top:10px"></div>
@@ -837,7 +863,7 @@ function swAdmin(t){
   openAdminModal();
 }
 function sw(t){
-  const pages=['search','party','members','auction','rewards','auctionmgr','randomize','calc','attendance','tracker'];
+  const pages=['search','party','members','auction','auctionmgr','randomize','calc','attendance','rewards','tracker'];
   document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
@@ -938,32 +964,99 @@ function renderParty(){
 }
 
 /* SEARCH */
-function searchMe(){
-  const q=(document.getElementById('si-party').value||'').toLowerCase().trim(),el=document.getElementById('party-result');
+const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
+const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
+const ID_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`;
+
+async function searchMain(){
+  const q=(document.getElementById('si-main').value||'').toLowerCase().trim();
+  const el=document.getElementById('search-result');
   if(!q){el.innerHTML='';return}
-  const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q)));
+  const found=members.filter(m=>
+    m.ign.toLowerCase().includes(q)||
+    (m.char_id&&m.char_id.toLowerCase().includes(q))||
+    (m.discord&&m.discord.toLowerCase().includes(q))
+  );
   if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
+  el.innerHTML='<div class="loading">Loading queue data...</div>';
+  // load latest queue date
+  const dr=await gasGet('getDates');
+  const latestDate=dr.ok&&dr.dates.length?dr.dates[0]:'';
+  let queueRows=[];
+  if(latestDate){const lr=await gasGet('getLog&date='+latestDate);if(lr.ok)queueRows=lr.rows;}
+  // load all dates for history
+  const allDates=dr.ok?dr.dates:[];
+  const histMap={};
+  for(const d of allDates){
+    const lr=await gasGet('getLog&date='+d);
+    if(lr.ok) lr.rows.forEach(r=>{
+      if(!histMap[r.member_name])histMap[r.member_name]=[];
+      histMap[r.member_name].push(r);
+    });
+  }
   el.innerHTML=found.map(m=>{
     const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
-    const type=getType(m.class),tc=getTypeCls(type);
-    const noteTag=m.noted?`<span class="badge b-note" style="font-size:11px">${m.noted}</span>`:'';
-    const adminFields=isAdmin?`<div class="ii"><div class="ik">Char ID</div><div class="iv">${m.char_id||'—'}</div></div><div class="ii"><div class="ik">Discord</div><div class="iv">${m.discord||'—'}</div></div>`:'';
-    const matesHtml=mates.length?`<div class="mates"><h4>Party ${m.party} mates</h4><div class="mtags">${mates.map(x=>`<span class="mtag">${x.ign}</span>`).join('')}</div></div>`:'';
-    return `<div class="profile"><div class="phead"><div class="avatar">${m.ign[0].toUpperCase()}</div><div class="pinfo"><div class="name">${m.ign} ${noteTag}</div><div class="sub"><span class="badge ${tc}" style="font-size:10px">${m.class}</span> · Party ${m.party||'N/A'}</div></div></div><div class="igrid">${adminFields}<div class="ii"><div class="ik">Party</div><div class="iv">${m.party||'—'}</div></div><div class="ii"><div class="ik">Status</div><div class="iv">${m.noted||'Active'}</div></div></div>${matesHtml}</div>`;
-  }).join('');
-}
+    const qRow=queueRows.find(r=>r.member_name===m.ign);
+    const hist=(histMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
+    // header meta
+    const metaItems=[
+      `<div class="srch-item"><span class="si">${CLASS_SVG}</span><span class="sv">${m.class||'—'}</span></div>`,
+      m.char_id?`<div class="srch-sep"></div><div class="srch-item"><span class="si">${ID_SVG}</span><span class="sv">${m.char_id}</span></div>`:'',
+      m.discord?`<div class="srch-sep"></div><div class="srch-item srch-discord"><span class="si">${DISCORD_SVG}</span><span class="sv">${m.discord}</span></div>`:''
+    ].join('');
+    // party section
+    const partyHtml=m.party?`
+      <div class="party-v3">
+        <div class="party-v3-box">
+          <span class="party-v3-num">${m.party}</span>
+          <span class="party-v3-lbl">Party</span>
+        </div>
+        <div class="party-v3-right">
+          <div class="party-v3-tlbl">Teammates</div>
+          <div class="party-v3-chips">
+            ${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}
+          </div>
+        </div>
+      </div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
+    // queue section
+    const queueHtml=qRow?`
+      <div class="srch-queue">
+        <div class="srch-q-pos">${String(qRow.position).padStart(2,'0')}</div>
+        <div class="srch-q-info">
+          <div class="srch-q-date">Queue date: ${latestDate}</div>
+          <div class="srch-q-total">Position ${qRow.position} of ${queueRows.length}</div>
+        </div>
+        <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'}">${qRow.status==='done'?'✓ Drawn':'⏳ Pending'}</span>
+      </div>`
+      :'<span style="font-size:12px;color:var(--faint);font-style:italic">No active queue for this member</span>';
+    // history section
+    const histHtml=hist.length?`
+      <table class="srch-hist">
+        <thead><tr><th>Queue date</th><th style="width:80px">Position</th><th>Auction</th></tr></thead>
+        <tbody>${hist.map(r=>`<tr>
+          <td style="color:var(--muted)">${r.queue_date}</td>
+          <td><span class="srch-pos">${String(r.position).padStart(2,'0')}</span></td>
+          <td>${r.status==='done'
+            ?`<span style="color:var(--green);font-size:11px">✓ ${r.drawn_date?String(r.drawn_date).slice(0,10):''}</span>`
+            :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}
+          </td>
+        </tr>`).join('')}</tbody>
+      </table>`
+      :'<span style="font-size:12px;color:var(--faint);font-style:italic">No auction history</span>';
 
-function searchMyQueue(){
-  const q=(document.getElementById('si-queue').value||'').toLowerCase().trim(),el=document.getElementById('queue-result');
-  if(!q){el.innerHTML='';return}
-  if(!currentALDate){el.innerHTML='<div class="nf">Open Auction first to load queue data</div>';return}
-  el.innerHTML='<div class="loading">Searching...</div>';
-  gasGet('getLog&date='+currentALDate).then(r=>{
-    if(!r.ok){el.innerHTML='<div class="nf">Cannot load queue</div>';return}
-    const found=r.rows.filter(row=>row.member_name.toLowerCase().includes(q));
-    if(!found.length){el.innerHTML='<div class="nf">Not found in queue for '+currentALDate+'</div>';return}
-    el.innerHTML=found.map(row=>`<div class="profile" style="margin-top:8px"><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${row.member_name[0].toUpperCase()}</div><div><div style="font-size:14px;font-weight:500">${row.member_name}</div><div style="font-size:12px;color:var(--muted)">Queue #${row.position} · ${row.queue_date}</div></div><span class="qs ${row.status==='done'?'qs-done':'qs-pend'}" style="margin-left:auto">${row.status==='done'?'✓ Drawn':'⏳ Pending'}</span></div></div>`).join('');
-  });
+    return`<div class="srch-card">
+      <div class="srch-head">
+        <div class="srch-avatar">👤</div>
+        <div class="srch-meta-row">
+          <span class="srch-name">${m.ign}</span>
+          ${metaItems}
+        </div>
+      </div>
+      <div class="srch-section"><div class="srch-sec-lbl">Party</div>${partyHtml}</div>
+      <div class="srch-section"><div class="srch-sec-lbl">Current Queue</div>${queueHtml}</div>
+      <div class="srch-section"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
+    </div>`;
+  }).join('');
 }
 
 /* REWARDS */
@@ -1053,21 +1146,22 @@ function swAuTab(t,page){
   if(t==='history'&&!isMgr)loadHistoryDropdowns();
 }
 async function loadHistoryDropdowns(){
-  // populate queue-date dropdown (reuse getDates)
   const r=await gasGet('getDates');
   if(!r.ok)return;
   const hq=document.getElementById('hist-queue-date');
   if(hq){hq.innerHTML='<option value="">— เลือกวันที่สุ่ม —</option>';r.dates.forEach(d=>hq.add(new Option(d,d)))}
-  // populate drawn-date dropdown: collect unique drawn_dates from all logs
   const drawnSet=new Set();
   for(const date of r.dates){
     const lr=await gasGet('getLog&date='+date);
-    if(lr.ok) lr.rows.filter(row=>row.drawn_date).forEach(row=>drawnSet.add(row.drawn_date.slice(0,10)));
+    if(lr.ok) lr.rows.filter(row=>row.drawn_date).forEach(row=>{
+      const d=String(row.drawn_date).slice(0,10);
+      if(d&&d!='')drawnSet.add(d);
+    });
   }
   const hd=document.getElementById('hist-drawn-date');
   if(hd){
     hd.innerHTML='<option value="">— เลือกวันที่ประมูล —</option>';
-    [...drawnSet].sort().reverse().forEach(d=>hd.add(new Option(d,d)));
+    [...drawnSet].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse().forEach(d=>hd.add(new Option(d,d)));
   }
 }
 async function loadAuctionDates(isMgr){
@@ -1126,10 +1220,8 @@ async function histSearchById(){
   el.innerHTML='<div class="loading">ค้นหา...</div>';
   const r=await gasGet('getDates');
   if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-  // ค้นใน member list ก่อน
   const matched=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q)));
   const names=matched.length?matched.map(m=>m.ign):[q];
-  // ดึงทุก date แล้วหา rows ที่ match
   const allRows=[];
   for(const date of r.dates){
     const lr=await gasGet('getLog&date='+date);
@@ -1137,13 +1229,20 @@ async function histSearchById(){
   }
   if(!allRows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูล</div>';return}
   el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
-    <thead><tr><th>Queue date</th><th>Name</th><th style="width:80px">Position</th><th style="width:100px">Status</th><th style="width:100px">Drawn date</th></tr></thead>
+    <thead><tr>
+      <th>Queue date</th>
+      <th>Name</th>
+      <th style="width:80px">Position</th>
+      <th>Auction</th>
+    </tr></thead>
     <tbody>${allRows.map(row=>`<tr class="qrow">
       <td style="font-size:11px;color:var(--muted)">${row.queue_date}</td>
       <td style="font-weight:500">${row.member_name}</td>
-      <td style="color:var(--muted);font-size:12px">#${row.position}</td>
-      <td>${row.status==='done'?'<span class="qs qs-done">✓ Drawn</span>':'<span class="qs qs-pend">⏳ Pending</span>'}</td>
-      <td style="font-size:11px;color:var(--muted)">${row.drawn_date||'—'}</td>
+      <td><span style="font-family:monospace;color:var(--faint)">${String(row.position).padStart(2,'0')}</span></td>
+      <td>${row.status==='done'
+        ?`<span style="color:var(--green);font-size:11px">✓ ${row.drawn_date?row.drawn_date.slice(0,10):''}</span>`
+        :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}
+      </td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
@@ -1158,18 +1257,40 @@ async function histSearchByQueueDate(){
   if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
   const rows=r.rows;
   if(!rows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูล</div>';return}
-  el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
-    <thead><tr><th style="width:36px">#</th><th>Name</th><th style="width:100px">Status</th><th style="width:100px">Drawn date</th></tr></thead>
-    <tbody>${rows.map(row=>`<tr class="qrow">
-      <td style="color:var(--faint);font-size:11px">${row.position}</td>
-      <td style="font-weight:500">${row.member_name}</td>
-      <td>${row.status==='done'?'<span class="qs qs-done">✓ Drawn</span>':'<span class="qs qs-pend">⏳ Pending</span>'}</td>
-      <td style="font-size:11px;color:var(--muted)">${row.drawn_date||'—'}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
+  const done=rows.filter(x=>x.status==='done');
+  const pend=rows.filter(x=>x.status==='pending');
+  const allDone=pend.length===0;
+  let html='';
+  if(allDone){
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(93,191,138,0.07);border:0.5px solid var(--green-b);border-radius:8px;margin-bottom:10px;font-size:13px;color:var(--green)">
+      <span style="font-size:18px">✅</span>
+      <div><div style="font-weight:600">ประมูลครบทุกคนแล้ว</div><div style="font-size:11px;opacity:0.7;margin-top:2px">${done.length} คน · วันที่สุ่ม ${date}</div></div>
+    </div>`;
+  }
+  if(done.length){
+    html+=`<div style="border:0.5px solid var(--green-b);border-radius:8px;overflow:hidden;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(93,191,138,0.1);border-bottom:0.5px solid var(--green-b);font-size:11px;font-weight:600;color:var(--green)">
+        <span>✓ Drawn</span><span style="opacity:0.7;font-weight:400">${done.length} คน</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
+        ${done.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(93,191,138,0.08);color:rgba(242,232,216,0.8);border:0.5px solid rgba(93,191,138,0.15)">${r.member_name}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  if(pend.length){
+    html+=`<div style="border:0.5px solid var(--amber-b);border-radius:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b);font-size:11px;font-weight:600;color:var(--amber)">
+        <span>⏳ อยู่ระหว่างการประมูล</span><span style="opacity:0.7;font-weight:400">${pend.length} คน</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
+        ${pend.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(212,160,68,0.08);color:rgba(242,232,216,0.7);border:0.5px solid rgba(212,160,68,0.2)">${r.member_name}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  el.innerHTML=html;
 }
 
-// History: ค้นหาตามวันที่ประมูล (drawn_date)
+// History: ค้นหาตามวันที่ประมูล (drawn_date) — แสดงชื่อสีเขียว
 async function histSearchByDrawnDate(){
   const target=document.getElementById('hist-drawn-date').value;
   const el=document.getElementById('hist-ddate-result');
@@ -1183,15 +1304,10 @@ async function histSearchByDrawnDate(){
     if(lr.ok) lr.rows.filter(row=>row.drawn_date&&row.drawn_date.slice(0,10)===target).forEach(row=>allRows.push(row));
   }
   if(!allRows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูลวันที่ประมูล '+target+'</div>';return}
-  el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
-    <thead><tr><th>Queue date</th><th>Name</th><th style="width:80px">Position</th><th style="width:100px">Drawn date</th></tr></thead>
-    <tbody>${allRows.map(row=>`<tr class="qrow">
-      <td style="font-size:11px;color:var(--muted)">${row.queue_date}</td>
-      <td style="font-weight:500">${row.member_name}</td>
-      <td style="color:var(--muted);font-size:12px">#${row.position}</td>
-      <td style="font-size:11px;color:var(--muted)">${row.drawn_date||'—'}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
+  el.innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${allRows.length} คนที่ประมูลวันที่ ${target}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${allRows.map(row=>`<span style="font-size:12px;font-weight:500;padding:4px 12px;border-radius:5px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)">${row.member_name}</span>`).join('')}
+    </div>`;
 }
 async function loadAuctionLog(date,isMgr){
   const statsId=isMgr?'mgr-stats':'al-stats';
