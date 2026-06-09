@@ -306,10 +306,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .mgr-row:hover{background:rgba(232,115,42,0.03)}
 .mc-num{width:40px;min-width:40px;max-width:40px;text-align:center;color:var(--faint);font-size:11px;padding:0 4px;flex-shrink:0}
 .mc-name{flex:1;min-width:80px;padding:0 8px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mc-status{width:170px;min-width:170px;max-width:170px;padding:0 8px;flex-shrink:0;white-space:nowrap}
+.mc-status{width:100px;min-width:100px;max-width:100px;padding:0 8px;flex-shrink:0;white-space:nowrap}
+.mc-date{width:100px;min-width:100px;max-width:100px;padding:0 8px;flex-shrink:0;font-size:11px;color:var(--muted);white-space:nowrap}
 .mc-bar{width:96px;min-width:96px;max-width:96px;padding:0 4px;text-align:center;flex-shrink:0}
 .mc-act{width:124px;min-width:124px;max-width:124px;padding:0 8px;text-align:right;flex-shrink:0}
-@media(max-width:700px){.mc-bar{display:none}.mc-status{width:130px;min-width:130px;max-width:130px}.mc-act{width:104px;min-width:104px;max-width:104px}}
+@media(max-width:700px){.mc-bar{display:none}.mc-date{display:none}.mc-status{width:100px;min-width:100px;max-width:100px}.mc-act{width:100px;min-width:100px;max-width:100px}}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
 /* FEATHER BAR */
@@ -608,16 +609,48 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <button class="au-tab active" onclick="swAuTab('queue','auction')">Current Queue</button>
     <button class="au-tab" onclick="swAuTab('history','auction')">History</button>
   </div>
+
+  <!-- CURRENT QUEUE: pending only, auto-load latest date -->
   <div id="au-queue">
     <div class="al-head">
-      <select id="al-date-select" onchange="loadAuctionLog(this.value,false)" style="max-width:220px"><option value="">— Select date —</option></select>
+      <select id="al-date-select" onchange="loadAuctionPending(this.value)" style="max-width:220px"><option value="">— Select date —</option></select>
       <button class="btn btn-ghost" onclick="loadAuctionDates(false)">🔄</button>
     </div>
     <div id="al-stats" class="al-stats"></div>
     <div id="al-content"><div class="empty">Select a date to view queue</div></div>
   </div>
+
+  <!-- HISTORY: 3 search modes -->
   <div id="au-history" style="display:none">
-    <div id="au-hist-content"><div class="loading">Loading history...</div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+      <!-- Mode 1: ค้นหาด้วย Char ID -->
+      <div class="panel" style="padding:12px 14px">
+        <div class="section-h" style="margin-top:0">🔍 ค้นหาด้วย Character ID</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="hist-search-id" placeholder="Character ID / ชื่อ..." style="flex:1">
+          <button class="btn btn-primary" onclick="histSearchById()">ค้นหา</button>
+        </div>
+        <div id="hist-id-result" style="margin-top:10px"></div>
+      </div>
+      <!-- Mode 2: ค้นหาตามวันที่สุ่มคิว -->
+      <div class="panel" style="padding:12px 14px">
+        <div class="section-h" style="margin-top:0">📅 ค้นหาตามวันที่สุ่มคิว</div>
+        <div style="display:flex;gap:8px">
+          <select id="hist-queue-date" style="flex:1"><option value="">— เลือกวันที่สุ่ม —</option></select>
+          <button class="btn btn-primary" onclick="histSearchByQueueDate()">ดูคิว</button>
+        </div>
+        <div id="hist-qdate-result" style="margin-top:10px"></div>
+      </div>
+      <!-- Mode 3: ค้นหาตามวันที่ประมูล -->
+      <div class="panel" style="padding:12px 14px">
+        <div class="section-h" style="margin-top:0">🏆 ค้นหาตามวันที่ประมูล</div>
+        <div style="display:flex;gap:8px">
+          <select id="hist-drawn-date" style="flex:1"><option value="">— เลือกวันที่ประมูล —</option></select>
+          <button class="btn btn-primary" onclick="histSearchByDrawnDate()">ดูผล</button>
+        </div>
+        <div id="hist-ddate-result" style="margin-top:10px"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1016,7 +1049,26 @@ function swAuTab(t,page){
   const hEl=document.getElementById(prefix+'-history');
   if(qEl)qEl.style.display=t==='queue'?'block':'none';
   if(hEl)hEl.style.display=t==='history'?'block':'none';
-  if(t==='history')loadAuHistory(isMgr);
+  if(t==='history'&&isMgr)loadAuHistory(true);
+  if(t==='history'&&!isMgr)loadHistoryDropdowns();
+}
+async function loadHistoryDropdowns(){
+  // populate queue-date dropdown (reuse getDates)
+  const r=await gasGet('getDates');
+  if(!r.ok)return;
+  const hq=document.getElementById('hist-queue-date');
+  if(hq){hq.innerHTML='<option value="">— เลือกวันที่สุ่ม —</option>';r.dates.forEach(d=>hq.add(new Option(d,d)))}
+  // populate drawn-date dropdown: collect unique drawn_dates from all logs
+  const drawnSet=new Set();
+  for(const date of r.dates){
+    const lr=await gasGet('getLog&date='+date);
+    if(lr.ok) lr.rows.filter(row=>row.drawn_date).forEach(row=>drawnSet.add(row.drawn_date.slice(0,10)));
+  }
+  const hd=document.getElementById('hist-drawn-date');
+  if(hd){
+    hd.innerHTML='<option value="">— เลือกวันที่ประมูล —</option>';
+    [...drawnSet].sort().reverse().forEach(d=>hd.add(new Option(d,d)));
+  }
 }
 async function loadAuctionDates(isMgr){
   const selId=isMgr?'mgr-date-select':'al-date-select';
@@ -1027,7 +1079,119 @@ async function loadAuctionDates(isMgr){
   if(r.ok&&r.dates.length){
     r.dates.forEach(d=>sel.add(new Option(d,d)));
     if(currentALDate&&r.dates.includes(currentALDate))sel.value=currentALDate;
+    // populate history queue-date dropdown
+    if(!isMgr){
+      const hq=document.getElementById('hist-queue-date');
+      if(hq){hq.innerHTML='<option value="">— เลือกวันที่สุ่ม —</option>';r.dates.forEach(d=>hq.add(new Option(d,d)))}
+    }
   }
+}
+
+// โหลด pending only สำหรับ user view
+async function loadAuctionPending(date){
+  const statsEl=document.getElementById('al-stats');
+  const contentEl=document.getElementById('al-content');
+  if(!date){contentEl.innerHTML='<div class="empty">Select a date to view queue</div>';statsEl.innerHTML='';return}
+  currentALDate=date;
+  contentEl.innerHTML='<div class="loading">Loading...</div>';
+  const r=await gasGet('getLog&date='+date);
+  if(!r.ok){contentEl.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  const rows=r.rows;
+  const pending=rows.filter(x=>x.status==='pending');
+  const done=rows.filter(x=>x.status==='done').length;
+  statsEl.innerHTML=`
+    <div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div>
+    <div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div>
+    <div class="al-stat"><div class="n" style="color:var(--amber)">${pending.length}</div><div class="l">Pending</div></div>`;
+  if(!pending.length){contentEl.innerHTML='<div class="empty">✅ ทุกคนได้ประมูลแล้วสำหรับวันนี้</div>';return}
+  contentEl.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
+    <thead><tr>
+      <th style="width:36px">#</th>
+      <th>Name</th>
+      <th style="width:120px">Queue position</th>
+    </tr></thead>
+    <tbody>${pending.map((row,i)=>`<tr class="qrow">
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${row.member_name}</td>
+      <td style="color:var(--amber);font-size:12px">ลำดับที่ ${row.position}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+// History: ค้นหาด้วย char ID / ชื่อ
+async function histSearchById(){
+  const q=(document.getElementById('hist-search-id').value||'').toLowerCase().trim();
+  const el=document.getElementById('hist-id-result');
+  if(!q){el.innerHTML='';return}
+  el.innerHTML='<div class="loading">ค้นหา...</div>';
+  const r=await gasGet('getDates');
+  if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  // ค้นใน member list ก่อน
+  const matched=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q)));
+  const names=matched.length?matched.map(m=>m.ign):[q];
+  // ดึงทุก date แล้วหา rows ที่ match
+  const allRows=[];
+  for(const date of r.dates){
+    const lr=await gasGet('getLog&date='+date);
+    if(lr.ok) lr.rows.filter(row=>names.some(n=>row.member_name.toLowerCase().includes(n.toLowerCase()))).forEach(row=>allRows.push(row));
+  }
+  if(!allRows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูล</div>';return}
+  el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
+    <thead><tr><th>Queue date</th><th>Name</th><th style="width:80px">Position</th><th style="width:100px">Status</th><th style="width:100px">Drawn date</th></tr></thead>
+    <tbody>${allRows.map(row=>`<tr class="qrow">
+      <td style="font-size:11px;color:var(--muted)">${row.queue_date}</td>
+      <td style="font-weight:500">${row.member_name}</td>
+      <td style="color:var(--muted);font-size:12px">#${row.position}</td>
+      <td>${row.status==='done'?'<span class="qs qs-done">✓ Drawn</span>':'<span class="qs qs-pend">⏳ Pending</span>'}</td>
+      <td style="font-size:11px;color:var(--muted)">${row.drawn_date||'—'}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+// History: ค้นหาตามวันที่สุ่มคิว
+async function histSearchByQueueDate(){
+  const date=document.getElementById('hist-queue-date').value;
+  const el=document.getElementById('hist-qdate-result');
+  if(!date){el.innerHTML='';return}
+  el.innerHTML='<div class="loading">Loading...</div>';
+  const r=await gasGet('getLog&date='+date);
+  if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  const rows=r.rows;
+  if(!rows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูล</div>';return}
+  el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
+    <thead><tr><th style="width:36px">#</th><th>Name</th><th style="width:100px">Status</th><th style="width:100px">Drawn date</th></tr></thead>
+    <tbody>${rows.map(row=>`<tr class="qrow">
+      <td style="color:var(--faint);font-size:11px">${row.position}</td>
+      <td style="font-weight:500">${row.member_name}</td>
+      <td>${row.status==='done'?'<span class="qs qs-done">✓ Drawn</span>':'<span class="qs qs-pend">⏳ Pending</span>'}</td>
+      <td style="font-size:11px;color:var(--muted)">${row.drawn_date||'—'}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+// History: ค้นหาตามวันที่ประมูล (drawn_date)
+async function histSearchByDrawnDate(){
+  const target=document.getElementById('hist-drawn-date').value;
+  const el=document.getElementById('hist-ddate-result');
+  if(!target){el.innerHTML='';return}
+  el.innerHTML='<div class="loading">Loading...</div>';
+  const r=await gasGet('getDates');
+  if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
+  const allRows=[];
+  for(const date of r.dates){
+    const lr=await gasGet('getLog&date='+date);
+    if(lr.ok) lr.rows.filter(row=>row.drawn_date&&row.drawn_date.slice(0,10)===target).forEach(row=>allRows.push(row));
+  }
+  if(!allRows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูลวันที่ประมูล '+target+'</div>';return}
+  el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
+    <thead><tr><th>Queue date</th><th>Name</th><th style="width:80px">Position</th><th style="width:100px">Drawn date</th></tr></thead>
+    <tbody>${allRows.map(row=>`<tr class="qrow">
+      <td style="font-size:11px;color:var(--muted)">${row.queue_date}</td>
+      <td style="font-weight:500">${row.member_name}</td>
+      <td style="color:var(--muted);font-size:12px">#${row.position}</td>
+      <td style="font-size:11px;color:var(--muted)">${row.drawn_date||'—'}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
 }
 async function loadAuctionLog(date,isMgr){
   const statsId=isMgr?'mgr-stats':'al-stats';
@@ -1061,9 +1225,8 @@ async function loadAuctionLog(date,isMgr){
     const isDone=row.status==='done';
     const fw=(row.feather_white!=null&&row.feather_white!==''&&row.feather_white!==undefined)?+row.feather_white:null;
     const fd=(row.feather_dark!=null&&row.feather_dark!==''&&row.feather_dark!==undefined)?+row.feather_dark:null;
-    const statusHtml=isDone
-      ?`<span class="qs qs-done">✓ Drawn</span>${row.drawn_date?` <span style="font-size:10px;color:var(--muted)">${row.drawn_date}</span>`:''}`
-      :`<span class="qs qs-pend">⏳ Pending</span>`;
+    const drawnDate=row.drawn_date?String(row.drawn_date).slice(0,10):'';
+    const statusHtml=isDone?`<span class="qs qs-done">✓ Drawn</span>`:`<span class="qs qs-pend">⏳ Pending</span>`;
     const wBar=(isDone&&fw!==null)?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
     const dBar=(isDone&&fd!==null)?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
     if(isMgr){
@@ -1074,6 +1237,7 @@ async function loadAuctionLog(date,isMgr){
         <div class="mc-num">${row.position}</div>
         <div class="mc-name">${row.member_name}</div>
         <div class="mc-status">${statusHtml}</div>
+        <div class="mc-date">${drawnDate||'<span style="color:var(--faint)">—</span>'}</div>
         <div class="mc-bar">${wBar}</div>
         <div class="mc-bar">${dBar}</div>
         <div class="mc-act">${actionHtml}</div>
@@ -1082,7 +1246,7 @@ async function loadAuctionLog(date,isMgr){
       tbody+=`<tr class="qrow">
         <td style="width:36px;color:var(--faint);font-size:11px">${row.position}</td>
         <td style="font-weight:500">${row.member_name}</td>
-        <td>${statusHtml}</td>
+        <td>${statusHtml}${drawnDate?` <span style="font-size:10px;color:var(--muted)">${drawnDate}</span>`:''}</td>
         <td class="fbar-cell">${wBar}</td>
         <td class="fbar-cell">${dBar}</td>
       </tr>`;
@@ -1095,6 +1259,7 @@ async function loadAuctionLog(date,isMgr){
           <div class="mc-num">#</div>
           <div class="mc-name">Name</div>
           <div class="mc-status">Status</div>
+          <div class="mc-date">Drawn date</div>
           <div class="mc-bar" style="text-align:center">🪶 White</div>
           <div class="mc-bar" style="text-align:center">🪶 Dark</div>
           <div class="mc-act"></div>
