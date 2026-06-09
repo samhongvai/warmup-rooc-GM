@@ -769,6 +769,8 @@ function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
 let members=[],lastRand=[],trackerSession=[],coList=[],isAdmin=false,currentALDate='';
+const ADMIN_PAGES=['auctionmgr','randomize','calc','attendance','tracker'];
+let _pendingNav='';
 
 /* HAMBURGER */
 function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');s.classList.toggle('open');o.classList.toggle('show')}
@@ -796,8 +798,6 @@ function submitAdmin(){
 }
 
 /* NAV */
-const ADMIN_PAGES=['auctionmgr','randomize','calc','attendance','tracker'];
-let _pendingNav='';
 function swAdmin(t){
   if(isAdmin){sw(t);return}
   _pendingNav=t;
@@ -1207,4 +1207,37 @@ async function loadAttSession(date){
   const rows=r.rows;
   const present=rows.filter(r=>r.status==='present').length,absent=rows.filter(r=>r.status==='absent').length,leave=rows.filter(r=>r.status==='leave').length,unset=rows.filter(r=>!r.status).length;
   const adm=isAdmin;
-  el.innerHTML=`<div class="att-bar-top"><div><div class="abd">${rows[0]?.type||'Session'} · ${date}</div><div class="abm">${adm?'Admin: use dropdown to mark attendance':'View only'}</div></div><div class="att-ctrs"><div class="att-ctr"><div class="acn" style="color:var(--green)">${present}</div><div class="acl">มา</div></div><div class="att-ctr"><div class="acn" style="color:var(--red)">${absent}</div><div class="acl">ขาด</div></div><div class="att-ctr"><div class="acn" style="color:var(--blue)">${leave}</div><div class="acl">ลา</div></div><div class="att-ctr"><div class="acn" style="color:var(--muted)">${unset}</div><div class="acl">ไม่ระบุ</div></div></div></div><div class="att-grid">${rows.map(row=>{const absent=row.status==='absent',present=row.status==='present',leave=row.status==='leave';const missCnt=0;return`<div class="att-card ${present?'present':absent?'absent':leave?'leave':''}" id="ac-${row.member_name.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="att-info"><div class="att-name">${row.member_name}</div><div class="att-sub">${findParty(row.member_name)}</div>${row.noted?`<div class="att-noted">📝 ${row.noted}</div>`:''}</div>${adm?`<select class="att-select" onchange="updateAtt('${date}','${row.member_name}',this.value)"><option value="" ${!row.status?'selected':''}>— ไม่ระบุ —</option><option value="present" ${present?'selected':''}>✓ มา</option><option value="absent" ${absent?'selected':''}>✗ ขาด</option><option value="leave" ${leave?'selected':''}>📝 ลา (${row.noted||'แจ้งลา'})</option></select>`:`<span class="qs ${present?'qs-done':absent?'qs-pend':''}" style="font-size:11px">${present?'✓ มา':absent?'✗ ขาด':leave?'📝 ลา':'—'}</span>`}<
+  el.innerHTML=`<div class="att-bar-top"><div><div class="abd">${rows[0]?.type||'Session'} · ${date}</div><div class="abm">${adm?'Admin: use dropdown to mark attendance':'View only'}</div></div><div class="att-ctrs"><div class="att-ctr"><div class="acn" style="color:var(--green)">${present}</div><div class="acl">มา</div></div><div class="att-ctr"><div class="acn" style="color:var(--red)">${absent}</div><div class="acl">ขาด</div></div><div class="att-ctr"><div class="acn" style="color:var(--blue)">${leave}</div><div class="acl">ลา</div></div><div class="att-ctr"><div class="acn" style="color:var(--muted)">${unset}</div><div class="acl">ไม่ระบุ</div></div></div></div><div class="att-grid">${rows.map(row=>{const absent=row.status==='absent',present=row.status==='present',leave=row.status==='leave';const missCnt=0;return`<div class="att-card ${present?'present':absent?'absent':leave?'leave':''}" id="ac-${row.member_name.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="att-info"><div class="att-name">${row.member_name}</div><div class="att-sub">${findParty(row.member_name)}</div>${row.noted?`<div class="att-noted">📝 ${row.noted}</div>`:''}</div>${adm?`<select class="att-select" onchange="updateAtt('${date}','${row.member_name}',this.value)"><option value="" ${!row.status?'selected':''}>— ไม่ระบุ —</option><option value="present" ${present?'selected':''}>✓ มา</option><option value="absent" ${absent?'selected':''}>✗ ขาด</option><option value="leave" ${leave?'selected':''}>📝 ลา (${row.noted||'แจ้งลา'})</option></select>`:`<span class="qs ${present?'qs-done':absent?'qs-pend':''}" style="font-size:11px">${present?'✓ มา':absent?'✗ ขาด':leave?'📝 ลา':'—'}</span>`}</div>`}).join('')}</div>`;
+}
+async function updateAtt(date,member,status){
+  const r=await gasPost({action:'updateAttStatus',date,member_name:member,status});
+  if(r.ok){loadAttSession(date);loadAttSummary()}else alert('Update failed: '+r.error);
+}
+async function createAttSession(){
+  if(!isAdmin){alert('Admin only');return}
+  const date=document.getElementById('att-new-date').value;
+  const type=document.getElementById('att-new-type').value;
+  if(!date){alert('Select a date');return}
+  const memberData=members.map(m=>({name:m.ign,noted:m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'))?m.noted:''}));
+  const r=await gasPost({action:'createAttSession',date,type,members:memberData});
+  if(r.ok){alert(`Session created for ${date} with ${r.added} members`);loadAttSessions();loadAttSession(date)}else alert('Failed: '+r.error);
+}
+function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.classList.toggle('active',['overview','daily'][i]===t));document.getElementById('att-overview').style.display=t==='overview'?'block':'none';document.getElementById('att-daily').style.display=t==='daily'?'block':'none';if(t==='overview')loadAttSummary()}
+
+/* TRACKER */
+function renderTracker(){
+  const tc=document.getElementById('tracker-content');
+  if(!trackerSession.length){tc.innerHTML='<div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Go to Randomize and press "Send to Tracker"</p></div>';return}
+  const done=trackerSession.filter(m=>m.done).length,miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
+  tc.innerHTML=`<div class="tk-head"><div class="ss-row"><div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">Total</div></div><div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">Drawn</div></div><div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">Pending</div></div><div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">Missing</div></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="exportMissing()">⬇ Export Missing</button><button class="btn btn-red" onclick="if(confirm('Clear session?')){trackerSession=[];renderTracker()}">✕ Clear</button></div></div>
+  <div class="tk-grid">${trackerSession.map((m,i)=>{const hM=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);return`<div class="tc ${m.done?(hM?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="dp-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="dp-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="dp-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`}).join('')}</div>`;
+}
+function tgDone(i,v){trackerSession[i].done=v;if(v){trackerSession[i].got_card=CFG.max_card;trackerSession[i].got_white=CFG.max_white;trackerSession[i].got_red=CFG.max_red}renderTracker()}
+function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
+function exportMissing(){const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));if(!miss.length){alert('No missing drops 🎉');return}const lines=['=== Missing Drops ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card missing ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White missing ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk missing ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');navigator.clipboard.writeText(lines).then(()=>alert('Copied!\n\n'+lines))}
+
+loadData();
+renderLogList();
+</script>
+</body>
+</html>
