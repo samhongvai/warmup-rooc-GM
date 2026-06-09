@@ -636,14 +636,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <button class="au-tab" onclick="swAuTab('history','auction')">History</button>
   </div>
 
-  <!-- CURRENT QUEUE: pending only, auto-load latest date -->
+  <!-- CURRENT QUEUE: auto-load all pending across all dates -->
   <div id="au-queue">
-    <div class="al-head">
-      <select id="al-date-select" onchange="loadAuctionPending(this.value)" style="max-width:220px"><option value="">— Select date —</option></select>
-      <button class="btn btn-ghost" onclick="loadAuctionDates(false)">🔄</button>
-    </div>
     <div id="al-stats" class="al-stats"></div>
-    <div id="al-content"><div class="empty">Select a date to view queue</div></div>
+    <div id="al-content"><div class="loading">Loading...</div></div>
   </div>
 
   <!-- HISTORY: 3 search modes -->
@@ -870,7 +866,7 @@ function sw(t){
   if(t==='party')renderParty();
   if(t==='rewards')initRewards();
   if(t==='calc')refreshLogSelect();
-  if(t==='auction'){loadAuctionDates(false)}
+  if(t==='auction'){loadAuctionDates(false);loadAuctionPending()}
   if(t==='auctionmgr'){loadAuctionDates(true)}
   if(t==='attendance')loadAttendance();
 }
@@ -1181,35 +1177,54 @@ async function loadAuctionDates(isMgr){
   }
 }
 
-// โหลด pending only สำหรับ user view
-async function loadAuctionPending(date){
+// โหลด pending ทั้งหมดข้ามทุก date อัตโนมัติ
+async function loadAuctionPending(){
   const statsEl=document.getElementById('al-stats');
   const contentEl=document.getElementById('al-content');
-  if(!date){contentEl.innerHTML='<div class="empty">Select a date to view queue</div>';statsEl.innerHTML='';return}
-  currentALDate=date;
   contentEl.innerHTML='<div class="loading">Loading...</div>';
-  const r=await gasGet('getLog&date='+date);
-  if(!r.ok){contentEl.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-  const rows=r.rows;
-  const pending=rows.filter(x=>x.status==='pending');
-  const done=rows.filter(x=>x.status==='done').length;
+  const r=await gasGet('getDates');
+  if(!r.ok||!r.dates.length){
+    contentEl.innerHTML='<div class="empty">ไม่มีข้อมูลคิว</div>';
+    statsEl.innerHTML='';
+    return;
+  }
+  // ดึงทุก date แล้วเก็บเฉพาะ pending
+  const pendingByDate=[];
+  for(const date of r.dates){
+    const lr=await gasGet('getLog&date='+date);
+    if(!lr.ok)continue;
+    const pending=lr.rows.filter(x=>x.status==='pending');
+    if(pending.length>0) pendingByDate.push({date,rows:lr.rows,pending});
+  }
+  const totalPending=pendingByDate.reduce((s,x)=>s+x.pending.length,0);
+  const totalAll=pendingByDate.reduce((s,x)=>s+x.rows.length,0);
+  if(totalPending===0){
+    statsEl.innerHTML='';
+    contentEl.innerHTML='<div class="empty" style="color:var(--green)">✅ ทุกคนได้ประมูลแล้ว</div>';
+    return;
+  }
   statsEl.innerHTML=`
-    <div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div>
-    <div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div>
-    <div class="al-stat"><div class="n" style="color:var(--amber)">${pending.length}</div><div class="l">Pending</div></div>`;
-  if(!pending.length){contentEl.innerHTML='<div class="empty">✅ ทุกคนได้ประมูลแล้วสำหรับวันนี้</div>';return}
-  contentEl.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
-    <thead><tr>
-      <th style="width:36px">#</th>
-      <th>Name</th>
-      <th style="width:120px">Queue position</th>
-    </tr></thead>
-    <tbody>${pending.map((row,i)=>`<tr class="qrow">
-      <td style="color:var(--faint);font-size:11px">${i+1}</td>
-      <td style="font-weight:500">${row.member_name}</td>
-      <td style="color:var(--amber);font-size:12px">ลำดับที่ ${row.position}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
+    <div class="al-stat"><div class="n" style="color:var(--amber)">${totalPending}</div><div class="l">Pending</div></div>
+    <div class="al-stat"><div class="n" style="color:var(--muted)">${pendingByDate.length}</div><div class="l">Queue date</div></div>`;
+  // render แต่ละ date เป็น section
+  contentEl.innerHTML=pendingByDate.map(({date,rows,pending})=>{
+    const done=rows.length-pending.length;
+    return`<div style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:500;color:var(--text)">📅 ${date}</span>
+        <span style="font-size:11px;color:var(--muted)">${done}/${rows.length} drawn</span>
+      </div>
+      <div style="border:0.5px solid var(--amber-b);border-radius:8px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b);font-size:11px;font-weight:600;color:var(--amber)">
+          <span>⏳ อยู่ระหว่างรอคิวประมูล</span>
+          <span style="opacity:0.7;font-weight:400">${pending.length} คน</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
+          ${pending.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(212,160,68,0.08);color:rgba(242,232,216,0.7);border:0.5px solid rgba(212,160,68,0.2)">${r.member_name}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // History: ค้นหาด้วย char ID / ชื่อ
@@ -1280,7 +1295,7 @@ async function histSearchByQueueDate(){
   if(pend.length){
     html+=`<div style="border:0.5px solid var(--amber-b);border-radius:8px;overflow:hidden">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b);font-size:11px;font-weight:600;color:var(--amber)">
-        <span>⏳ อยู่ระหว่างการประมูล</span><span style="opacity:0.7;font-weight:400">${pend.length} คน</span>
+        <span>⏳ อยู่ระหว่างรอคิวประมูล</span><span style="opacity:0.7;font-weight:400">${pend.length} คน</span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
         ${pend.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(212,160,68,0.08);color:rgba(242,232,216,0.7);border:0.5px solid rgba(212,160,68,0.2)">${r.member_name}</span>`).join('')}
