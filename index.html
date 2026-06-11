@@ -187,7 +187,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .party-v3{display:flex;gap:12px;align-items:flex-start}
 .party-v3-box{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;flex-shrink:0;padding:8px 0;background:rgba(232,115,42,0.06);border:0.5px solid rgba(232,115,42,0.15);border-radius:8px}
 .party-v3-num{font-size:22px;font-weight:700;color:var(--orange-l);line-height:1}
-.party-v3-lbl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.party-v3-lbl{display:none}
 .party-v3-right{flex:1}
 .party-v3-tlbl{font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
 .party-v3-chips{display:flex;flex-wrap:wrap;gap:5px}
@@ -1100,13 +1100,23 @@ async function preloadSearchCache(){
   if(_searchCacheLoaded)return;
   const dr=await gasGet('getDates');
   if(!dr.ok)return;
+  // latest date = dates[0] (sorted desc)
   _searchLatestDate=dr.dates.length?dr.dates[0]:'';
-  if(_searchLatestDate){const lr=await gasGet('getLog&date='+_searchLatestDate);if(lr.ok)_searchQueueRows=lr.rows;}
+  if(_searchLatestDate){
+    const lr=await gasGet('getLog&date='+_searchLatestDate);
+    if(lr.ok)_searchQueueRows=lr.rows;
+  }
+  // load all dates for history — เก็บแยกตาม date เพื่อไม่ให้ซ้ำ
+  _searchHistMap={};
   for(const d of dr.dates){
     const lr=await gasGet('getLog&date='+d);
-    if(lr.ok) lr.rows.forEach(r=>{
-      if(!_searchHistMap[r.member_name])_searchHistMap[r.member_name]=[];
-      _searchHistMap[r.member_name].push(r);
+    if(!lr.ok)continue;
+    lr.rows.forEach(r=>{
+      const key=r.member_name;
+      if(!_searchHistMap[key])_searchHistMap[key]=[];
+      // ตรวจไม่ให้ row ซ้ำ (same date + position)
+      const exists=_searchHistMap[key].some(x=>x.queue_date===r.queue_date&&x.position===r.position);
+      if(!exists)_searchHistMap[key].push(r);
     });
   }
   _searchCacheLoaded=true;
@@ -1777,13 +1787,20 @@ function toggleAuctionDetail(){
   const n=inRound.length;
   const pW=Math.floor(white/n),pR=Math.floor(red/n);
   const wRem=white-(n*pW),rRem=red-(n*pR);
-  _detailPeople=inRound.map((p,i)=>({
-    name:p.member_name,card:1,
-    white:pW+(i<wRem?1:0),red:pR+(i<rRem?1:0),
-    cardSlot:i+1,
-    wStart:i*pW+(i<wRem?i:wRem)+1,
-    rStart:white+i*pR+(i<rRem?i:rRem)+1
-  }));
+  _detailPeople=inRound.map((p,i)=>{
+    const w=pW+(i<wRem?1:0);
+    const r=pR+(i<rRem?1:0);
+    // wStart: sum of white slots of all previous members + 1
+    const wBefore=i*pW+Math.min(i,wRem);
+    // rStart: total white slots + sum of red slots of previous members + 1
+    const rBefore=i*pR+Math.min(i,rRem);
+    return{
+      name:p.member_name,card:1,white:w,red:r,
+      cardSlot:i+1,
+      wStart:wBefore+1,
+      rStart:white+rBefore+1
+    };
+  });
   document.getElementById('detail-chips').innerHTML=`
     <span class="dchip">${type==='overrun'?'Overrun':type==='gl-y'?'GL Cross ✓':'GL Cross ✗'}</span>
     <span class="dchip">🃏 <b>${cards}</b>${x2?' <b style="color:var(--orange-l)">×2</b>':''}</span>
@@ -1796,10 +1813,15 @@ function toggleAuctionDetail(){
   setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
 }
 function swDetailTab(t){
-  document.querySelectorAll('#page-auctiondetail .au-tab').forEach((b,i)=>b.classList.toggle('active',['all','personal'][i]===t));
+  document.querySelectorAll('#inline-detail .au-tab').forEach((b,i)=>b.classList.toggle('active',['all','personal'][i]===t));
   document.getElementById('detail-all').style.display=t==='all'?'block':'none';
   document.getElementById('detail-personal').style.display=t==='personal'?'block':'none';
-  if(t==='personal'){document.getElementById('detail-search').value='';document.getElementById('detail-person-result').innerHTML='<div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div>';}
+  if(t==='personal'){
+    const s=document.getElementById('detail-search');
+    if(s)s.value='';
+    const r=document.getElementById('detail-person-result');
+    if(r)r.innerHTML='<div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div>';
+  }
 }
 const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
 const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
