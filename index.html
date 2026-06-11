@@ -956,8 +956,11 @@ function swAdmin(t){
   openAdminModal();
 }
 function sw(t){
-  const pages=['search','party','members','auction','auctionmgr','randomize','calc','attendance','rewards','tracker','auctiondetail'];
-  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    const fn=el.getAttribute('onclick')||'';
+    const match=fn.match(/sw[^(]*\('([^']+)'\)/);
+    el.classList.toggle('active',match&&match[1]===t);
+  });
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
@@ -1254,4 +1257,4 @@ async function loadHistoryDropdowns(){
   const hd=document.getElementById('hist-drawn-date');
   if(hd){
     hd.innerHTML='<option value="">— เลือกวันที่ประมูล —</option>';
-    [...drawnSet].filter(d=
+    [...drawnSet].filter(d=>/^\d{4}-\d{2}-\d{2}$/.tes
