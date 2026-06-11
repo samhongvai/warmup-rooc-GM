@@ -674,7 +674,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:14px">
       <div style="padding:11px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;font-weight:600;color:var(--gold-l);flex:1">🎯 การประมูลในรอบถัดไป (คาดการณ์)</span>
-        <button class="btn btn-primary" style="font-size:11px;padding:5px 12px" onclick="openAuctionDetail()">📋 ดูรายละเอียด</button>
+        <button class="btn btn-primary" id="detail-toggle-btn" style="font-size:11px;padding:5px 12px" onclick="toggleAuctionDetail()">📋 ดูรายละเอียด</button>
       </div>
       <div style="padding:11px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;border-bottom:0.5px solid var(--border)">
         <div style="display:flex;flex-direction:column;gap:4px">
@@ -695,6 +695,38 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         </label>
       </div>
       <div id="pred-result" style="padding:12px 14px"></div>
+
+      <!-- INLINE DETAIL PANEL -->
+      <div id="inline-detail" style="display:none;border-top:0.5px solid var(--border);margin:0 10px 10px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border2)">
+        <div style="padding:10px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2)">
+          <span style="font-size:12px;font-weight:600;color:var(--gold-l);flex:1">📋 รายละเอียดการประมูล</span>
+          <div id="detail-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+        <div class="au-tabs" style="margin:0;padding:0 14px;border-radius:0">
+          <button class="au-tab active" onclick="swDetailTab('all')">การประมูลทั้งหมด</button>
+          <button class="au-tab" onclick="swDetailTab('personal')">รายบุคคล</button>
+        </div>
+        <div style="padding:12px 14px">
+          <div id="detail-all">
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th style="width:36px">#</th>
+                  <th>ชื่อ</th>
+                  <th style="width:150px">🃏 การ์ด</th>
+                  <th style="width:180px">🪶 ขาว</th>
+                  <th>🪶 แดงดำ</th>
+                </tr></thead>
+                <tbody id="detail-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="detail-personal" style="display:none">
+            <input type="text" id="detail-search" placeholder="พิมพ์ชื่อตัวละคร..." oninput="searchDetailPerson(this.value)" style="margin-bottom:12px;width:100%;font-size:13px;padding:9px 13px">
+            <div id="detail-person-result"><div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div></div>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- PENDING LIST -->
     <div id="al-content"><div class="loading">Loading...</div></div>
@@ -964,6 +996,7 @@ function sw(t){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
+  if(t==='search')preloadSearchCache();
   if(t==='rewards')initRewards();
   if(t==='calc')refreshLogSelect();
   if(t==='auction'){loadAuctionDates(false);loadAuctionPending()}
@@ -988,6 +1021,7 @@ async function loadData(){
     members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),noted:get(v,'noted')}}).filter(m=>m.ign);
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
+    preloadSearchCache(); // preload background
   }catch(e){setS(false,'Load failed — check Sheet share settings','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data. Make sure Google Sheets is set to "Anyone with the link can view"</td></tr>'}
 }
 
@@ -1060,6 +1094,23 @@ function renderParty(){
 }
 
 /* SEARCH */
+let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
+
+async function preloadSearchCache(){
+  if(_searchCacheLoaded)return;
+  const dr=await gasGet('getDates');
+  if(!dr.ok)return;
+  _searchLatestDate=dr.dates.length?dr.dates[0]:'';
+  if(_searchLatestDate){const lr=await gasGet('getLog&date='+_searchLatestDate);if(lr.ok)_searchQueueRows=lr.rows;}
+  for(const d of dr.dates){
+    const lr=await gasGet('getLog&date='+d);
+    if(lr.ok) lr.rows.forEach(r=>{
+      if(!_searchHistMap[r.member_name])_searchHistMap[r.member_name]=[];
+      _searchHistMap[r.member_name].push(r);
+    });
+  }
+  _searchCacheLoaded=true;
+}
 const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
 const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
 const ID_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`;
@@ -1074,85 +1125,88 @@ async function searchMain(){
     (m.discord&&m.discord.toLowerCase().includes(q))
   );
   if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
-  el.innerHTML='<div class="loading">Loading queue data...</div>';
-  // load latest queue date
-  const dr=await gasGet('getDates');
-  const latestDate=dr.ok&&dr.dates.length?dr.dates[0]:'';
-  let queueRows=[];
-  if(latestDate){const lr=await gasGet('getLog&date='+latestDate);if(lr.ok)queueRows=lr.rows;}
-  // load all dates for history
-  const allDates=dr.ok?dr.dates:[];
-  const histMap={};
-  for(const d of allDates){
-    const lr=await gasGet('getLog&date='+d);
-    if(lr.ok) lr.rows.forEach(r=>{
-      if(!histMap[r.member_name])histMap[r.member_name]=[];
-      histMap[r.member_name].push(r);
-    });
-  }
-  el.innerHTML=found.map(m=>{
+
+  // render party section ทันทีก่อน — ไม่รอ GAS
+  const renderCard=(m,qRow,hist)=>{
     const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
-    const qRow=queueRows.find(r=>r.member_name===m.ign);
-    const hist=(histMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
-    // header meta
     const metaItems=[
       `<div class="srch-item"><span class="si">${CLASS_SVG}</span><span class="sv">${m.class||'—'}</span></div>`,
       m.char_id?`<div class="srch-sep"></div><div class="srch-item"><span class="si">${ID_SVG}</span><span class="sv">${m.char_id}</span></div>`:'',
       m.discord?`<div class="srch-sep"></div><div class="srch-item srch-discord"><span class="si">${DISCORD_SVG}</span><span class="sv">${m.discord}</span></div>`:''
     ].join('');
-    // party section
     const partyHtml=m.party?`
       <div class="party-v3">
-        <div class="party-v3-box">
-          <span class="party-v3-num">${m.party}</span>
-          <span class="party-v3-lbl">Party</span>
-        </div>
+        <div class="party-v3-box"><span class="party-v3-num">${m.party}</span><span class="party-v3-lbl">Party</span></div>
         <div class="party-v3-right">
           <div class="party-v3-tlbl">Teammates</div>
-          <div class="party-v3-chips">
-            ${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}
-          </div>
+          <div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div>
         </div>
       </div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
-    // queue section
     const queueHtml=qRow?`
       <div class="srch-queue">
         <div class="srch-q-pos">${String(qRow.position).padStart(2,'0')}</div>
         <div class="srch-q-info">
-          <div class="srch-q-date">Queue date: ${latestDate}</div>
-          <div class="srch-q-total">Position ${qRow.position} of ${queueRows.length}</div>
+          <div class="srch-q-date">Queue date: ${_searchLatestDate}</div>
+          <div class="srch-q-total">Position ${qRow.position} of ${_searchQueueRows.length}</div>
         </div>
         <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'}">${qRow.status==='done'?'✓ Drawn':'⏳ Pending'}</span>
       </div>`
       :'<span style="font-size:12px;color:var(--faint);font-style:italic">No active queue for this member</span>';
-    // history section
-    const histHtml=hist.length?`
-      <table class="srch-hist">
+    const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading history...</div>':
+      hist.length?`<table class="srch-hist">
         <thead><tr><th>Queue date</th><th style="width:80px">Position</th><th>Auction</th></tr></thead>
         <tbody>${hist.map(r=>`<tr>
           <td style="color:var(--muted)">${r.queue_date}</td>
           <td><span class="srch-pos">${String(r.position).padStart(2,'0')}</span></td>
           <td>${r.status==='done'
             ?`<span style="color:var(--green);font-size:11px">✓ ${r.drawn_date?String(r.drawn_date).slice(0,10):''}</span>`
-            :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}
-          </td>
+            :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}</td>
         </tr>`).join('')}</tbody>
-      </table>`
-      :'<span style="font-size:12px;color:var(--faint);font-style:italic">No auction history</span>';
-
+      </table>`:'<span style="font-size:12px;color:var(--faint);font-style:italic">No auction history</span>';
     return`<div class="srch-card">
       <div class="srch-head">
         <div class="srch-avatar">👤</div>
         <div class="srch-meta-row">
-          <span class="srch-name">${m.ign}</span>
-          ${metaItems}
+          <span class="srch-name">${m.ign}</span>${metaItems}
         </div>
       </div>
       <div class="srch-section"><div class="srch-sec-lbl">Party</div>${partyHtml}</div>
       <div class="srch-section"><div class="srch-sec-lbl">Current Queue</div>${queueHtml}</div>
-      <div class="srch-section"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
+      <div class="srch-section" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
     </div>`;
+  };
+
+  // แสดงผลทันที (history = null = loading)
+  el.innerHTML=found.map(m=>{
+    const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
+    return renderCard(m,qRow,_searchCacheLoaded?(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null);
   }).join('');
+
+  // ถ้ายังไม่มี cache ให้โหลดแบบ background แล้วอัพเดท history
+  if(!_searchCacheLoaded){
+    await preloadSearchCache();
+    // อัพเดท history section เฉพาะคนที่ค้นหา
+    found.forEach(m=>{
+      const histEl=document.getElementById('hist-'+m.ign.replace(/[^a-zA-Z0-9]/g,'_'));
+      if(!histEl)return;
+      const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
+      const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
+      histEl.innerHTML=`<div class="srch-sec-lbl">Auction History</div>`+renderCard(m,qRow,hist).match(/id="hist-[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*$/)?.[1]||'';
+      // แทนที่ทั้ง section
+      const fullCard=renderCard(m,qRow,hist);
+      const tmpDiv=document.createElement('div');tmpDiv.innerHTML=fullCard;
+      const newHistSection=tmpDiv.querySelector('[id^="hist-"]');
+      if(newHistSection)histEl.replaceWith(newHistSection);
+    });
+    // อัพเดท queue ด้วยถ้าเปลี่ยน
+    found.forEach(m=>{
+      const card=el.querySelector('.srch-card');
+      if(card){
+        const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
+        const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
+      }
+    });
+  }
 }
 
 /* REWARDS */
@@ -1700,16 +1754,26 @@ function exportMissing(){const miss=trackerSession.filter(m=>m.done&&(m.got_card
 
 /* AUCTION DETAIL */
 let _detailPeople=[];
-function openAuctionDetail(){
+function toggleAuctionDetail(){
+  const panel=document.getElementById('inline-detail');
+  const btn=document.getElementById('detail-toggle-btn');
+  const isOpen=panel.style.display!=='none';
+  if(isOpen){
+    panel.style.display='none';
+    btn.textContent='📋 ดูรายละเอียด';
+    return;
+  }
+  // build detail data
   const type=document.getElementById('pred-event').value;
   const idx=+document.getElementById('pred-rank').value;
   const x2=document.getElementById('pred-x2').checked;
   const reward=REWARDS[type][idx];
-  const cards=reward?reward.card*(x2?2:1):0;
-  const white=reward?reward.white*(x2?2:1):0;
-  const red=reward?reward.red*(x2?2:1):0;
+  if(!reward){alert('กรุณาเลือก Event และ Rank ก่อน');return}
+  const cards=reward.card*(x2?2:1);
+  const white=reward.white*(x2?2:1);
+  const red=reward.red*(x2?2:1);
   const inRound=_allPending.slice(0,Math.min(cards,_allPending.length));
-  if(!inRound.length){alert('ยังไม่มีข้อมูล กรุณาโหลด Current Queue ก่อน');return}
+  if(!inRound.length){alert('ยังไม่มีข้อมูล กรุณารอโหลด Current Queue');return}
   const n=inRound.length;
   const pW=Math.floor(white/n),pR=Math.floor(red/n);
   const wRem=white-(n*pW),rRem=red-(n*pR);
@@ -1722,13 +1786,14 @@ function openAuctionDetail(){
   }));
   document.getElementById('detail-chips').innerHTML=`
     <span class="dchip">${type==='overrun'?'Overrun':type==='gl-y'?'GL Cross ✓':'GL Cross ✗'}</span>
-    <span class="dchip">🃏 <b>${cards}</b> card${x2?' <b style="color:var(--orange-l)">×2</b>':''}</span>
-    <span class="dchip">🪶 White <b>${white}</b></span>
-    <span class="dchip">🪶 Dark <b>${red}</b></span>
+    <span class="dchip">🃏 <b>${cards}</b>${x2?' <b style="color:var(--orange-l)">×2</b>':''}</span>
     <span class="dchip">👥 <b>${n}</b> คน</span>`;
   renderDetailAll();
-  sw('auctiondetail');
+  panel.style.display='block';
+  btn.textContent='✕ ซ่อนรายละเอียด';
   swDetailTab('all');
+  // scroll to panel
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
 }
 function swDetailTab(t){
   document.querySelectorAll('#page-auctiondetail .au-tab').forEach((b,i)=>b.classList.toggle('active',['all','personal'][i]===t));
