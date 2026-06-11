@@ -407,7 +407,38 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .form-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
 .form-row input,.form-row select{font-size:12px;padding:6px 9px}
 
-/* DONE DATE MODAL */
+/* AUCTION DETAIL */
+.detail-head{background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.detail-chips{display:flex;gap:7px;flex-wrap:wrap}
+.dchip{font-size:11px;padding:2px 9px;border-radius:4px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);color:var(--muted)}
+.dchip b{color:var(--text)}
+.loc{display:flex;flex-direction:column;gap:3px}
+.loc-item{font-size:11px;display:flex;align-items:center;gap:5px}
+.loc-pg{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600;flex-shrink:0}
+.pg-card{background:var(--orange-dim);color:var(--orange-l);border:0.5px solid var(--orange-border)}
+.pg-w{background:rgba(200,210,255,0.1);color:rgba(200,210,255,0.7);border:0.5px solid rgba(200,210,255,0.2)}
+.pg-d{background:var(--red-dim);color:var(--red);border:0.5px solid var(--red-b)}
+.loc-detail{color:var(--muted)}
+.pers-card{background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.pers-head{padding:12px 16px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.pers-avatar{width:32px;height:32px;border-radius:50%;background:rgba(232,115,42,0.1);border:0.5px solid var(--orange-border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--orange-l);flex-shrink:0}
+.pers-secs{display:grid;grid-template-columns:repeat(3,1fr)}
+.pers-sec{padding:12px 16px;border-right:0.5px solid rgba(232,115,42,0.08)}
+.pers-sec:last-child{border-right:none}
+.pers-sec-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+.slot-vis{display:flex;flex-direction:column;gap:8px}
+.slot-row{display:flex;align-items:flex-start;gap:8px}
+.slot-pg-card{font-size:11px;font-weight:600;color:var(--orange-l)}
+.slot-pg-w{font-size:11px;font-weight:600;color:rgba(200,210,255,0.8)}
+.slot-pg-d{font-size:11px;font-weight:600;color:var(--red)}
+.slot-boxes{font-size:11px;color:var(--muted);margin-top:1px}
+.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:5px}
+.box{height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.box-on-card{background:var(--orange-dim);border:0.5px solid var(--orange-border);color:var(--orange-l)}
+.box-on-w{background:rgba(200,210,255,0.12);border:0.5px solid rgba(200,210,255,0.25);color:rgba(200,210,255,0.8)}
+.box-on-d{background:var(--red-dim);border:0.5px solid var(--red-b);color:var(--red)}
+.box-off{background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.06);color:var(--faint)}
+@media(max-width:580px){.pers-secs{grid-template-columns:1fr}.pers-sec{border-right:none;border-bottom:0.5px solid rgba(232,115,42,0.08)}.pers-sec:last-child{border-bottom:none}}
 .done-modal{background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:1.2rem;width:300px;max-width:90vw}
 .done-modal h4{font-size:13px;font-weight:500;color:var(--gold-l);margin-bottom:10px}
 .date-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
@@ -643,6 +674,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:14px">
       <div style="padding:11px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;font-weight:600;color:var(--gold-l);flex:1">🎯 การประมูลในรอบถัดไป (คาดการณ์)</span>
+        <button class="btn btn-primary" style="font-size:11px;padding:5px 12px" onclick="openAuctionDetail()">📋 ดูรายละเอียด</button>
       </div>
       <div style="padding:11px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;border-bottom:0.5px solid var(--border)">
         <div style="display:flex;flex-direction:column;gap:4px">
@@ -765,6 +797,40 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 </main>
 </div>
 
+<!-- AUCTION DETAIL PAGE -->
+<div id="page-auctiondetail" class="page">
+  <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;margin-bottom:14px" onclick="sw('auction')">← กลับ Current Queue</button>
+  <div class="detail-head">
+    <div>
+      <div style="font-size:14px;font-weight:600;color:var(--gold-l)">🎯 รายละเอียดการประมูล</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">คาดการณ์จาก pending queue</div>
+    </div>
+    <div class="detail-chips" id="detail-chips"></div>
+  </div>
+  <div class="au-tabs">
+    <button class="au-tab active" onclick="swDetailTab('all')">📋 การประมูลทั้งหมด</button>
+    <button class="au-tab" onclick="swDetailTab('personal')">🔍 รายบุคคล</button>
+  </div>
+  <div id="detail-all" style="margin-top:14px">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:36px">#</th>
+          <th>ชื่อ</th>
+          <th style="width:150px">🃏 การ์ด</th>
+          <th style="width:180px">🪶 ขาว</th>
+          <th>🪶 แดงดำ</th>
+        </tr></thead>
+        <tbody id="detail-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="detail-personal" style="display:none;margin-top:14px">
+    <input type="text" id="detail-search" placeholder="พิมพ์ชื่อตัวละคร..." oninput="searchDetailPerson(this.value)" style="margin-bottom:12px;width:100%;font-size:13px;padding:9px 13px">
+    <div id="detail-person-result"><div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div></div>
+  </div>
+</div>
+
 <!-- DONE DATE MODAL -->
 <div id="done-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeDoneModal()">
   <div class="done-modal" style="width:320px">
@@ -860,9 +926,14 @@ function closeSidebar(){document.getElementById('sidebar-el').classList.remove('
 /* ADMIN */
 function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();sw('search')}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
-function submitAdmin(){
+async function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
-  if(pw==='$aiphanWM8'){
+  if(!pw)return;
+  const btn=document.querySelector('#admin-modal .btn-primary');
+  btn.textContent='Verifying...';btn.disabled=true;
+  const r=await gasPost({action:'verifyAdmin',password:pw});
+  btn.textContent='Login';btn.disabled=false;
+  if(r.ok){
     isAdmin=true;
     closeAdminModal();
     document.getElementById('admin-btn').textContent='🔓 Admin (on)';
@@ -885,7 +956,7 @@ function swAdmin(t){
   openAdminModal();
 }
 function sw(t){
-  const pages=['search','party','members','auction','auctionmgr','randomize','calc','attendance','rewards','tracker'];
+  const pages=['search','party','members','auction','auctionmgr','randomize','calc','attendance','rewards','tracker','auctiondetail'];
   document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',pages[i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
@@ -1623,6 +1694,85 @@ function renderTracker(){
 function tgDone(i,v){trackerSession[i].done=v;if(v){trackerSession[i].got_card=CFG.max_card;trackerSession[i].got_white=CFG.max_white;trackerSession[i].got_red=CFG.max_red}renderTracker()}
 function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
 function exportMissing(){const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));if(!miss.length){alert('No missing drops 🎉');return}const lines=['=== Missing Drops ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card missing ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White missing ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk missing ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');navigator.clipboard.writeText(lines).then(()=>alert('Copied!\n\n'+lines))}
+
+/* AUCTION DETAIL */
+let _detailPeople=[];
+function openAuctionDetail(){
+  const type=document.getElementById('pred-event').value;
+  const idx=+document.getElementById('pred-rank').value;
+  const x2=document.getElementById('pred-x2').checked;
+  const reward=REWARDS[type][idx];
+  const cards=reward?reward.card*(x2?2:1):0;
+  const white=reward?reward.white*(x2?2:1):0;
+  const red=reward?reward.red*(x2?2:1):0;
+  const inRound=_allPending.slice(0,Math.min(cards,_allPending.length));
+  if(!inRound.length){alert('ยังไม่มีข้อมูล กรุณาโหลด Current Queue ก่อน');return}
+  const n=inRound.length;
+  const pW=Math.floor(white/n),pR=Math.floor(red/n);
+  const wRem=white-(n*pW),rRem=red-(n*pR);
+  _detailPeople=inRound.map((p,i)=>({
+    name:p.member_name,card:1,
+    white:pW+(i<wRem?1:0),red:pR+(i<rRem?1:0),
+    cardSlot:i+1,
+    wStart:i*pW+(i<wRem?i:wRem)+1,
+    rStart:white+i*pR+(i<rRem?i:rRem)+1
+  }));
+  document.getElementById('detail-chips').innerHTML=`
+    <span class="dchip">${type==='overrun'?'Overrun':type==='gl-y'?'GL Cross ✓':'GL Cross ✗'}</span>
+    <span class="dchip">🃏 <b>${cards}</b> card${x2?' <b style="color:var(--orange-l)">×2</b>':''}</span>
+    <span class="dchip">🪶 White <b>${white}</b></span>
+    <span class="dchip">🪶 Dark <b>${red}</b></span>
+    <span class="dchip">👥 <b>${n}</b> คน</span>`;
+  renderDetailAll();
+  sw('auctiondetail');
+  swDetailTab('all');
+}
+function swDetailTab(t){
+  document.querySelectorAll('#page-auctiondetail .au-tab').forEach((b,i)=>b.classList.toggle('active',['all','personal'][i]===t));
+  document.getElementById('detail-all').style.display=t==='all'?'block':'none';
+  document.getElementById('detail-personal').style.display=t==='personal'?'block':'none';
+  if(t==='personal'){document.getElementById('detail-search').value='';document.getElementById('detail-person-result').innerHTML='<div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div>';}
+}
+const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
+const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
+const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
+function renderDetailAll(){
+  const tbody=document.getElementById('detail-tbody');
+  tbody.innerHTML=_detailPeople.map((p,i)=>{
+    const card=_toPageBox(p.cardSlot);
+    const wGrp=_grpByPage(_slotRange(p.wStart,p.white));
+    const rGrp=_grpByPage(_slotRange(p.rStart,p.red));
+    const mkLoc=(grp,cls)=>grp.map(([pg,boxes])=>`<span class="loc-item"><span class="loc-pg ${cls}">หน้า${pg}</span><span class="loc-detail">กล่อง ${boxes.join(',')}</span></span>`).join('');
+    return`<tr><td class="n">${i+1}</td><td style="font-weight:500">${p.name}</td>
+      <td><div class="loc"><span class="loc-item"><span class="loc-pg pg-card">หน้า${card.page}</span><span class="loc-detail">กล่อง ${card.box}</span></span></div></td>
+      <td><div class="loc">${mkLoc(wGrp,'pg-w')}</div></td>
+      <td><div class="loc">${mkLoc(rGrp,'pg-d')}</div></td></tr>`;
+  }).join('');
+}
+function searchDetailPerson(q){
+  const el=document.getElementById('detail-person-result');
+  if(!q.trim()){el.innerHTML='<div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div>';return}
+  const found=_detailPeople.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
+  if(!found.length){el.innerHTML='<div class="empty">ไม่พบชื่อนี้ในรอบนี้</div>';return}
+  const mkGrid=(boxes,type)=>[1,2,3,4].map(b=>`<div class="${boxes.includes(b)?`box box-on-${type}`:'box box-off'}">${b}</div>`).join('');
+  el.innerHTML=found.map(p=>{
+    const card=_toPageBox(p.cardSlot);
+    const wGrp=_grpByPage(_slotRange(p.wStart,p.white));
+    const rGrp=_grpByPage(_slotRange(p.rStart,p.red));
+    const mkVis=(grp,type)=>grp.map(([pg,boxes])=>`<div class="slot-row"><div style="flex:1"><div class="slot-pg-${type}">หน้า ${pg}</div><div class="mini-grid">${mkGrid(boxes,type)}</div></div></div>`).join('');
+    return`<div class="pers-card">
+      <div class="pers-head"><div class="pers-avatar">${p.name[0]}</div>
+        <div><div style="font-size:15px;font-weight:600;color:var(--text)">${p.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">ลำดับที่ ${_detailPeople.indexOf(p)+1} · ${p.card} card · White ${p.white} · Dark ${p.red}</div></div>
+      </div>
+      <div class="pers-secs">
+        <div class="pers-sec"><div class="pers-sec-lbl">🃏 การ์ด</div><div class="slot-vis"><div class="slot-row"><div style="flex:1"><div class="slot-pg-card">หน้า ${card.page}</div><div class="mini-grid">${mkGrid([card.box],'card')}</div></div></div></div></div>
+        <div class="pers-sec"><div class="pers-sec-lbl">🪶 ขนนกขาว</div><div class="slot-vis">${mkVis(wGrp,'w')}</div></div>
+        <div class="pers-sec"><div class="pers-sec-lbl">🪶 ขนนกแดงดำ</div><div class="slot-vis">${mkVis(rGrp,'d')}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 loadData();
 renderLogList();
