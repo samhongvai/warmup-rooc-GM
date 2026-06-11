@@ -1305,18 +1305,34 @@ function swAuTab(t,page){
   if(t==='history'&&isMgr)loadAuHistory(true);
   if(t==='history'&&!isMgr)loadHistoryDropdowns();
 }
+function _getCurrentCards(){
+  const type=document.getElementById('pred-event')?.value;
+  const idx=+document.getElementById('pred-rank')?.value||0;
+  const x2=document.getElementById('pred-x2')?.checked;
+  if(!type||!REWARDS[type])return 0;
+  const reward=REWARDS[type][idx];
+  return reward?reward.card*(x2?2:1):0;
+}
+
 async function loadHistoryDropdowns(){
   const r=await gasGet('getDates');
   if(!r.ok)return;
   const hq=document.getElementById('hist-queue-date');
   if(hq){hq.innerHTML='<option value="">— เลือกวันที่สุ่ม —</option>';r.dates.forEach(d=>hq.add(new Option(d,d)))}
+  // ใช้ cache จาก _searchHistMap ถ้ามีแล้ว ไม่ต้องดึงใหม่
   const drawnSet=new Set();
-  for(const date of r.dates){
-    const lr=await gasGet('getLog&date='+date);
-    if(lr.ok) lr.rows.filter(row=>row.drawn_date).forEach(row=>{
-      const d=String(row.drawn_date).slice(0,10);
-      if(d&&d!='')drawnSet.add(d);
-    });
+  if(_searchCacheLoaded){
+    Object.values(_searchHistMap).forEach(rows=>rows.forEach(row=>{
+      if(row.drawn_date){const d=String(row.drawn_date).slice(0,10);if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d))drawnSet.add(d);}
+    }));
+  } else {
+    for(const date of r.dates){
+      const lr=await gasGet('getLog&date='+date);
+      if(lr.ok) lr.rows.filter(row=>row.drawn_date).forEach(row=>{
+        const d=String(row.drawn_date).slice(0,10);
+        if(d&&d!='')drawnSet.add(d);
+      });
+    }
   }
   const hd=document.getElementById('hist-drawn-date');
   if(hd){
@@ -1404,7 +1420,7 @@ async function loadAuctionPending(){
           <span>📅 ${date}</span><span>${done}/${rows.length} drawn · ${pending.length} คนรอ</span>
         </div>
         <div style="padding:8px 14px;display:flex;flex-direction:column;gap:7px" id="chips-${date}">
-          ${makeChips(pending.map(p=>p.member_name),startIdx,0)}
+          ${makeChips(pending.map(p=>p.member_name),startIdx,_getCurrentCards())}
         </div>
       </div>`;
     }).join('')}
