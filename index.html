@@ -477,13 +477,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
   <div class="nav-divider"></div>
   <div class="nav-section">Guild Management</div>
-  <div class="nav-item" onclick="swAdmin('auctionmgr');closeSidebar()"><span class="ni">⚙️</span>Auction Manager<span class="nav-lock" id="lock-auctionmgr">🔒</span></div>
-  <div class="nav-item" onclick="swAdmin('randomize');closeSidebar()"><span class="ni">🎰</span>Randomize<span class="nav-lock" id="lock-randomize">🔒</span></div>
-  <div class="nav-item" onclick="swAdmin('calc');closeSidebar()"><span class="ni">🧮</span>Calculator<span class="nav-lock" id="lock-calc">🔒</span></div>
   <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
   <div class="nav-divider"></div>
   <div class="nav-section">Noted</div>
-  <div class="nav-item" onclick="sw('rewards');closeSidebar()"><span class="ni">🪶</span>Rewards</div>
   <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
@@ -534,253 +530,113 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div id="search-result"></div>
 </div>
 
-<!-- REWARDS -->
-<div id="page-rewards" class="page">
-  <div class="page-title">Rewards</div>
-  <div class="page-sub">Reward table and event schedule</div>
-  <div class="section-h">Calculate by rank</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-    <select id="rw-type" onchange="calcReward()" style="width:auto"><option value="overrun">Overrun (Cross-Server)</option><option value="gl-y">Guild League — Cross ✓</option><option value="gl-n">Guild League — Cross ✗</option></select>
-    <select id="rw-rank" onchange="calcReward()" style="width:auto"></select>
-  </div>
-  <div class="rw-cards" id="reward-cards"></div>
-  <div class="section-h">Schedule</div>
-  <div class="evts">
-    <div class="evt"><div class="et">Event</div><div class="en">Guild League</div><div class="ed">Tuesday &amp; Thursday</div></div>
-    <div class="evt"><div class="et">Event</div><div class="en">Overrun</div><div class="ed">Saturday</div></div>
-    <div class="evt"><div class="et">GL Rank announced</div><div class="en">Every Monday</div><div class="ed">Weekly</div></div>
-  </div>
-  <div class="section-h">Full reward table</div>
-  <div class="tbl-wrap"><table class="rtbl"><thead><tr><th>Type</th><th>Cross</th><th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th></tr></thead><tbody id="reward-tbody"></tbody></table></div>
-</div>
-
-<!-- RANDOMIZE -->
-<div id="page-randomize" class="page">
-  <div class="page-title">Randomize</div>
-  <div class="page-sub">Draw queue order — auto-saves to Auction Log on each draw</div>
-  <div class="rand-layout">
-    <div class="panel">
-      <h3>Filters</h3>
-      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Filter by party</label>
-      <select id="rand-party" style="width:100%;margin-bottom:10px"><option value="">All party</option></select>
-      <div class="sep"></div>
-      <label class="chk" style="margin-bottom:6px"><input type="checkbox" id="excl-sub" checked> Exclude ตัวรอง</label>
-      <div style="font-size:11px;color:var(--muted);background:var(--blue-dim);border:0.5px solid var(--blue-b);border-radius:6px;padding:7px 10px;margin-bottom:10px;line-height:1.5">All classes included · แจ้งลา still drawn</div>
-      <div class="btns-col">
-        <button class="btn btn-primary btn-full" onclick="doRand()">🎰 Draw Queue</button>
-        <button class="btn btn-ghost btn-full" onclick="clearRand()">↺ Reset</button>
-        <button class="btn btn-green btn-full" onclick="sendToTracker()">✅ Send to Tracker</button>
-        <button class="btn btn-primary btn-full" onclick="sendToCalc()">🧮 Send to Calculator</button>
-      </div>
-    </div>
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h3>Result <span id="rand-saved-chip"></span></h3>
-        <button id="copy-btn" onclick="copyRand()" style="display:none;padding:4px 10px;background:transparent;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font)">Copy</button>
-      </div>
-      <div class="rsumm" id="rand-summary"></div>
-      <div id="result-list"><div class="empty">Press Draw Queue to start</div></div>
-    </div>
-  </div>
-  <div class="sep" style="margin-top:1.5rem"></div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div class="section-h" style="margin:0;border:none;padding:0">Draw Log (local)</div>
-    <button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearLogs()">Clear Log</button>
-  </div>
-  <div id="rand-log-list"><div class="empty">No logs yet</div></div>
-</div>
-
-<!-- CALCULATOR -->
-<div id="page-calc" class="page">
-  <div class="page-title">Calculator</div>
-  <div class="page-sub">Calculate card slots, feather allocation, and MVP Box</div>
-  <div class="calc-layout">
-    <div>
-      <div class="panel" style="margin-bottom:12px">
-        <h3>Reward this round</h3>
-        <div style="margin-bottom:8px">
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Preset</label>
-          <select id="calc-preset" style="width:100%;margin-bottom:8px" onchange="applyPreset()">
-            <option value="">— Custom —</option>
-            <option value="or-1">Overrun Rank 1</option><option value="or-2">Overrun Rank 2</option><option value="or-3">Overrun Rank 3</option><option value="or-4">Overrun Rank 4</option><option value="or-5">Overrun Rank 5</option><option value="or-6">Overrun Rank 6</option><option value="or-7">Overrun Rank 7</option><option value="or-8">Overrun Rank 8</option>
-            <option value="gly-0">GL Cross✓ Peak King</option><option value="gly-1">GL Cross✓ Supream Warband</option><option value="gly-2">GL Cross✓ Honor Soul</option><option value="gly-3">GL Cross✓ The Chosen One</option><option value="gly-4">GL Cross✓ Glorious Legend</option><option value="gly-5">GL Cross✓ Immortal Myth</option><option value="gly-6">GL Cross✓ Eternal Monarch</option><option value="gly-7">GL Cross✓ Omni Ruler</option>
-            <option value="gln-0">GL Cross✗ Bright Sun</option><option value="gln-1">GL Cross✗ Glorious Moon</option><option value="gln-2">GL Cross✗ Shining Stars</option><option value="gln-3">GL Cross✗ Platinum</option><option value="gln-4">GL Cross✗ Gold</option><option value="gln-5">GL Cross✗ Silver</option><option value="gln-6">GL Cross✗ Bronze</option>
-          </select>
-          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="x2" onchange="applyX2()"> Reward ×2 (special event)</label>
-        </div>
-        <div class="num-row" style="margin-bottom:10px">
-          <div><label>🃏 Card total</label><input type="number" id="c-card" min="0" value="0" oninput="updateHints()"></div>
-          <div><label>🪶 White total</label><input type="number" id="c-white" min="0" value="0" oninput="updateHints()"></div>
-          <div><label>🪶 Red/Blk total</label><input type="number" id="c-red" min="0" value="0" oninput="updateHints()"></div>
-        </div>
-        <div class="hint-box" id="calc-hint">Enter reward amounts and member list to see allocation</div>
-      </div>
-      <div class="panel" style="margin-bottom:12px">
-        <h3>Members this round</h3>
-        <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-          <select id="log-select" style="flex:1;font-size:12px"><option value="">— Load from Log —</option></select>
-          <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="loadFromLog()">Load</button>
-        </div>
-        <textarea id="c-members" rows="7" placeholder="Paste names, one per line..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="updateHints()"></textarea>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px" id="member-count">0 members</div>
-      </div>
-      <div class="panel" style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3>Carryover <span id="co-badge" style="display:none;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)">0</span></h3>
-          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="addCarryover()">+ Add</button>
-        </div>
-        <div id="co-list"><div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No carryover</div></div>
-        <div class="hint-box" id="co-hint" style="display:none;margin-top:8px"></div>
-      </div>
-      <div class="panel">
-        <h3>MVP Box <span class="info-chip">GL only</span></h3>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <label style="font-size:12px;color:var(--muted)">Count</label>
-          <input type="number" id="mvp-count" value="15" min="0" style="width:70px">
-        </div>
-        <button class="btn btn-primary btn-full" onclick="doMVP()">🎲 Draw MVP</button>
-        <div id="mvp-result-box" style="margin-top:10px"></div>
-      </div>
-    </div>
-    <div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="runCalc()">▶ Calculate</button>
-        <button class="btn btn-ghost" onclick="clearCalc()">↺ Reset</button>
-      </div>
-      <div class="ctabs">
-        <button class="ctab active" onclick="swCalcTab('person')">👥 Per member</button>
-        <button class="ctab" onclick="swCalcTab('card')">🃏 Card slots</button>
-        <button class="ctab" onclick="swCalcTab('feather')">🪶 Feather slots</button>
-      </div>
-      <div id="calc-person"><div class="empty">Press ▶ Calculate to view results</div></div>
-      <div id="calc-card" style="display:none"><div class="empty">Press ▶ Calculate to view results</div></div>
-      <div id="calc-feather" style="display:none"><div class="empty">Press ▶ Calculate to view results</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- AUCTION (user view — read only) -->
+<!-- AUCTION -->
 <div id="page-auction" class="page">
   <div class="page-title">Auction</div>
-  <div class="page-sub">Queue status and history</div>
+  <div class="page-sub">Queue, rewards, and management</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="flex:1;min-width:160px">
+      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px">Event type</label>
+      <select id="auc-event-type" onchange="onAucEventType()" style="width:100%"></select>
+    </div>
+    <div style="flex:1;min-width:160px">
+      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px">Rank</label>
+      <select id="auc-event-rank" onchange="onAucRank()" style="width:100%"></select>
+    </div>
+  </div>
+
   <div class="au-tabs">
-    <button class="au-tab active" onclick="swAuTab('queue','auction')">Current Queue</button>
-    <button class="au-tab" onclick="swAuTab('history','auction')">History</button>
+    <button class="au-tab active" onclick="swAucTab('calc')">Reward Calculator</button>
+    <button class="au-tab admin-only" id="auc-tab-lucky" style="display:none" onclick="swAucTab('lucky')">Lucky Draw 🔒</button>
+    <button class="au-tab" onclick="swAucTab('manage')">Queue Manager</button>
+    <button class="au-tab" onclick="swAucTab('rewards')">Rewards Preview</button>
   </div>
 
-  <!-- CURRENT QUEUE: prediction on top, pending below -->
-  <div id="au-queue">
-    <div id="al-stats" class="al-stats"></div>
-    <!-- PREDICTION BOX -->
-    <div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:14px">
-      <div style="padding:11px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;font-weight:600;color:var(--gold-l);flex:1">🎯 การประมูลในรอบถัดไป (คาดการณ์)</span>
-        <button class="btn btn-primary" id="detail-toggle-btn" style="font-size:11px;padding:5px 12px" onclick="toggleAuctionDetail()">📋 ดูรายละเอียด</button>
-      </div>
-      <div style="padding:11px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;border-bottom:0.5px solid var(--border)">
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Event</label>
-          <select id="pred-event" onchange="updatePredRanks()" style="font-size:12px;padding:6px 9px">
-            <option value="overrun">Overrun</option>
-            <option value="gl-y">Guild League — Cross ✓</option>
-            <option value="gl-n">Guild League — Cross ✗</option>
-          </select>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Rank</label>
-          <select id="pred-rank" onchange="renderPrediction()" style="font-size:12px;padding:6px 9px"></select>
-        </div>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding-bottom:6px">
-          <input type="checkbox" id="pred-x2" onchange="renderPrediction()" style="accent-color:var(--orange);width:14px;height:14px">
-          Reward ×2
-        </label>
-      </div>
-      <div id="pred-result" style="padding:12px 14px"></div>
+  <!-- TAB: REWARD CALCULATOR -->
+  <div id="auc-calc">
+    <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:8px" id="auc-calc-title">Distribution result</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap" id="auc-reward-inputs"></div>
+    <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:12px">Card count = number of members this round. Edit either the real value or the multiplier — the other updates automatically.</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="auc-summary-cards"></div>
+    <div class="tbl-wrap"><table class="au-tbl">
+      <thead><tr>
+        <th style="width:30px">#</th>
+        <th>Name</th>
+        <th>Card</th>
+        <th>White</th>
+        <th>Red/Black</th>
+      </tr></thead>
+      <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">Load a queue date in Queue Manager first</td></tr></tbody>
+    </table></div>
+  </div>
 
-      <!-- INLINE DETAIL PANEL -->
-      <div id="inline-detail" style="display:none;border-top:0.5px solid var(--border);margin:0 10px 10px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border2)">
-        <div style="padding:10px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2)">
-          <span style="font-size:12px;font-weight:600;color:var(--gold-l);flex:1">📋 รายละเอียดการประมูล</span>
-          <div id="detail-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-        </div>
-        <div class="au-tabs" style="margin:0;padding:0 14px;border-radius:0">
-          <button class="au-tab active" onclick="swDetailTab('all')">การประมูลทั้งหมด</button>
-          <button class="au-tab" onclick="swDetailTab('personal')">รายบุคคล</button>
-        </div>
-        <div style="padding:12px 14px">
-          <div id="detail-all">
-            <div class="tbl-wrap">
-              <table>
-                <thead><tr>
-                  <th style="width:36px">#</th>
-                  <th>ชื่อ</th>
-                  <th style="width:150px">🃏 การ์ด</th>
-                  <th style="width:180px">🪶 ขาว</th>
-                  <th>🪶 แดงดำ</th>
-                </tr></thead>
-                <tbody id="detail-tbody"></tbody>
-              </table>
-            </div>
-          </div>
-          <div id="detail-personal" style="display:none">
-            <input type="text" id="detail-search" placeholder="พิมพ์ชื่อตัวละคร..." oninput="searchDetailPerson(this.value)" style="margin-bottom:12px;width:100%;font-size:13px;padding:9px 13px">
-            <div id="detail-person-result"><div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div></div>
-          </div>
-        </div>
-      </div>
+  <!-- TAB: LUCKY DRAW (admin only) -->
+  <div id="auc-lucky" style="display:none">
+    <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:4px" id="lucky-title">Lucky Draw</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px" id="lucky-sub">Admin only</div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px" id="lucky-step1-title">Step 1 — Mark MVP box recipients (0/0)</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="luckyShuffle()">🎲 Shuffle order</button>
     </div>
-    <!-- PENDING LIST -->
-    <div id="al-content"><div class="loading">Loading...</div></div>
+    <div id="lucky-mvp-list" class="tbl-wrap"></div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--faint);margin:14px 0 8px" id="lucky-step2-title">Step 2 — Draw remaining feathers</div>
+    <div id="lucky-step2-box" style="background:rgba(255,255,255,0.02);border:0.5px solid var(--border);border-radius:8px;padding:14px;text-align:center;font-size:12px;color:var(--faint)">
+      Complete Step 1 first
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin:14px 0 8px" id="lucky-result-title" style="display:none">Lucky draw result</div>
+    <div id="lucky-result" class="tbl-wrap"></div>
   </div>
 
-  <!-- HISTORY: 3 search modes -->
-  <div id="au-history" style="display:none">
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
-      <!-- Mode 1: ค้นหาด้วย Char ID -->
-      <div class="panel" style="padding:12px 14px">
-        <div class="section-h" style="margin-top:0">🔍 ค้นหาด้วย ID หรือ ชื่อตัวละคร</div>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="hist-search-id" placeholder="Character ID หรือ ชื่อตัวละคร..." style="flex:1">
-          <button class="btn btn-primary" onclick="histSearchById()">ค้นหา</button>
-        </div>
-        <div id="hist-id-result" style="margin-top:10px"></div>
+  <!-- TAB: QUEUE MANAGER -->
+  <div id="auc-manage" style="display:none">
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">Filter (sorted by Draw date → Auction date → Status)</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="qm-filter-draw" onchange="renderQueueManager()" style="flex:1;min-width:130px"><option value="">Draw date: All</option></select>
+      <select id="qm-filter-auction" onchange="renderQueueManager()" style="flex:1;min-width:130px"><option value="">Auction date: All</option></select>
+      <select id="qm-filter-status" onchange="renderQueueManager()" style="flex:1;min-width:110px">
+        <option value="">Status: All</option>
+        <option value="done">Done</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">Queue</div>
+    <div id="qm-list" class="mgr-list"><div class="empty">Loading...</div></div>
+
+    <div class="sep" style="margin:14px 0"></div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">Draw New Queue (Admin only)</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:130px">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Queue date</label>
+        <input type="date" id="qm-new-date" style="width:100%">
       </div>
-      <!-- Mode 2: ค้นหาตามวันที่สุ่มคิว -->
-      <div class="panel" style="padding:12px 14px">
-        <div class="section-h" style="margin-top:0">📅 ค้นหาตามวันที่สุ่มคิว</div>
-        <div style="display:flex;gap:8px">
-          <select id="hist-queue-date" style="flex:1"><option value="">— เลือกวันที่สุ่ม —</option></select>
-          <button class="btn btn-primary" onclick="histSearchByQueueDate()">ดูคิว</button>
-        </div>
-        <div id="hist-qdate-result" style="margin-top:10px"></div>
-      </div>
-      <!-- Mode 3: ค้นหาตามวันที่ประมูล -->
-      <div class="panel" style="padding:12px 14px">
-        <div class="section-h" style="margin-top:0">🏆 ค้นหาตามวันที่ประมูล</div>
-        <div style="display:flex;gap:8px">
-          <select id="hist-drawn-date" style="flex:1"><option value="">— เลือกวันที่ประมูล —</option></select>
-          <button class="btn btn-primary" onclick="histSearchByDrawnDate()">ดูผล</button>
-        </div>
-        <div id="hist-ddate-result" style="margin-top:10px"></div>
-      </div>
+      <input type="password" id="qm-admin-pass" placeholder="Admin password" style="flex:1;min-width:140px">
+      <button class="btn btn-primary" onclick="drawNewQueue()">🎰 Draw &amp; Save</button>
+    </div>
+    <div id="qm-draw-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
+  </div>
+
+  <!-- TAB: REWARDS PREVIEW -->
+  <div id="auc-rewards" style="display:none">
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px" id="rwprev-title">Rewards Preview</div>
+    <div class="tbl-wrap"><table class="rtbl">
+      <thead><tr id="rwprev-thead"></tr></thead>
+      <tbody id="rwprev-tbody"></tbody>
+    </table></div>
+    <div class="section-h">Schedule</div>
+    <div class="evts">
+      <div class="evt"><div class="et">Event</div><div class="en">Guild League</div><div class="ed">Tuesday &amp; Thursday</div></div>
+      <div class="evt"><div class="et">Event</div><div class="en">Overrun</div><div class="ed">Saturday</div></div>
+      <div class="evt"><div class="et">GL Rank announced</div><div class="en">Every Monday</div><div class="ed">Weekly</div></div>
     </div>
   </div>
 </div>
 
-<!-- AUCTION MANAGER (admin) -->
-<div id="page-auctionmgr" class="page">
-  <div class="page-title">Auction Manager</div>
-  <div class="page-sub">Mark drawn · manage queue · sync to sheet</div>
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-    <select id="mgr-date-select" onchange="loadAuctionLog(this.value,true)" style="width:180px"><option value="">— Select date —</option></select>
-    <button class="btn btn-ghost" onclick="loadAuctionDates(true)" style="padding:7px 10px">🔄</button>
-    <div style="flex:1"></div>
-    <button class="btn btn-primary" onclick="openPasteModal()">+ Add Queue</button>
-    <button class="btn btn-red" onclick="deleteDateConfirm()">🗑 Delete date</button>
-  </div>
-  <div id="mgr-stats" class="al-stats"></div>
-  <div id="mgr-content"><div class="empty">Select a date to view queue</div></div>
-</div>
 
 <!-- ATTENDANCE -->
 <div id="page-attendance" class="page">
@@ -823,84 +679,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="page-title">Tracker</div>
   <div class="page-sub">Track who has drawn and log actual drops received</div>
   <div id="tracker-content">
-    <div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Go to Randomize and press "Send to Tracker"</p></div>
+    <div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Tracker session data is currently unavailable.</p></div>
   </div>
 </div>
 
 </main>
 </div>
 
-<!-- AUCTION DETAIL PAGE -->
-<div id="page-auctiondetail" class="page">
-  <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;margin-bottom:14px" onclick="sw('auction')">← กลับ Current Queue</button>
-  <div class="detail-head">
-    <div>
-      <div style="font-size:14px;font-weight:600;color:var(--gold-l)">🎯 รายละเอียดการประมูล</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:3px">คาดการณ์จาก pending queue</div>
-    </div>
-    <div class="detail-chips" id="detail-chips"></div>
-  </div>
-  <div class="au-tabs">
-    <button class="au-tab active" onclick="swDetailTab('all')">📋 การประมูลทั้งหมด</button>
-    <button class="au-tab" onclick="swDetailTab('personal')">🔍 รายบุคคล</button>
-  </div>
-  <div id="detail-all" style="margin-top:14px">
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th style="width:36px">#</th>
-          <th>ชื่อ</th>
-          <th style="width:150px">🃏 การ์ด</th>
-          <th style="width:180px">🪶 ขาว</th>
-          <th>🪶 แดงดำ</th>
-        </tr></thead>
-        <tbody id="detail-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-  <div id="detail-personal" style="display:none;margin-top:14px">
-    <input type="text" id="detail-search" placeholder="พิมพ์ชื่อตัวละคร..." oninput="searchDetailPerson(this.value)" style="margin-bottom:12px;width:100%;font-size:13px;padding:9px 13px">
-    <div id="detail-person-result"><div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div></div>
-  </div>
-</div>
-
-<!-- DONE DATE MODAL -->
-<div id="done-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeDoneModal()">
-  <div class="done-modal" style="width:320px">
-    <h4>✓ Mark as Drawn — <span id="done-modal-name" style="color:var(--orange-l);font-size:12px"></span></h4>
-    <div class="date-opts">
-      <label class="date-opt selected" id="opt-today">
-        <input type="radio" name="done-date-opt" value="today" checked onchange="selectDateOpt('today')">
-        <span>Today — <strong id="today-label"></strong></span>
-      </label>
-      <label class="date-opt" id="opt-custom">
-        <input type="radio" name="done-date-opt" value="custom" onchange="selectDateOpt('custom')">
-        <span>Other date</span>
-      </label>
-      <input type="date" id="custom-date-input" style="display:none;margin-top:2px;width:100%">
-    </div>
-    <div class="feather-inputs">
-      <div class="fi-title">🪶 ขนนกที่ได้รับ</div>
-      <div class="fi-hint">เว้นว่าง = ได้ครบ (White <b id="fi-max-w">4</b> / Dark <b id="fi-max-d">7</b>) ระบบบันทึกเต็มให้</div>
-      <div class="fi-row">
-        <div class="fi-field">
-          <label>⬜ White</label>
-          <input type="number" id="fi-white" min="0" placeholder="4">
-          <div class="fi-max">max <span id="fi-max-w2">4</span></div>
-        </div>
-        <div class="fi-field">
-          <label>🟥 Dark / Red</label>
-          <input type="number" id="fi-dark" min="0" placeholder="7">
-          <div class="fi-max">max <span id="fi-max-d2">7</span></div>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closeDoneModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmDone()">✓ Confirm</button>
-    </div>
-  </div>
-</div>
 <!-- ADMIN MODAL -->
 <div id="admin-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeAdminModal()">
   <div class="modal">
@@ -914,42 +699,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 </div>
 
-<!-- PASTE MODAL -->
-<div id="paste-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closePasteModal()">
-  <div class="modal" style="width:480px">
-    <h3>📋 Add Queue Manual</h3>
-    <div style="margin-bottom:8px">
-      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Date (YYYY-MM-DD)</label>
-      <input type="text" id="paste-date" placeholder="e.g. 2025-06-07" style="width:100%;margin-bottom:10px">
-    </div>
-    <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Names (one per line)</label>
-    <textarea id="paste-names" class="paste-area" placeholder="ploysai&#10;Jiggy&#10;JOKER888&#10;..."></textarea>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px" id="paste-count">0 members</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closePasteModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="submitPaste()">💾 Save</button>
-    </div>
-  </div>
-</div>
-
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
 const GAS='https://script.google.com/macros/s/AKfycbwRAe14zL43PWLE1wAWI2jxyba9H4FpoLUtw3j4E2VtlZHZkDZCY5CXzxiqXM01Gx4i/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
-const REWARDS={
-  overrun:[{rank:'1',card:20,white:150,red:170},{rank:'2',card:20,white:140,red:160},{rank:'3',card:20,white:140,red:160},{rank:'4',card:15,white:120,red:150},{rank:'5',card:15,white:120,red:150},{rank:'6',card:15,white:120,red:150},{rank:'7',card:12,white:100,red:150},{rank:'8',card:12,white:100,red:150}],
-  'gl-y':[{rank:'1. Peak King',card:23,white:90,red:105},{rank:'2. Supream Warband',card:21,white:87,red:105},{rank:'3. Honor Soul',card:20,white:84,red:105},{rank:'4. The Chosen One',card:19,white:81,red:105},{rank:'5. Glorious Legend',card:18,white:78,red:105},{rank:'6. Immortal Myth',card:17,white:75,red:105},{rank:'7. Eternal Monarch',card:16,white:72,red:105},{rank:'8. Omni Ruler',card:15,white:69,red:105}],
-  'gl-n':[{rank:'1. Bright Sun',card:8,white:60,red:105},{rank:'2. Glorious Moon',card:7,white:55,red:100},{rank:'3. Shining Stars',card:6,white:50,red:90},{rank:'4. Platinum',card:5,white:45,red:80},{rank:'5. Gold',card:4,white:40,red:70},{rank:'6. Silver',card:2,white:35,red:60},{rank:'7. Bronze',card:2,white:30,red:50}]
-};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
 function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
 function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
 function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
-let members=[],lastRand=[],trackerSession=[],coList=[],isAdmin=false,currentALDate='';
-const ADMIN_PAGES=['auctionmgr','randomize','calc','attendance','tracker'];
+let members=[],trackerSession=[],isAdmin=false;
 let _pendingNav='';
 
 /* HAMBURGER */
@@ -973,6 +734,7 @@ async function submitAdmin(){
     document.getElementById('admin-btn').classList.add('on');
     document.getElementById('new-session-wrap').style.display='';
     document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
     document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
     renderMembers();
     if(_pendingNav){sw(_pendingNav);_pendingNav='';}
@@ -998,10 +760,7 @@ function sw(t){
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
   if(t==='search')preloadSearchCache();
-  if(t==='rewards')initRewards();
-  if(t==='calc')refreshLogSelect();
-  if(t==='auction'){loadAuctionDates(false);loadAuctionPending()}
-  if(t==='auctionmgr'){loadAuctionDates(true)}
+  if(t==='auction')initAuctionPage();
   if(t==='attendance')loadAttendance();
 }
 
@@ -1030,7 +789,7 @@ function buildFilters(){
   const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
   const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
   document.getElementById('fc').innerHTML='<option value="">All classes</option>'+cls.map(c=>`<option>${c}</option>`).join('');
-  ['fp','rand-party'].forEach(id=>{document.getElementById(id).innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('')});
+  document.getElementById('fp').innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('');
 }
 
 function renderStats(){
@@ -1234,561 +993,10 @@ async function searchMain(){
   }
 }
 
-/* REWARDS */
-function initRewards(){
-  const te=document.getElementById('rw-type'),re=document.getElementById('rw-rank');
-  function upd(){re.innerHTML='';REWARDS[te.value].forEach((r,i)=>re.add(new Option(r.rank,i)));calcReward()}
-  te.onchange=upd;upd();
-  const tbody=document.getElementById('reward-tbody');if(tbody.children.length)return;
-  tbody.innerHTML=[...REWARDS.overrun.map(r=>`<tr><td>Overrun</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-y'].map(r=>`<tr><td>GL</td><td class="cs-y">✓</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`),...REWARDS['gl-n'].map(r=>`<tr><td>GL</td><td class="cs-n">✗</td><td>${r.rank}</td><td>${r.card}</td><td>${r.white}</td><td>${r.red}</td></tr>`)].join('');
-}
-function calcReward(){const r=REWARDS[document.getElementById('rw-type').value][+document.getElementById('rw-rank').value];if(!r)return;document.getElementById('reward-cards').innerHTML=`<div class="rw-card"><div class="ri">🃏</div><div class="rv">${r.card}</div><div class="rl">Card</div><div class="rm">max ${CFG.max_card}/member</div></div><div class="rw-card"><div class="ri">🪶</div><div class="rv">${r.white}</div><div class="rl">White</div><div class="rm">max ${CFG.max_white}/member</div></div><div class="rw-card"><div class="ri">🪶</div><div class="rv">${r.red}</div><div class="rl">Red/Black</div><div class="rm">max ${CFG.max_red}/member</div></div>`}
-
-/* RANDOMIZE */
-async function doRand(){
-  const exSub=document.getElementById('excl-sub').checked,pt=document.getElementById('rand-party').value;
-  let pool=members.filter(m=>{if(exSub&&m.noted&&m.noted.includes('ตัวรอง'))return false;if(pt&&String(m.party)!==pt)return false;return true});
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  lastRand=pool;
-  const chipEl=document.getElementById('rand-saved-chip');if(chipEl)chipEl.innerHTML='';
-  if(!pool.length){document.getElementById('result-list').innerHTML='<div class="empty">No eligible members</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none';return}
-  document.getElementById('rand-summary').innerHTML=`<span>${pool.length} members</span><span>${[...new Set(pool.map(m=>m.party))].length} party</span>`;
-  document.getElementById('result-list').innerHTML=`<div class="tbl-wrap"><table class="rand-tbl"><thead><tr><th>#</th><th>Name</th><th>Char ID</th><th>Discord</th></tr></thead><tbody>${pool.map((m,i)=>`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td style="font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td style="font-size:11px;color:var(--muted)">${m.discord||'—'}</td></tr>`).join('')}</tbody></table></div>`;
-  document.getElementById('copy-btn').style.display='block';
-  saveLog(pool);renderLogList();
-  const today=new Date().toISOString().slice(0,10);
-  const r=await gasPost({action:'appendQueue',date:today,members:pool.map(m=>m.ign)});
-  if(chipEl)chipEl.innerHTML=r.ok?'<span class="saved-chip">✓ Saved to '+today+'</span>':'<span style="font-size:10px;color:var(--red)">Save failed</span>';
-}
-function saveLog(pool){const logs=getLogs();logs.unshift({id:Date.now(),date:new Date().toLocaleString('th-TH'),members:pool.map(m=>m.ign)});if(logs.length>20)logs.pop();localStorage.setItem('rooc_rand_logs',JSON.stringify(logs))}
-function getLogs(){try{return JSON.parse(localStorage.getItem('rooc_rand_logs')||'[]')}catch(e){return[]}}
-function clearLogs(){if(confirm('Clear all draw logs?')){localStorage.removeItem('rooc_rand_logs');renderLogList();refreshLogSelect()}}
-function renderLogList(){const logs=getLogs(),el=document.getElementById('rand-log-list');if(!logs.length){el.innerHTML='<div class="empty">No logs yet</div>';return}el.innerHTML=logs.map(l=>`<div class="log-item"><div class="ld">📅 ${l.date}</div><div class="lc">${l.members.length} members</div><button class="btn btn-ghost" style="font-size:11px;padding:3px 9px" onclick="sendLogToCalc(${l.id})">🧮 Calculator</button></div>`).join('')}
-function refreshLogSelect(){const logs=getLogs(),sel=document.getElementById('log-select');sel.innerHTML='<option value="">— Load from Log —</option>';logs.forEach(l=>sel.add(new Option(`${l.date} (${l.members.length})`,l.id)))}
-function loadFromLog(){const id=+document.getElementById('log-select').value;if(!id)return;const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints()}
-function sendLogToCalc(id){const log=getLogs().find(l=>l.id===id);if(!log)return;document.getElementById('c-members').value=log.members.join('\n');updateHints();sw('calc')}
-function clearRand(){lastRand=[];document.getElementById('result-list').innerHTML='<div class="empty">Press Draw Queue to start</div>';document.getElementById('rand-summary').innerHTML='';document.getElementById('copy-btn').style.display='none'}
-function copyRand(){navigator.clipboard.writeText(lastRand.map((m,i)=>`${i+1}. ${m.ign} | ${m.char_id||'-'} | ${m.discord||'-'}`).join('\n')).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='Copy',2000)})}
-function sendToTracker(){if(!lastRand.length){alert('Draw queue first');return}trackerSession=lastRand.map(m=>({...m,done:false,got_card:0,got_white:0,got_red:0}));renderTracker();sw('tracker')}
-function sendToCalc(){if(!lastRand.length){alert('Draw queue first');return}document.getElementById('c-members').value=lastRand.map(m=>m.ign).join('\n');updateHints();sw('calc')}
-
-/* CALC */
-function applyPreset(){const v=document.getElementById('calc-preset').value;if(!v)return;const [type,idx]=v.split('-');let r;if(type==='or')r=REWARDS.overrun[+idx-1];else if(type==='gly')r=REWARDS['gl-y'][+idx];else r=REWARDS['gl-n'][+idx];if(!r)return;const mul=document.getElementById('x2').checked?2:1;document.getElementById('c-card').value=r.card*mul;document.getElementById('c-white').value=r.white*mul;document.getElementById('c-red').value=r.red*mul;updateHints()}
-function applyX2(){const v=document.getElementById('calc-preset').value;if(v)applyPreset();else{const x2=document.getElementById('x2').checked;['c-card','c-white','c-red'].forEach(id=>{const el=document.getElementById(id);const cur=+el.value;if(x2&&cur>0)el.value=cur*2;else if(!x2&&cur>0&&cur%2===0)el.value=cur/2});updateHints()}}
-function getMemberList(){return document.getElementById('c-members').value.split('\n').map(s=>s.trim()).filter(Boolean)}
-function updateHints(){const mlist=getMemberList(),n=mlist.length;document.getElementById('member-count').textContent=n+' members';const card=+document.getElementById('c-card').value||0,white=+document.getElementById('c-white').value||0,red=+document.getElementById('c-red').value||0,hasCarry=coList.length>0;let hint='';if(n>0&&card>0){if(hasCarry){const wL=white-(Math.min(n,card)*CFG.max_white),rL=red-(Math.min(n,card)*CFG.max_red);hint=`<b>With carryover:</b> ${Math.min(n,card)} members get Card 1, White <span>${CFG.max_white}</span>, Red <span>${CFG.max_red}</span> first<br>Remaining: White <span>${Math.max(0,wL)}</span>, Red <span>${Math.max(0,rL)}</span>`}else{const pW=Math.floor(white/Math.min(n,card)),pR=Math.floor(red/Math.min(n,card));hint=`<b>No carryover:</b> ${Math.min(n,card)} members · Card <span>1</span> · White <span>${pW}</span> · Red <span>${pR}</span> each`}}else hint='Enter reward amounts and member list to see allocation';document.getElementById('calc-hint').innerHTML=hint;updateCoHint()}
-function updateCoHint(){const el=document.getElementById('co-hint');if(!coList.length){el.style.display='none';return}const tW=coList.reduce((s,c)=>s+(+c.white||0),0),tR=coList.reduce((s,c)=>s+(+c.red||0),0);el.style.display='block';el.innerHTML=`Carryover needs: White <span>${tW}</span>, Red <span>${tR}</span>`}
-function addCarryover(){const name=prompt('Member name:');if(!name||!name.trim())return;coList.push({name:name.trim(),white:0,red:0});renderCoList();updateHints()}
-function renderCoList(){const el=document.getElementById('co-list'),badge=document.getElementById('co-badge');if(!coList.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No carryover</div>';badge.style.display='none';updateHints();return}badge.style.display='inline';badge.textContent=coList.length;el.innerHTML=coList.map((c,i)=>`<div class="co-item"><div class="co-name">${c.name}</div><div class="co-fields"><label>White</label><input type="number" min="0" max="20" value="${c.white}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].white=+this.value;updateHints()"><label>Red</label><input type="number" min="0" max="20" value="${c.red}" style="width:46px;padding:3px 6px;font-size:11px;text-align:center" onchange="coList[${i}].red=+this.value;updateHints()"></div><button class="co-del" onclick="coList.splice(${i},1);renderCoList()">×</button></div>`).join('');updateHints()}
-function swCalcTab(t){document.querySelectorAll('.ctab').forEach((b,i)=>b.classList.toggle('active',['person','card','feather'][i]===t));['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).style.display=id===t?'block':'none')}
-function runCalc(){
-  const mlist=getMemberList(),totalCard=+document.getElementById('c-card').value||0,totalWhite=+document.getElementById('c-white').value||0,totalRed=+document.getElementById('c-red').value||0;
-  if(!mlist.length||!totalCard){alert('Enter member list and card count first');return}
-  const n=Math.min(mlist.length,totalCard),roundMembers=mlist.slice(0,n),hasCarry=coList.length>0;
-  let results=[],wL,rL;
-  if(hasCarry){roundMembers.forEach(name=>results.push({name,card:1,white:CFG.max_white,red:CFG.max_red,type:'round'}));wL=Math.max(0,totalWhite-(n*CFG.max_white));rL=Math.max(0,totalRed-(n*CFG.max_red));coList.forEach(co=>{let gW=0,gR=0;if(wL>0&&co.white>0){gW=Math.min(wL,+co.white);wL-=gW}if(rL>0&&co.red>0){gR=Math.min(rL,+co.red);rL-=gR}results.push({name:co.name,card:0,white:gW,red:gR,type:'carryover',needW:+co.white,needR:+co.red})})}
-  else{const pW=Math.floor(totalWhite/n),pR=Math.floor(totalRed/n);roundMembers.forEach(name=>results.push({name,card:1,white:pW,red:pR,type:'round'}));wL=totalWhite-(n*pW);rL=totalRed-(n*pR)}
-  renderCalcOutput(results,wL,rL);
-}
-function renderCalcOutput(results,wL,rL){
-  document.getElementById('calc-person').innerHTML=`<div class="tbl-wrap"><table class="rtable"><thead><tr><th>#</th><th>Name</th><th>🃏 Card</th><th>🪶 White</th><th>🪶 Red/Blk</th><th>Type</th></tr></thead><tbody>${results.map((r,i)=>`<tr class="${r.type==='carryover'?'co-row':''}"><td style="color:var(--faint)">${i+1}</td><td style="font-weight:500">${r.name}</td><td style="text-align:center">${r.card?'<span style="color:var(--gold)">✓</span>':'—'}</td><td style="text-align:center">${r.white||'—'}</td><td style="text-align:center">${r.red||'—'}</td><td><span style="font-size:10px;padding:2px 7px;border-radius:4px;${r.type==='carryover'?'background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)':'background:var(--orange-dim);color:var(--orange-l);border:0.5px solid var(--orange-border)'}">${r.type==='carryover'?'⏳ Carryover':'Round'}</span></td></tr>`).join('')}</tbody></table></div><div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--muted)"><span>White remainder: ${wL}</span><span>Red remainder: ${rL}</span></div>`;
-  const cardPeople=results.filter(r=>r.card>0),mvpCount=+document.getElementById('mvp-count').value||0;
-  const cardSlots=[...cardPeople.map((r,i)=>({num:i+1,name:r.name})),...Array.from({length:mvpCount},(_,i)=>({num:cardPeople.length+i+1,name:'?',mvp:true,mvpNum:i+1}))];
-  let cHtml='';if(cardSlots.length){cHtml='<div class="tbl-wrap"><table class="rtable"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">Slot ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<cardSlots.length;i+=4){cHtml+=`<tr><td colspan="4" style="background:rgba(232,115,42,0.04);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">Page ${Math.floor(i/4)+1}</td></tr><tr>`;for(let j=0;j<4;j++){const s=cardSlots[i+j];cHtml+=s?`<td style="text-align:center;padding:10px 6px;${s.mvp?'background:var(--gold-dim)':''}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${s.mvp?'🏆 MVP #'+s.mvpNum:'🃏 #'+s.num}</div><div style="font-size:12px;font-weight:500;color:${s.mvp?'var(--gold-l)':'var(--text)'}">${s.name}</div></td>`:`<td style="text-align:center;opacity:0.2;padding:10px 6px">—</td>`}cHtml+='</tr>'}cHtml+='</tbody></table></div>'}else cHtml='<div class="empty">No data</div>';
-  document.getElementById('calc-card').innerHTML=cHtml;
-  const fSlots=[];results.forEach(r=>{for(let i=0;i<r.white;i++)fSlots.push({name:r.name,type:'white',co:r.type==='carryover'});for(let i=0;i<r.red;i++)fSlots.push({name:r.name,type:'red',co:r.type==='carryover'})});
-  let fHtml='';if(fSlots.length){fHtml='<div class="tbl-wrap"><table class="rtable"><thead><tr>'+Array.from({length:4},(_,i)=>`<th style="text-align:center;width:25%">Slot ${i+1}</th>`).join('')+'</tr></thead><tbody>';for(let i=0;i<fSlots.length;i+=4){const typesInRow=[...new Set(fSlots.slice(i,i+4).map(s=>s.type))];const lbl=typesInRow.includes('white')&&typesInRow.includes('red')?'White → Red/Black':typesInRow[0]==='white'?'White':'Red/Black';fHtml+=`<tr><td colspan="4" style="background:rgba(255,255,255,0.02);font-size:10px;color:var(--muted);letter-spacing:1px;padding:5px 8px">Page ${Math.floor(i/4)+1} — 🪶 ${lbl}</td></tr><tr>`;for(let j=0;j<4;j++){const s=fSlots[i+j];if(s){const isW=s.type==='white';fHtml+=`<td style="text-align:center;padding:10px 6px;background:${s.co?(isW?'rgba(93,191,138,0.06)':'rgba(93,191,138,0.09)'):(isW?'rgba(200,200,240,0.04)':'rgba(224,112,106,0.06)')}"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${isW?'⬜':'🟥'} #${i+j+1}${s.co?' ⏳':''}</div><div style="font-size:12px;font-weight:500;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${isW?'White':'Red/Black'}</div></td>`}else fHtml+=`<td style="text-align:center;opacity:0.18">—</td>`}fHtml+='</tr>'}fHtml+='</tbody></table></div>';if(wL>0||rL>0)fHtml+=`<div style="font-size:11px;color:var(--muted);margin-top:6px">Remainder: White ${wL}, Red ${rL}</div>`}else fHtml='<div class="empty">No data</div>';
-  document.getElementById('calc-feather').innerHTML=fHtml;
-}
-function clearCalc(){['person','card','feather'].forEach(id=>document.getElementById('calc-'+id).innerHTML='<div class="empty">Press ▶ Calculate to view results</div>');document.getElementById('mvp-result-box').innerHTML='';swCalcTab('person')}
-function doMVP(){const mlist=getMemberList(),n=Math.min(mlist.length,+document.getElementById('c-card').value||mlist.length),pool=mlist.slice(0,n),cnt=+document.getElementById('mvp-count').value||15;if(!pool.length){alert('Enter member list first');return}const sh=[...pool];for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}const winners=sh.slice(0,Math.min(cnt,sh.length));document.getElementById('mvp-result-box').innerHTML=`<div class="mvp-res"><h4>🏆 MVP Box — ${winners.length} members</h4><div class="mvp-tags">${winners.map(w=>`<span class="mvp-tag">${w}</span>`).join('')}</div></div>`}
 
 /* GAS */
 async function gasGet(action){try{const r=await fetch(GAS+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
 async function gasPost(body){try{const r=await fetch(GAS,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
-
-/* AUCTION */
-function swAuTab(t,page){
-  const isMgr=page==='auctionmgr';
-  const prefix=isMgr?'mgr':'au';
-  const tabs=document.querySelectorAll('#page-'+page+' .au-tab');
-  tabs.forEach((b,i)=>b.classList.toggle('active',['queue','history'][i]===t));
-  const qEl=document.getElementById(prefix+'-queue');
-  const hEl=document.getElementById(prefix+'-history');
-  if(qEl)qEl.style.display=t==='queue'?'block':'none';
-  if(hEl)hEl.style.display=t==='history'?'block':'none';
-  if(t==='history'&&isMgr)loadAuHistory(true);
-  if(t==='history'&&!isMgr)loadHistoryDropdowns();
-}
-function _getCurrentCards(){
-  const type=document.getElementById('pred-event')?.value;
-  const idx=+document.getElementById('pred-rank')?.value||0;
-  const x2=document.getElementById('pred-x2')?.checked;
-  if(!type||!REWARDS[type])return 0;
-  const reward=REWARDS[type][idx];
-  return reward?reward.card*(x2?2:1):0;
-}
-
-async function loadHistoryDropdowns(){
-  const r=await gasGet('getDates');
-  if(!r.ok)return;
-  const hq=document.getElementById('hist-queue-date');
-  if(hq){hq.innerHTML='<option value="">— เลือกวันที่สุ่ม —</option>';r.dates.forEach(d=>hq.add(new Option(d,d)))}
-  // ใช้ cache จาก _searchHistMap ถ้ามีแล้ว ไม่ต้องดึงใหม่
-  const drawnSet=new Set();
-  if(_searchCacheLoaded){
-    Object.values(_searchHistMap).forEach(rows=>rows.forEach(row=>{
-      if(row.drawn_date){const d=String(row.drawn_date).slice(0,10);if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d))drawnSet.add(d);}
-    }));
-  } else {
-    for(const date of r.dates){
-      const lr=await gasGet('getLog&date='+date);
-      if(lr.ok) lr.rows.filter(row=>row.drawn_date).forEach(row=>{
-        const d=String(row.drawn_date).slice(0,10);
-        if(d&&d!='')drawnSet.add(d);
-      });
-    }
-  }
-  const hd=document.getElementById('hist-drawn-date');
-  if(hd){
-    hd.innerHTML='<option value="">— เลือกวันที่ประมูล —</option>';
-    [...drawnSet].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse().forEach(d=>hd.add(new Option(d,d)));
-  }
-}
-async function loadAuctionDates(isMgr){
-  const selId=isMgr?'mgr-date-select':'al-date-select';
-  const sel=document.getElementById(selId);
-  if(!sel)return;
-  const r=await gasGet('getDates');
-  sel.innerHTML='<option value="">— Select date —</option>';
-  if(r.ok&&r.dates.length){
-    r.dates.forEach(d=>sel.add(new Option(d,d)));
-    if(currentALDate&&r.dates.includes(currentALDate))sel.value=currentALDate;
-    // populate history queue-date dropdown
-    if(!isMgr){
-      const hq=document.getElementById('hist-queue-date');
-      if(hq){hq.innerHTML='<option value="">— เลือกวันที่สุ่ม —</option>';r.dates.forEach(d=>hq.add(new Option(d,d)))}
-    }
-  }
-}
-
-let _allPending=[];// global pending list sorted by queue_date + position
-
-async function loadAuctionPending(){
-  const statsEl=document.getElementById('al-stats');
-  const contentEl=document.getElementById('al-content');
-  contentEl.innerHTML='<div class="loading">Loading...</div>';
-
-  const pendingByDate=[];
-  _allPending=[];
-
-  if(_searchCacheLoaded){
-    // ── CACHE PATH: 0 GAS calls ──
-    const allRows=Object.values(_searchHistMap).flat();
-    const dateMap={};
-    allRows.forEach(r=>{
-      if(!dateMap[r.queue_date])dateMap[r.queue_date]={all:[],pending:[]};
-      dateMap[r.queue_date].all.push(r);
-      if(r.status==='pending')dateMap[r.queue_date].pending.push(r);
-    });
-    const sortedDates=Object.keys(dateMap).sort();
-    for(const date of sortedDates){
-      const pending=dateMap[date].pending.slice().sort((a,b)=>a.position-b.position);
-      if(pending.length>0){
-        pendingByDate.push({date,rows:dateMap[date].all,pending});
-        _allPending.push(...pending.map(p=>({...p,queue_date:date})));
-      }
-    }
-    _allPending.sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
-  } else {
-    // ── FALLBACK PATH: GAS calls ──
-    const r=await gasGet('getDates');
-    if(!r.ok||!r.dates.length){
-      contentEl.innerHTML='<div class="empty">ไม่มีข้อมูลคิว</div>';
-      statsEl.innerHTML='';
-      return;
-    }
-    for(const date of [...r.dates].reverse()){
-      const lr=await gasGet('getLog&date='+date);
-      if(!lr.ok)continue;
-      const pending=lr.rows.filter(x=>x.status==='pending').sort((a,b)=>a.position-b.position);
-      if(pending.length>0){
-        pendingByDate.push({date,rows:lr.rows,pending});
-        _allPending.push(...pending.map(p=>({...p,queue_date:date})));
-      }
-    }
-    _allPending.sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
-  }
-
-  // render prediction
-  updatePredRanks();
-
-  const totalPending=_allPending.length;
-  if(totalPending===0){
-    statsEl.innerHTML='';
-    contentEl.innerHTML='<div class="empty" style="color:var(--green)">✅ ทุกคนได้ประมูลแล้ว</div>';
-    return;
-  }
-  statsEl.innerHTML=`
-    <div class="al-stat"><div class="n" style="color:var(--amber)">${totalPending}</div><div class="l">Pending</div></div>
-    <div class="al-stat"><div class="n" style="color:var(--muted)">${pendingByDate.length}</div><div class="l">Queue date</div></div>`;
-
-  const makeChips=(names,startIdx,cards)=>{
-    const inRound=names.filter((_,i)=>startIdx+i<cards);
-    const waiting=names.filter((_,i)=>startIdx+i>=cards);
-    let html='';
-    if(inRound.length) html+=`<div style="display:flex;flex-wrap:wrap;gap:4px">${inRound.map((n,i)=>`<span style="font-size:12px;font-weight:500;padding:3px 9px;border-radius:5px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b);display:inline-flex;align-items:center;gap:4px"><span style="font-size:10px;opacity:0.5;font-family:monospace">${String(startIdx+i+1).padStart(2,'0')}</span>${n}</span>`).join('')}</div>`;
-    if(inRound.length&&waiting.length) html+=`<div style="width:100%;height:0.5px;background:rgba(255,255,255,0.12);margin:7px 0"></div>`;
-    if(waiting.length) html+=`<div style="display:flex;flex-wrap:wrap;gap:4px">${waiting.map((n,i)=>`<span style="font-size:12px;padding:3px 9px;border-radius:5px;background:rgba(255,255,255,0.03);color:var(--faint);border:0.5px solid rgba(255,255,255,0.06);display:inline-flex;align-items:center;gap:4px"><span style="font-size:10px;opacity:0.35;font-family:monospace">${String(startIdx+inRound.length+i+1).padStart(2,'0')}</span>${n}</span>`).join('')}</div>`;
-    return html;
-  };
-
-  contentEl.innerHTML=`<div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;overflow:hidden">
-    <div style="padding:9px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:12px;font-weight:600;color:var(--text)">⏳ อยู่ระหว่างรอการประมูล</span>
-      <span style="font-size:11px;color:var(--muted)">${totalPending} คน · ${pendingByDate.length} วันที่สุ่ม</span>
-    </div>
-    ${pendingByDate.map(({date,rows,pending},gi)=>{
-      const done=rows.length-pending.length;
-      const startIdx=pendingByDate.slice(0,gi).reduce((s,x)=>s+x.pending.length,0);
-      return`<div style="border-bottom:0.5px solid rgba(232,115,42,0.07)">
-        <div style="padding:7px 14px;font-size:11px;color:var(--muted);background:rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:space-between">
-          <span>📅 ${date}</span><span>${done}/${rows.length} drawn · ${pending.length} คนรอ</span>
-        </div>
-        <div style="padding:8px 14px;display:flex;flex-direction:column;gap:7px" id="chips-${date}">
-          ${makeChips(pending.map(p=>p.member_name),startIdx,_getCurrentCards())}
-        </div>
-      </div>`;
-    }).join('')}
-    <div style="display:flex;gap:14px;padding:8px 14px;border-top:0.5px solid var(--border)">
-      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0"></span>ประมูลในรอบถัดไป</span>
-      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0"></span>รอรอบถัดไป</span>
-    </div>
-  </div>`;
-
-  // store makeChips ref for re-render
-  window._makeChips=makeChips;
-  window._pendingByDate=pendingByDate;
-}
-
-function updatePredRanks(){
-  const type=document.getElementById('pred-event').value;
-  const sel=document.getElementById('pred-rank');
-  const ranks=REWARDS[type];
-  sel.innerHTML=ranks.map((r,i)=>`<option value="${i}">${r.rank}</option>`).join('');
-  renderPrediction();
-}
-
-function renderPrediction(){
-  const type=document.getElementById('pred-event').value;
-  const idx=+document.getElementById('pred-rank').value;
-  const x2=document.getElementById('pred-x2').checked;
-  const reward=REWARDS[type][idx];
-  const cards=reward?reward.card*(x2?2:1):0;
-  const el=document.getElementById('pred-result');
-  if(!_allPending.length){el.innerHTML='<div class="empty" style="font-size:12px">ไม่มีคิวค้าง</div>';return}
-  el.innerHTML=`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(201,168,76,0.07);border:0.5px solid rgba(201,168,76,0.2);border-radius:7px">
-      <span style="font-size:20px">🃏</span>
-      <div style="flex:1">
-        <div style="font-size:20px;font-weight:700;color:var(--gold-l);line-height:1">${cards} <span style="font-size:13px;color:var(--muted);font-weight:400">card slots${x2?' <span style="font-size:11px;padding:1px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange-l);border:0.5px solid var(--orange-border)">×2</span>':''}</span></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">ดึง ${Math.min(cards,_allPending.length)} คนแรกจาก ${_allPending.length} คนที่รออยู่</div>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px;padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:5px;border:0.5px solid var(--border)">
-      💡 เรียงตามลำดับคิวที่ค้างอยู่ · จำนวน card อาจเปลี่ยนตาม rank จริงในวันประมูล
-    </div>`;
-  // re-render pending chips with new card count
-  if(window._makeChips&&window._pendingByDate){
-    window._pendingByDate.forEach(({date,pending},gi)=>{
-      const el2=document.getElementById('chips-'+date);
-      if(!el2)return;
-      const startIdx=window._pendingByDate.slice(0,gi).reduce((s,x)=>s+x.pending.length,0);
-      el2.innerHTML=window._makeChips(pending.map(p=>p.member_name),startIdx,cards);
-    });
-  }
-}
-
-// History: ค้นหาด้วย char ID / ชื่อ
-async function histSearchById(){
-  const q=(document.getElementById('hist-search-id').value||'').toLowerCase().trim();
-  const el=document.getElementById('hist-id-result');
-  if(!q){el.innerHTML='';return}
-  el.innerHTML='<div class="loading">ค้นหา...</div>';
-  const matched=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q)));
-  const names=matched.length?matched.map(m=>m.ign):[q];
-  let allRows=[];
-  if(_searchCacheLoaded){
-    // ── CACHE PATH: 0 GAS calls ──
-    allRows=Object.values(_searchHistMap).flat()
-      .filter(row=>names.some(n=>row.member_name.toLowerCase().includes(n.toLowerCase())))
-      .sort((a,b)=>b.queue_date.localeCompare(a.queue_date)||a.position-b.position);
-  } else {
-    // ── FALLBACK PATH ──
-    const r=await gasGet('getDates');
-    if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-    for(const date of r.dates){
-      const lr=await gasGet('getLog&date='+date);
-      if(lr.ok) lr.rows.filter(row=>names.some(n=>row.member_name.toLowerCase().includes(n.toLowerCase()))).forEach(row=>allRows.push(row));
-    }
-  }
-  if(!allRows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูล</div>';return}
-  el.innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
-    <thead><tr>
-      <th>Queue date</th>
-      <th>Name</th>
-      <th style="width:80px">Position</th>
-      <th>Auction</th>
-    </tr></thead>
-    <tbody>${allRows.map(row=>`<tr class="qrow">
-      <td style="font-size:11px;color:var(--muted)">${row.queue_date}</td>
-      <td style="font-weight:500">${row.member_name}</td>
-      <td><span style="font-family:monospace;color:var(--faint)">${String(row.position).padStart(2,'0')}</span></td>
-      <td>${row.status==='done'
-        ?`<span style="color:var(--green);font-size:11px">✓ ${row.drawn_date?row.drawn_date.slice(0,10):''}</span>`
-        :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}
-      </td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
-}
-
-// History: ค้นหาตามวันที่สุ่มคิว
-async function histSearchByQueueDate(){
-  const date=document.getElementById('hist-queue-date').value;
-  const el=document.getElementById('hist-qdate-result');
-  if(!date){el.innerHTML='';return}
-  el.innerHTML='<div class="loading">Loading...</div>';
-  let rows=[];
-  if(_searchCacheLoaded){
-    // ── CACHE PATH: 0 GAS calls ──
-    rows=Object.values(_searchHistMap).flat()
-      .filter(r=>r.queue_date===date)
-      .sort((a,b)=>a.position-b.position);
-  } else {
-    // ── FALLBACK PATH ──
-    const r=await gasGet('getLog&date='+date);
-    if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-    rows=r.rows;
-  }
-  if(!rows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูล</div>';return}
-  const done=rows.filter(x=>x.status==='done');
-  const pend=rows.filter(x=>x.status==='pending');
-  const allDone=pend.length===0;
-  let html='';
-  if(allDone){
-    html+=`<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(93,191,138,0.07);border:0.5px solid var(--green-b);border-radius:8px;margin-bottom:10px;font-size:13px;color:var(--green)">
-      <span style="font-size:18px">✅</span>
-      <div><div style="font-weight:600">ประมูลครบทุกคนแล้ว</div><div style="font-size:11px;opacity:0.7;margin-top:2px">${done.length} คน · วันที่สุ่ม ${date}</div></div>
-    </div>`;
-  }
-  if(done.length){
-    html+=`<div style="border:0.5px solid var(--green-b);border-radius:8px;overflow:hidden;margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(93,191,138,0.1);border-bottom:0.5px solid var(--green-b);font-size:11px;font-weight:600;color:var(--green)">
-        <span>✓ Drawn</span><span style="opacity:0.7;font-weight:400">${done.length} คน</span>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
-        ${done.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(93,191,138,0.08);color:rgba(242,232,216,0.8);border:0.5px solid rgba(93,191,138,0.15)">${r.member_name}</span>`).join('')}
-      </div>
-    </div>`;
-  }
-  if(pend.length){
-    html+=`<div style="border:0.5px solid var(--amber-b);border-radius:8px;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(212,160,68,0.08);border-bottom:0.5px solid var(--amber-b);font-size:11px;font-weight:600;color:var(--amber)">
-        <span>⏳ อยู่ระหว่างรอคิวประมูล</span><span style="opacity:0.7;font-weight:400">${pend.length} คน</span>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px">
-        ${pend.map(r=>`<span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:5px;background:rgba(212,160,68,0.08);color:rgba(242,232,216,0.7);border:0.5px solid rgba(212,160,68,0.2)">${r.member_name}</span>`).join('')}
-      </div>
-    </div>`;
-  }
-  el.innerHTML=html;
-}
-
-// History: ค้นหาตามวันที่ประมูล (drawn_date) — แสดงชื่อสีเขียว
-async function histSearchByDrawnDate(){
-  const target=document.getElementById('hist-drawn-date').value;
-  const el=document.getElementById('hist-ddate-result');
-  if(!target){el.innerHTML='';return}
-  el.innerHTML='<div class="loading">Loading...</div>';
-  let allRows=[];
-  if(_searchCacheLoaded){
-    // ── CACHE PATH: 0 GAS calls ──
-    allRows=Object.values(_searchHistMap).flat()
-      .filter(row=>row.drawn_date&&row.drawn_date.slice(0,10)===target);
-  } else {
-    // ── FALLBACK PATH ──
-    const r=await gasGet('getDates');
-    if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-    for(const date of r.dates){
-      const lr=await gasGet('getLog&date='+date);
-      if(lr.ok) lr.rows.filter(row=>row.drawn_date&&row.drawn_date.slice(0,10)===target).forEach(row=>allRows.push(row));
-    }
-  }
-  if(!allRows.length){el.innerHTML='<div class="empty">ไม่พบข้อมูลวันที่ประมูล '+target+'</div>';return}
-  el.innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${allRows.length} คนที่ประมูลวันที่ ${target}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px">
-      ${allRows.map(row=>`<span style="font-size:12px;font-weight:500;padding:4px 12px;border-radius:5px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)">${row.member_name}</span>`).join('')}
-    </div>`;
-}
-async function loadAuctionLog(date,isMgr){
-  const statsId=isMgr?'mgr-stats':'al-stats';
-  const contentId=isMgr?'mgr-content':'al-content';
-  if(!date){
-    document.getElementById(contentId).innerHTML='<div class="empty">Select a date to view queue</div>';
-    document.getElementById(statsId).innerHTML='';
-    return;
-  }
-  currentALDate=date;
-  document.getElementById(contentId).innerHTML='<div class="loading">Loading...</div>';
-  const r=await gasGet('getLog&date='+date);
-  if(!r.ok){document.getElementById(contentId).innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-  const rows=r.rows;
-  const done=rows.filter(r=>r.status==='done').length;
-  const pend=rows.filter(r=>r.status==='pending').length;
-  document.getElementById(statsId).innerHTML=`
-    <div class="al-stat"><div class="n">${rows.length}</div><div class="l">Total</div></div>
-    <div class="al-stat"><div class="n" style="color:var(--green)">${done}</div><div class="l">Drawn</div></div>
-    <div class="al-stat"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">Pending</div></div>`;
-  if(!rows.length){document.getElementById(contentId).innerHTML='<div class="empty">No data for this date</div>';return}
-  const adm=isMgr;
-  const mkBar=(val,max,isOk)=>{
-    const v=isNaN(val)||val==null?0:+val;
-    const pct=max>0?Math.round((v/max)*100):0;
-    const cls=isOk?'fok':'fmiss';
-    return`<div class="fbar"><div class="fbar-track"></div><div class="fbar-fill ${cls}" style="width:${pct}%"></div><span class="fbar-lbl">${v}/${max}</span></div>`;
-  };
-  let tbody='';
-  rows.forEach(row=>{
-    const isDone=row.status==='done';
-    const fw=(row.feather_white!=null&&row.feather_white!==''&&row.feather_white!==undefined)?+row.feather_white:null;
-    const fd=(row.feather_dark!=null&&row.feather_dark!==''&&row.feather_dark!==undefined)?+row.feather_dark:null;
-    const drawnDate=row.drawn_date?String(row.drawn_date).slice(0,10):'';
-    const statusHtml=isDone?`<span class="qs qs-done">✓ Drawn</span>`:`<span class="qs qs-pend">⏳ Pending</span>`;
-    const wBar=(isDone&&fw!==null)?mkBar(fw,CFG.max_white,fw>=CFG.max_white):`<span style="color:var(--faint)">—</span>`;
-    const dBar=(isDone&&fd!==null)?mkBar(fd,CFG.max_red,fd>=CFG.max_red):`<span style="color:var(--faint)">—</span>`;
-    if(isMgr){
-      const actionHtml=isDone
-        ?`<button class="q-btn q-btn-undo" onclick="toggleQ('${date}',${row.position},'pending','',true)">↺ Undo</button>`
-        :`<button class="q-btn q-btn-done" onclick="openDoneModal('${date}',${row.position},'${row.member_name.replace(/'/g,"\\'")}')">✓ Mark drawn</button>`;
-      tbody+=`<div class="mgr-row">
-        <div class="mc-num">${row.position}</div>
-        <div class="mc-name">${row.member_name}</div>
-        <div class="mc-status">${statusHtml}</div>
-        <div class="mc-date">${drawnDate||'<span style="color:var(--faint)">—</span>'}</div>
-        <div class="mc-bar">${wBar}</div>
-        <div class="mc-bar">${dBar}</div>
-        <div class="mc-act">${actionHtml}</div>
-      </div>`;
-    } else {
-      tbody+=`<tr class="qrow">
-        <td style="width:36px;color:var(--faint);font-size:11px">${row.position}</td>
-        <td style="font-weight:500">${row.member_name}</td>
-        <td>${statusHtml}${drawnDate?` <span style="font-size:10px;color:var(--muted)">${drawnDate}</span>`:''}</td>
-        <td class="fbar-cell">${wBar}</td>
-        <td class="fbar-cell">${dBar}</td>
-      </tr>`;
-    }
-  });
-  if(isMgr){
-    document.getElementById(contentId).innerHTML=`
-      <div class="mgr-list">
-        <div class="mgr-list-head">
-          <div class="mc-num">#</div>
-          <div class="mc-name">Name</div>
-          <div class="mc-status">Status</div>
-          <div class="mc-date">Drawn date</div>
-          <div class="mc-bar" style="text-align:center">🪶 White</div>
-          <div class="mc-bar" style="text-align:center">🪶 Dark</div>
-          <div class="mc-act"></div>
-        </div>
-        ${tbody}
-      </div>`;
-  } else {
-    document.getElementById(contentId).innerHTML=`<div class="tbl-wrap"><table class="au-tbl">
-      <thead><tr>
-        <th style="width:36px">#</th>
-        <th>Name</th>
-        <th style="width:150px">Status</th>
-        <th style="width:100px;text-align:center">🪶 White</th>
-        <th style="width:100px;text-align:center">🪶 Dark</th>
-      </tr></thead>
-      <tbody>${tbody}</tbody>
-    </table></div>`;
-  }
-}
-async function loadAuHistory(isMgr){
-  const contentId=isMgr?'mgr-hist-content':'au-hist-content';
-  const el=document.getElementById(contentId);
-  el.innerHTML='<div class="loading">Loading...</div>';
-  const r=await gasGet('getDates');
-  if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No history</div>';return}
-  const page=isMgr?'auctionmgr':'auction';
-  const selId=isMgr?'mgr-date-select':'al-date-select';
-  el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+r.dates.map(d=>{
-    const clean=d.slice(0,10);
-    return`<div class="att-session-row" style="display:flex;align-items:center;gap:10px">
-      <span class="as-date" style="flex:1;cursor:pointer" onclick="sw('${page}');swAuTab('queue','${page}');document.getElementById('${selId}').value='${clean}';loadAuctionLog('${clean}',${isMgr})">${clean}</span>
-      <span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="sw('${page}');swAuTab('queue','${page}');document.getElementById('${selId}').value='${clean}';loadAuctionLog('${clean}',${isMgr})">View →</span>
-      ${isMgr?`<button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="deleteHistDate('${clean}')">🗑</button>`:''}
-    </div>`;
-  }).join('')+'</div>';
-}
-let _pendingDone={date:'',pos:0,name:''};
-function openDoneModal(date,pos,name){
-  _pendingDone={date,pos,name};
-  const today=new Date().toISOString().slice(0,10);
-  document.getElementById('today-label').textContent=today;
-  document.getElementById('custom-date-input').value=today;
-  document.getElementById('custom-date-input').style.display='none';
-  document.querySelector('input[value="today"]').checked=true;
-  document.getElementById('opt-today').classList.add('selected');
-  document.getElementById('opt-custom').classList.remove('selected');
-  document.getElementById('done-modal-name').textContent=name||'';
-  document.getElementById('fi-white').value='';
-  document.getElementById('fi-dark').value='';
-  document.getElementById('fi-max-w').textContent=CFG.max_white;
-  document.getElementById('fi-max-d').textContent=CFG.max_red;
-  document.getElementById('fi-max-w2').textContent=CFG.max_white;
-  document.getElementById('fi-max-d2').textContent=CFG.max_red;
-  document.getElementById('fi-white').max=CFG.max_white;
-  document.getElementById('fi-dark').max=CFG.max_red;
-  document.getElementById('done-modal').style.display='flex';
-}
-function closeDoneModal(){document.getElementById('done-modal').style.display='none'}
-function selectDateOpt(v){
-  document.getElementById('opt-today').classList.toggle('selected',v==='today');
-  document.getElementById('opt-custom').classList.toggle('selected',v==='custom');
-  document.getElementById('custom-date-input').style.display=v==='custom'?'block':'none';
-}
-async function confirmDone(){
-  const opt=document.querySelector('input[name="done-date-opt"]:checked').value;
-  const doneDate=opt==='today'?new Date().toISOString().slice(0,10):document.getElementById('custom-date-input').value;
-  if(!doneDate){alert('Please select a date');return}
-  const fw=document.getElementById('fi-white').value;
-  const fd=document.getElementById('fi-dark').value;
-  const featherWhite=fw===''?CFG.max_white:Math.min(+fw,CFG.max_white);
-  const featherDark=fd===''?CFG.max_red:Math.min(+fd,CFG.max_red);
-  closeDoneModal();
-  const r=await gasPost({action:'updateStatus',date:_pendingDone.date,position:_pendingDone.pos,status:'done',note:'',doneDate,featherWhite,featherDark});
-  if(r.ok){
-    // invalidate frontend cache so next search/auction load reflects changes
-    _searchCacheLoaded=false;
-    loadAuctionLog(_pendingDone.date,true);
-  }else alert('Update failed: '+r.error);
-}
-async function toggleQ(date,pos,status,note,isMgr){
-  if(status==='done'){openDoneModal(date,pos,'');return}
-  const r=await gasPost({action:'updateStatus',date,position:pos,status,note});
-  if(r.ok){
-    _searchCacheLoaded=false;
-    loadAuctionLog(date,isMgr);
-  }else alert('Update failed: '+r.error);
-}
-async function deleteHistDate(date){if(!confirm('Delete all entries for '+date+'?'))return;const r=await gasPost({action:'deleteDate',date});if(r.ok){loadAuHistory(true);loadAuctionDates(true)}else alert('Delete failed: '+r.error)}
-async function deleteDateConfirm(){if(!currentALDate){alert('Select a date first');return}if(!confirm('Delete all queue entries for '+currentALDate+'?'))return;const r=await gasPost({action:'deleteDate',date:currentALDate});if(r.ok){currentALDate='';loadAuctionDates(true)}else alert('Delete failed: '+r.error)}
-function openPasteModal(){const today=new Date().toISOString().slice(0,10);document.getElementById('paste-date').value=currentALDate||today;document.getElementById('paste-names').value='';document.getElementById('paste-count').textContent='0 members';document.getElementById('paste-modal').style.display='flex';document.getElementById('paste-names').oninput=function(){const n=this.value.split('\n').map(s=>s.trim()).filter(Boolean).length;document.getElementById('paste-count').textContent=n+' members'}}
-function closePasteModal(){document.getElementById('paste-modal').style.display='none'}
-async function submitPaste(){const date=document.getElementById('paste-date').value.trim();const names=document.getElementById('paste-names').value.split('\n').map(s=>s.trim()).filter(Boolean);if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Enter valid date (YYYY-MM-DD)');return}if(!names.length){alert('Enter at least one name');return}const btn=document.querySelector('#paste-modal .btn-primary');btn.textContent='Saving...';btn.disabled=true;const r=await gasPost({action:'appendQueue',date,members:names});btn.textContent='💾 Save';btn.disabled=false;if(r.ok){closePasteModal();currentALDate=date;await loadAuctionDates(true);document.getElementById('mgr-date-select').value=date;loadAuctionLog(date,true)}else alert('Save failed: '+r.error)}
 
 /* ATTENDANCE */
 let currentAttDate='';
@@ -1845,117 +1053,505 @@ function tgDone(i,v){trackerSession[i].done=v;if(v){trackerSession[i].got_card=C
 function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
 function exportMissing(){const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));if(!miss.length){alert('No missing drops 🎉');return}const lines=['=== Missing Drops ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card missing ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White missing ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk missing ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');navigator.clipboard.writeText(lines).then(()=>alert('Copied!\n\n'+lines))}
 
-/* AUCTION DETAIL */
-let _detailPeople=[];
-function toggleAuctionDetail(){
-  const panel=document.getElementById('inline-detail');
-  const btn=document.getElementById('detail-toggle-btn');
-  const isOpen=panel.style.display!=='none';
-  if(isOpen){
-    panel.style.display='none';
-    btn.textContent='📋 ดูรายละเอียด';
-    return;
-  }
-  // build detail data
-  const type=document.getElementById('pred-event').value;
-  const idx=+document.getElementById('pred-rank').value;
-  const x2=document.getElementById('pred-x2').checked;
-  const reward=REWARDS[type][idx];
-  if(!reward){alert('กรุณาเลือก Event และ Rank ก่อน');return}
-  const cards=reward.card*(x2?2:1);
-  const white=reward.white*(x2?2:1);
-  const red=reward.red*(x2?2:1);
-  const inRound=_allPending.slice(0,Math.min(cards,_allPending.length));
-  if(!inRound.length){alert('ยังไม่มีข้อมูล กรุณารอโหลด Current Queue');return}
-  const n=inRound.length;
-  const pW=Math.floor(white/n),pR=Math.floor(red/n);
-  const wRem=white-(n*pW),rRem=red-(n*pR);
-  _detailPeople=inRound.map((p,i)=>{
-    const w=pW+(i<wRem?1:0);
-    const r=pR+(i<rRem?1:0);
-    // wStart: sum of white slots of all previous members + 1
-    const wBefore=i*pW+Math.min(i,wRem);
-    // rStart: total white slots + sum of red slots of previous members + 1
-    const rBefore=i*pR+Math.min(i,rRem);
-    return{
-      name:p.member_name,card:1,white:w,red:r,
-      cardSlot:i+1,
-      wStart:wBefore+1,
-      rStart:white+rBefore+1
-    };
-  });
-  document.getElementById('detail-chips').innerHTML=`
-    <span class="dchip">${type==='overrun'?'Overrun':type==='gl-y'?'GL Cross ✓':'GL Cross ✗'}</span>
-    <span class="dchip">🃏 <b>${cards}</b>${x2?' <b style="color:var(--orange-l)">×2</b>':''}</span>
-    <span class="dchip">🪶 ขาว <b>${white}</b></span>
-    <span class="dchip">🪶 แดงดำ <b>${red}</b></span>
-    <span class="dchip">👥 <b>${n}</b> คน</span>`;
-  renderDetailAll();
-  panel.style.display='block';
-  btn.textContent='✕ ซ่อนรายละเอียด';
-  swDetailTab('all');
-  // scroll to panel
-  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
-}
-function swDetailTab(t){
-  document.querySelectorAll('#inline-detail .au-tab').forEach((b,i)=>b.classList.toggle('active',['all','personal'][i]===t));
-  document.getElementById('detail-all').style.display=t==='all'?'block':'none';
-  document.getElementById('detail-personal').style.display=t==='personal'?'block':'none';
-  if(t==='personal'){
-    const s=document.getElementById('detail-search');
-    if(s)s.value='';
-    const r=document.getElementById('detail-person-result');
-    if(r)r.innerHTML='<div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div>';
-  }
-}
 const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
 const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
 const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
-function renderDetailAll(){
-  const tbody=document.getElementById('detail-tbody');
-  tbody.innerHTML=_detailPeople.map((p,i)=>{
-    const card=_toPageBox(p.cardSlot);
-    const wGrp=_grpByPage(_slotRange(p.wStart,p.white));
-    const rGrp=_grpByPage(_slotRange(p.rStart,p.red));
-    const mkLoc=(grp,cls)=>grp.map(([pg,boxes])=>
-      `<span class="loc-item"><span class="loc-pg ${cls}">หน้า${pg}</span><span class="loc-detail">กล่อง ${boxes.join(',')}</span></span>`
-    ).join('');
-    return`<tr>
-      <td style="color:var(--faint);font-size:11px;border-right:0.5px solid rgba(232,115,42,0.07);width:32px;text-align:center">${i+1}</td>
-      <td style="font-weight:500;padding:9px 10px;border-right:0.5px solid rgba(232,115,42,0.07)">${p.name}</td>
-      <td style="border-right:0.5px solid rgba(232,115,42,0.07)"><div class="loc"><span class="loc-item"><span class="loc-pg pg-card">หน้า${card.page}</span><span class="loc-detail">กล่อง ${card.box}</span></span></div></td>
-      <td style="border-right:0.5px solid rgba(232,115,42,0.07)"><div class="loc">${mkLoc(wGrp,'pg-w')}</div></td>
-      <td><div class="loc">${mkLoc(rGrp,'pg-d')}</div></td>
+
+/* ═══════════ AUCTION (NEW) ═══════════ */
+let _botConfig=[];
+let _aucQueueRows=[]; // current queue rows for selected draw date (Queue Manager source)
+let _aucDistDate=''; // queue_date used to populate the distribution table
+const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
+
+async function initAuctionPage(){
+  document.getElementById('auc-tab-lucky').style.display=isAdmin?'':'none';
+  if(!_botConfig.length){
+    const r=await gasGet('getBotConfig');
+    if(r.ok)_botConfig=r.rows;
+  }
+  populateAucEventTypes();
+  await loadQueueManagerDates();
+  swAucTab('calc');
+}
+
+function populateAucEventTypes(){
+  const sel=document.getElementById('auc-event-type');
+  if(sel.options.length)return;
+  const types=[...new Set(_botConfig.map(r=>r.event_name))].sort((a,b)=>EVENT_ORDER.indexOf(a)-EVENT_ORDER.indexOf(b));
+  sel.innerHTML=types.map(t=>`<option value="${t}">${t}</option>`).join('');
+  onAucEventType();
+}
+
+function onAucEventType(){
+  const type=document.getElementById('auc-event-type').value;
+  const rankSel=document.getElementById('auc-event-rank');
+  const ranks=_botConfig.filter(r=>r.event_name===type);
+  rankSel.innerHTML=ranks.map(r=>`<option value="${r.rank}">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</option>`).join('');
+  onAucRank();
+}
+
+function getCurrentReward(){
+  const type=document.getElementById('auc-event-type').value;
+  const rank=document.getElementById('auc-event-rank').value;
+  return _botConfig.find(r=>r.event_name===type&&r.rank===rank);
+}
+
+function onAucRank(){
+  _aucOverrides={};
+  renderRewardInputs();
+  renderDistribution();
+}
+
+/* ─── REWARD CALCULATOR ─── */
+let _aucOverrides={}; // {card,feather_white,feather_red_black,mvp_box,..._mul} manual overrides for current rank
+
+function renderRewardInputs(){
+  const base=getCurrentReward();
+  const wrap=document.getElementById('auc-reward-inputs');
+  const title=document.getElementById('auc-calc-title');
+  if(!base){wrap.innerHTML='';title.textContent='Distribution result';return}
+  const evLabel=/^\d+$/.test(base.rank)?'Rank '+base.rank:base.rank;
+  title.textContent=`Distribution result — ${base.event_name} — ${evLabel}`;
+
+  const fields=[
+    {k:'card',label:'Card (= members)',hasMul:false},
+    {k:'feather_white',label:'Feather white',hasMul:true},
+    {k:'feather_red_black',label:'Feather white & black',hasMul:true}
+  ];
+  if(base.mvp_box!=null) fields.push({k:'mvp_box',label:'MVP box count',hasMul:false,accent:true});
+
+  wrap.innerHTML=fields.map(f=>{
+    const val=_aucOverrides[f.k]!=null?_aucOverrides[f.k]:base[f.k];
+    if(!f.hasMul){
+      return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${f.accent?'var(--amber-b)':'var(--border)'};border-radius:8px;padding:10px 12px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}</div>
+        <input type="number" value="${val}" min="0" data-k="${f.k}" class="auc-val-in" style="width:100%;font-size:15px;font-weight:700;${f.accent?'color:var(--amber)':''}">
+      </div>`;
+    }
+    const base_v=base[f.k];
+    const mul=_aucOverrides[f.k+'_mul']!=null?_aucOverrides[f.k+'_mul']:1;
+    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}</div>
+      <input type="number" value="${val}" min="0" data-k="${f.k}" data-base="${base_v}" class="auc-val-in" style="width:100%;font-size:15px;font-weight:700;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--muted)">×</span>
+        <input type="number" value="${mul}" step="0.1" min="0" data-k="${f.k}" data-base="${base_v}" class="auc-mul-in" style="width:54px;font-size:11px;color:var(--orange-l)">
+        <span style="font-size:10px;color:var(--faint)">base ${base_v}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.auc-val-in').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const k=inp.dataset.k;
+      _aucOverrides[k]=+inp.value||0;
+      if(inp.dataset.base){
+        const b=+inp.dataset.base;
+        const mulInp=wrap.querySelector(`.auc-mul-in[data-k="${k}"]`);
+        const m=b?(+inp.value/b):0;
+        _aucOverrides[k+'_mul']=Math.round(m*100)/100;
+        if(mulInp)mulInp.value=_aucOverrides[k+'_mul'];
+      }
+      renderDistribution();
+    });
+  });
+  wrap.querySelectorAll('.auc-mul-in').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const k=inp.dataset.k,b=+inp.dataset.base,m=+inp.value||0;
+      _aucOverrides[k+'_mul']=m;
+      _aucOverrides[k]=Math.round(b*m);
+      const valInp=wrap.querySelector(`.auc-val-in[data-k="${k}"]`);
+      if(valInp)valInp.value=_aucOverrides[k];
+      renderDistribution();
+    });
+  });
+}
+
+function getRewardValues(){
+  const base=getCurrentReward();
+  if(!base)return null;
+  return {
+    card:_aucOverrides.card!=null?_aucOverrides.card:base.card,
+    white:_aucOverrides.feather_white!=null?_aucOverrides.feather_white:base.feather_white,
+    red:_aucOverrides.feather_red_black!=null?_aucOverrides.feather_red_black:base.feather_red_black,
+    mvp:base.mvp_box!=null?(_aucOverrides.mvp_box!=null?_aucOverrides.mvp_box:base.mvp_box):null,
+    event_name:base.event_name,
+    rank:base.rank
+  };
+}
+
+/* ─── DISTRIBUTION TABLE ─── */
+function fmtSlots(start,count){
+  if(count<=0)return '-';
+  const slots=_slotRange(start,count);
+  const grp=_grpByPage(slots);
+  return grp.map(([pg,boxes])=>{
+    const ranges=[];
+    let s=boxes[0],p=boxes[0];
+    for(let i=1;i<=boxes.length;i++){
+      const b=boxes[i];
+      if(b===p+1){p=b;continue}
+      ranges.push(s===p?`${s}`:`${s}-${p}`);
+      s=b;p=b;
+    }
+    return `Page${pg}(${ranges.join(',')})`;
+  }).join(', ');
+}
+
+function computeDistribution(){
+  const rw=getRewardValues();
+  if(!rw)return null;
+  const memberNames=_aucQueueRows.map(r=>r.member_name);
+  const n=memberNames.length;
+  if(!n)return null;
+  const white=rw.white,red=rw.red;
+  const pW=Math.floor(white/n),pR=Math.floor(red/n);
+  const wRem=white-(n*pW),rRem=red-(n*pR);
+  let wPos=1,rPos=1;
+  const rows=memberNames.map((name,i)=>{
+    const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
+    wPos+=pW;rPos+=pR;
+    return row;
+  });
+  return {rows,card:n,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank};
+}
+
+function renderDistribution(){
+  const dist=computeDistribution();
+  const tbody=document.getElementById('auc-dist-tbody');
+  const sumWrap=document.getElementById('auc-summary-cards');
+  if(!dist){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">Load a queue date in Queue Manager first</td></tr>';
+    sumWrap.innerHTML='';
+    return;
+  }
+  const wUsed=dist.n*Math.floor(dist.white/dist.n);
+  const rUsed=dist.n*Math.floor(dist.red/dist.n);
+  sumWrap.innerHTML=`
+    <div style="flex:1;min-width:90px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.card}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (0 left)</div>
+    </div>
+    <div style="flex:1;min-width:90px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:18px;font-weight:700">${wUsed}/${dist.white}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">White (${dist.wRem} left)</div>
+    </div>
+    <div style="flex:1;min-width:90px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:18px;font-weight:700">${rUsed}/${dist.red}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Red/Black (${dist.rRem} left)</div>
+    </div>`;
+  tbody.innerHTML=dist.rows.map((r,i)=>{
+    const card=_toPageBox(r.cardSlot);
+    return `<tr>
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td>Page${card.page}(${card.box})</td>
+      <td>${fmtSlots(r.wStart,r.white)}</td>
+      <td>${fmtSlots(r.rStart,r.red)}</td>
     </tr>`;
   }).join('');
 }
-function searchDetailPerson(q){
-  const el=document.getElementById('detail-person-result');
-  if(!q.trim()){el.innerHTML='<div class="empty">พิมพ์ชื่อเพื่อดูรายละเอียด</div>';return}
-  const found=_detailPeople.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
-  if(!found.length){el.innerHTML='<div class="empty">ไม่พบชื่อนี้ในรอบนี้</div>';return}
-  const mkGrid=(boxes,type)=>[1,2,3,4].map(b=>`<div class="${boxes.includes(b)?`box box-on-${type}`:'box box-off'}">${b}</div>`).join('');
-  el.innerHTML=found.map(p=>{
-    const card=_toPageBox(p.cardSlot);
-    const wGrp=_grpByPage(_slotRange(p.wStart,p.white));
-    const rGrp=_grpByPage(_slotRange(p.rStart,p.red));
-    const mkVis=(grp,type)=>grp.map(([pg,boxes])=>`<div class="slot-row"><div style="flex:1"><div class="slot-pg-${type}">หน้า ${pg}</div><div class="mini-grid">${mkGrid(boxes,type)}</div></div></div>`).join('');
-    return`<div class="pers-card">
-      <div class="pers-head"><div class="pers-avatar">${p.name[0]}</div>
-        <div><div style="font-size:15px;font-weight:600;color:var(--text)">${p.name}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">ลำดับที่ ${_detailPeople.indexOf(p)+1} · ${p.card} card · White ${p.white} · Dark ${p.red}</div></div>
-      </div>
-      <div class="pers-secs">
-        <div class="pers-sec"><div class="pers-sec-lbl">🃏 การ์ด</div><div class="slot-vis"><div class="slot-row"><div style="flex:1"><div class="slot-pg-card">หน้า ${card.page}</div><div class="mini-grid">${mkGrid([card.box],'card')}</div></div></div></div></div>
-        <div class="pers-sec"><div class="pers-sec-lbl">🪶 ขนนกขาว</div><div class="slot-vis">${mkVis(wGrp,'w')}</div></div>
-        <div class="pers-sec"><div class="pers-sec-lbl">🪶 ขนนกแดงดำ</div><div class="slot-vis">${mkVis(rGrp,'d')}</div></div>
-      </div>
+
+/* ─── TABS ─── */
+function swAucTab(t){
+  document.querySelectorAll('#page-auction .au-tab').forEach(b=>{
+    const isThis=(t==='calc'&&b.textContent.indexOf('Reward')===0)||
+                  (t==='lucky'&&b.textContent.indexOf('Lucky')===0)||
+                  (t==='manage'&&b.textContent.indexOf('Queue')===0)||
+                  (t==='rewards'&&b.textContent.indexOf('Rewards')===0);
+    b.classList.toggle('active',isThis);
+  });
+  ['calc','lucky','manage','rewards'].forEach(id=>{
+    const el=document.getElementById('auc-'+id);
+    if(el)el.style.display=id===t?'block':'none';
+  });
+  if(t==='lucky')initLuckyDraw();
+  if(t==='manage')renderQueueManager();
+  if(t==='rewards')renderRewardsPreview();
+}
+
+/* ─── QUEUE MANAGER ─── */
+async function loadQueueManagerDates(){
+  const r=await gasGet('getDates');
+  if(!r.ok||!r.dates.length)return;
+  const drawSel=document.getElementById('qm-filter-draw');
+  drawSel.innerHTML='<option value="">Draw date: All</option>'+r.dates.map(d=>`<option value="${d}">${d}</option>`).join('');
+  await loadQueueRows(r.dates[0]);
+}
+
+async function loadQueueRows(date){
+  if(!date)return;
+  const r=await gasGet('getLog&date='+date);
+  if(!r.ok)return;
+  _aucQueueRows=r.rows;
+  _aucDistDate=date;
+  renderDistribution();
+  const auSel=document.getElementById('qm-filter-auction');
+  const drawnDates=[...new Set(r.rows.filter(x=>x.drawn_date).map(x=>x.drawn_date))].sort().reverse();
+  auSel.innerHTML='<option value="">Auction date: All</option>'+drawnDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+async function renderQueueManager(){
+  const drawDate=document.getElementById('qm-filter-draw').value;
+  const auctionDate=document.getElementById('qm-filter-auction').value;
+  const status=document.getElementById('qm-filter-status').value;
+  if(drawDate&&drawDate!==_aucDistDate){
+    await loadQueueRows(drawDate);
+  }
+  let filtered=_aucQueueRows.filter(r=>{
+    if(auctionDate&&r.drawn_date!==auctionDate)return false;
+    if(status&&r.status!==status)return false;
+    return true;
+  });
+  filtered=filtered.slice().sort((a,b)=>
+    (a.queue_date||'').localeCompare(b.queue_date||'')||
+    (a.drawn_date||'').localeCompare(b.drawn_date||'')||
+    (a.status||'').localeCompare(b.status||'')
+  );
+  const list=document.getElementById('qm-list');
+  if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
+  list.innerHTML=`<div class="mgr-list-head">
+      <div class="mc-num">#</div>
+      <div class="mc-name">Name</div>
+      <div class="mc-status">Status</div>
+      <div class="mc-date">Auction date</div>
+      <div class="mc-act"></div>
+    </div>`+filtered.map(r=>{
+    const isDone=r.status==='done';
+    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
+    const actHtml=isAdmin
+      ?(isDone
+        ?`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`
+        :`<button class="q-btn q-btn-done" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`)
+      :'';
+    return `<div class="mgr-row">
+      <div class="mc-num">${r.position}</div>
+      <div class="mc-name">${r.member_name}</div>
+      <div class="mc-status">${statusHtml}</div>
+      <div class="mc-date">${r.drawn_date||'<span style="color:var(--faint)">—</span>'}</div>
+      <div class="mc-act">${actHtml}</div>
     </div>`;
   }).join('');
 }
 
+async function toggleQueueStatus(date,position,status){
+  const doneDate=status==='done'?new Date().toISOString().slice(0,10):'';
+  const r=await gasPost({action:'updateStatus',date,position,status,doneDate});
+  if(r.ok){
+    _searchCacheLoaded=false;
+    await loadQueueRows(date);
+    renderQueueManager();
+  }else alert('Update failed: '+r.error);
+}
+
+async function drawNewQueue(){
+  const date=document.getElementById('qm-new-date').value;
+  const pass=document.getElementById('qm-admin-pass').value;
+  const statusEl=document.getElementById('qm-draw-status');
+  if(!date){alert('Select a queue date');return}
+  if(!pass){alert('Enter admin password');return}
+  statusEl.textContent='Verifying...';
+  const vr=await gasPost({action:'verifyAdmin',password:pass});
+  if(!vr.ok){statusEl.textContent='';alert('Invalid admin password');return}
+  const pool=members.filter(m=>!(m.noted&&m.noted.includes('ตัวรอง')));
+  const names=pool.map(m=>m.ign);
+  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
+  statusEl.textContent='Saving...';
+  const r=await gasPost({action:'appendQueue',date,members:names});
+  if(r.ok){
+    statusEl.textContent=`Saved ${r.added} members for ${date}`;
+    _searchCacheLoaded=false;
+    document.getElementById('qm-admin-pass').value='';
+    await loadQueueManagerDates();
+    document.getElementById('qm-filter-draw').value=date;
+    await loadQueueRows(date);
+    renderQueueManager();
+  }else{
+    statusEl.textContent='';
+    alert('Save failed: '+r.error);
+  }
+}
+
+/* ─── LUCKY DRAW ─── */
+let _luckyOrder=[];
+let _luckyMvpResult=[];
+let _luckyAskIdx=0;
+let _luckyFinalResult=null;
+
+function initLuckyDraw(){
+  const dist=computeDistribution();
+  const title=document.getElementById('lucky-title');
+  const sub=document.getElementById('lucky-sub');
+  if(!dist||dist.mvp==null){
+    title.textContent='Lucky Draw';
+    sub.textContent='No MVP box configured for this event/rank';
+    document.getElementById('lucky-mvp-list').innerHTML='';
+    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
+    document.getElementById('lucky-step2-box').innerHTML='Select a Guild League rank with MVP box to use Lucky Draw';
+    document.getElementById('lucky-result').innerHTML='';
+    return;
+  }
+  title.textContent=`Lucky Draw — ${dist.event_name} — ${/^\d+$/.test(dist.rank)?'Rank '+dist.rank:dist.rank}`;
+  sub.textContent=`Admin only — ${dist.n} members in queue — MVP box ${dist.mvp} — White left ${dist.wRem} — Red/Black left ${dist.rRem}`;
+  if(!_luckyOrder.length||_luckyOrder.length!==dist.n){
+    luckyShuffle();
+  } else {
+    renderLuckyMvpList();
+  }
+}
+
+function luckyShuffle(){
+  const dist=computeDistribution();
+  if(!dist)return;
+  const names=dist.rows.map(r=>r.name);
+  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
+  _luckyOrder=names;
+  _luckyMvpResult=[];
+  _luckyAskIdx=0;
+  _luckyFinalResult=null;
+  renderLuckyMvpList();
+  document.getElementById('lucky-result').innerHTML='';
+}
+
+function renderLuckyMvpList(){
+  const dist=computeDistribution();
+  const mvpTarget=dist.mvp;
+  const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
+  document.getElementById('lucky-step1-title').textContent=`Step 1 — Mark MVP box recipients (${accepted}/${mvpTarget})`;
+  const rows=_luckyOrder.map((name,i)=>{
+    const result=_luckyMvpResult[i];
+    let right;
+    if(accepted>=mvpTarget&&result===undefined){
+      right='<span style="font-size:11px;color:var(--faint)">skipped</span>';
+    } else if(result===undefined&&i===_luckyAskIdx){
+      right=`<span style="font-size:10px;color:var(--muted);margin-right:8px">asking now</span>
+        <button class="q-btn q-btn-done" onclick="luckyMvpAnswer(${i},true)">Accept</button>
+        <button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="luckyMvpAnswer(${i},false)">Decline</button>`;
+    } else if(result===undefined){
+      right='<span style="font-size:11px;color:var(--faint)">pending</span>';
+    } else if(result.accepted){
+      right='<span class="qs qs-done">✓ Accepted</span>';
+    } else {
+      right='<span class="qs qs-pend" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">✗ Declined</span>';
+    }
+    return `<div class="mgr-row">
+      <div class="mc-num">${i+1}</div>
+      <div class="mc-name">${name}</div>
+      <div class="mc-act" style="width:auto;flex:1;text-align:right;display:flex;justify-content:flex-end;align-items:center;gap:6px">${right}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('lucky-mvp-list').innerHTML=`<div class="mgr-list">${rows}</div>`;
+  renderLuckyStep2();
+}
+
+function luckyMvpAnswer(i,accepted){
+  _luckyMvpResult[i]={accepted};
+  const dist=computeDistribution();
+  const acceptedCount=_luckyMvpResult.filter(x=>x&&x.accepted).length;
+  if(acceptedCount<dist.mvp){
+    let next=i+1;
+    while(next<_luckyOrder.length&&_luckyMvpResult[next]!==undefined)next++;
+    _luckyAskIdx=next;
+  }
+  renderLuckyMvpList();
+}
+
+function renderLuckyStep2(){
+  const dist=computeDistribution();
+  const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
+  const box=document.getElementById('lucky-step2-box');
+  document.getElementById('lucky-step2-title').textContent='Step 2 — Draw remaining feathers';
+  if(accepted<dist.mvp){
+    box.innerHTML=`Locked — finish marking MVP box recipients first (${accepted}/${dist.mvp})`;
+    box.style.color='var(--faint)';
+    return;
+  }
+  if(_luckyFinalResult){
+    box.innerHTML=`<span style="color:var(--green)">✓ Draw complete</span>`;
+    box.style.color='';
+    return;
+  }
+  box.style.color='';
+  box.innerHTML=`<button class="btn btn-primary" onclick="luckyDrawRemainder()">🍀 Draw remaining (White ${dist.wRem}, Red/Black ${dist.rRem})</button>`;
+}
+
+function luckyDrawRemainder(){
+  const dist=computeDistribution();
+  const mvpRecipients=_luckyOrder.filter((_,i)=>_luckyMvpResult[i]&&_luckyMvpResult[i].accepted);
+  const pool=_luckyOrder.filter(n=>!mvpRecipients.includes(n));
+  const items=[...Array(dist.wRem).fill('white'),...Array(dist.rRem).fill('red')];
+  const resultMap={};
+  _luckyOrder.forEach(n=>resultMap[n]={mvp:mvpRecipients.includes(n),extra_white:0,extra_red:0});
+  let remaining=[...items];
+  let candidates=pool.length?pool:_luckyOrder.slice();
+  while(remaining.length>0){
+    let order=candidates.slice();
+    for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+    for(const name of order){
+      if(!remaining.length)break;
+      const item=remaining.shift();
+      if(item==='white')resultMap[name].extra_white++;
+      else resultMap[name].extra_red++;
+    }
+    candidates=_luckyOrder.slice();
+  }
+  const cardEndSlot=dist.n;
+  const wEndSlot=dist.n*Math.floor(dist.white/dist.n);
+  const rEndSlot=dist.n*Math.floor(dist.red/dist.n);
+  let mvpPos=cardEndSlot+1,wPos=wEndSlot+1,rPos=rEndSlot+1;
+  _luckyFinalResult=_luckyOrder.map(name=>{
+    const r=resultMap[name];
+    const out={name,mvp_box:r.mvp,extra_white:r.extra_white,extra_red:r.extra_red,mvpLoc:'',wLoc:'',rLoc:''};
+    if(r.mvp){out.mvpLoc=fmtSlots(mvpPos,1);mvpPos+=1}
+    if(r.extra_white>0){out.wLoc=fmtSlots(wPos,r.extra_white);wPos+=r.extra_white}
+    if(r.extra_red>0){out.rLoc=fmtSlots(rPos,r.extra_red);rPos+=r.extra_red}
+    return out;
+  });
+  renderLuckyResult();
+  renderLuckyStep2();
+  saveLuckyDrawResult();
+}
+
+function renderLuckyResult(){
+  document.getElementById('lucky-result-title').style.display='';
+  const rows=_luckyFinalResult.map((r,i)=>`<tr>
+    <td style="color:var(--faint);font-size:11px">${i+1}</td>
+    <td style="font-weight:500">${r.name}</td>
+    <td>${r.mvpLoc?`<span style="color:var(--amber)">${r.mvpLoc}</span>`:'-'}</td>
+    <td>${r.wLoc||'-'}</td>
+    <td>${r.rLoc||'-'}</td>
+  </tr>`).join('');
+  document.getElementById('lucky-result').innerHTML=`<table class="au-tbl">
+    <thead><tr><th style="width:30px">#</th><th>Name</th><th>MVP box</th><th>Extra white</th><th>Extra red/black</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:8px">These results merge into the Card / White / Red-Black columns on the Reward Calculator tab.</div>`;
+}
+
+async function saveLuckyDrawResult(){
+  if(!_luckyFinalResult||!_aucDistDate)return;
+  const dist=computeDistribution();
+  const results=_luckyFinalResult.map(r=>({member_name:r.name,mvp_box:r.mvp_box,extra_white:r.extra_white,extra_red:r.extra_red}));
+  await gasPost({action:'saveLuckyDraw',drawDate:_aucDistDate,eventType:dist.event_name,rank:dist.rank,results});
+}
+
+/* ─── REWARDS PREVIEW ─── */
+function renderRewardsPreview(){
+  const type=document.getElementById('auc-event-type').value;
+  document.getElementById('rwprev-title').textContent=`Rewards Preview — ${type}`;
+  const rows=_botConfig.filter(r=>r.event_name===type);
+  const hasMvp=rows.some(r=>r.mvp_box!=null);
+  document.getElementById('rwprev-thead').innerHTML=
+    '<th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th>'+(hasMvp?'<th>MVP box</th>':'');
+  document.getElementById('rwprev-tbody').innerHTML=rows.map(r=>`<tr>
+    <td>${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</td>
+    <td>${r.card}</td>
+    <td>${r.feather_white}</td>
+    <td>${r.feather_red_black}</td>
+    ${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'-'}</td>`:''}
+  </tr>`).join('');
+}
 loadData();
-renderLogList();
 </script>
 </body>
 </html>
