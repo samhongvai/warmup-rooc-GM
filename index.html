@@ -1226,7 +1226,7 @@ function computeDistribution(){
   const white=rw.white,red=rw.red;
   const pW=Math.floor(white/n),pR=Math.floor(red/n);
   const wRem=white-(n*pW),rRem=red-(n*pR);
-  let wPos=1,rPos=1;
+  let wPos=1,rPos=white+1;
   const rows=memberNames.map((name,i)=>{
     const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
     wPos+=pW;rPos+=pR;
@@ -1515,7 +1515,7 @@ function luckyDrawRemainder(){
   }
   const cardEndSlot=dist.n;
   const wEndSlot=dist.n*Math.floor(dist.white/dist.n);
-  const rEndSlot=dist.n*Math.floor(dist.red/dist.n);
+  const rEndSlot=dist.white+dist.n*Math.floor(dist.red/dist.n);
   let mvpPos=cardEndSlot+1,wPos=wEndSlot+1,rPos=rEndSlot+1;
   _luckyFinalResult=_luckyOrder.map(name=>{
     const r=resultMap[name];
