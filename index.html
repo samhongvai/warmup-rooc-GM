@@ -184,14 +184,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .srch-section:last-child{border-bottom:none}
 .srch-sec-lbl{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
 /* party V3 */
-.party-v3{display:flex;gap:12px;align-items:flex-start}
-.party-v3-box{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;flex-shrink:0;padding:8px 0;background:rgba(232,115,42,0.06);border:0.5px solid rgba(232,115,42,0.15);border-radius:8px}
-.party-v3-num{font-size:22px;font-weight:700;color:var(--orange-l);line-height:1}
-.party-v3-lbl{display:none}
-.party-v3-right{flex:1}
-.party-v3-tlbl{font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.party-v3-chips{display:flex;flex-wrap:wrap;gap:5px}
-.party-v3-chip{font-size:12px;padding:3px 11px;border-radius:5px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);color:var(--muted)}
+.party-v3{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.party-v3-box{display:flex;align-items:center;justify-content:center;min-width:28px;height:28px;flex-shrink:0;padding:0 8px;background:rgba(232,115,42,0.06);border:0.5px solid rgba(232,115,42,0.15);border-radius:6px}
+.party-v3-num{font-size:14px;font-weight:700;color:var(--orange-l);line-height:1}
+.party-v3-div{width:0.5px;height:16px;background:rgba(255,255,255,0.08);margin:0 2px;flex-shrink:0}
+.party-v3-chips{display:flex;flex-wrap:wrap;gap:8px}
+.party-v3-chip{font-size:12px;height:28px;display:flex;align-items:center;padding:0 12px;border-radius:6px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);color:var(--muted)}
 /* queue box */
 .srch-queue{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.025);border:0.5px solid var(--border);border-radius:8px}
 .srch-q-pos{font-size:28px;font-weight:700;color:var(--gold-l);line-height:1;min-width:42px;text-align:center}
@@ -936,7 +934,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbw9nO50Np5OQRVc0E54UGazbpb7Na35B6gnnB9qMUfX3kk8GTr2sDnkqyMLp0CJb1AU/exec';
+const GAS='https://script.google.com/macros/s/AKfycbwRAe14zL43PWLE1wAWI2jxyba9H4FpoLUtw3j4E2VtlZHZkDZCY5CXzxiqXM01Gx4i/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const REWARDS={
@@ -1165,11 +1163,9 @@ async function searchMain(){
     ].join('');
     const partyHtml=m.party?`
       <div class="party-v3">
-        <div class="party-v3-box"><span class="party-v3-num">${m.party}</span><span class="party-v3-lbl">Party</span></div>
-        <div class="party-v3-right">
-          <div class="party-v3-tlbl">Teammates</div>
-          <div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div>
-        </div>
+        <div class="party-v3-box"><span class="party-v3-num">${m.party}</span></div>
+        <div class="party-v3-div"></div>
+        <div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div>
       </div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
     const queueHtml=qRow?`
       <div class="srch-queue">
@@ -1199,7 +1195,7 @@ async function searchMain(){
           <span class="srch-name">${m.ign}</span>${metaItems}
         </div>
       </div>
-      <div class="srch-section"><div class="srch-sec-lbl">Party</div>${partyHtml}</div>
+      <div class="srch-section"><div class="srch-sec-lbl">Party · Teammates</div>${partyHtml}</div>
       <div class="srch-section"><div class="srch-sec-lbl">Current Queue</div>${queueHtml}</div>
       <div class="srch-section" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
     </div>`;
