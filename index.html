@@ -1059,8 +1059,9 @@ const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=
 
 /* ═══════════ AUCTION (NEW) ═══════════ */
 let _botConfig=[];
-let _aucQueueRows=[]; // current queue rows for selected draw date (Queue Manager source)
-let _aucDistDate=''; // queue_date used to populate the distribution table
+let _aucQueueRows=[]; // queue rows for Queue Manager's selected draw date filter
+let _aucDistDate=''; // queue_date currently loaded into _aucQueueRows
+let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
 async function initAuctionPage(){
@@ -1070,8 +1071,23 @@ async function initAuctionPage(){
     if(r.ok)_botConfig=r.rows;
   }
   populateAucEventTypes();
+  await loadAllPending();
   await loadQueueManagerDates();
   swAucTab('calc');
+}
+
+async function loadAllPending(){
+  const r=await gasGet('getDates');
+  if(!r.ok||!r.dates.length){_aucPendingAll=[];return}
+  const dates=[...r.dates].sort(); // ascending queue_date
+  const pending=[];
+  for(const date of dates){
+    const lr=await gasGet('getLog&date='+date);
+    if(!lr.ok)continue;
+    lr.rows.filter(x=>x.status==='pending').sort((a,b)=>a.position-b.position).forEach(row=>pending.push(row));
+  }
+  _aucPendingAll=pending;
+  renderDistribution();
 }
 
 function populateAucEventTypes(){
@@ -1201,9 +1217,9 @@ function fmtSlots(start,count){
 function computeDistribution(){
   const rw=getRewardValues();
   if(!rw)return null;
-  const memberNames=_aucQueueRows.map(r=>r.member_name);
-  const n=memberNames.length;
+  const n=Math.min(rw.card,_aucPendingAll.length);
   if(!n)return null;
+  const memberNames=_aucPendingAll.slice(0,n).map(r=>r.member_name);
   const white=rw.white,red=rw.red;
   const pW=Math.floor(white/n),pR=Math.floor(red/n);
   const wRem=white-(n*pW),rRem=red-(n*pR);
@@ -1213,7 +1229,7 @@ function computeDistribution(){
     wPos+=pW;rPos+=pR;
     return row;
   });
-  return {rows,card:n,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank};
+  return {rows,card:n,cardTarget:rw.card,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank};
 }
 
 function renderDistribution(){
@@ -1221,16 +1237,17 @@ function renderDistribution(){
   const tbody=document.getElementById('auc-dist-tbody');
   const sumWrap=document.getElementById('auc-summary-cards');
   if(!dist){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">Load a queue date in Queue Manager first</td></tr>';
+    tbody.innerHTML='<tr><td colspan="5" class="empty">No pending queue members</td></tr>';
     sumWrap.innerHTML='';
     return;
   }
   const wUsed=dist.n*Math.floor(dist.white/dist.n);
   const rUsed=dist.n*Math.floor(dist.red/dist.n);
+  const cardLeft=dist.cardTarget-dist.card;
   sumWrap.innerHTML=`
     <div style="flex:1;min-width:90px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
-      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.card}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (0 left)</div>
+      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.cardTarget}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (${cardLeft} left)</div>
     </div>
     <div style="flex:1;min-width:90px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
       <div style="font-size:18px;font-weight:700">${wUsed}/${dist.white}</div>
@@ -1340,6 +1357,7 @@ async function toggleQueueStatus(date,position,status){
   if(r.ok){
     _searchCacheLoaded=false;
     await loadQueueRows(date);
+    await loadAllPending();
     renderQueueManager();
   }else alert('Update failed: '+r.error);
 }
@@ -1365,6 +1383,7 @@ async function drawNewQueue(){
     await loadQueueManagerDates();
     document.getElementById('qm-filter-draw').value=date;
     await loadQueueRows(date);
+    await loadAllPending();
     renderQueueManager();
   }else{
     statusEl.textContent='';
