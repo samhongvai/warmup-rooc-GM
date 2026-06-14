@@ -567,7 +567,29 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         <th>White</th>
         <th>Red/Black</th>
       </tr></thead>
-      <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">Load a queue date in Queue Manager first</td></tr></tbody>
+      <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">No pending queue members</td></tr></tbody>
+    </table></div>
+
+    <div class="sep" style="margin:18px 0"></div>
+
+    <div class="admin-only" id="auc-save-result-wrap" style="display:none">
+      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">บันทึกผลประมูล</div>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px">
+        <div style="flex:1;min-width:160px">
+          <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px">Auction date</label>
+          <input type="date" id="auc-result-date" style="width:100%">
+        </div>
+        <div style="font-size:11px;color:var(--muted);padding-bottom:9px" id="auc-save-as-label">บันทึกเป็น —</div>
+        <button class="btn btn-primary" onclick="saveAuctionResult()">✓ Save result</button>
+      </div>
+      <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:4px">เลือกวันที่ประมูลจริง (ตรงกับ Auction date ในคิว) แล้วกด Save — ถ้าวันนั้นมีบันทึกอยู่แล้วจะถูกแทนที่ด้วยค่าปัจจุบัน</div>
+      <div id="auc-save-result-msg" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">ประวัติการประมูล</div>
+    <div class="tbl-wrap"><table class="au-tbl">
+      <thead><tr><th>Auction date</th><th>Event</th><th>Rank</th></tr></thead>
+      <tbody id="auc-history-tbody"><tr><td colspan="3" class="empty">Loading...</td></tr></tbody>
     </table></div>
   </div>
 
@@ -701,7 +723,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbxAc1HX633Milr018wFfZtJmUBlbS91Q9B3R2WXbbqkwfhubqVyalUhyrZu7Q5uqVc/exec';
+const GAS='https://script.google.com/macros/s/AKfycbxT9-PLgP613K-L6GY1ikTFHS1PJHM7067MmAYk-SwObo2jcUTBEvEPaWycRwsnvIGf/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -1076,6 +1098,7 @@ async function initAuctionPage(){
   populateAucEventTypes();
   await loadAllPending();
   await loadQueueManagerDates();
+  await loadAuctionHistory();
   swAucTab('calc');
 }
 
@@ -1119,6 +1142,16 @@ function onAucRank(){
   _aucOverrides={};
   renderRewardInputs();
   renderDistribution();
+  updateAucSaveAsLabel();
+}
+
+function updateAucSaveAsLabel(){
+  const rw=getRewardValues();
+  const label=document.getElementById('auc-save-as-label');
+  if(!label)return;
+  if(!rw){label.textContent='บันทึกเป็น —';return}
+  const rankLabel=/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank;
+  label.innerHTML=`บันทึกเป็น <span style="color:var(--gold-l);font-weight:500">${rw.event_name} — ${rankLabel}</span>`;
 }
 
 /* ─── REWARD CALCULATOR ─── */
@@ -1568,6 +1601,45 @@ function renderRewardsPreview(){
     <td>${r.feather_red_black}</td>
     ${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'-'}</td>`:''}
   </tr>`).join('');
+}
+
+/* ─── AUCTION HISTORY ─── */
+async function loadAuctionHistory(){
+  const r=await gasGet('getAuctionHistory&limit=10');
+  if(!r.ok)return;
+  renderAuctionHistory(r.rows);
+}
+
+function renderAuctionHistory(rows){
+  const tbody=document.getElementById('auc-history-tbody');
+  if(!rows||!rows.length){tbody.innerHTML='<tr><td colspan="3" class="empty">No history yet</td></tr>';return}
+  tbody.innerHTML=rows.map(r=>{
+    const rankLabel=/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank;
+    return `<tr>
+      <td style="font-weight:500">${r.auction_date}</td>
+      <td style="color:var(--muted)">${r.event_type}</td>
+      <td style="color:var(--gold-l)">${rankLabel}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveAuctionResult(){
+  const dateInp=document.getElementById('auc-result-date');
+  const date=dateInp.value;
+  const msg=document.getElementById('auc-save-result-msg');
+  const rw=getRewardValues();
+  if(!date){msg.textContent='เลือกวันที่ก่อน';msg.style.color='var(--red)';return}
+  if(!rw){msg.textContent='เลือก Event/Rank ก่อน';msg.style.color='var(--red)';return}
+  msg.textContent='Saving...';msg.style.color='var(--muted)';
+  const r=await gasPost({action:'saveAuctionResult',auctionDate:date,eventType:rw.event_name,rank:rw.rank});
+  if(r.ok){
+    msg.textContent=`บันทึกแล้ว: ${date} → ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
+    msg.style.color='var(--green)';
+    await loadAuctionHistory();
+  }else{
+    msg.textContent='Save failed: '+r.error;
+    msg.style.color='var(--red)';
+  }
 }
 loadData();
 </script>
