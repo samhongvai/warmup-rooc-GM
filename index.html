@@ -547,10 +547,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 
   <div class="au-tabs">
-    <button class="au-tab active" onclick="swAucTab('calc')">Reward Calculator</button>
-    <button class="au-tab admin-only" id="auc-tab-lucky" style="display:none" onclick="swAucTab('lucky')">Lucky Draw 🔒</button>
-    <button class="au-tab" onclick="swAucTab('manage')">Queue Manager</button>
-    <button class="au-tab" onclick="swAucTab('rewards')">Rewards Preview</button>
+    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Reward Calculator</button>
+    <button class="au-tab admin-only" id="auc-tab-lucky" data-tab="lucky" style="display:none" onclick="swAucTab('lucky')">Lucky Draw 🔒</button>
+    <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue Manager</button>
+    <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards Preview</button>
   </div>
 
   <!-- TAB: REWARD CALCULATOR -->
@@ -701,7 +701,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbw1_O8TNFFexwXvFrSDeAgBElfUqPT22B3q1xbzGvPEGBGZZpGGLe3s7m3676FX4Ozn/exec';
+const GAS='https://script.google.com/macros/s/AKfycbxAc1HX633Milr018wFfZtJmUBlbS91Q9B3R2WXbbqkwfhubqVyalUhyrZu7Q5uqVc/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -736,6 +736,8 @@ async function submitAdmin(){
     document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
     document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
     document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
+    const luckyTab=document.getElementById('auc-tab-lucky');
+    if(luckyTab)luckyTab.style.display='inline-block';
     renderMembers();
     if(_pendingNav){sw(_pendingNav);_pendingNav='';}
   } else {
@@ -1065,7 +1067,8 @@ let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
 async function initAuctionPage(){
-  document.getElementById('auc-tab-lucky').style.display=isAdmin?'':'none';
+  const luckyTab=document.getElementById('auc-tab-lucky');
+  luckyTab.style.display=isAdmin?'inline-block':'none';
   if(!_botConfig.length){
     const r=await gasGet('getBotConfig');
     if(r.ok)_botConfig=r.rows;
@@ -1272,11 +1275,7 @@ function renderDistribution(){
 /* ─── TABS ─── */
 function swAucTab(t){
   document.querySelectorAll('#page-auction .au-tab').forEach(b=>{
-    const isThis=(t==='calc'&&b.textContent.indexOf('Reward')===0)||
-                  (t==='lucky'&&b.textContent.indexOf('Lucky')===0)||
-                  (t==='manage'&&b.textContent.indexOf('Queue')===0)||
-                  (t==='rewards'&&b.textContent.indexOf('Rewards')===0);
-    b.classList.toggle('active',isThis);
+    b.classList.toggle('active',b.dataset.tab===t);
   });
   ['calc','lucky','manage','rewards'].forEach(id=>{
     const el=document.getElementById('auc-'+id);
