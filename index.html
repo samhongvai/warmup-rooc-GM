@@ -47,11 +47,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .nav-footer{padding:0.6rem 1rem;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.7}
 .sdot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:4px;vertical-align:middle}
 .hamburger{display:none;position:fixed;top:11px;left:11px;z-index:300;background:var(--bg2);border:0.5px solid var(--border);border-radius:7px;padding:7px 10px;cursor:pointer;font-size:17px;color:var(--text)}
-.topbar-admin{display:none;position:fixed;top:8px;right:11px;z-index:300;background:var(--bg2);border:0.5px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;font-size:11px;color:var(--muted)}
+.topbar-admin{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--bg2);border:0.5px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;font-size:11px;color:var(--muted);align-items:center;gap:5px}
 .topbar-admin.on{border-color:var(--orange-border);color:var(--orange);background:var(--orange-dim)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150}
 .sidebar-overlay.show{display:block}
-@media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0!important;padding:3.5rem 0.9rem 2rem!important;max-width:100vw!important}.hamburger{display:flex;align-items:center}.topbar-admin{display:flex!important}}
+@media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0!important;padding:3.5rem 0.9rem 2rem!important;max-width:100vw!important}.hamburger{display:flex;align-items:center}}
 
 /* MAIN */
 .main{margin-left:210px;flex:1;padding:1.5rem 1.8rem;min-width:0;max-width:calc(100vw - 210px)}
@@ -562,8 +562,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <!-- TAB: REWARD CALCULATOR -->
   <div id="auc-calc">
     <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:8px" id="auc-calc-title">Distribution result</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--card);border:0.5px solid var(--border2);border-radius:8px;padding:10px 14px">
+      <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Multiplier</span>
+      <span style="font-size:13px;color:var(--muted)">×</span>
+      <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:64px;font-size:16px;font-weight:700;color:var(--orange);background:var(--bg3);border:0.5px solid var(--orange-border);border-radius:6px;padding:4px 8px;text-align:center">
+      <span style="font-size:10px;color:var(--faint);font-style:italic">คูณทุก field พร้อมกัน (Card / White / Red/Black)</span>
+    </div>
     <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap" id="auc-reward-inputs"></div>
-    <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:12px">Card count = number of members this round. Edit either the real value or the multiplier — the other updates automatically.</div>
+    <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:12px">Card count = number of members this round.</div>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="auc-summary-cards"></div>
     <div class="tbl-wrap"><table class="au-tbl">
       <thead><tr>
@@ -1154,7 +1160,7 @@ function getCurrentReward(){
 }
 
 function onAucRank(){
-  _aucOverrides={};
+  onAucRankReset();
   renderRewardInputs();
   renderDistribution();
   updateAucSaveAsLabel();
@@ -1170,7 +1176,19 @@ function updateAucSaveAsLabel(){
 }
 
 /* ─── REWARD CALCULATOR ─── */
-let _aucOverrides={}; // {card,feather_white,feather_red_black,mvp_box,..._mul} manual overrides for current rank
+let _aucGlobalMul=1; // single global multiplier for all fields
+
+function onGlobalMul(){
+  _aucGlobalMul=+document.getElementById('auc-global-mul').value||1;
+  renderRewardInputs();
+  renderDistribution();
+}
+
+function onAucRankReset(){
+  _aucGlobalMul=1;
+  const mulEl=document.getElementById('auc-global-mul');
+  if(mulEl)mulEl.value=1;
+}
 
 function renderRewardInputs(){
   const base=getCurrentReward();
@@ -1180,68 +1198,33 @@ function renderRewardInputs(){
   const evLabel=/^\d+$/.test(base.rank)?'Rank '+base.rank:base.rank;
   title.textContent=`Distribution result — ${base.event_name} — ${evLabel}`;
 
+  const mul=_aucGlobalMul;
   const fields=[
-    {k:'card',label:'Card (= members)',hasMul:false},
-    {k:'feather_white',label:'Feather white',hasMul:true},
-    {k:'feather_red_black',label:'Feather white & black',hasMul:true}
+    {k:'card',label:'Card (= members)',base:base.card,accent:false},
+    {k:'feather_white',label:'Feather white',base:base.feather_white,accent:false},
+    {k:'feather_red_black',label:'Feather white & black',base:base.feather_red_black,accent:false}
   ];
-  if(base.mvp_box!=null) fields.push({k:'mvp_box',label:'MVP box count',hasMul:false,accent:true});
+  if(base.mvp_box!=null) fields.push({k:'mvp_box',label:'MVP box count',base:base.mvp_box,accent:true});
 
   wrap.innerHTML=fields.map(f=>{
-    const val=_aucOverrides[f.k]!=null?_aucOverrides[f.k]:base[f.k];
-    if(!f.hasMul){
-      return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${f.accent?'var(--amber-b)':'var(--border)'};border-radius:8px;padding:10px 12px">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}</div>
-        <input type="number" value="${val}" min="0" data-k="${f.k}" class="auc-val-in" style="width:100%;font-size:15px;font-weight:700;${f.accent?'color:var(--amber)':''}">
-      </div>`;
-    }
-    const base_v=base[f.k];
-    const mul=_aucOverrides[f.k+'_mul']!=null?_aucOverrides[f.k+'_mul']:1;
-    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px">
+    const val=Math.round(f.base*mul);
+    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${f.accent?'var(--amber-b)':'var(--border)'};border-radius:8px;padding:10px 12px">
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}</div>
-      <input type="number" value="${val}" min="0" data-k="${f.k}" data-base="${base_v}" class="auc-val-in" style="width:100%;font-size:15px;font-weight:700;margin-bottom:6px">
-      <div style="display:flex;align-items:center;gap:4px">
-        <span style="font-size:10px;color:var(--muted)">×</span>
-        <input type="number" value="${mul}" step="0.1" min="0" data-k="${f.k}" data-base="${base_v}" class="auc-mul-in" style="width:54px;font-size:11px;color:var(--orange-l)">
-        <span style="font-size:10px;color:var(--faint)">base ${base_v}</span>
-      </div>
+      <div style="font-size:22px;font-weight:700;${f.accent?'color:var(--amber)':''}">${val}</div>
+      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base}</div>
     </div>`;
   }).join('');
-
-  wrap.querySelectorAll('.auc-val-in').forEach(inp=>{
-    inp.addEventListener('input',()=>{
-      const k=inp.dataset.k;
-      _aucOverrides[k]=+inp.value||0;
-      if(inp.dataset.base){
-        const b=+inp.dataset.base;
-        const mulInp=wrap.querySelector(`.auc-mul-in[data-k="${k}"]`);
-        const m=b?(+inp.value/b):0;
-        _aucOverrides[k+'_mul']=Math.round(m*100)/100;
-        if(mulInp)mulInp.value=_aucOverrides[k+'_mul'];
-      }
-      renderDistribution();
-    });
-  });
-  wrap.querySelectorAll('.auc-mul-in').forEach(inp=>{
-    inp.addEventListener('input',()=>{
-      const k=inp.dataset.k,b=+inp.dataset.base,m=+inp.value||0;
-      _aucOverrides[k+'_mul']=m;
-      _aucOverrides[k]=Math.round(b*m);
-      const valInp=wrap.querySelector(`.auc-val-in[data-k="${k}"]`);
-      if(valInp)valInp.value=_aucOverrides[k];
-      renderDistribution();
-    });
-  });
 }
 
 function getRewardValues(){
   const base=getCurrentReward();
   if(!base)return null;
+  const m=_aucGlobalMul||1;
   return {
-    card:_aucOverrides.card!=null?_aucOverrides.card:base.card,
-    white:_aucOverrides.feather_white!=null?_aucOverrides.feather_white:base.feather_white,
-    red:_aucOverrides.feather_red_black!=null?_aucOverrides.feather_red_black:base.feather_red_black,
-    mvp:base.mvp_box!=null?(_aucOverrides.mvp_box!=null?_aucOverrides.mvp_box:base.mvp_box):null,
+    card:Math.round(base.card*m),
+    white:Math.round(base.feather_white*m),
+    red:Math.round(base.feather_red_black*m),
+    mvp:base.mvp_box!=null?Math.round(base.mvp_box*m):null,
     event_name:base.event_name,
     rank:base.rank
   };
