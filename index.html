@@ -37,6 +37,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .nav-spacer{flex:1}
 .nav-section{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:10px 1rem 4px;opacity:0.6}
 .nav-lock{font-size:9px;opacity:0.4;margin-left:auto}
+.admin-locked{opacity:0.35;cursor:not-allowed;pointer-events:none}
+.admin-locked-wrap{position:relative}
+.admin-locked-wrap::after{content:'🔐';position:absolute;top:50%;right:8px;transform:translateY(-50%);font-size:10px;opacity:0.5;pointer-events:none}
 .nav-divider{height:0.5px;background:var(--border);margin:6px 1rem}
 .admin-btn{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 1rem 6px;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
 .admin-btn:hover{border-color:var(--orange-border);color:var(--orange-l)}
@@ -548,7 +551,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Reward Calculator</button>
-    <button class="au-tab admin-only" id="auc-tab-lucky" data-tab="lucky" style="display:none" onclick="swAucTab('lucky')">Lucky Draw 🔒</button>
+    <button class="au-tab admin-only admin-locked" id="auc-tab-lucky" data-tab="lucky" disabled onclick="if(!isAdmin){alert('กรุณา Login Admin ก่อน');return} swAucTab('lucky')">Lucky Draw 🔒</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue Manager</button>
     <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards Preview</button>
   </div>
@@ -572,7 +575,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
     <div class="sep" style="margin:18px 0"></div>
 
-    <div class="admin-only" id="auc-save-result-wrap" style="display:none">
+    <div class="admin-only" id="auc-save-result-wrap">
       <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">บันทึกผลประมูล</div>
       <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px">
         <div style="flex:1;min-width:160px">
@@ -631,6 +634,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
     <div class="sep" style="margin:14px 0"></div>
 
+    <div class="admin-only admin-locked" id="qm-draw-wrap">
     <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">Draw New Queue (Admin only)</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:130px">
@@ -641,6 +645,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <button class="btn btn-primary" onclick="drawNewQueue()">🎰 Draw &amp; Save</button>
     </div>
     <div id="qm-draw-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
+    </div>
   </div>
 
   <!-- TAB: REWARDS PREVIEW -->
@@ -740,7 +745,7 @@ function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=documen
 function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
 /* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();sw('search')}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
 async function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
@@ -756,11 +761,12 @@ async function submitAdmin(){
     document.getElementById('admin-btn').classList.add('on');
     document.getElementById('new-session-wrap').style.display='';
     document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
-    document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
+    document.querySelectorAll('.admin-only').forEach(el=>{el.classList.remove('admin-locked');el.disabled=false});
     document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
     const luckyTab=document.getElementById('auc-tab-lucky');
-    if(luckyTab)luckyTab.style.display='inline-block';
+    if(luckyTab){luckyTab.classList.remove('admin-locked');luckyTab.disabled=false;}
     renderMembers();
+    renderQueueManager();
     if(_pendingNav){sw(_pendingNav);_pendingNav='';}
   } else {
     document.getElementById('admin-err').style.display='block';
@@ -1090,7 +1096,15 @@ const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
 async function initAuctionPage(){
   const luckyTab=document.getElementById('auc-tab-lucky');
-  luckyTab.style.display=isAdmin?'inline-block':'none';
+  if(isAdmin){
+    luckyTab.classList.remove('admin-locked');luckyTab.disabled=false;
+  } else {
+    luckyTab.classList.add('admin-locked');luckyTab.disabled=true;
+  }
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
+    else{el.classList.add('admin-locked');el.disabled=true;}
+  });
   if(!_botConfig.length){
     const r=await gasGet('getBotConfig');
     if(r.ok)_botConfig=r.rows;
@@ -1368,11 +1382,10 @@ async function renderQueueManager(){
     </div>`+filtered.map(r=>{
     const isDone=r.status==='done';
     const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
-    const actHtml=isAdmin
-      ?(isDone
-        ?`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`
-        :`<button class="q-btn q-btn-done" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`)
-      :'';
+    const lockedClass=isAdmin?'':'admin-only admin-locked';
+    const actHtml=isDone
+      ?`<button class="q-btn q-btn-undo ${lockedClass}" ${isAdmin?'':'disabled'} onclick="if(!isAdmin){alert('กรุณา Login Admin ก่อน');return} toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`
+      :`<button class="q-btn q-btn-done ${lockedClass}" ${isAdmin?'':'disabled'} onclick="if(!isAdmin){alert('กรุณา Login Admin ก่อน');return} toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`;
     return `<div class="mgr-row">
       <div class="mc-num">${r.position}</div>
       <div class="mc-name">${r.member_name}</div>
