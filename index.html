@@ -1242,35 +1242,51 @@ function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.clas
 let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
+let _aucCacheLoaded=false; // true = pending + dates already loaded this session
+let _aucAllRows=[]; // all Auction_Log rows from getAllHistory (cached)
+let _aucDates=[]; // all queue_dates sorted desc
+
 async function initAuctionPage(){
-  // apply admin lock state to admin-only elements
   document.querySelectorAll('.admin-only').forEach(el=>{
     if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
     else{el.classList.add('admin-locked');el.disabled=true;}
   });
-  if(!_botConfig.length){
-    const r=await gasGet('getBotConfig');
-    if(r.ok)_botConfig=r.rows;
-  }
+  // parallel: botConfig + allHistory (skip if cached)
+  const fetches=[];
+  if(!_botConfig.length) fetches.push(gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}));
+  if(!_aucCacheLoaded) fetches.push(loadAllHistoryCache());
+  if(fetches.length) await Promise.all(fetches);
   populateAucEventTypes();
-  await loadAllPending();
-  await loadQueueManagerDates();
-  await loadAuctionHistory();
+  buildPendingFromCache();
+  populateQueueManagerDates();
+  if(!_aucHistoryLoaded) await loadAuctionHistory();
   swAucTab('calc');
 }
 
-async function loadAllPending(){
-  const r=await gasGet('getDates');
-  if(!r.ok||!r.dates.length){_aucPendingAll=[];return}
-  const dates=[...r.dates].sort(); // ascending queue_date
-  const pending=[];
-  for(const date of dates){
-    const lr=await gasGet('getLog&date='+date);
-    if(!lr.ok)continue;
-    lr.rows.filter(x=>x.status==='pending').sort((a,b)=>a.position-b.position).forEach(row=>pending.push(row));
-  }
+let _aucHistoryLoaded=false;
+
+async function loadAllHistoryCache(){
+  // single GAS call replaces N+1 calls (getDates + getLog×N)
+  const r=await gasGet('getAllHistory');
+  if(!r.ok)return;
+  _aucAllRows=r.rows;
+  _aucDates=[...new Set(r.rows.map(x=>x.queue_date))].sort().reverse();
+  _aucCacheLoaded=true;
+}
+
+function buildPendingFromCache(){
+  // rebuild _aucPendingAll from cache — sorted queue_date ASC → position ASC
+  const pending=_aucAllRows
+    .filter(r=>r.status==='pending')
+    .sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
   _aucPendingAll=pending;
   renderDistribution();
+}
+
+async function loadAllPending(){
+  // force refresh cache then rebuild
+  await loadAllHistoryCache();
+  buildPendingFromCache();
 }
 
 function populateAucEventTypes(){
@@ -1455,24 +1471,46 @@ function swAucTab(t){
 }
 
 /* ─── QUEUE MANAGER ─── */
-async function loadQueueManagerDates(){
-  const r=await gasGet('getDates');
-  if(!r.ok||!r.dates.length)return;
+function populateQueueManagerDates(){
+  if(!_aucDates.length)return;
   const drawSel=document.getElementById('qm-filter-draw');
-  drawSel.innerHTML='<option value="">Draw date: All</option>'+r.dates.map(d=>`<option value="${d}">${d}</option>`).join('');
-  await loadQueueRows(r.dates[0]);
+  drawSel.innerHTML='<option value="">Draw date: All</option>'+_aucDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+  loadQueueRowsFromCache(_aucDates[0]);
+}
+
+async function loadQueueManagerDates(){
+  // used when explicitly refreshing (e.g. after draw new queue)
+  await loadAllHistoryCache();
+  populateQueueManagerDates();
+}
+
+function loadQueueRowsFromCache(date){
+  if(!date)return;
+  const rows=_aucAllRows.filter(r=>r.queue_date===date);
+  _aucQueueRows=rows;
+  _aucDistDate=date;
+  renderDistribution();
+  const auSel=document.getElementById('qm-filter-auction');
+  const drawnDates=[...new Set(rows.filter(x=>x.drawn_date).map(x=>x.drawn_date))].sort().reverse();
+  auSel.innerHTML='<option value="">Auction date: All</option>'+drawnDates.map(d=>`<option value="${d}">${d}</option>`).join('');
 }
 
 async function loadQueueRows(date){
   if(!date)return;
+  // try cache first
+  const cached=_aucAllRows.filter(r=>r.queue_date===date);
+  if(cached.length){
+    loadQueueRowsFromCache(date);return;
+  }
+  // fallback: fetch from GAS
   const r=await gasGet('getLog&date='+date);
   if(!r.ok)return;
-  _aucQueueRows=r.rows;
-  _aucDistDate=date;
-  renderDistribution();
-  const auSel=document.getElementById('qm-filter-auction');
-  const drawnDates=[...new Set(r.rows.filter(x=>x.drawn_date).map(x=>x.drawn_date))].sort().reverse();
-  auSel.innerHTML='<option value="">Auction date: All</option>'+drawnDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+  // merge into cache
+  r.rows.forEach(row=>{
+    if(!_aucAllRows.find(x=>x.queue_date===row.queue_date&&x.position===row.position))
+      _aucAllRows.push(row);
+  });
+  loadQueueRowsFromCache(date);
 }
 
 async function renderQueueManager(){
@@ -1480,7 +1518,7 @@ async function renderQueueManager(){
   const auctionDate=document.getElementById('qm-filter-auction').value;
   const status=document.getElementById('qm-filter-status').value;
   if(drawDate&&drawDate!==_aucDistDate){
-    await loadQueueRows(drawDate);
+    loadQueueRowsFromCache(drawDate);
   }
   let filtered=_aucQueueRows.filter(r=>{
     if(auctionDate&&r.drawn_date!==auctionDate)return false;
@@ -1522,8 +1560,10 @@ async function toggleQueueStatus(date,position,status){
   const r=await gasPost({action:'updateStatus',date,position,status,doneDate});
   if(r.ok){
     _searchCacheLoaded=false;
-    await loadQueueRows(date);
-    await loadAllPending();
+    _aucCacheLoaded=false; // invalidate cache
+    await loadAllHistoryCache(); // refresh from GAS
+    buildPendingFromCache();
+    loadQueueRowsFromCache(date);
     renderQueueManager();
   }else alert('Update failed: '+r.error);
 }
@@ -1544,11 +1584,12 @@ async function drawNewQueue(){
   if(r.ok){
     statusEl.textContent=`Saved ${r.added} members for ${date}`;
     _searchCacheLoaded=false;
+    _aucCacheLoaded=false;
     document.getElementById('qm-admin-pass').value='';
     await loadQueueManagerDates();
     document.getElementById('qm-filter-draw').value=date;
-    await loadQueueRows(date);
-    await loadAllPending();
+    loadQueueRowsFromCache(date);
+    buildPendingFromCache();
     renderQueueManager();
   }else{
     statusEl.textContent='';
@@ -1789,6 +1830,7 @@ function renderRewardsPreview(){
 async function loadAuctionHistory(){
   const r=await gasGet('getAuctionHistory&limit=10');
   if(!r.ok)return;
+  _aucHistoryLoaded=true;
   renderAuctionHistory(r.rows);
 }
 
