@@ -288,25 +288,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .mvp-tag{font-size:12px;padding:3px 9px;background:var(--gold-dim);border:0.5px solid var(--gold);border-radius:5px;color:var(--gold-l)}
 .info-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b);margin-left:5px}
 
-/* TRACKER */
-.ss-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.ss-item{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;min-width:80px}
-.ss-n{font-size:18px;font-weight:600;color:var(--gold-l)}.ss-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-.tk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
-.tc{background:var(--card);border:0.5px solid var(--border);border-radius:8px;overflow:hidden}
-.tc-head{padding:7px 11px;display:flex;align-items:center;gap:7px;border-bottom:0.5px solid rgba(255,255,255,0.05)}
-.tc-head input[type=checkbox]{accent-color:var(--orange);cursor:pointer;width:14px;height:14px;flex-shrink:0}
-.tc-ign{font-size:12px;font-weight:500;flex:1;color:var(--text)}.tc-p{font-size:10px;color:var(--gold);opacity:0.7}
-.tc-body{padding:7px 11px}
-.dp-row{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0}
-.dp-row label{color:var(--muted);flex:1}.dp-row span{color:var(--muted);font-size:10px}
-.dp-row input[type=number]{width:52px;padding:3px 6px;text-align:center}
-.tc.tc-done{border-color:rgba(93,191,138,0.25)}.tc.tc-done .tc-ign{text-decoration:line-through;color:var(--muted)}
-.tc.tc-miss{border-color:var(--red-b);background:var(--red-dim)}
-.no-sess{text-align:center;color:var(--muted);padding:3rem;background:rgba(255,255,255,0.02);border-radius:10px;border:0.5px solid var(--border)}
-.no-sess .big{font-size:32px;margin-bottom:8px}.no-sess p{font-size:13px;margin-top:6px}
-.tk-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-.btn-row{display:flex;gap:6px;flex-wrap:wrap}
 
 /* CALENDAR */
 .cal-wrap{display:flex;border:0.5px solid rgba(232,115,42,0.14);border-radius:10px;overflow:hidden;overflow-y:auto;max-height:600px}
@@ -521,6 +502,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
   <div class="nav-section">Member Zone</div>
   <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span>Search</div>
+  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span>Calendar</div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span>Party</div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
@@ -528,9 +510,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-section">Guild Management</div>
   <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
   <div class="nav-divider"></div>
-  <div class="nav-section">Noted</div>
-  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span>Calendar</div>
-  <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
@@ -831,7 +810,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       </div>
       <div>
         <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">เวลา</label>
-        <input type="time" id="cal-new-time" placeholder="19:55" style="width:90px">
+        <select id="cal-new-time-type" onchange="toggleTimeInput()" style="width:90px;margin-bottom:4px">
+          <option value="timed">ระบุเวลา</option>
+          <option value="allday">ทั้งวัน</option>
+        </select>
+        <input type="time" id="cal-new-time" style="width:90px">
       </div>
       <div>
         <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Tag</label>
@@ -893,14 +876,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 </div>
 
-<!-- TRACKER -->
-<div id="page-tracker" class="page">
-  <div class="page-title">Tracker</div>
-  <div class="page-sub">Track who has drawn and log actual drops received</div>
-  <div id="tracker-content">
-    <div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Tracker session data is currently unavailable.</p></div>
-  </div>
-</div>
 
 </main>
 </div>
@@ -929,7 +904,7 @@ function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
 function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
-let members=[],trackerSession=[],isAdmin=false;
+let members=[],isAdmin=false;
 let _pendingNav='';
 
 /* HAMBURGER */
@@ -1264,26 +1239,6 @@ async function createAttSession(){
 }
 function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.classList.toggle('active',['overview','daily'][i]===t));document.getElementById('att-overview').style.display=t==='overview'?'block':'none';document.getElementById('att-daily').style.display=t==='daily'?'block':'none';if(t==='overview')loadAttSummary()}
 
-/* TRACKER */
-function renderTracker(){
-  const tc=document.getElementById('tracker-content');
-  if(!trackerSession.length){tc.innerHTML='<div class="no-sess"><div class="big">🎯</div><strong>No active session</strong><p>Go to Randomize and press "Send to Tracker"</p></div>';return}
-  const done=trackerSession.filter(m=>m.done).length,miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));
-  tc.innerHTML=`<div class="tk-head"><div class="ss-row"><div class="ss-item"><div class="ss-n">${trackerSession.length}</div><div class="ss-l">Total</div></div><div class="ss-item"><div class="ss-n" style="color:var(--green)">${done}</div><div class="ss-l">Drawn</div></div><div class="ss-item"><div class="ss-n" style="color:var(--muted)">${trackerSession.length-done}</div><div class="ss-l">Pending</div></div><div class="ss-item"><div class="ss-n" style="color:var(--red)">${miss.length}</div><div class="ss-l">Missing</div></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="exportMissing()">⬇ Export Missing</button><button class="btn btn-red" onclick="if(confirm('Clear session?')){trackerSession=[];renderTracker()}">✕ Clear</button></div></div>
-  <div class="tk-grid">${trackerSession.map((m,i)=>{const hM=m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red);return`<div class="tc ${m.done?(hM?'tc-miss':'tc-done'):''}"><div class="tc-head"><input type="checkbox" ${m.done?'checked':''} onchange="tgDone(${i},this.checked)"><div class="tc-ign">${i+1}. ${m.ign}</div><div class="tc-p">P${m.party}</div></div>${m.done?`<div class="tc-body"><div class="dp-row"><label>🃏 Card</label><input type="number" min="0" max="${CFG.max_card}" value="${m.got_card}" onchange="updDrop(${i},'got_card',+this.value)"><span>/${CFG.max_card}</span></div><div class="dp-row"><label>🪶 White</label><input type="number" min="0" max="${CFG.max_white}" value="${m.got_white}" onchange="updDrop(${i},'got_white',+this.value)"><span>/${CFG.max_white}</span></div><div class="dp-row"><label>🪶 Red/Blk</label><input type="number" min="0" max="${CFG.max_red}" value="${m.got_red}" onchange="updDrop(${i},'got_red',+this.value)"><span>/${CFG.max_red}</span></div></div>`:''}</div>`}).join('')}</div>`;
-}
-function tgDone(i,v){trackerSession[i].done=v;if(v){trackerSession[i].got_card=CFG.max_card;trackerSession[i].got_white=CFG.max_white;trackerSession[i].got_red=CFG.max_red}renderTracker()}
-function updDrop(i,k,v){trackerSession[i][k]=v;renderTracker()}
-function exportMissing(){const miss=trackerSession.filter(m=>m.done&&(m.got_card<CFG.max_card||m.got_white<CFG.max_white||m.got_red<CFG.max_red));if(!miss.length){alert('No missing drops 🎉');return}const lines=['=== Missing Drops ===','',...miss.map(m=>{const p=[];if(m.got_card<CFG.max_card)p.push(`Card missing ${CFG.max_card-m.got_card}`);if(m.got_white<CFG.max_white)p.push(`White missing ${CFG.max_white-m.got_white}`);if(m.got_red<CFG.max_red)p.push(`Red/Blk missing ${CFG.max_red-m.got_red}`);return`${m.ign} (P${m.party}): ${p.join(', ')}`})].join('\n');navigator.clipboard.writeText(lines).then(()=>alert('Copied!\n\n'+lines))}
-
-const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
-const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
-const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
-
-/* ═══════════ AUCTION (NEW) ═══════════ */
-let _botConfig=[];
-let _aucQueueRows=[]; // queue rows for Queue Manager's selected draw date filter
-let _aucDistDate=''; // queue_date currently loaded into _aucQueueRows
 let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
@@ -2044,15 +1999,15 @@ async function toggleDesignatedStatus(weekStart,position,status){
 /* ═══════════ CALENDAR ═══════════ */
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 const SLOT_H=36; // px per 30-min slot
-const TOTAL_SLOTS=48; // 24h × 2
-// Fixed events: day=0=Mon..6=Sun, time='HH:MM'
+const TOTAL_SLOTS=6; // 18:00–21:00 = 6 slots (30min each) — show only 3hrs
+const TIME_START=18; // start at 18:00
+// Fixed events: day=0=Mon..6=Sun, time='HH:MM' or 'allday'
 const CAL_FIXED=[
-  {id:'f1',day:0,title:'ประกาศ GL Rank',time:'00:00',cat:'personal'},
+  {id:'f1',day:0,title:'ประกาศ GL Rank',time:'allday',cat:'personal'},
+  {id:'f0',day:0,title:'Extreme Challenge',time:'allday',cat:'personal'},
   {id:'f2',day:1,title:'Guild League',time:'19:55',cat:'war'},
-  {id:'f3',day:1,title:'Designated Auction',time:'19:55',cat:'personal',sub:'คิว 1–5'},
   {id:'f4',day:2,title:'Dimension Drill',time:'19:55',cat:'personal'},
   {id:'f5',day:3,title:'Guild League',time:'19:55',cat:'war'},
-  {id:'f6',day:3,title:'Designated Auction',time:'19:55',cat:'personal',sub:'คิว 6–10'},
   {id:'f7',day:5,title:'Emperium Overrun',time:'19:55',cat:'war'},
   {id:'f8',day:6,title:'Themed Party',time:'19:30',cat:'personal'},
 ];
@@ -2060,9 +2015,11 @@ let _calWeekStart='';
 let _calSpecialEvents=[];
 
 function timeToTop(timeStr){
-  // convert 'HH:MM' to pixel top position
-  const [h,m]=(timeStr||'00:00').split(':').map(Number);
-  return ((h*2)+(m>=30?1:0))*SLOT_H + Math.round((m%30)/30*SLOT_H);
+  if(!timeStr||timeStr==='allday')return null; // allday handled separately
+  const [h,m]=(timeStr).split(':').map(Number);
+  const offsetMins=(h*60+m)-(TIME_START*60);
+  if(offsetMins<0)return null;
+  return Math.round(offsetMins/30*SLOT_H);
 }
 
 function getWeekMondayFromDate(d){
@@ -2080,15 +2037,20 @@ async function initCalendarPage(){
 
 function buildTimeAxis(){
   const axis=document.getElementById('cal-time-axis');
-  // clear existing slots
   while(axis.children.length>1)axis.removeChild(axis.lastChild);
+  // allday row
+  const adRow=document.createElement('div');
+  adRow.style.cssText='height:28px;display:flex;align-items:center;padding:0 3px;border-bottom:0.5px solid rgba(232,115,42,0.1);font-size:8px;color:rgba(237,210,138,0.3)';
+  adRow.textContent='ทั้งวัน';
+  axis.appendChild(adRow);
+  // time slots 18:00–21:00
   for(let i=0;i<TOTAL_SLOTS;i++){
     const div=document.createElement('div');
     div.className='cal-time-slot';
-    if(i%2===0){
-      const h=String(Math.floor(i/2)).padStart(2,'0');
-      div.innerHTML=`<span>${h}:00</span>`;
-    }
+    const totalMins=TIME_START*60+i*30;
+    const h=String(Math.floor(totalMins/60)).padStart(2,'0');
+    const m=String(totalMins%60).padStart(2,'0');
+    if(i%2===0) div.innerHTML=`<span>${h}:${m}</span>`;
     axis.appendChild(div);
   }
 }
@@ -2128,6 +2090,7 @@ function renderCalGrid(){
   const todayStr=new Date().toISOString().slice(0,10);
   const cols=document.getElementById('cal-day-cols');
   cols.innerHTML='';
+  const gridH=TOTAL_SLOTS*SLOT_H;
   for(let i=0;i<7;i++){
     const dt=new Date(mon);dt.setDate(mon.getDate()+i);
     const dateStr=dt.toISOString().slice(0,10);
@@ -2136,7 +2099,9 @@ function renderCalGrid(){
     const isSat=i===5;
     const dayEvts=CAL_FIXED.filter(e=>e.day===i);
     const specialEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i);
-    // build column
+    const allEvts=[...dayEvts,...specialEvts.map(e=>({...e,cat:'special'}))];
+    const alldayEvts=allEvts.filter(e=>e.time==='allday'||!e.time);
+    const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
     const col=document.createElement('div');
     col.className='cal-dcol'+(isAction?' action-day':isSat?' sat-day':'')+(isToday?' today-day':'');
     // header
@@ -2144,9 +2109,23 @@ function renderCalGrid(){
       <div class="cal-dname">${CAL_DAYS_SHORT[i]}</div>
       <div class="cal-dnum">${dt.getDate()}</div>
     </div>`;
-    // grid body
+    // allday strip
+    const adStrip=document.createElement('div');
+    adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(232,115,42,0.1);display:flex;flex-direction:column;gap:2px;background:rgba(0,0,0,0.1)';
+    alldayEvts.forEach(e=>{
+      const cls=e.cat==='special'?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
+      const pill=document.createElement('div');
+      pill.className=`cal-evt-block ${cls}`;
+      pill.style.cssText='position:static;margin:0;font-size:8px;padding:2px 5px';
+      pill.textContent=e.title;
+      if(e.cat==='special'&&isAdmin){pill.classList.add('can-delete');pill.onclick=()=>deleteCalEvent(e.event_id,e.title)}
+      adStrip.appendChild(pill);
+    });
+    col.appendChild(adStrip);
+    // timed grid
     const grid=document.createElement('div');
     grid.className='cal-dgrid';
+    grid.style.height=gridH+'px';
     // grid lines
     for(let s=0;s<TOTAL_SLOTS;s++){
       const line=document.createElement('div');
@@ -2154,35 +2133,34 @@ function renderCalGrid(){
       line.style.top=(s*SLOT_H)+'px';
       grid.appendChild(line);
     }
-    // fixed events
-    // track columns for overlap handling
-    const placedEvts=[];
-    [...dayEvts,...specialEvts.map(e=>({...e,cat:'special',title:e.title}))].forEach(e=>{
-      const top=timeToTop(e.time||'00:00');
-      const h=Math.max(32,SLOT_H);
-      const isSpec=e.cat==='special';
-      const cls=isSpec?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
-      // check overlap
+    // timed events
+    const placed=[];
+    timedEvts.forEach(e=>{
+      const top=timeToTop(e.time);
+      if(top===null)return;
+      const h=Math.max(30,SLOT_H);
+      const cls=e.cat==='special'?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
       let col_idx=0;
-      for(let p of placedEvts){
-        if(Math.abs(p.top-top)<h) col_idx=Math.max(col_idx,p.col+1);
-      }
-      placedEvts.push({top,col:col_idx});
-      const w=col_idx===0?'calc(100% - 4px)':'50%';
-      const left=col_idx===0?'2px':'50%';
+      for(const p of placed){if(Math.abs(p.top-top)<h)col_idx=Math.max(col_idx,p.col+1)}
+      placed.push({top,col:col_idx});
+      const leftPct=col_idx===0?'2px':(col_idx*45)+'%';
+      const widthPct=col_idx===0?'calc(100% - 4px)':'52%';
       const block=document.createElement('div');
-      block.className=`cal-evt-block ${cls}`+(isSpec&&isAdmin?' can-delete':'');
-      block.style.cssText=`top:${top}px;height:${h}px;left:${left};width:${w}`;
-      block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}${e.time&&e.time!=='00:00'?`<div class="evt-sub">${e.time} เริ่ม</div>`:e.time==='00:00'?'<div class="evt-sub">ทั้งวัน</div>':''}`;
-      if(isSpec&&isAdmin) block.onclick=()=>deleteCalEvent(e.event_id,e.title);
+      block.className=`cal-evt-block ${cls}`+(e.cat==='special'&&isAdmin?' can-delete':'');
+      block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${widthPct}`;
+      block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}${e.time?`<div class="evt-sub">${e.time} เริ่ม</div>`:''}`;
+      if(e.cat==='special'&&isAdmin)block.onclick=()=>deleteCalEvent(e.event_id,e.title);
       grid.appendChild(block);
     });
     col.appendChild(grid);
     cols.appendChild(col);
   }
-  // scroll to 18:00
-  const wrap=document.getElementById('cal-wrap');
-  if(wrap) setTimeout(()=>{wrap.scrollTop=36*36;},50);
+  // no need to scroll — 18:00 is already the start
+}
+
+function toggleTimeInput(){
+  const type=document.getElementById('cal-new-time-type').value;
+  document.getElementById('cal-new-time').style.display=type==='allday'?'none':'';
 }
 
 function calNavWeek(dir){
@@ -2194,7 +2172,8 @@ function calGoToday(){_calWeekStart=getWeekMondayFromDate();loadCalendarWeek();}
 async function addCalendarEvent(){
   const day=+document.getElementById('cal-new-day').value;
   const title=(document.getElementById('cal-new-title').value||'').trim();
-  const time=document.getElementById('cal-new-time').value||'';
+  const timeType=document.getElementById('cal-new-time-type').value;
+  const time=timeType==='allday'?'allday':(document.getElementById('cal-new-time').value||'');
   const tag=document.getElementById('cal-new-tag').value;
   const isFixed=document.getElementById('cal-new-fixed').value==='Y';
   const msg=document.getElementById('cal-add-msg');
@@ -2205,6 +2184,8 @@ async function addCalendarEvent(){
     msg.textContent='เพิ่มแล้ว: '+title;msg.style.color='var(--green)';
     document.getElementById('cal-new-title').value='';
     document.getElementById('cal-new-time').value='';
+    document.getElementById('cal-new-time-type').value='timed';
+    toggleTimeInput();
     await loadCalendarWeek();
   }else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
 }
