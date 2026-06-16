@@ -553,9 +553,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 
   <div class="au-tabs">
-    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Reward Calculator</button>
-    <button class="au-tab admin-only admin-locked" id="auc-tab-lucky" data-tab="lucky" disabled onclick="if(!isAdmin){alert('กรุณา Login Admin ก่อน');return} swAucTab('lucky')">Lucky Draw 🔒</button>
-    <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue Manager</button>
+    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
+    <button class="au-tab" id="auc-tab-lucky" data-tab="lucky" onclick="swAucTab('lucky')">Lucky Draw</button>
+    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated Auction</button>
+    <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Auction Queue</button>
     <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards Preview</button>
   </div>
 
@@ -605,27 +606,88 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     </table></div>
   </div>
 
-  <!-- TAB: LUCKY DRAW (admin only) -->
+  <!-- TAB: LUCKY DRAW (public view + admin draw) -->
   <div id="auc-lucky" style="display:none">
     <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:4px" id="lucky-title">Lucky Draw</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:14px" id="lucky-sub">Admin only</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px" id="lucky-sub">ผลการจับสลากรอบล่าสุด</div>
 
-    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px" id="lucky-step1-title">Step 1 — Mark MVP box recipients (0/0)</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <button class="btn btn-ghost" onclick="luckyShuffle()">🎲 Shuffle order</button>
-    </div>
-    <div id="lucky-mvp-list" class="tbl-wrap"></div>
-
-    <div style="font-size:11px;font-weight:600;color:var(--faint);margin:14px 0 8px" id="lucky-step2-title">Step 2 — Draw remaining feathers</div>
-    <div id="lucky-step2-box" style="background:rgba(255,255,255,0.02);border:0.5px solid var(--border);border-radius:8px;padding:14px;text-align:center;font-size:12px;color:var(--faint)">
-      Complete Step 1 first
+    <!-- PUBLIC: Latest result -->
+    <div id="lucky-latest-wrap">
+      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">ผลรอบล่าสุด</div>
+      <div id="lucky-latest-result" class="tbl-wrap"><div class="loading">Loading...</div></div>
     </div>
 
-    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin:14px 0 8px" id="lucky-result-title" style="display:none">Lucky draw result</div>
-    <div id="lucky-result" class="tbl-wrap"></div>
+    <div class="sep" style="margin:16px 0"></div>
+
+    <!-- ADMIN: Run draw -->
+    <div class="admin-only admin-locked" id="lucky-admin-wrap">
+      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">จัด Lucky Draw (Admin only)</div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px" id="lucky-step1-title">Step 1 — Mark MVP box recipients (0/0)</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="luckyShuffle()">🎲 Shuffle order</button>
+      </div>
+      <div id="lucky-mvp-list" class="tbl-wrap"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--faint);margin:14px 0 8px" id="lucky-step2-title">Step 2 — Draw remaining feathers</div>
+      <div id="lucky-step2-box" style="background:rgba(255,255,255,0.02);border:0.5px solid var(--border);border-radius:8px;padding:14px;text-align:center;font-size:12px;color:var(--faint)">
+        Complete Step 1 first
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin:14px 0 8px" id="lucky-result-title">Lucky draw result (รอบนี้)</div>
+      <div id="lucky-result" class="tbl-wrap"></div>
+    </div>
   </div>
 
-  <!-- TAB: QUEUE MANAGER -->
+  <!-- TAB: DESIGNATED AUCTION -->
+  <div id="auc-designated" style="display:none">
+    <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:4px">Designated Auction</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">รางวัลพิเศษสำหรับผู้ช่วยเหลือกิลด์ · อังคาร (คิว 1–5) · พฤหัส (คิว 6–10)</div>
+
+    <!-- Week selector -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px">สัปดาห์</label>
+      <input type="date" id="da-week-input" style="width:150px" onchange="loadDesignatedWeek()">
+      <button class="btn btn-ghost" onclick="setDesignatedThisWeek()">สัปดาห์นี้</button>
+      <span style="font-size:10px;color:var(--faint)" id="da-week-label"></span>
+    </div>
+
+    <!-- Reward summary -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:80px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:18px;font-weight:700">5</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Card / คน</div>
+      </div>
+      <div style="flex:1;min-width:80px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:18px;font-weight:700">15</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">White / คน</div>
+      </div>
+      <div style="flex:1;min-width:80px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:18px;font-weight:700">15</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Red/Black / คน</div>
+      </div>
+    </div>
+
+    <!-- Tuesday queue -->
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">📅 วันอังคาร — คิว 1–5</div>
+    <div id="da-tuesday-list" class="mgr-list" style="margin-bottom:14px"><div class="empty">เลือกสัปดาห์ก่อน</div></div>
+
+    <!-- Thursday queue -->
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">📅 วันพฤหัส — คิว 6–10</div>
+    <div id="da-thursday-list" class="mgr-list" style="margin-bottom:14px"><div class="empty">เลือกสัปดาห์ก่อน</div></div>
+
+    <!-- Admin: edit helpers -->
+    <div class="sep" style="margin:14px 0"></div>
+    <div class="admin-only admin-locked" id="da-admin-wrap">
+      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">ลงชื่อผู้ช่วยเหลือ (Admin only)</div>
+      <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:10px">คิว 5 และ 10 = Ficelle เสมอ · ใส่ชื่อได้ 8 ช่อง (คิว 1–4 และ 6–9)</div>
+      <div id="da-helper-inputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:12px"></div>
+      <button class="btn btn-primary" onclick="saveHelpers()">💾 บันทึกรายชื่อ</button>
+      <div id="da-save-msg" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- TAB: AUCTION QUEUE (renamed from Queue Manager) -->
   <div id="auc-manage" style="display:none">
     <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">Filter (sorted by Draw date → Auction date → Status)</div>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
@@ -733,7 +795,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbxT9-PLgP613K-L6GY1ikTFHS1PJHM7067MmAYk-SwObo2jcUTBEvEPaWycRwsnvIGf/exec';
+const GAS='https://script.google.com/macros/s/AKfycbxKy04qq-zkJJQ8bB69f39tjHaxI-BWiXgbPp0YCYOkrKhzj0FCX1_NR5V4xlBm3EUO/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -770,8 +832,6 @@ async function submitAdmin(){
     document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
     document.querySelectorAll('.admin-only').forEach(el=>{el.classList.remove('admin-locked');el.disabled=false});
     document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
-    const luckyTab=document.getElementById('auc-tab-lucky');
-    if(luckyTab){luckyTab.classList.remove('admin-locked');luckyTab.disabled=false;}
     renderMembers();
     renderQueueManager();
     if(_pendingNav){sw(_pendingNav);_pendingNav='';}
@@ -1102,12 +1162,7 @@ let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
 async function initAuctionPage(){
-  const luckyTab=document.getElementById('auc-tab-lucky');
-  if(isAdmin){
-    luckyTab.classList.remove('admin-locked');luckyTab.disabled=false;
-  } else {
-    luckyTab.classList.add('admin-locked');luckyTab.disabled=true;
-  }
+  // apply admin lock state to admin-only elements
   document.querySelectorAll('.admin-only').forEach(el=>{
     if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
     else{el.classList.add('admin-locked');el.disabled=true;}
@@ -1308,11 +1363,12 @@ function swAucTab(t){
   document.querySelectorAll('#page-auction .au-tab').forEach(b=>{
     b.classList.toggle('active',b.dataset.tab===t);
   });
-  ['calc','lucky','manage','rewards'].forEach(id=>{
+  ['calc','lucky','designated','manage','rewards'].forEach(id=>{
     const el=document.getElementById('auc-'+id);
     if(el)el.style.display=id===t?'block':'none';
   });
-  if(t==='lucky')initLuckyDraw();
+  if(t==='lucky')initLuckyDrawTab();
+  if(t==='designated')initDesignatedTab();
   if(t==='manage')renderQueueManager();
   if(t==='rewards')renderRewardsPreview();
 }
@@ -1427,19 +1483,21 @@ let _luckyFinalResult=null;
 
 function initLuckyDraw(){
   const dist=computeDistribution();
-  const title=document.getElementById('lucky-title');
-  const sub=document.getElementById('lucky-sub');
-  if(!dist||dist.mvp==null){
-    title.textContent='Lucky Draw';
-    sub.textContent='No MVP box configured for this event/rank';
-    document.getElementById('lucky-mvp-list').innerHTML='';
+  if(!dist){
+    // ยังไม่ได้รัน Guild Auction → block
     document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
-    document.getElementById('lucky-step2-box').innerHTML='Select a Guild League rank with MVP box to use Lucky Draw';
+    document.getElementById('lucky-mvp-list').innerHTML='<div class="empty" style="color:var(--red)">⚠️ ต้องรัน Guild Auction ก่อน — เลือก Event/Rank และให้มี pending queue</div>';
+    document.getElementById('lucky-step2-box').innerHTML='<span style="color:var(--faint)">รอ Guild Auction</span>';
     document.getElementById('lucky-result').innerHTML='';
     return;
   }
-  title.textContent=`Lucky Draw — ${dist.event_name} — ${/^\d+$/.test(dist.rank)?'Rank '+dist.rank:dist.rank}`;
-  sub.textContent=`Admin only — ${dist.n} members in queue — MVP box ${dist.mvp} — White left ${dist.wRem} — Red/Black left ${dist.rRem}`;
+  if(dist.mvp==null){
+    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
+    document.getElementById('lucky-mvp-list').innerHTML='<div class="empty">Event/Rank นี้ไม่มี MVP box — ใช้ได้เฉพาะ Guild League</div>';
+    document.getElementById('lucky-step2-box').innerHTML='<span style="color:var(--faint)">ไม่มี MVP box สำหรับ event/rank นี้</span>';
+    document.getElementById('lucky-result').innerHTML='';
+    return;
+  }
   if(!_luckyOrder.length||_luckyOrder.length!==dist.n){
     luckyShuffle();
   } else {
@@ -1464,23 +1522,37 @@ function renderLuckyMvpList(){
   const dist=computeDistribution();
   const mvpTarget=dist.mvp;
   const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
-  document.getElementById('lucky-step1-title').textContent=`Step 1 — Mark MVP box recipients (${accepted}/${mvpTarget})`;
+  const allAnswered=_luckyMvpResult.filter(x=>x!==undefined).length===_luckyOrder.length
+    || accepted>=mvpTarget;
+  document.getElementById('lucky-step1-title').textContent=
+    `Step 1 — Mark MVP box recipients (${accepted}/${mvpTarget})${allAnswered?' ✓':''}`;
+
   const rows=_luckyOrder.map((name,i)=>{
     const result=_luckyMvpResult[i];
+    const hasAnswer=result!==undefined;
     let right;
-    if(accepted>=mvpTarget&&result===undefined){
+
+    if(hasAnswer){
+      // ตอบแล้ว — แสดงผล + ปุ่มแก้ไข (toggle)
+      if(result.accepted){
+        right=`<span class="qs qs-done" style="margin-right:6px">✓ Accepted</span>
+          <button class="q-btn q-btn-undo" style="font-size:10px" onclick="luckyMvpToggle(${i})">แก้ไข</button>`;
+      } else {
+        right=`<span class="qs qs-pend" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b);margin-right:6px">✗ Declined</span>
+          <button class="q-btn q-btn-undo" style="font-size:10px" onclick="luckyMvpToggle(${i})">แก้ไข</button>`;
+      }
+    } else if(accepted>=mvpTarget){
+      // MVP quota เต็มแล้ว คนที่ยังไม่ตอบ = skipped
       right='<span style="font-size:11px;color:var(--faint)">skipped</span>';
-    } else if(result===undefined&&i===_luckyAskIdx){
+    } else if(i===_luckyAskIdx){
+      // ถามอยู่
       right=`<span style="font-size:10px;color:var(--muted);margin-right:8px">asking now</span>
         <button class="q-btn q-btn-done" onclick="luckyMvpAnswer(${i},true)">Accept</button>
         <button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="luckyMvpAnswer(${i},false)">Decline</button>`;
-    } else if(result===undefined){
-      right='<span style="font-size:11px;color:var(--faint)">pending</span>';
-    } else if(result.accepted){
-      right='<span class="qs qs-done">✓ Accepted</span>';
     } else {
-      right='<span class="qs qs-pend" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">✗ Declined</span>';
+      right='<span style="font-size:11px;color:var(--faint)">pending</span>';
     }
+
     return `<div class="mgr-row">
       <div class="mc-num">${i+1}</div>
       <div class="mc-name">${name}</div>
@@ -1496,10 +1568,20 @@ function luckyMvpAnswer(i,accepted){
   const dist=computeDistribution();
   const acceptedCount=_luckyMvpResult.filter(x=>x&&x.accepted).length;
   if(acceptedCount<dist.mvp){
+    // หาคนถัดไปที่ยังไม่ตอบ
     let next=i+1;
     while(next<_luckyOrder.length&&_luckyMvpResult[next]!==undefined)next++;
     _luckyAskIdx=next;
   }
+  _luckyFinalResult=null; // reset result ถ้ามีการแก้ไข
+  renderLuckyMvpList();
+}
+
+function luckyMvpToggle(i){
+  // เปิด asking again สำหรับคนนี้
+  _luckyMvpResult[i]=undefined;
+  _luckyAskIdx=i;
+  _luckyFinalResult=null;
   renderLuckyMvpList();
 }
 
@@ -1508,13 +1590,19 @@ function renderLuckyStep2(){
   const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
   const box=document.getElementById('lucky-step2-box');
   document.getElementById('lucky-step2-title').textContent='Step 2 — Draw remaining feathers';
-  if(accepted<dist.mvp){
+
+  // check all answered (accepted target reached OR all answered)
+  const allDone=accepted>=dist.mvp||
+    _luckyMvpResult.filter(x=>x!==undefined).length===_luckyOrder.length;
+
+  if(!allDone){
     box.innerHTML=`Locked — finish marking MVP box recipients first (${accepted}/${dist.mvp})`;
     box.style.color='var(--faint)';
     return;
   }
   if(_luckyFinalResult){
-    box.innerHTML=`<span style="color:var(--green)">✓ Draw complete</span>`;
+    box.innerHTML=`<span style="color:var(--green)">✓ Draw complete</span>
+      <button class="btn btn-ghost" style="font-size:11px;margin-left:10px" onclick="_luckyFinalResult=null;luckyDrawRemainder()">🔄 Re-draw</button>`;
     box.style.color='';
     return;
   }
@@ -1542,6 +1630,10 @@ function luckyDrawRemainder(){
     }
     candidates=_luckyOrder.slice();
   }
+  // slot positions ต่อเนื่องจาก Guild Auction:
+  // Card slots: 1..n → MVP ต่อจาก card → slot n+1
+  // White slots: 1..white → extra white ต่อจาก wEnd → slot wEnd+1
+  // Red/Black slots: white+1..white+red → extra red ต่อจาก rEnd → slot rEnd+1
   const cardEndSlot=dist.n;
   const wEndSlot=dist.n*Math.floor(dist.white/dist.n);
   const rEndSlot=dist.white+dist.n*Math.floor(dist.red/dist.n);
@@ -1561,18 +1653,31 @@ function luckyDrawRemainder(){
 
 function renderLuckyResult(){
   document.getElementById('lucky-result-title').style.display='';
-  const rows=_luckyFinalResult.map((r,i)=>`<tr>
-    <td style="color:var(--faint);font-size:11px">${i+1}</td>
-    <td style="font-weight:500">${r.name}</td>
-    <td>${r.mvpLoc?`<span style="color:var(--amber)">${r.mvpLoc}</span>`:'-'}</td>
-    <td>${r.wLoc||'-'}</td>
-    <td>${r.rLoc||'-'}</td>
-  </tr>`).join('');
+  const dist=computeDistribution();
+  // แสดงทุกคน — ถ้าไม่ได้อะไรก็แสดง — ทั้งหมด
+  const rows=_luckyFinalResult.map((r,i)=>{
+    const hasExtra=r.mvp_box||r.extra_white>0||r.extra_red>0;
+    return `<tr style="${!hasExtra?'opacity:0.45':''}">
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td>${r.mvpLoc?`<span style="color:var(--amber)">${r.mvpLoc}</span>`:'-'}</td>
+      <td>${r.wLoc||'-'}</td>
+      <td>${r.rLoc||'-'}</td>
+    </tr>`;
+  }).join('');
   document.getElementById('lucky-result').innerHTML=`<table class="au-tbl">
-    <thead><tr><th style="width:30px">#</th><th>Name</th><th>MVP box</th><th>Extra white</th><th>Extra red/black</th></tr></thead>
+    <thead><tr>
+      <th style="width:30px">#</th>
+      <th>Name</th>
+      <th>MVP box (ต่อจาก Card)</th>
+      <th>Extra white</th>
+      <th>Extra red/black</th>
+    </tr></thead>
     <tbody>${rows}</tbody>
   </table>
-  <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:8px">These results merge into the Card / White / Red-Black columns on the Reward Calculator tab.</div>`;
+  <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:8px">
+    slot ต่อเนื่องจาก Guild Auction — MVP box ต่อจาก Card slot ${dist.n} · White extra ต่อจาก slot ${dist.n*Math.floor(dist.white/dist.n)} · Red/Black extra ต่อจาก slot ${dist.white+dist.n*Math.floor(dist.red/dist.n)}
+  </div>`;
 }
 
 async function saveLuckyDrawResult(){
@@ -1637,6 +1742,152 @@ async function saveAuctionResult(){
     msg.style.color='var(--red)';
   }
 }
+/* ─── LUCKY DRAW TAB (public + admin) ─── */
+async function initLuckyDrawTab(){
+  // load latest result for everyone
+  const wrap=document.getElementById('lucky-latest-result');
+  wrap.innerHTML='<div class="loading">Loading...</div>';
+  const r=await gasGet('getLatestLuckyDraw');
+  if(!r.ok||!r.rows.length){
+    wrap.innerHTML='<div class="empty">ยังไม่มีผล Lucky Draw</div>';
+    document.getElementById('lucky-title').textContent='Lucky Draw';
+    document.getElementById('lucky-sub').textContent='ยังไม่มีผลรอบล่าสุด';
+  } else {
+    const rankLabel=/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank;
+    document.getElementById('lucky-title').textContent=`Lucky Draw — ${r.event_type} — ${rankLabel}`;
+    document.getElementById('lucky-sub').textContent=`วันที่จับสลาก: ${r.draw_date}`;
+    const rows=r.rows.map((row,i)=>`<tr>
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${row.member_name}</td>
+      <td>${row.mvp_box?'<span style="color:var(--amber)">✓</span>':'-'}</td>
+      <td>${row.extra_white||'-'}</td>
+      <td>${row.extra_red||'-'}</td>
+    </tr>`).join('');
+    wrap.innerHTML=`<table class="au-tbl">
+      <thead><tr><th style="width:30px">#</th><th>Name</th><th>MVP box</th><th>Extra white</th><th>Extra red</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+  // admin draw panel
+  if(isAdmin) initLuckyDraw();
+}
+
+/* ─── DESIGNATED AUCTION ─── */
+const DA_REWARD={card:5,white:15,red:15};
+let _daWeekStart='';
+let _daHelpers=[];
+
+function getWeekMonday(date){
+  const d=new Date(date||Date.now());
+  const day=d.getDay();
+  const diff=d.getDate()-(day===0?6:day-1);
+  d.setDate(diff);
+  return d.toISOString().slice(0,10);
+}
+
+function setDesignatedThisWeek(){
+  const monday=getWeekMonday();
+  document.getElementById('da-week-input').value=monday;
+  loadDesignatedWeek();
+}
+
+async function loadDesignatedWeek(){
+  const dateVal=document.getElementById('da-week-input').value;
+  if(!dateVal)return;
+  _daWeekStart=getWeekMonday(dateVal);
+  document.getElementById('da-week-input').value=_daWeekStart;
+  // compute tuesday/thursday dates
+  const mon=new Date(_daWeekStart);
+  const tue=new Date(mon);tue.setDate(mon.getDate()+1);
+  const thu=new Date(mon);thu.setDate(mon.getDate()+3);
+  const tueFmt=tue.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  const thuFmt=thu.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('da-week-label').textContent=`สัปดาห์ ${_daWeekStart} (อ. ${tueFmt} / พฤ. ${thuFmt})`;
+  const r=await gasGet('getDesignatedQueue&weekStart='+_daWeekStart);
+  if(r.ok&&r.rows.length){
+    _daHelpers=r.rows;
+    renderDesignatedQueues(r.rows);
+    renderHelperInputs(r.rows);
+  } else {
+    _daHelpers=[];
+    renderDesignatedQueues([]);
+    renderHelperInputs([]);
+  }
+}
+
+function initDesignatedTab(){
+  if(!_daWeekStart) setDesignatedThisWeek();
+  else loadDesignatedWeek();
+}
+
+function renderDesignatedQueues(rows){
+  const tues=rows.filter(r=>r.position<=5);
+  const thurs=rows.filter(r=>r.position>=6);
+  const mkRow=(r)=>{
+    const isDone=r.auction_status==='done';
+    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
+    const isFicelle=r.member_name==='Ficelle';
+    const actHtml=isAdmin&&!isFicelle
+      ?(isDone
+        ?`<button class="q-btn q-btn-undo admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'pending')">↺ Undo</button>`
+        :`<button class="q-btn q-btn-done admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'done')">✓ Mark drawn</button>`)
+      :'';
+    return `<div class="mgr-row ${isFicelle?'':''}">
+      <div class="mc-num">${r.position}</div>
+      <div class="mc-name">${r.member_name}${isFicelle?` <span style="font-size:10px;color:var(--amber)">★ Fixed</span>`:''}</div>
+      <div class="mc-status">${r.member_name?statusHtml:'<span style="color:var(--faint)">—</span>'}</div>
+      <div class="mc-act">${actHtml}</div>
+    </div>`;
+  };
+  const head=`<div class="mgr-list-head">
+    <div class="mc-num">คิว</div>
+    <div class="mc-name">ชื่อ</div>
+    <div class="mc-status">Status</div>
+    <div class="mc-act"></div>
+  </div>`;
+  const tEl=document.getElementById('da-tuesday-list');
+  const thEl=document.getElementById('da-thursday-list');
+  tEl.innerHTML=tues.length?head+tues.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
+  thEl.innerHTML=thurs.length?head+thurs.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
+}
+
+function renderHelperInputs(rows){
+  const wrap=document.getElementById('da-helper-inputs');
+  const slots=[1,2,3,4,6,7,8,9]; // helper positions (not 5,10=Ficelle)
+  wrap.innerHTML=slots.map((pos,idx)=>{
+    const existing=rows.find(r=>r.position===pos);
+    return `<div>
+      <label style="font-size:10px;color:var(--faint);display:block;margin-bottom:4px">คิว ${pos}</label>
+      <input type="text" id="da-helper-${pos}" placeholder="ชื่อผู้ช่วยเหลือ" value="${existing&&existing.member_name!=='Ficelle'?existing.member_name:''}" style="width:100%">
+    </div>`;
+  }).join('');
+}
+
+async function saveHelpers(){
+  if(!_daWeekStart){alert('เลือกสัปดาห์ก่อน');return}
+  const msg=document.getElementById('da-save-msg');
+  const slots=[1,2,3,4,6,7,8,9];
+  const helpers=slots.map(pos=>{
+    const val=(document.getElementById('da-helper-'+pos).value||'').trim();
+    return {name:val,note:''};
+  });
+  msg.textContent='Saving...';msg.style.color='var(--muted)';
+  const r=await gasPost({action:'saveHelpers',weekStart:_daWeekStart,helpers});
+  if(r.ok){
+    msg.textContent=`บันทึกแล้ว ${r.saved} รายการ`;msg.style.color='var(--green)';
+    await loadDesignatedWeek();
+  }else{
+    msg.textContent='Error: '+r.error;msg.style.color='var(--red)';
+  }
+}
+
+async function toggleDesignatedStatus(weekStart,position,status){
+  const doneDate=status==='done'?new Date().toISOString().slice(0,10):'';
+  const r=await gasPost({action:'saveDesignatedLog',weekStart,position,status,doneDate});
+  if(r.ok) await loadDesignatedWeek();
+  else alert('Update failed: '+r.error);
+}
+
 loadData();
 </script>
 </body>
