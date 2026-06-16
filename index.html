@@ -308,7 +308,50 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .tk-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .btn-row{display:flex;gap:6px;flex-wrap:wrap}
 
-/* AUCTION */
+/* CALENDAR */
+.cal-wrap{display:flex;border:0.5px solid rgba(232,115,42,0.14);border-radius:10px;overflow:hidden;overflow-y:auto;max-height:600px}
+.cal-time-axis{width:38px;flex-shrink:0;background:rgba(0,0,0,0.2);border-right:0.5px solid rgba(232,115,42,0.1);position:sticky;left:0;z-index:2}
+.cal-time-head{height:44px;border-bottom:0.5px solid rgba(232,115,42,0.12);background:rgba(0,0,0,0.15)}
+.cal-time-slot{height:36px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:0.5px solid rgba(232,115,42,0.05)}
+.cal-time-slot span{font-size:8px;color:rgba(237,210,138,0.28);line-height:1;white-space:nowrap}
+.cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
+.cal-dcol{border-right:0.5px solid rgba(232,115,42,0.08);display:flex;flex-direction:column}
+.cal-dcol:last-child{border-right:none}
+.cal-dcol.action-day{background:rgba(232,115,42,0.03)}
+.cal-dcol.sat-day{background:rgba(93,191,138,0.02)}
+.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:0.5px solid rgba(232,115,42,0.12);background:rgba(0,0,0,0.15);position:sticky;top:0;z-index:1}
+.cal-dname{font-size:9px;color:rgba(237,210,138,0.4);text-transform:uppercase;letter-spacing:1px}
+.cal-dnum{font-size:16px;font-weight:700;color:rgba(237,210,138,0.6);line-height:1.1}
+.cal-dcol.action-day .cal-dname{color:#F5A06A}
+.cal-dcol.action-day .cal-dnum{color:#F5A06A}
+.cal-dcol.action-day .cal-dhead{background:rgba(232,115,42,0.08)}
+.cal-dcol.sat-day .cal-dname{color:#5DBF8A}
+.cal-dcol.sat-day .cal-dnum{color:#5DBF8A}
+.cal-dcol.today-day .cal-dhead{box-shadow:inset 0 -2px 0 rgba(232,115,42,0.6)}
+.cal-dcol.today-day .cal-dnum{color:#F5A06A}
+.cal-dgrid{position:relative;height:1728px}
+.cal-grid-line{position:absolute;left:0;right:0;height:0.5px;background:rgba(232,115,42,0.05)}
+.cal-grid-line.hour{background:rgba(232,115,42,0.1)}
+/* event blocks */
+.cal-evt-block{position:absolute;left:2px;right:2px;border-radius:4px;padding:3px 5px;font-size:9px;font-weight:600;overflow:hidden;border-left-width:2px;border-left-style:solid;line-height:1.35}
+.cal-evt-block .evt-sub{font-size:8px;font-weight:400;opacity:0.65;margin-top:1px}
+/* 3 colors */
+.ev-war{background:rgba(93,191,138,0.15);border-color:#5DBF8A;color:#7DD4A8}
+.ev-personal{background:rgba(107,163,214,0.15);border-color:#6BA3D6;color:#9ABFE8}
+.ev-special{background:rgba(224,112,106,0.18);border-color:#E0706A;color:#E89490}
+.ev-special.can-delete:hover{opacity:0.7;cursor:pointer}
+/* helper strip */
+.helper-strip{background:rgba(232,115,42,0.07);border:0.5px solid rgba(232,115,42,0.18);border-radius:8px;padding:9px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.helper-chips{display:flex;flex-wrap:wrap;gap:4px}
+.hchip{font-size:11px;padding:2px 9px;border-radius:4px;font-weight:500}
+.hchip-support{background:rgba(93,191,138,0.12);border:0.5px solid rgba(93,191,138,0.3);color:#7DD4A8}
+.hchip-ar{background:rgba(212,160,68,0.12);border:0.5px solid rgba(212,160,68,0.3);color:#D4A044}
+.hchip-dps{background:rgba(224,112,106,0.12);border:0.5px solid rgba(224,112,106,0.3);color:#E0706A}
+.hchip-unknown{background:rgba(255,248,230,0.05);border:0.5px solid rgba(237,210,138,0.15);color:rgba(237,210,138,0.5)}
+/* legend */
+.cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.cal-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(237,210,138,0.45)}
+.cal-leg-dot{width:8px;height:8px;border-radius:2px}
 .al-head{display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
 .al-head select{flex:1;max-width:220px}
 .au-tabs{display:flex;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
@@ -486,6 +529,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
   <div class="nav-divider"></div>
   <div class="nav-section">Noted</div>
+  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span>Calendar</div>
   <div class="nav-item" onclick="sw('tracker');closeSidebar()"><span class="ni">✅</span>Tracker</div>
   <div class="nav-spacer"></div>
   <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
@@ -680,8 +724,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div class="sep" style="margin:14px 0"></div>
     <div class="admin-only admin-locked" id="da-admin-wrap">
       <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">ลงชื่อผู้ช่วยเหลือ (Admin only)</div>
-      <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:10px">คิว 5 และ 10 = Ficelle เสมอ · ใส่ชื่อได้ 8 ช่อง (คิว 1–4 และ 6–9)</div>
-      <div id="da-helper-inputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:12px"></div>
+      <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:10px">คิว 5 และ 10 = Ficelle เสมอ · ใส่ Character ID ได้ 8 ช่อง (คิว 1–4 และ 6–9) ระบบจะ lookup ชื่อให้อัตโนมัติ</div>
+      <div id="da-helper-inputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:12px"></div>
       <button class="btn btn-primary" onclick="saveHelpers()">💾 บันทึกรายชื่อ</button>
       <div id="da-save-msg" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
     </div>
@@ -731,6 +775,87 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 </div>
 
+
+<!-- CALENDAR -->
+<div id="page-calendar" class="page">
+  <div class="page-title">Calendar</div>
+  <div class="page-sub">กิจกรรมประจำสัปดาห์ + ผู้ช่วยเหลือกิลด์</div>
+
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
+    <span style="flex:1;text-align:center;font-size:13px;font-weight:500;color:var(--gold-l)" id="cal-week-label">Loading...</span>
+    <button class="btn btn-ghost" onclick="calNavWeek(1)">▶</button>
+    <button class="btn btn-ghost" onclick="calGoToday()">สัปดาห์นี้</button>
+  </div>
+
+  <!-- helper strip -->
+  <div class="helper-strip" id="cal-helper-strip">
+    <div style="font-size:10px;color:rgba(232,115,42,0.7);text-transform:uppercase;letter-spacing:1px">🤝 ผู้ช่วยเหลือสัปดาห์นี้</div>
+    <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อ</span></div>
+  </div>
+
+  <!-- legend -->
+  <div class="cal-legend">
+    <div class="cal-leg"><div class="cal-leg-dot" style="background:#5DBF8A"></div>Guild War (GL / Overrun)</div>
+    <div class="cal-leg"><div class="cal-leg-dot" style="background:#6BA3D6"></div>Personal Event (fixed)</div>
+    <div class="cal-leg"><div class="cal-leg-dot" style="background:#E0706A"></div>Special Event</div>
+  </div>
+
+  <!-- time-axis calendar -->
+  <div class="cal-wrap" id="cal-wrap">
+    <!-- time axis -->
+    <div class="cal-time-axis" id="cal-time-axis">
+      <div class="cal-time-head"></div>
+    </div>
+    <!-- day columns -->
+    <div class="cal-day-cols" id="cal-day-cols"></div>
+  </div>
+
+  <!-- admin: add/edit events -->
+  <div class="sep" style="margin:14px 0"></div>
+  <div class="admin-only admin-locked" id="cal-admin-wrap">
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">🔐 เพิ่ม Special Event (Admin)</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
+      <div>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">วัน</label>
+        <select id="cal-new-day" style="width:90px">
+          <option value="0">จันทร์</option><option value="1">อังคาร</option>
+          <option value="2">พุธ</option><option value="3">พฤหัส</option>
+          <option value="4">ศุกร์</option><option value="5">เสาร์</option>
+          <option value="6">อาทิตย์</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ชื่อ Event</label>
+        <input type="text" id="cal-new-title" placeholder="เช่น Summer Festival" style="width:160px">
+      </div>
+      <div>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">เวลา</label>
+        <input type="time" id="cal-new-time" placeholder="19:55" style="width:90px">
+      </div>
+      <div>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Tag</label>
+        <select id="cal-new-tag" style="width:90px">
+          <option value="special">Special</option>
+          <option value="guild">Guild</option>
+          <option value="social">Social</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ซ้ำทุกสัปดาห์</label>
+        <select id="cal-new-fixed" style="width:80px">
+          <option value="N">ไม่ซ้ำ</option>
+          <option value="Y">ซ้ำ</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="addCalendarEvent()">+ เพิ่ม</button>
+    </div>
+    <div id="cal-add-msg" style="font-size:11px;color:var(--muted)"></div>
+
+    <div style="font-size:10px;color:var(--faint);margin-top:4px;font-style:italic">กด event สีแดงใน calendar เพื่อลบ Special Event</div>
+  </div>
+</div>
 
 <!-- ATTENDANCE -->
 <div id="page-attendance" class="page">
@@ -859,6 +984,7 @@ function sw(t){
   if(t==='search')preloadSearchCache();
   if(t==='auction')initAuctionPage();
   if(t==='attendance')loadAttendance();
+  if(t==='calendar')initCalendarPage();
 }
 
 /* DATA LOAD */
@@ -1853,14 +1979,39 @@ function renderDesignatedQueues(rows){
 
 function renderHelperInputs(rows){
   const wrap=document.getElementById('da-helper-inputs');
-  const slots=[1,2,3,4,6,7,8,9]; // helper positions (not 5,10=Ficelle)
-  wrap.innerHTML=slots.map((pos,idx)=>{
+  const slots=[1,2,3,4,6,7,8,9];
+  wrap.innerHTML=slots.map((pos)=>{
     const existing=rows.find(r=>r.position===pos);
+    const existingName=existing&&existing.member_name!=='Ficelle'?existing.member_name:'';
+    // try to find char_id from members
+    const existingM=existingName?members.find(m=>m.ign===existingName):null;
+    const existingId=existingM?existingM.char_id:'';
     return `<div>
-      <label style="font-size:10px;color:var(--faint);display:block;margin-bottom:4px">คิว ${pos}</label>
-      <input type="text" id="da-helper-${pos}" placeholder="ชื่อผู้ช่วยเหลือ" value="${existing&&existing.member_name!=='Ficelle'?existing.member_name:''}" style="width:100%">
+      <label style="font-size:10px;color:var(--faint);display:block;margin-bottom:3px">คิว ${pos}</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" id="da-cid-${pos}" placeholder="Character ID" value="${existingId}"
+          oninput="resolveHelper(${pos})"
+          style="width:120px;font-size:12px">
+        <span id="da-resolve-${pos}" style="font-size:11px;color:var(--muted);min-width:80px">
+          ${existingName?`<span style="color:var(--green)">✓ ${existingName}</span>`:'—'}
+        </span>
+      </div>
     </div>`;
   }).join('');
+}
+
+function resolveHelper(pos){
+  const cid=(document.getElementById('da-cid-'+pos).value||'').trim();
+  const el=document.getElementById('da-resolve-'+pos);
+  if(!cid){el.innerHTML='—';return}
+  const m=members.find(x=>x.char_id&&x.char_id.toLowerCase()===cid.toLowerCase());
+  if(m){
+    const cls=getHelperClass(m.ign);
+    const clsColor=cls==='support'?'var(--green)':cls==='ar'?'var(--amber)':'var(--red)';
+    el.innerHTML=`<span style="color:${clsColor}">✓ ${m.ign}</span>`;
+  }else{
+    el.innerHTML=`<span style="color:var(--red)">ไม่พบ ID นี้</span>`;
+  }
 }
 
 async function saveHelpers(){
@@ -1868,8 +2019,10 @@ async function saveHelpers(){
   const msg=document.getElementById('da-save-msg');
   const slots=[1,2,3,4,6,7,8,9];
   const helpers=slots.map(pos=>{
-    const val=(document.getElementById('da-helper-'+pos).value||'').trim();
-    return {name:val,note:''};
+    const cid=(document.getElementById('da-cid-'+pos)?.value||'').trim();
+    if(!cid)return{name:'',note:''};
+    const m=members.find(x=>x.char_id&&x.char_id.toLowerCase()===cid.toLowerCase());
+    return{name:m?m.ign:cid,note:''};
   });
   msg.textContent='Saving...';msg.style.color='var(--muted)';
   const r=await gasPost({action:'saveHelpers',weekStart:_daWeekStart,helpers});
@@ -1886,6 +2039,182 @@ async function toggleDesignatedStatus(weekStart,position,status){
   const r=await gasPost({action:'saveDesignatedLog',weekStart,position,status,doneDate});
   if(r.ok) await loadDesignatedWeek();
   else alert('Update failed: '+r.error);
+}
+
+/* ═══════════ CALENDAR ═══════════ */
+const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
+const SLOT_H=36; // px per 30-min slot
+const TOTAL_SLOTS=48; // 24h × 2
+// Fixed events: day=0=Mon..6=Sun, time='HH:MM'
+const CAL_FIXED=[
+  {id:'f1',day:0,title:'ประกาศ GL Rank',time:'00:00',cat:'personal'},
+  {id:'f2',day:1,title:'Guild League',time:'19:55',cat:'war'},
+  {id:'f3',day:1,title:'Designated Auction',time:'19:55',cat:'personal',sub:'คิว 1–5'},
+  {id:'f4',day:2,title:'Dimension Drill',time:'19:55',cat:'personal'},
+  {id:'f5',day:3,title:'Guild League',time:'19:55',cat:'war'},
+  {id:'f6',day:3,title:'Designated Auction',time:'19:55',cat:'personal',sub:'คิว 6–10'},
+  {id:'f7',day:5,title:'Emperium Overrun',time:'19:55',cat:'war'},
+  {id:'f8',day:6,title:'Themed Party',time:'19:30',cat:'personal'},
+];
+let _calWeekStart='';
+let _calSpecialEvents=[];
+
+function timeToTop(timeStr){
+  // convert 'HH:MM' to pixel top position
+  const [h,m]=(timeStr||'00:00').split(':').map(Number);
+  return ((h*2)+(m>=30?1:0))*SLOT_H + Math.round((m%30)/30*SLOT_H);
+}
+
+function getWeekMondayFromDate(d){
+  const dt=new Date(d||Date.now());
+  const day=dt.getDay();
+  const diff=dt.getDate()-(day===0?6:day-1);
+  dt.setDate(diff);return dt.toISOString().slice(0,10);
+}
+
+async function initCalendarPage(){
+  if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
+  buildTimeAxis();
+  await loadCalendarWeek();
+}
+
+function buildTimeAxis(){
+  const axis=document.getElementById('cal-time-axis');
+  // clear existing slots
+  while(axis.children.length>1)axis.removeChild(axis.lastChild);
+  for(let i=0;i<TOTAL_SLOTS;i++){
+    const div=document.createElement('div');
+    div.className='cal-time-slot';
+    if(i%2===0){
+      const h=String(Math.floor(i/2)).padStart(2,'0');
+      div.innerHTML=`<span>${h}:00</span>`;
+    }
+    axis.appendChild(div);
+  }
+}
+
+async function loadCalendarWeek(){
+  const hr=await gasGet('getHelpers&weekStart='+_calWeekStart);
+  renderHelperStrip(hr.ok?hr.rows:[]);
+  const er=await gasGet('getCalendarEvents&weekStart='+_calWeekStart);
+  _calSpecialEvents=er.ok?er.rows.filter(r=>!r.is_fixed):[];
+  renderCalGrid();
+}
+
+function getHelperClass(name){
+  const m=members.find(x=>x.ign===name);
+  if(!m)return 'unknown';
+  const t=getType(m.class);
+  if(t==='Support')return 'support';
+  if(t==='All Rounder')return 'ar';
+  return 'dps';
+}
+
+function renderHelperStrip(rows){
+  const el=document.getElementById('cal-helper-chips');
+  const helpers=rows.filter(r=>r.member_name&&r.member_name!=='Ficelle'&&r.member_name!=='');
+  if(!helpers.length){el.innerHTML='<span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อสัปดาห์นี้</span>';return}
+  el.innerHTML=helpers.map(r=>{
+    const cls=getHelperClass(r.member_name);
+    return `<span class="hchip hchip-${cls}">${r.member_name}</span>`;
+  }).join('');
+}
+
+function renderCalGrid(){
+  const mon=new Date(_calWeekStart);
+  const end=new Date(mon);end.setDate(mon.getDate()+6);
+  const fmt=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('cal-week-label').textContent=`สัปดาห์ ${fmt(mon)} – ${fmt(end)}`;
+  const todayStr=new Date().toISOString().slice(0,10);
+  const cols=document.getElementById('cal-day-cols');
+  cols.innerHTML='';
+  for(let i=0;i<7;i++){
+    const dt=new Date(mon);dt.setDate(mon.getDate()+i);
+    const dateStr=dt.toISOString().slice(0,10);
+    const isToday=dateStr===todayStr;
+    const isAction=i===1||i===3;
+    const isSat=i===5;
+    const dayEvts=CAL_FIXED.filter(e=>e.day===i);
+    const specialEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i);
+    // build column
+    const col=document.createElement('div');
+    col.className='cal-dcol'+(isAction?' action-day':isSat?' sat-day':'')+(isToday?' today-day':'');
+    // header
+    col.innerHTML=`<div class="cal-dhead">
+      <div class="cal-dname">${CAL_DAYS_SHORT[i]}</div>
+      <div class="cal-dnum">${dt.getDate()}</div>
+    </div>`;
+    // grid body
+    const grid=document.createElement('div');
+    grid.className='cal-dgrid';
+    // grid lines
+    for(let s=0;s<TOTAL_SLOTS;s++){
+      const line=document.createElement('div');
+      line.className='cal-grid-line'+(s%2===0?' hour':'');
+      line.style.top=(s*SLOT_H)+'px';
+      grid.appendChild(line);
+    }
+    // fixed events
+    // track columns for overlap handling
+    const placedEvts=[];
+    [...dayEvts,...specialEvts.map(e=>({...e,cat:'special',title:e.title}))].forEach(e=>{
+      const top=timeToTop(e.time||'00:00');
+      const h=Math.max(32,SLOT_H);
+      const isSpec=e.cat==='special';
+      const cls=isSpec?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
+      // check overlap
+      let col_idx=0;
+      for(let p of placedEvts){
+        if(Math.abs(p.top-top)<h) col_idx=Math.max(col_idx,p.col+1);
+      }
+      placedEvts.push({top,col:col_idx});
+      const w=col_idx===0?'calc(100% - 4px)':'50%';
+      const left=col_idx===0?'2px':'50%';
+      const block=document.createElement('div');
+      block.className=`cal-evt-block ${cls}`+(isSpec&&isAdmin?' can-delete':'');
+      block.style.cssText=`top:${top}px;height:${h}px;left:${left};width:${w}`;
+      block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}${e.time&&e.time!=='00:00'?`<div class="evt-sub">${e.time} เริ่ม</div>`:e.time==='00:00'?'<div class="evt-sub">ทั้งวัน</div>':''}`;
+      if(isSpec&&isAdmin) block.onclick=()=>deleteCalEvent(e.event_id,e.title);
+      grid.appendChild(block);
+    });
+    col.appendChild(grid);
+    cols.appendChild(col);
+  }
+  // scroll to 18:00
+  const wrap=document.getElementById('cal-wrap');
+  if(wrap) setTimeout(()=>{wrap.scrollTop=36*36;},50);
+}
+
+function calNavWeek(dir){
+  const d=new Date(_calWeekStart);d.setDate(d.getDate()+dir*7);
+  _calWeekStart=d.toISOString().slice(0,10);loadCalendarWeek();
+}
+function calGoToday(){_calWeekStart=getWeekMondayFromDate();loadCalendarWeek();}
+
+async function addCalendarEvent(){
+  const day=+document.getElementById('cal-new-day').value;
+  const title=(document.getElementById('cal-new-title').value||'').trim();
+  const time=document.getElementById('cal-new-time').value||'';
+  const tag=document.getElementById('cal-new-tag').value;
+  const isFixed=document.getElementById('cal-new-fixed').value==='Y';
+  const msg=document.getElementById('cal-add-msg');
+  if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
+  msg.textContent='Saving...';msg.style.color='var(--muted)';
+  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day,title,time,tag,isFixed,weekStart:isFixed?'':_calWeekStart});
+  if(r.ok){
+    msg.textContent='เพิ่มแล้ว: '+title;msg.style.color='var(--green)';
+    document.getElementById('cal-new-title').value='';
+    document.getElementById('cal-new-time').value='';
+    await loadCalendarWeek();
+  }else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
+}
+
+async function deleteCalEvent(eventId,title){
+  if(!isAdmin)return;
+  if(!confirm(`ลบ event "${title}" ออกไหม?`))return;
+  const r=await gasPost({action:'deleteCalendarEvent',eventId});
+  if(r.ok) await loadCalendarWeek();
+  else alert('Error: '+r.error);
 }
 
 loadData();
