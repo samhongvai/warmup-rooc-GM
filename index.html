@@ -970,18 +970,22 @@ async function loadData(){
     document.getElementById('dot').style.background=clr;
     document.getElementById('sdot').style.background=clr;
   };
+  // Fire ALL GAS preloads immediately in parallel with Members fetch
+  const historyPromise=loadAllHistoryCache();
+  const botConfigPromise=_botConfig.length?Promise.resolve():gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows});
+  const auctionHistPromise=gasGet('getAuctionHistory&limit=10').then(r=>{if(r.ok){renderAuctionHistory(r.rows);_aucHistoryLoaded=true;}});
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
-    const mr=await fetch(mkUrl('Members')).then(r=>r.text());
+    const [mr]=await Promise.all([fetch(mkUrl('Members')).then(r=>r.text()),botConfigPromise]);
     const mj=parse(mr);
     const cols=mj.table.cols.map(c=>c.label.toLowerCase().replace(/\s+/g,'_'));
     const get=(v,k)=>{const i=cols.findIndex(c=>c.includes(k));return i>=0&&v[i]?String(v[i].v||'').trim():''};
     members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),noted:get(v,'noted')}}).filter(m=>m.ign);
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
-    // background preload — ยิง GAS ครั้งเดียวทันที ให้พร้อมก่อน user กด Search/Auction
-    loadAllHistoryCache().then(()=>{_searchCacheLoaded=false}); // mark search cache dirty so it rebuilds from _aucAllRows
-  }catch(e){setS(false,'Load failed — check Sheet share settings','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data. Make sure Google Sheets is set to "Anyone with the link can view"</td></tr>'}
+    await historyPromise;
+    _searchCacheLoaded=false;
+  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
 }
 
 function buildFilters(){
@@ -1228,11 +1232,9 @@ async function initAuctionPage(){
     if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
     else{el.classList.add('admin-locked');el.disabled=true;}
   });
-  // parallel: botConfig + allHistory (skip if cached)
-  const fetches=[];
-  if(!_botConfig.length) fetches.push(gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}));
-  if(!_aucCacheLoaded) fetches.push(loadAllHistoryCache());
-  if(fetches.length) await Promise.all(fetches);
+  // wait for background preloads if still running
+  if(!_aucCacheLoaded) await loadAllHistoryCache();
+  if(!_botConfig.length){const r=await gasGet('getBotConfig');if(r.ok)_botConfig=r.rows;}
   populateAucEventTypes();
   buildPendingFromCache();
   populateQueueManagerDates();
