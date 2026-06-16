@@ -637,12 +637,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div class="admin-only admin-locked" id="qm-draw-wrap">
     <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">Draw New Queue (Admin only)</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-      <div style="flex:1;min-width:130px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Queue date</label>
-        <input type="date" id="qm-new-date" style="width:100%">
-      </div>
       <input type="password" id="qm-admin-pass" placeholder="Admin password" style="flex:1;min-width:140px">
-      <button class="btn btn-primary" onclick="drawNewQueue()">🎰 Draw &amp; Save</button>
+      <button class="btn btn-primary" onclick="drawNewQueue()">🎰 Draw Queue</button>
     </div>
     <div id="qm-draw-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
     </div>
@@ -1408,10 +1404,9 @@ async function toggleQueueStatus(date,position,status){
 }
 
 async function drawNewQueue(){
-  const date=document.getElementById('qm-new-date').value;
+  const date=new Date().toISOString().slice(0,10);
   const pass=document.getElementById('qm-admin-pass').value;
   const statusEl=document.getElementById('qm-draw-status');
-  if(!date){alert('Select a queue date');return}
   if(!pass){alert('Enter admin password');return}
   statusEl.textContent='Verifying...';
   const vr=await gasPost({action:'verifyAdmin',password:pass});
