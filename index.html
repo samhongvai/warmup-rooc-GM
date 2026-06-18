@@ -983,7 +983,7 @@ async function loadData(){
     members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),noted:get(v,'noted')}}).filter(m=>m.ign);
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
-    await historyPromise;
+    // historyPromise runs in background — initAuctionPage จะ await อันเดิมถ้ายังไม่เสร็จ
     _searchCacheLoaded=false;
   }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
 }
@@ -1223,16 +1223,33 @@ function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.clas
 let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
-let _aucCacheLoaded=false; // true = pending + dates already loaded this session
-let _aucAllRows=[]; // all Auction_Log rows from getAllHistory (cached)
-let _aucDates=[]; // all queue_dates sorted desc
+let _aucCacheLoaded=false;
+let _aucAllRows=[];
+let _aucDates=[];
+let _historyFetchPromise=null; // dedup: reuse in-flight promise
+let _aucHistoryLoaded=false;
+
+async function loadAllHistoryCache(){
+  if(_aucCacheLoaded)return;
+  if(_historyFetchPromise)return _historyFetchPromise; // reuse — ไม่ยิง GAS ซ้ำ
+  _historyFetchPromise=(async()=>{
+    const r=await gasGet('getAllHistory');
+    if(r.ok){
+      _aucAllRows=r.rows;
+      _aucDates=[...new Set(r.rows.map(x=>x.queue_date))].sort().reverse();
+      _aucCacheLoaded=true;
+    }
+    _historyFetchPromise=null;
+  })();
+  return _historyFetchPromise;
+}
 
 async function initAuctionPage(){
   document.querySelectorAll('.admin-only').forEach(el=>{
     if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
     else{el.classList.add('admin-locked');el.disabled=true;}
   });
-  // wait for background preloads if still running
+  // await in-flight promise (ถ้ากำลังโหลดอยู่แล้ว จะ reuse ไม่ยิงซ้ำ)
   if(!_aucCacheLoaded) await loadAllHistoryCache();
   if(!_botConfig.length){const r=await gasGet('getBotConfig');if(r.ok)_botConfig=r.rows;}
   populateAucEventTypes();
@@ -1240,17 +1257,6 @@ async function initAuctionPage(){
   populateQueueManagerDates();
   if(!_aucHistoryLoaded) await loadAuctionHistory();
   swAucTab('calc');
-}
-
-let _aucHistoryLoaded=false;
-
-async function loadAllHistoryCache(){
-  // single GAS call replaces N+1 calls (getDates + getLog×N)
-  const r=await gasGet('getAllHistory');
-  if(!r.ok)return;
-  _aucAllRows=r.rows;
-  _aucDates=[...new Set(r.rows.map(x=>x.queue_date))].sort().reverse();
-  _aucCacheLoaded=true;
 }
 
 function buildPendingFromCache(){
