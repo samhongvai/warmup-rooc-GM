@@ -118,6 +118,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 /* FILTER */
 .filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
 .filter-row input{flex:1;min-width:140px}
+.alt-toggle{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;padding:0 4px}
+.alt-toggle input{cursor:pointer;accent-color:var(--orange)}
 @media(max-width:480px){.filter-row{flex-direction:column}.filter-row input,.filter-row select{width:100%}}
 
 /* BADGES */
@@ -539,6 +541,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <select id="fc" onchange="renderMembers()"><option value="">All classes</option></select>
     <select id="ft" onchange="renderMembers()"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
     <select id="fp" onchange="renderMembers()"><option value="">All party</option></select>
+    <label class="alt-toggle"><input type="checkbox" id="hide-alts" checked onchange="toggleHideAlts()"> Hide Alts</label>
   </div>
   <div class="tbl-wrap"><table class="mtbl">
     <thead><tr>
@@ -1004,12 +1007,27 @@ function buildFilters(){
   document.getElementById('fp').innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('');
 }
 
+let _hideAlts=true; // default: hide alt characters from members list + overview
+const isAlt=(m)=>{const n=(m.noted||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
+const isLeaveNote=(m)=>{const n=(m.noted||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
+// map a raw Noted value to a display label: Alt / Absent / original text
+function noteLabel(noted){
+  if(!noted||!noted.trim())return '';
+  const n=noted.toLowerCase();
+  if(n.includes('ตัวรอง')||n.includes('alt'))return 'Alt';
+  if(n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent'))return 'Absent';
+  return noted;
+}
+function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
+function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked;renderStats();renderMembers()}
+
 function renderStats(){
-  const total=members.length;
+  const counted=getCountedMembers();
+  const total=counted.length;
   const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]}; 
-  members.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
+  counted.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
   const byClass={};
-  members.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
+  counted.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
   const mkChips=(type)=>Object.entries(byClass)
     .filter(([cls])=>getType(cls)===type)
     .sort((a,b)=>b[1]-a[1])
@@ -1046,12 +1064,12 @@ let mSortKey='party',mSortDir=1;
 function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','party','char_id','discord','noted'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',party:'th-party',char_id:'th-char',discord:'th-discord',noted:'th-noted'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
-  let f=members.filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
+  let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
   if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
-  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type);const noted=m.noted&&m.noted.trim()?`<span class="badge b-note">${m.noted}</span>`:`<span style="color:var(--faint)">—</span>`;const dotColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block;margin-right:2px"></span>${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
-  document.getElementById('m-count').textContent=`Showing ${f.length} of ${members.length} members`;
+  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type);const nl=noteLabel(m.noted);const noted=nl?`<span class="badge b-note">${nl}</span>`:`<span style="color:var(--faint)">—</span>`;const dotColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block;margin-right:2px"></span>${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
+  document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
 }
 
 /* PARTY */
@@ -1061,7 +1079,7 @@ function renderParty(){
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
   const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
-  const mkSection=(list,isMain)=>list.map(p=>{const isM=isMain;return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const type=getType(m.class),tb=typeBar(type);const isSub=m.noted&&m.noted.includes('ตัวรอง');const isLeave=m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'));const noteTag=isSub?'<span class="pm-note">ตัวรอง</span>':isLeave?`<span class="pm-note-leave">${m.noted}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class}</div></div>${noteTag}</div>`}).join('')}</div></div>`}).join('');
+  const mkSection=(list,isMain)=>list.map(p=>{const isM=isMain;return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const type=getType(m.class),tb=typeBar(type);const sub=isAlt(m);const leave=isLeaveNote(m);const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.noted)}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class}</div></div>${noteTag}</div>`}).join('')}</div></div>`}).join('');
   document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">Party 9+</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
@@ -1223,7 +1241,7 @@ async function createAttSession(){
   const date=document.getElementById('att-new-date').value;
   const type=document.getElementById('att-new-type').value;
   if(!date){alert('Select a date');return}
-  const memberData=members.map(m=>({name:m.ign,noted:m.noted&&(m.noted.includes('แจ้งลา')||m.noted.toLowerCase().includes('absent'))?m.noted:''}));
+  const memberData=members.map(m=>({name:m.ign,noted:isLeaveNote(m)?m.noted:''}));
   const r=await gasPost({action:'createAttSession',date,type,members:memberData});
   if(r.ok){alert(`Session created for ${date} with ${r.added} members`);loadAttSessions();loadAttSession(date)}else alert('Failed: '+r.error);
 }
@@ -1597,7 +1615,7 @@ async function drawNewQueue(){
   statusEl.textContent='Verifying...';
   const vr=await gasPost({action:'verifyAdmin',password:pass});
   if(!vr.ok){statusEl.textContent='';alert('Invalid admin password');return}
-  const pool=members.filter(m=>!(m.noted&&m.noted.includes('ตัวรอง')));
+  const pool=members.filter(m=>!isAlt(m));
   const names=pool.map(m=>m.ign);
   for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
   statusEl.textContent='Saving...';
