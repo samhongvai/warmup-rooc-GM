@@ -345,6 +345,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .qs{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap}
 .qs-done{background:var(--green-dim);color:var(--green);border:0.5px solid var(--green-b)}
 .qs-pend{background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber-b)}
+.qs-skip{background:rgba(107,163,214,0.15);color:#9ABFE8;border:0.5px solid rgba(107,163,214,0.35)}
+.row-skip{opacity:0.6}
 .q-btn{padding:3px 8px;font-size:11px;border-radius:4px;cursor:pointer;font-family:var(--font);border:0.5px solid;transition:all 0.15s}
 /* AUCTION TABLE FIXED LAYOUT */
 /* AUCTION TABLE — user view */
@@ -367,8 +369,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .mc-bar{width:96px;min-width:96px;max-width:96px;padding:0 4px;text-align:center;flex-shrink:0}
 .mc-act{width:124px;min-width:124px;max-width:124px;padding:0 8px;text-align:right;flex-shrink:0}
 @media(max-width:700px){.mc-bar{display:none}.mc-date{display:none}.mc-status{width:100px;min-width:100px;max-width:100px}.mc-act{width:100px;min-width:100px;max-width:100px}}
+/* DESIGNATED AUCTION distribution rows */
+.da-row{display:flex;align-items:center;padding:0 4px;border-bottom:0.5px solid rgba(232,115,42,0.05);font-size:12px;min-height:42px}
+.da-row:last-child{border-bottom:none}
+.da-row:hover{background:rgba(232,115,42,0.03)}
+.da-head{background:rgba(0,0,0,0.25);border-bottom:0.5px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;min-height:32px}
+.da-num{width:34px;min-width:34px;text-align:center;color:var(--faint);font-size:11px;flex-shrink:0}
+.da-name{flex:1;min-width:70px;padding:0 6px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.da-card{width:80px;min-width:80px;padding:0 4px;font-size:11px;flex-shrink:0}
+.da-white{width:110px;min-width:110px;padding:0 4px;font-size:11px;flex-shrink:0}
+.da-red{width:110px;min-width:110px;padding:0 4px;font-size:11px;flex-shrink:0}
+.da-status{width:90px;min-width:90px;padding:0 4px;flex-shrink:0;white-space:nowrap}
+.da-act{width:120px;min-width:120px;padding:0 6px;text-align:right;flex-shrink:0}
+@media(max-width:760px){.da-white,.da-red{width:90px;min-width:90px}.da-act{width:90px;min-width:90px}}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
+.q-btn-skip{background:rgba(212,160,68,0.12);border-color:rgba(212,160,68,0.35);color:var(--amber);margin-right:5px}
+.dup-badge{display:inline-block;margin-left:6px;font-size:9px;padding:1px 6px;border-radius:4px;background:rgba(224,112,106,0.15);border:0.5px solid rgba(224,112,106,0.3);color:#E0706A;white-space:nowrap}
 /* FEATHER BAR */
 .fbar-cell{text-align:center}
 .fbar{position:relative;height:20px;width:88px;border-radius:4px;overflow:hidden;display:inline-block}
@@ -712,6 +729,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
         <option value="">Status: All</option>
         <option value="done">Done</option>
         <option value="pending">Pending</option>
+        <option value="skip">Skipped</option>
       </select>
     </div>
 
@@ -887,7 +905,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbxNKajREiuGpitdzLMKb_uHWHdWLtxfDAXw77S38FtQ237oY5y2BaNxO31KSLEtQhI/exec';
+const GAS='https://script.google.com/macros/s/AKfycbxLhjtSTAJi98itYXuVwqjHzI4K4xxB8TOvtZCHOe50ZkcNFXuLHFtF24l0nl7G7EjX/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -1502,6 +1520,14 @@ async function renderQueueManager(){
   if(drawDate&&drawDate!==_aucDistDate){
     loadQueueRowsFromCache(drawDate);
   }
+  // build set of names that appear pending in OTHER queue_dates (duplicate detection)
+  const curDate=_aucDistDate;
+  const pendingElsewhere={};
+  _aucAllRows.forEach(r=>{
+    if(r.status==='pending'&&r.queue_date!==curDate){
+      pendingElsewhere[r.member_name]=r.queue_date;
+    }
+  });
   let filtered=_aucQueueRows.filter(r=>{
     if(auctionDate&&r.drawn_date!==auctionDate)return false;
     if(status&&r.status!==status)return false;
@@ -1522,17 +1548,30 @@ async function renderQueueManager(){
       <div class="mc-act"></div>
     </div>`+filtered.map(r=>{
     const isDone=r.status==='done';
-    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
+    const isSkip=r.status==='skip';
+    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':isSkip?'<span class="qs qs-skip">⤷ Skipped</span>':'<span class="qs qs-pend">⏳ Pending</span>';
     const lockedClass=isAdmin?'':'admin-only admin-locked';
-    const actHtml=isDone
-      ?`<button class="q-btn q-btn-undo ${lockedClass}" ${isAdmin?'':'disabled'} onclick="if(!isAdmin){alert('กรุณา Login Admin ก่อน');return} toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`
-      :`<button class="q-btn q-btn-done ${lockedClass}" ${isAdmin?'':'disabled'} onclick="if(!isAdmin){alert('กรุณา Login Admin ก่อน');return} toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`;
-    return `<div class="mgr-row">
+    // duplicate badge: this person is also pending/skip in another queue date
+    const dupDate=pendingElsewhere[r.member_name];
+    const dupBadge=(dupDate&&!isDone)?`<span class="dup-badge" title="ชื่อซ้ำกับคิว ${dupDate}">⚠ ซ้ำ</span>`:'';
+    let actBtns='';
+    if(isAdmin){
+      if(isDone){
+        actBtns=`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`;
+      }else if(isSkip){
+        actBtns=`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo skip</button>`;
+      }else{
+        // pending → can mark done or skip
+        actBtns=`<button class="q-btn q-btn-skip" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'skip')">⤷ Skip</button>`
+          +`<button class="q-btn q-btn-done" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`;
+      }
+    }
+    return `<div class="mgr-row${isSkip?' row-skip':''}">
       <div class="mc-num">${r.position}</div>
-      <div class="mc-name">${r.member_name}</div>
+      <div class="mc-name">${r.member_name}${dupBadge}</div>
       <div class="mc-status">${statusHtml}</div>
       <div class="mc-date">${r.drawn_date||'<span style="color:var(--faint)">—</span>'}</div>
-      <div class="mc-act">${actHtml}</div>
+      <div class="mc-act">${actBtns}</div>
     </div>`;
   }).join('');
 }
@@ -1926,6 +1965,20 @@ function initDesignatedTab(){
 function renderDesignatedQueues(rows){
   const tues=rows.filter(r=>r.position<=5);
   const thurs=rows.filter(r=>r.position>=6);
+  // Designated reward (fixed): White 15, Red/Black 15 per day, 5 people → 3 each (1-3-3)
+  const DA_WHITE=15, DA_RED=15;
+  // compute distribution per day (same logic as Guild Auction: card slot, white/red slots continue per person)
+  const computeDay=(list)=>{
+    const n=list.length;
+    if(!n)return [];
+    const pW=Math.floor(DA_WHITE/n), pR=Math.floor(DA_RED/n);
+    let wPos=1, rPos=DA_WHITE+1; // red slots continue after all white slots (same as Guild Auction)
+    return list.map((r,i)=>{
+      const row={...r, cardSlot:i+1, white:pW, red:pR, wStart:wPos, rStart:rPos};
+      wPos+=pW; rPos+=pR;
+      return row;
+    });
+  };
   const mkRow=(r)=>{
     const isDone=r.auction_status==='done';
     const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
@@ -1937,23 +1990,32 @@ function renderDesignatedQueues(rows){
         ?`<button class="q-btn q-btn-undo admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'pending')">↺ Undo</button>`
         :`<button class="q-btn q-btn-done admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'done')">✓ Mark drawn</button>`)
       :'';
-    return `<div class="mgr-row">
-      <div class="mc-num">${r.position}</div>
-      <div class="mc-name" style="${cls&&cls!=='unknown'?`color:${clsColor}`:''}">${r.member_name||'<span style="color:var(--faint)">—</span>'}${isFicelle?` <span style="font-size:10px;color:var(--amber)">★ Fixed</span>`:''}</div>
-      <div class="mc-status">${r.member_name?statusHtml:'<span style="color:var(--faint)">—</span>'}</div>
-      <div class="mc-act">${actHtml}</div>
+    const hasName=!!r.member_name;
+    const card=_toPageBox(r.cardSlot);
+    return `<div class="da-row">
+      <div class="da-num">${r.position}</div>
+      <div class="da-name" style="${cls&&cls!=='unknown'?`color:${clsColor}`:''}">${r.member_name||'<span style="color:var(--faint)">—</span>'}${isFicelle?` <span style="font-size:10px;color:var(--amber)">★</span>`:''}</div>
+      <div class="da-card">${hasName?`Page${card.page}(${card.box})`:'—'}</div>
+      <div class="da-white">${hasName?fmtSlots(r.wStart,r.white):'—'}</div>
+      <div class="da-red">${hasName?fmtSlots(r.rStart,r.red):'—'}</div>
+      <div class="da-status">${hasName?statusHtml:'—'}</div>
+      <div class="da-act">${actHtml}</div>
     </div>`;
   };
-  const head=`<div class="mgr-list-head">
-    <div class="mc-num">คิว</div>
-    <div class="mc-name">ชื่อ</div>
-    <div class="mc-status">Status</div>
-    <div class="mc-act"></div>
+  const head=`<div class="da-row da-head">
+    <div class="da-num">คิว</div>
+    <div class="da-name">ชื่อ</div>
+    <div class="da-card">Card</div>
+    <div class="da-white">White</div>
+    <div class="da-red">Red/Black</div>
+    <div class="da-status">Status</div>
+    <div class="da-act"></div>
   </div>`;
   const tEl=document.getElementById('da-tuesday-list');
   const thEl=document.getElementById('da-thursday-list');
-  tEl.innerHTML=tues.length?head+tues.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
-  thEl.innerHTML=thurs.length?head+thurs.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
+  const tuesD=computeDay(tues), thursD=computeDay(thurs);
+  tEl.innerHTML=tues.length?head+tuesD.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
+  thEl.innerHTML=thurs.length?head+thursD.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
 }
 
 async function toggleDesignatedStatus(weekStart,position,status){
