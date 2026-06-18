@@ -41,9 +41,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .admin-locked-wrap{position:relative}
 .admin-locked-wrap::after{content:'🔐';position:absolute;top:50%;right:8px;transform:translateY(-50%);font-size:10px;opacity:0.5;pointer-events:none}
 .nav-divider{height:0.5px;background:var(--border);margin:6px 1rem}
-.admin-btn{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 1rem 6px;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);transition:all 0.15s}
-.admin-btn:hover{border-color:var(--orange-border);color:var(--orange-l)}
-.admin-btn.on{border-color:var(--orange-border);color:var(--orange);background:var(--orange-dim)}
 .nav-footer{padding:0.6rem 1rem;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.7}
 .sdot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:4px;vertical-align:middle}
 .hamburger{display:none;position:fixed;top:11px;left:11px;z-index:300;background:var(--bg2);border:0.5px solid var(--border);border-radius:7px;padding:7px 10px;cursor:pointer;font-size:17px;color:var(--text)}
@@ -511,7 +508,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
   <div class="nav-divider"></div>
   <div class="nav-spacer"></div>
-  <button class="admin-btn" id="admin-btn" onclick="openAdminModal()">🔐 Admin Login</button>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
 </nav>
 <main class="main">
@@ -901,6 +897,8 @@ function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
 let members=[],isAdmin=false;
+let _botConfig=[]; // bot config rows from getBotConfig
+let _aucQueueRows=[]; // rows for currently-viewed queue date
 let _pendingNav='';
 
 /* HAMBURGER */
@@ -908,7 +906,7 @@ function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=documen
 function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
 /* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;document.getElementById('admin-btn').textContent='🔐 Admin Login';document.getElementById('admin-btn').classList.remove('on');const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
 async function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
@@ -920,8 +918,6 @@ async function submitAdmin(){
   if(r.ok){
     isAdmin=true;
     closeAdminModal();
-    document.getElementById('admin-btn').textContent='🔓 Admin (on)';
-    document.getElementById('admin-btn').classList.add('on');
     const tb=document.getElementById('topbar-admin-btn');
     if(tb){tb.textContent='🔓 Admin (on)';tb.classList.add('on')}
     document.getElementById('new-session-wrap').style.display='';
@@ -1216,6 +1212,7 @@ async function createAttSession(){
 function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.classList.toggle('active',['overview','daily'][i]===t));document.getElementById('att-overview').style.display=t==='overview'?'block':'none';document.getElementById('att-daily').style.display=t==='daily'?'block':'none';if(t==='overview')loadAttSummary()}
 
 let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
+let _aucDistDate=''; // currently displayed distribution date
 const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
 
 let _aucCacheLoaded=false;
