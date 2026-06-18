@@ -1362,6 +1362,9 @@ function getRewardValues(){
 }
 
 /* ─── DISTRIBUTION TABLE ─── */
+const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
+const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
+const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
 function fmtSlots(start,count){
   if(count<=0)return '-';
   const slots=_slotRange(start,count);
