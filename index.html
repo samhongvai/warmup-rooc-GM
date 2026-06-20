@@ -141,6 +141,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .filter-row input{flex:1;min-width:140px}
 .alt-toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap;padding:0 4px;font-weight:500}
 .alt-toggle input{cursor:pointer;accent-color:var(--orange)}
+.day-chk{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);cursor:pointer;padding:5px 9px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);user-select:none;transition:all 0.15s}
+.day-chk:has(input:checked){background:var(--orange-dim);border-color:var(--orange);color:var(--orange-l);font-weight:600}
+.day-chk input{cursor:pointer;accent-color:var(--orange);margin:0}
 @media(max-width:480px){.filter-row{flex-direction:column}.filter-row input,.filter-row select{width:100%}}
 
 /* BADGES */
@@ -830,13 +833,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">🔐 เพิ่ม Event (Admin)</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
       <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">วัน</label>
-        <select id="cal-new-day" style="width:90px">
-          <option value="0">จันทร์</option><option value="1">อังคาร</option>
-          <option value="2">พุธ</option><option value="3">พฤหัส</option>
-          <option value="4">ศุกร์</option><option value="5">เสาร์</option>
-          <option value="6">อาทิตย์</option>
-        </select>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">วัน (เลือกได้หลายวัน)</label>
+        <div id="cal-new-days" style="display:flex;gap:3px;flex-wrap:wrap;max-width:230px">
+          <label class="day-chk"><input type="checkbox" value="1">จ.</label>
+          <label class="day-chk"><input type="checkbox" value="2">อ.</label>
+          <label class="day-chk"><input type="checkbox" value="3">พ.</label>
+          <label class="day-chk"><input type="checkbox" value="4">พฤ.</label>
+          <label class="day-chk"><input type="checkbox" value="5">ศ.</label>
+          <label class="day-chk"><input type="checkbox" value="6">ส.</label>
+          <label class="day-chk"><input type="checkbox" value="7">อา.</label>
+        </div>
       </div>
       <div>
         <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ชื่อ Event</label>
@@ -939,10 +945,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <h3>📅 แก้ Special Event</h3>
     <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ชื่อ Event</label>
     <input type="text" id="cal-edit-title" placeholder="ชื่อ event..." style="width:100%;margin-bottom:8px">
-    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">วัน</label>
-    <select id="cal-edit-day" style="width:100%;margin-bottom:8px">
-      <option value="0">จันทร์</option><option value="1">อังคาร</option><option value="2">พุธ</option><option value="3">พฤหัสบดี</option><option value="4">ศุกร์</option><option value="5">เสาร์</option><option value="6">อาทิตย์</option>
-    </select>
+    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">วัน (เลือกได้หลายวัน)</label>
+    <div id="cal-edit-days" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+      <label class="day-chk"><input type="checkbox" value="1">จ.</label>
+      <label class="day-chk"><input type="checkbox" value="2">อ.</label>
+      <label class="day-chk"><input type="checkbox" value="3">พ.</label>
+      <label class="day-chk"><input type="checkbox" value="4">พฤ.</label>
+      <label class="day-chk"><input type="checkbox" value="5">ศ.</label>
+      <label class="day-chk"><input type="checkbox" value="6">ส.</label>
+      <label class="day-chk"><input type="checkbox" value="7">อา.</label>
+    </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
       <div style="flex:1">
         <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เวลา</label>
@@ -989,7 +1001,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbwrdKFbGZ_wXT8f7hexLjjp4QO8OLba709v0IW3SRvtPQcTigyhvPglAvIDvuT_R1UE/exec';
+const GAS='https://script.google.com/macros/s/AKfycbzC_koQNAzRHupf36PJQGae7ac0NawyaJL-fuYWytz3NN6MFe6GGt0hTrlClRcjLSCq/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -2306,7 +2318,7 @@ function renderCalGrid(){
     const isToday=dateStr===todayStr;
     const isAction=i===1||i===3;
     const isSat=i===5;
-    const dayEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i);
+    const dayEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i+1);
     const allEvts=dayEvts;
     const alldayEvts=allEvts.filter(e=>e.time==='allday'||!e.time);
     const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
@@ -2398,8 +2410,18 @@ function calNavWeek(dir){
 }
 function calGoToday(){_calWeekStart=getWeekMondayFromDate();loadCalendarWeek();}
 
+function getCheckedDays(containerId){
+  const boxes=document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`);
+  return Array.from(boxes).map(b=>+b.value).sort((a,b)=>a-b);
+}
+function setCheckedDays(containerId,daysArr){
+  document.querySelectorAll(`#${containerId} input[type=checkbox]`).forEach(b=>{
+    b.checked=daysArr.includes(+b.value);
+  });
+}
+
 async function addCalendarEvent(){
-  const day=+document.getElementById('cal-new-day').value;
+  const dayList=getCheckedDays('cal-new-days');
   const title=(document.getElementById('cal-new-title').value||'').trim();
   const timeType=document.getElementById('cal-new-time-type').value;
   const time=timeType==='allday'?'allday':(document.getElementById('cal-new-time').value||'');
@@ -2409,11 +2431,14 @@ async function addCalendarEvent(){
   const anchorInput=document.getElementById('cal-new-anchor').value;
   const anchorDate=anchorInput||_calWeekStart; // default to this week if not specified
   const msg=document.getElementById('cal-add-msg');
+  if(!dayList.length){msg.textContent='เลือกอย่างน้อย 1 วัน';msg.style.color='var(--red)';return}
   if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
   msg.textContent='Saving...';msg.style.color='var(--muted)';
-  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day,title,time,tag,recurrence,anchorDate,endTime});
+  // day = first selected day (kept for backward-compat with old single-day rows);
+  // days = full comma list used by getCalendarEvents to expand into every selected day
+  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day:dayList[0],title,time,tag,recurrence,anchorDate,endTime,days:dayList.join(',')});
   if(r.ok){
     msg.textContent='เพิ่มแล้ว: '+title;msg.style.color='var(--green)';
     document.getElementById('cal-new-title').value='';
@@ -2421,6 +2446,7 @@ async function addCalendarEvent(){
     document.getElementById('cal-new-end-time').value='';
     document.getElementById('cal-new-time-type').value='timed';
     document.getElementById('cal-new-anchor').value='';
+    setCheckedDays('cal-new-days',[]);
     toggleTimeInput();
     await loadCalendarWeek();
   }else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
@@ -2449,7 +2475,9 @@ function openCalEdit(e){
   if(!isAdmin)return;
   _calEditCtx={event_id:e.event_id};
   document.getElementById('cal-edit-title').value=e.title||'';
-  document.getElementById('cal-edit-day').value=+e.day_of_week;
+  // pre-check days from the event's `days` list if present, else just its single day_of_week
+  const daysArr=e.days?e.days.split(',').map(d=>+d.trim()).filter(d=>!isNaN(d)):[+e.day_of_week];
+  setCheckedDays('cal-edit-days',daysArr);
   const isAllday=e.time==='allday'||!e.time;
   document.getElementById('cal-edit-time-type').value=isAllday?'allday':'timed';
   document.getElementById('cal-edit-time').value=isAllday?'':e.time;
@@ -2475,7 +2503,7 @@ function toggleEditTimeInput(){
 async function saveCalEdit(){
   if(!_calEditCtx)return;
   const title=(document.getElementById('cal-edit-title').value||'').trim();
-  const day=+document.getElementById('cal-edit-day').value;
+  const dayList=getCheckedDays('cal-edit-days');
   const timeType=document.getElementById('cal-edit-time-type').value;
   const time=timeType==='allday'?'allday':(document.getElementById('cal-edit-time').value||'');
   const endTime=timeType==='allday'?'allday':(document.getElementById('cal-edit-end-time').value||'');
@@ -2484,11 +2512,12 @@ async function saveCalEdit(){
   const anchorInput=document.getElementById('cal-edit-anchor').value;
   const anchorDate=anchorInput||_calWeekStart;
   const msg=document.getElementById('cal-edit-msg');
+  if(!dayList.length){msg.textContent='เลือกอย่างน้อย 1 วัน';msg.style.color='var(--red)';return}
   if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
   msg.textContent='Saving...';msg.style.color='var(--muted)';
-  const r=await gasPost({action:'saveCalendarEvent',eventId:_calEditCtx.event_id,day,title,time,tag,recurrence,anchorDate,endTime});
+  const r=await gasPost({action:'saveCalendarEvent',eventId:_calEditCtx.event_id,day:dayList[0],title,time,tag,recurrence,anchorDate,endTime,days:dayList.join(',')});
   if(r.ok){closeCalEdit();await loadCalendarWeek()}
   else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
 }
