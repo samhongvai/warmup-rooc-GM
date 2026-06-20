@@ -339,6 +339,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 /* event blocks */
 .cal-evt-block{position:absolute;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;border-left-width:3px;border-left-style:solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
 .cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:0.7;margin-top:2px}
+.cal-evt-block .evt-time{font-size:9px;font-weight:500;opacity:0.75}
 /* 3 colors */
 .ev-war{background:rgba(93,191,138,0.15);border-color:#5DBF8A;color:#7DD4A8}
 .ev-personal{background:rgba(107,163,214,0.15);border-color:#6BA3D6;color:#9ABFE8}
@@ -2378,7 +2379,7 @@ function renderCalGrid(){
       block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${colWidth};${hexToEventStyle(e.color)}`;
       const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
       block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
-      block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}<div class="evt-sub">${timeLabel}</div>`;
+      block.innerHTML=`${e.title} <span class="evt-time">(${timeLabel})</span>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`;
       if(isAdmin)block.onclick=()=>openCalEdit(e);
       grid.appendChild(block);
     });
