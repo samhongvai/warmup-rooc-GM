@@ -108,6 +108,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .ov-d .ov-type-name,.ov-d .ov-type-count{color:var(--red)}
 .ov-d .ov-bar{background:var(--red)}
 .ov-d .ov-chip{background:var(--red-dim);border:0.5px solid var(--red-b);color:var(--red)}
+/* GUILD CAPACITY */
+.cap-section{margin-top:14px;padding-top:14px;border-top:0.5px solid rgba(232,115,42,0.15)}
+.cap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cap-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--orange-l);font-weight:600}
+.cap-edit-btn{font-size:10px;padding:3px 9px;border-radius:5px;background:var(--orange-dim);border:0.5px solid var(--orange-border);color:var(--orange-l);cursor:pointer}
+.cap-edit-btn:hover{background:var(--orange-border)}
+.cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.cap-box{background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center}
+.cap-free{border-color:var(--orange-border);background:var(--orange-dim)}
+.cap-num{font-size:22px;font-weight:700;color:var(--text);line-height:1.1}
+.cap-lbl{font-size:10px;color:var(--muted);margin-top:3px}
+.cap-bar-wrap{height:7px;background:rgba(0,0,0,0.3);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.cap-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:4px;transition:width 0.3s}
+.cap-note{font-size:11px;color:var(--muted);text-align:center}
+@media(max-width:520px){.cap-grid{grid-template-columns:repeat(2,1fr)}}
 /* TYPE PILLS */
 .type-summary{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
 .tp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
@@ -761,7 +776,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     <div class="section-h">Schedule</div>
     <div class="evts">
       <div class="evt"><div class="et">Event</div><div class="en">Guild League</div><div class="ed">Tuesday &amp; Thursday</div></div>
-      <div class="evt"><div class="et">Event</div><div class="en">Overrun</div><div class="ed">Saturday</div></div>
+      <div class="evt"><div class="et">Event</div><div class="en">Overrun</div><div class="ed">Sunday</div></div>
       <div class="evt"><div class="et">GL Rank announced</div><div class="en">Every Monday</div><div class="ed">Weekly</div></div>
     </div>
   </div>
@@ -828,6 +843,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
           <option value="allday">ทั้งวัน</option>
         </select>
         <input type="time" id="cal-new-time" style="width:90px">
+      </div>
+      <div>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ถึงเวลา</label>
+        <input type="time" id="cal-new-end-time" style="width:90px">
       </div>
       <div>
         <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Tag</label>
@@ -906,9 +925,45 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 </div>
 
+<div id="cal-edit-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeCalEdit()">
+  <div class="modal">
+    <h3>📅 แก้ Special Event</h3>
+    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ชื่อ Event</label>
+    <input type="text" id="cal-edit-title" placeholder="ชื่อ event..." style="width:100%;margin-bottom:8px">
+    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">วัน</label>
+    <select id="cal-edit-day" style="width:100%;margin-bottom:8px">
+      <option value="0">จันทร์</option><option value="1">อังคาร</option><option value="2">พุธ</option><option value="3">พฤหัสบดี</option><option value="4">ศุกร์</option><option value="5">เสาร์</option><option value="6">อาทิตย์</option>
+    </select>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="flex:1">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เวลา</label>
+        <select id="cal-edit-time-type" onchange="toggleEditTimeInput()" style="width:100%"><option value="timed">ระบุเวลา</option><option value="allday">ทั้งวัน</option></select>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เริ่ม</label>
+        <input type="time" id="cal-edit-time" style="width:100%">
+      </div>
+      <div style="flex:1">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ถึง</label>
+        <input type="time" id="cal-edit-end-time" style="width:100%">
+      </div>
+    </div>
+    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Tag</label>
+    <select id="cal-edit-tag" style="width:100%;margin-bottom:8px"><option>Social</option><option>Guild League</option><option>Overrun</option><option>Other</option></select>
+    <div id="cal-edit-msg" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:4px">
+      <button class="btn btn-ghost" style="color:var(--red);border-color:var(--red-b)" onclick="deleteCalEditEvent()">🗑 ลบ</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeCalEdit()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCalEdit()">บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbxLhjtSTAJi98itYXuVwqjHzI4K4xxB8TOvtZCHOe50ZkcNFXuLHFtF24l0nl7G7EjX/exec';
+const GAS='https://script.google.com/macros/s/AKfycbznD5c0VUxXH1uQ-BgiIbQwOwSJRC3weuxY-hM53XSDeF2Ph1d3Kx66-GhtQ6_NA4iT/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -927,7 +982,7 @@ function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=documen
 function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
 /* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderStats();renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
 function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
 async function submitAdmin(){
   const pw=document.getElementById('admin-pass').value;
@@ -945,6 +1000,7 @@ async function submitAdmin(){
     document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
     document.querySelectorAll('.admin-only').forEach(el=>{el.classList.remove('admin-locked');el.disabled=false});
     document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
+    renderStats();
     renderMembers();
     renderQueueManager();
     if(_pendingNav){sw(_pendingNav);_pendingNav='';}
@@ -987,6 +1043,7 @@ async function loadData(){
   loadAllHistoryCache().catch(()=>{});
   if(!_botConfig.length) gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}).catch(()=>{});
   gasGet('getAuctionHistory&limit=10').then(r=>{if(r.ok){renderAuctionHistory(r.rows);_aucHistoryLoaded=true;}}).catch(()=>{});
+  gasGet('getGuildCap').then(r=>{if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap;renderStats()}}).catch(()=>{});
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
     const mr=await fetch(mkUrl('Members')).then(r=>r.text());
@@ -1008,6 +1065,7 @@ function buildFilters(){
 }
 
 let _hideAlts=true; // default: hide alt characters from members list + overview
+let _guildCap=78; // guild capacity (editable by admin, persisted in Settings sheet)
 const isAlt=(m)=>{const n=(m.noted||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
 const isLeaveNote=(m)=>{const n=(m.noted||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
 // map a raw Noted value to a display label: Alt / Absent / original text
@@ -1024,6 +1082,7 @@ function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked
 function renderStats(){
   const counted=getCountedMembers();
   const total=counted.length;
+  const pct=(n)=>total>0?Math.round(n/total*100):0;
   const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]}; 
   counted.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
   const byClass={};
@@ -1036,6 +1095,11 @@ function renderStats(){
   const supC=byType['Support'].length,arC=byType['All Rounder'].length,dpsC=byType['Attack (DPS)'].length;
   const el=document.getElementById('class-overview');
   if(!el)return;
+  // capacity numbers
+  const activeCount=total;           // main members (alts excluded — counted already excludes alts)
+  const altCount=members.filter(isAlt).length;
+  const freeSlots=_guildCap-activeCount;
+  const capEditBtn=isAdmin?`<button class="cap-edit-btn" onclick="editGuildCap()">✏️ แก้</button>`:'';
   el.innerHTML=`
     <div class="ov-header">
       <span class="ov-title">Class Overview</span>
@@ -1043,21 +1107,47 @@ function renderStats(){
     </div>
     <div class="ov-type ov-s">
       <div class="ov-type-head"><span class="ov-type-name">Support</span><span class="ov-type-count">${supC} คน</span></div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(supC/total*100)}%"></div></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(supC)}%"></div></div>
       <div class="ov-chips">${mkChips('Support')}</div>
     </div>
     <div class="ov-divider"></div>
     <div class="ov-type ov-a">
       <div class="ov-type-head"><span class="ov-type-name">All Rounder</span><span class="ov-type-count">${arC} คน</span></div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(arC/total*100)}%"></div></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%"></div></div>
       <div class="ov-chips">${mkChips('All Rounder')}</div>
     </div>
     <div class="ov-divider"></div>
     <div class="ov-type ov-d">
       <div class="ov-type-head"><span class="ov-type-name">Attack (DPS)</span><span class="ov-type-count">${dpsC} คน</span></div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(dpsC/total*100)}%"></div></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%"></div></div>
       <div class="ov-chips">${mkChips('Attack (DPS)')}</div>
+    </div>
+    <div class="cap-section">
+      <div class="cap-head"><span class="cap-title">Guild Capacity</span>${capEditBtn}</div>
+      <div class="cap-grid">
+        <div class="cap-box"><div class="cap-num">${_guildCap}</div><div class="cap-lbl">รับเต็ม</div></div>
+        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">มีคนอยู่</div></div>
+        <div class="cap-box"><div class="cap-num" style="color:var(--blue)">${altCount}</div><div class="cap-lbl">ตัวเด็ก (Alt)</div></div>
+        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">กิลด์ว่าง</div></div>
+      </div>
+      <div class="cap-bar-wrap"><div class="cap-bar" style="width:${_guildCap>0?Math.min(100,Math.round(activeCount/_guildCap*100)):0}%"></div></div>
+      <div class="cap-note">รับได้อีก ${freeSlots>0?freeSlots:0} คน · ไม่นับตัวเด็ก</div>
     </div>`;
+}
+
+async function loadGuildCap(){
+  try{const r=await gasGet('getGuildCap');if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap}}catch(e){}
+  renderStats();
+}
+async function editGuildCap(){
+  if(!isAdmin){alert('Admin only');return}
+  const v=prompt('จำนวนที่กิลด์รับได้เต็ม (คน):',_guildCap);
+  if(v===null)return;
+  const n=Math.max(0,Math.floor(+v||0));
+  if(!n){alert('กรอกตัวเลขที่ถูกต้อง');return}
+  _guildCap=n;renderStats();
+  const r=await gasPost({action:'setGuildCap',cap:n});
+  if(!r.ok){alert('บันทึกไม่สำเร็จ: '+(r.error||''))}
 }
 
 let mSortKey='party',mSortDir=1;
@@ -2046,16 +2136,17 @@ async function toggleDesignatedStatus(weekStart,position,status){
 /* ═══════════ CALENDAR ═══════════ */
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 const SLOT_H=36; // px per 30-min slot
-const TOTAL_SLOTS=6; // 18:00–21:00 = 6 slots (30min each) — show only 3hrs
-const TIME_START=18; // start at 18:00
+let TOTAL_SLOTS=6; // computed dynamically per week from actual events
+let TIME_START=18; // computed dynamically per week from actual events
+const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
 // Fixed events: day=0=Mon..6=Sun, time='HH:MM' or 'allday'
 const CAL_FIXED=[
-  {id:'f0',day:0,title:'Extreme Challenge',time:'allday',cat:'personal'},
-  {id:'f2',day:1,title:'Guild League',time:'19:55',cat:'war'},
-  {id:'f4',day:2,title:'Dimension Drill',time:'19:55',cat:'personal'},
-  {id:'f5',day:3,title:'Guild League',time:'19:55',cat:'war'},
-  {id:'f7',day:5,title:'Emperium Overrun',time:'19:55',cat:'war'},
-  {id:'f8',day:6,title:'Themed Party',time:'19:30',cat:'personal'},
+  {id:'f0',day:0,title:'Extreme Challenge',time:'allday',end:'allday',cat:'personal'},
+  {id:'f2',day:1,title:'Guild League',time:'19:55',end:'20:20',cat:'war'},
+  {id:'f4',day:2,title:'Dimension Drill',time:'19:55',end:'20:35',cat:'personal'},
+  {id:'f5',day:3,title:'Guild League',time:'19:55',end:'20:20',cat:'war'},
+  {id:'f7',day:6,title:'Emperium Overrun',time:'19:55',end:'20:40',cat:'war'},
+  {id:'f8',day:6,title:'Themed Party',time:'19:30',end:'19:50',cat:'personal'},
 ];
 let _calWeekStart='';
 let _calSpecialEvents=[];
@@ -2066,6 +2157,30 @@ function timeToTop(timeStr){
   const offsetMins=(h*60+m)-(TIME_START*60);
   if(offsetMins<0)return null;
   return Math.round(offsetMins/30*SLOT_H);
+}
+
+// Compute flexible time-axis range (TIME_START/TOTAL_SLOTS) from the actual
+// timed events present this week — fits the grid exactly to the schedule.
+function computeTimeRange(){
+  const allTimed=[];
+  CAL_FIXED.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end&&e.end!=='allday'?e.end:e.time})});
+  _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
+  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;TOTAL_SLOTS=(TIME_END_DEFAULT-TIME_START_DEFAULT)*2;return}
+  const toMins=t=>{const [h,m]=t.split(':').map(Number);return h*60+(m||0)};
+  let minStart=Infinity,maxEnd=-Infinity;
+  allTimed.forEach(({start,end})=>{
+    const s=toMins(start),e=toMins(end);
+    if(s<minStart)minStart=s;
+    if(e>maxEnd)maxEnd=e;
+    if(s>maxEnd)maxEnd=s; // safety: end shouldn't be before start, but guard anyway
+  });
+  // round start down to the hour, end up to the next half-hour, add small padding
+  let startH=Math.floor(minStart/60);
+  let endMins=Math.ceil(maxEnd/30)*30+30; // pad 30 min after the last event ends
+  let endH=Math.ceil(endMins/60);
+  if(endH<=startH)endH=startH+1;
+  TIME_START=startH;
+  TOTAL_SLOTS=(endH-startH)*2;
 }
 
 function getWeekMondayFromDate(d){
@@ -2106,6 +2221,8 @@ async function loadCalendarWeek(){
   renderHelperStrip(hr.ok?hr.rows:[]);
   const er=await gasGet('getCalendarEvents&weekStart='+_calWeekStart);
   _calSpecialEvents=er.ok?er.rows.filter(r=>!r.is_fixed):[];
+  computeTimeRange();
+  buildTimeAxis();
   renderCalGrid();
 }
 
@@ -2172,7 +2289,7 @@ function renderCalGrid(){
       pill.className=`cal-evt-block ${cls}`;
       pill.style.cssText='position:static;margin:0;font-size:8px;padding:2px 5px';
       pill.textContent=e.title;
-      if(e.cat==='special'&&isAdmin){pill.classList.add('can-delete');pill.onclick=()=>deleteCalEvent(e.event_id,e.title)}
+      if(e.cat==='special'&&isAdmin){pill.classList.add('can-delete');pill.onclick=()=>openCalEdit(e)}
       adStrip.appendChild(pill);
     });
     col.appendChild(adStrip);
@@ -2192,18 +2309,26 @@ function renderCalGrid(){
     timedEvts.forEach(e=>{
       const top=timeToTop(e.time);
       if(top===null)return;
-      const h=Math.max(30,SLOT_H);
+      const endTime=e.end&&e.end!=='allday'?e.end:(e.end_time&&e.end_time!=='allday'?e.end_time:null);
+      let h=SLOT_H; // fallback: 1 slot tall if no end time set
+      if(endTime){
+        const [sh,sm]=e.time.split(':').map(Number);
+        const [eh,em]=endTime.split(':').map(Number);
+        const durMins=(eh*60+em)-(sh*60+sm);
+        if(durMins>0)h=Math.max(20,Math.round(durMins/30*SLOT_H));
+      }
       const cls=e.cat==='special'?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
       let col_idx=0;
-      for(const p of placed){if(Math.abs(p.top-top)<h)col_idx=Math.max(col_idx,p.col+1)}
-      placed.push({top,col:col_idx});
+      for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
+      placed.push({top,h,col:col_idx});
       const leftPct=col_idx===0?'2px':(col_idx*45)+'%';
       const widthPct=col_idx===0?'calc(100% - 4px)':'52%';
       const block=document.createElement('div');
       block.className=`cal-evt-block ${cls}`+(e.cat==='special'&&isAdmin?' can-delete':'');
       block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${widthPct}`;
-      block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}${e.time?`<div class="evt-sub">${e.time} เริ่ม</div>`:''}`;
-      if(e.cat==='special'&&isAdmin)block.onclick=()=>deleteCalEvent(e.event_id,e.title);
+      const timeLabel=endTime?`${e.time}–${endTime}`:`${e.time} เริ่ม`;
+      block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}<div class="evt-sub">${timeLabel}</div>`;
+      if(e.cat==='special'&&isAdmin)block.onclick=()=>openCalEdit(e);
       grid.appendChild(block);
     });
     col.appendChild(grid);
@@ -2214,7 +2339,9 @@ function renderCalGrid(){
 
 function toggleTimeInput(){
   const type=document.getElementById('cal-new-time-type').value;
-  document.getElementById('cal-new-time').style.display=type==='allday'?'none':'';
+  const hide=type==='allday';
+  document.getElementById('cal-new-time').style.display=hide?'none':'';
+  document.getElementById('cal-new-end-time').style.display=hide?'none':'';
 }
 
 function calNavWeek(dir){
@@ -2228,16 +2355,20 @@ async function addCalendarEvent(){
   const title=(document.getElementById('cal-new-title').value||'').trim();
   const timeType=document.getElementById('cal-new-time-type').value;
   const time=timeType==='allday'?'allday':(document.getElementById('cal-new-time').value||'');
+  const endTime=timeType==='allday'?'allday':(document.getElementById('cal-new-end-time').value||'');
   const tag=document.getElementById('cal-new-tag').value;
   const isFixed=document.getElementById('cal-new-fixed').value==='Y';
   const msg=document.getElementById('cal-add-msg');
   if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
+  if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
+  if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
   msg.textContent='Saving...';msg.style.color='var(--muted)';
-  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day,title,time,tag,isFixed,weekStart:isFixed?'':_calWeekStart});
+  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day,title,time,tag,isFixed,weekStart:isFixed?'':_calWeekStart,endTime});
   if(r.ok){
     msg.textContent='เพิ่มแล้ว: '+title;msg.style.color='var(--green)';
     document.getElementById('cal-new-title').value='';
     document.getElementById('cal-new-time').value='';
+    document.getElementById('cal-new-end-time').value='';
     document.getElementById('cal-new-time-type').value='timed';
     toggleTimeInput();
     await loadCalendarWeek();
@@ -2249,6 +2380,57 @@ async function deleteCalEvent(eventId,title){
   if(!confirm(`ลบ event "${title}" ออกไหม?`))return;
   const r=await gasPost({action:'deleteCalendarEvent',eventId});
   if(r.ok) await loadCalendarWeek();
+  else alert('Error: '+r.error);
+}
+
+let _calEditCtx=null;
+function openCalEdit(e){
+  if(!isAdmin)return;
+  _calEditCtx={event_id:e.event_id,week_start:e.week_start||''};
+  document.getElementById('cal-edit-title').value=e.title||'';
+  document.getElementById('cal-edit-day').value=+e.day_of_week;
+  const isAllday=e.time==='allday'||!e.time;
+  document.getElementById('cal-edit-time-type').value=isAllday?'allday':'timed';
+  document.getElementById('cal-edit-time').value=isAllday?'':e.time;
+  document.getElementById('cal-edit-time').style.display=isAllday?'none':'';
+  const endVal=e.end||e.end_time||'';
+  document.getElementById('cal-edit-end-time').value=isAllday?'':(endVal==='allday'?'':endVal);
+  document.getElementById('cal-edit-end-time').style.display=isAllday?'none':'';
+  document.getElementById('cal-edit-tag').value=e.tag||'Social';
+  document.getElementById('cal-edit-msg').textContent='';
+  document.getElementById('cal-edit-modal').style.display='flex';
+}
+function closeCalEdit(){document.getElementById('cal-edit-modal').style.display='none';_calEditCtx=null}
+function toggleEditTimeInput(){
+  const t=document.getElementById('cal-edit-time-type').value;
+  const hide=t==='allday';
+  document.getElementById('cal-edit-time').style.display=hide?'none':'';
+  document.getElementById('cal-edit-end-time').style.display=hide?'none':'';
+}
+async function saveCalEdit(){
+  if(!_calEditCtx)return;
+  const title=(document.getElementById('cal-edit-title').value||'').trim();
+  const day=+document.getElementById('cal-edit-day').value;
+  const timeType=document.getElementById('cal-edit-time-type').value;
+  const time=timeType==='allday'?'allday':(document.getElementById('cal-edit-time').value||'');
+  const endTime=timeType==='allday'?'allday':(document.getElementById('cal-edit-end-time').value||'');
+  const tag=document.getElementById('cal-edit-tag').value;
+  const msg=document.getElementById('cal-edit-msg');
+  if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
+  if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
+  if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
+  msg.textContent='Saving...';msg.style.color='var(--muted)';
+  // special events are always is_fixed=false; preserve original week_start
+  const r=await gasPost({action:'saveCalendarEvent',eventId:_calEditCtx.event_id,day,title,time,tag,isFixed:false,weekStart:_calEditCtx.week_start,endTime});
+  if(r.ok){closeCalEdit();await loadCalendarWeek()}
+  else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
+}
+async function deleteCalEditEvent(){
+  if(!_calEditCtx)return;
+  const title=document.getElementById('cal-edit-title').value;
+  if(!confirm(`ลบ event "${title}" ออกไหม?`))return;
+  const r=await gasPost({action:'deleteCalendarEvent',eventId:_calEditCtx.event_id});
+  if(r.ok){closeCalEdit();await loadCalendarWeek()}
   else alert('Error: '+r.error);
 }
 
