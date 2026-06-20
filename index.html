@@ -2247,9 +2247,12 @@ function buildTimeAxis(){
 }
 
 async function loadCalendarWeek(){
-  const hr=await gasGet('getHelpers&weekStart='+_calWeekStart);
+  // run independent GAS calls in parallel instead of sequentially — cuts load time roughly in half
+  const [hr,er]=await Promise.all([
+    gasGet('getHelpers&weekStart='+_calWeekStart),
+    gasGet('getCalendarEvents&weekStart='+_calWeekStart)
+  ]);
   renderHelperStrip(hr.ok?hr.rows:[]);
-  const er=await gasGet('getCalendarEvents&weekStart='+_calWeekStart);
   // GAS already filters by recurrence (once/daily/weekly/biweekly/monthly) for this week,
   // and joins each event with its tag's color from Calendar_Tags, so every row here
   // is ready to render directly (event.color is already resolved).
