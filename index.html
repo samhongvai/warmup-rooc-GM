@@ -821,7 +821,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <!-- admin: add/edit events -->
   <div class="sep" style="margin:14px 0"></div>
   <div class="admin-only admin-locked" id="cal-admin-wrap">
-    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">🔐 เพิ่ม Special Event (Admin)</div>
+    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">🔐 เพิ่ม Event (Admin)</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
       <div>
         <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">วัน</label>
@@ -850,25 +850,28 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       </div>
       <div>
         <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Tag</label>
-        <select id="cal-new-tag" style="width:90px">
-          <option value="special">Special</option>
-          <option value="guild">Guild</option>
-          <option value="social">Social</option>
-          <option value="other">Other</option>
-        </select>
+        <input type="text" id="cal-new-tag" placeholder="เช่น guild, helper, ..." style="width:100px" value="guild">
+        <div style="font-size:9px;color:var(--faint);margin-top:2px">สีตาม tag — ตั้งได้ใน sheet Calendar_Tags</div>
       </div>
       <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ซ้ำทุกสัปดาห์</label>
-        <select id="cal-new-fixed" style="width:80px">
-          <option value="N">ไม่ซ้ำ</option>
-          <option value="Y">ซ้ำ</option>
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ซ้ำ</label>
+        <select id="cal-new-recurrence" onchange="toggleRecurrenceAnchor('new')" style="width:90px">
+          <option value="once">ครั้งเดียว</option>
+          <option value="weekly" selected>ทุกสัปดาห์</option>
+          <option value="biweekly">ทุก 2 สัปดาห์</option>
+          <option value="monthly">ทุกเดือน</option>
+          <option value="daily">ทุกวัน</option>
         </select>
+      </div>
+      <div id="cal-new-anchor-wrap" style="display:none">
+        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">เริ่มนับจากวันที่</label>
+        <input type="date" id="cal-new-anchor" style="width:130px">
       </div>
       <button class="btn btn-primary" onclick="addCalendarEvent()">+ เพิ่ม</button>
     </div>
     <div id="cal-add-msg" style="font-size:11px;color:var(--muted)"></div>
 
-    <div style="font-size:10px;color:var(--faint);margin-top:4px;font-style:italic">กด event สีแดงใน calendar เพื่อลบ Special Event</div>
+    <div style="font-size:10px;color:var(--faint);margin-top:4px;font-style:italic">กด event ใน calendar เพื่อแก้ไข/ลบ — แก้ใน Google Sheet (Calendar_Events) ได้โดยตรงเช่นกัน</div>
   </div>
 </div>
 
@@ -949,7 +952,24 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       </div>
     </div>
     <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Tag</label>
-    <select id="cal-edit-tag" style="width:100%;margin-bottom:8px"><option>Social</option><option>Guild League</option><option>Overrun</option><option>Other</option></select>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      <input type="text" id="cal-edit-tag" placeholder="เช่น guild, helper, ..." style="flex:1" oninput="updateTagColorPreview()">
+      <span id="cal-edit-color-preview" style="width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,0.15);flex-shrink:0" title="สีตาม tag (ตั้งใน sheet Calendar_Tags)"></span>
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ซ้ำ</label>
+      <select id="cal-edit-recurrence" onchange="toggleRecurrenceAnchor('edit')" style="width:100%">
+        <option value="once">ครั้งเดียว</option>
+        <option value="weekly">ทุกสัปดาห์</option>
+        <option value="biweekly">ทุก 2 สัปดาห์</option>
+        <option value="monthly">ทุกเดือน</option>
+        <option value="daily">ทุกวัน</option>
+      </select>
+    </div>
+    <div id="cal-edit-anchor-wrap" style="margin-bottom:8px">
+      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เริ่มนับจากวันที่ (anchor)</label>
+      <input type="date" id="cal-edit-anchor" style="width:100%">
+    </div>
     <div id="cal-edit-msg" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
     <div style="display:flex;gap:8px;justify-content:space-between;margin-top:4px">
       <button class="btn btn-ghost" style="color:var(--red);border-color:var(--red-b)" onclick="deleteCalEditEvent()">🗑 ลบ</button>
@@ -963,7 +983,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbznD5c0VUxXH1uQ-BgiIbQwOwSJRC3weuxY-hM53XSDeF2Ph1d3Kx66-GhtQ6_NA4iT/exec';
+const GAS='https://script.google.com/macros/s/AKfycbwSn57yuz4zehvnkM-nSG5K-IpL66jusaBHk7l2X3e5JVX_6ORJ8Tpe-EslQkdyqyea/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -2139,17 +2159,22 @@ const SLOT_H=36; // px per 30-min slot
 let TOTAL_SLOTS=6; // computed dynamically per week from actual events
 let TIME_START=18; // computed dynamically per week from actual events
 const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
-// Fixed events: day=0=Mon..6=Sun, time='HH:MM' or 'allday'
-const CAL_FIXED=[
-  {id:'f0',day:0,title:'Extreme Challenge',time:'allday',end:'allday',cat:'personal'},
-  {id:'f2',day:1,title:'Guild League',time:'19:55',end:'20:20',cat:'war'},
-  {id:'f4',day:2,title:'Dimension Drill',time:'19:55',end:'20:35',cat:'personal'},
-  {id:'f5',day:3,title:'Guild League',time:'19:55',end:'20:20',cat:'war'},
-  {id:'f7',day:6,title:'Emperium Overrun',time:'19:55',end:'20:40',cat:'war'},
-  {id:'f8',day:6,title:'Themed Party',time:'19:30',end:'19:50',cat:'personal'},
-];
+// All calendar events (including former "fixed" recurring ones like Guild League)
+// now live entirely in the Calendar_Events sheet, identified by their `recurrence`
+// field (once/daily/weekly/biweekly/monthly). Admins edit everything via Google Sheet
+// or the on-page edit modal — nothing is hardcoded here anymore.
 let _calWeekStart='';
 let _calSpecialEvents=[];
+let _calTagColors={}; // cached tag→hex color map from Calendar_Tags sheet
+
+// Convert a tag's hex color into the tinted background/border/text style used
+// by event blocks — mirrors the look of the old fixed .ev-war/.ev-personal/.ev-special
+// CSS classes, but works for any arbitrary color from the Calendar_Tags sheet.
+function hexToEventStyle(hex){
+  const h=(hex||'#8A8580').replace('#','');
+  const r=parseInt(h.substring(0,2),16)||138,g=parseInt(h.substring(2,4),16)||133,b=parseInt(h.substring(4,6),16)||128;
+  return `background:rgba(${r},${g},${b},0.16);border-color:#${h};color:#${h}`;
+}
 
 function timeToTop(timeStr){
   if(!timeStr||timeStr==='allday')return null; // allday handled separately
@@ -2163,7 +2188,6 @@ function timeToTop(timeStr){
 // timed events present this week — fits the grid exactly to the schedule.
 function computeTimeRange(){
   const allTimed=[];
-  CAL_FIXED.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end&&e.end!=='allday'?e.end:e.time})});
   _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
   if(!allTimed.length){TIME_START=TIME_START_DEFAULT;TOTAL_SLOTS=(TIME_END_DEFAULT-TIME_START_DEFAULT)*2;return}
   const toMins=t=>{const [h,m]=t.split(':').map(Number);return h*60+(m||0)};
@@ -2220,7 +2244,12 @@ async function loadCalendarWeek(){
   const hr=await gasGet('getHelpers&weekStart='+_calWeekStart);
   renderHelperStrip(hr.ok?hr.rows:[]);
   const er=await gasGet('getCalendarEvents&weekStart='+_calWeekStart);
-  _calSpecialEvents=er.ok?er.rows.filter(r=>!r.is_fixed):[];
+  // GAS already filters by recurrence (once/daily/weekly/biweekly/monthly) for this week,
+  // and joins each event with its tag's color from Calendar_Tags, so every row here
+  // is ready to render directly (event.color is already resolved).
+  _calSpecialEvents=er.ok?er.rows:[];
+  // also fetch the raw tag→color map for the admin edit-form color preview swatch
+  gasGet('getTagColors').then(r=>{if(r.ok)_calTagColors=r.colors||{}}).catch(()=>{});
   computeTimeRange();
   buildTimeAxis();
   renderCalGrid();
@@ -2268,9 +2297,8 @@ function renderCalGrid(){
     const isToday=dateStr===todayStr;
     const isAction=i===1||i===3;
     const isSat=i===5;
-    const dayEvts=CAL_FIXED.filter(e=>e.day===i);
-    const specialEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i);
-    const allEvts=[...dayEvts,...specialEvts.map(e=>({...e,cat:'special'}))];
+    const dayEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i);
+    const allEvts=dayEvts;
     const alldayEvts=allEvts.filter(e=>e.time==='allday'||!e.time);
     const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
     const col=document.createElement('div');
@@ -2284,12 +2312,11 @@ function renderCalGrid(){
     const adStrip=document.createElement('div');
     adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(232,115,42,0.1);display:flex;flex-direction:column;gap:2px;background:rgba(0,0,0,0.1)';
     alldayEvts.forEach(e=>{
-      const cls=e.cat==='special'?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
       const pill=document.createElement('div');
-      pill.className=`cal-evt-block ${cls}`;
-      pill.style.cssText='position:static;margin:0;font-size:8px;padding:2px 5px';
+      pill.className='cal-evt-block';
+      pill.style.cssText=`position:static;margin:0;font-size:8px;padding:2px 5px;${hexToEventStyle(e.color)}`;
       pill.textContent=e.title;
-      if(e.cat==='special'&&isAdmin){pill.classList.add('can-delete');pill.onclick=()=>openCalEdit(e)}
+      if(isAdmin){pill.classList.add('can-delete');pill.onclick=()=>openCalEdit(e)}
       adStrip.appendChild(pill);
     });
     col.appendChild(adStrip);
@@ -2317,18 +2344,17 @@ function renderCalGrid(){
         const durMins=(eh*60+em)-(sh*60+sm);
         if(durMins>0)h=Math.max(20,Math.round(durMins/30*SLOT_H));
       }
-      const cls=e.cat==='special'?'ev-special':e.cat==='war'?'ev-war':'ev-personal';
       let col_idx=0;
       for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
       placed.push({top,h,col:col_idx});
       const leftPct=col_idx===0?'2px':(col_idx*45)+'%';
       const widthPct=col_idx===0?'calc(100% - 4px)':'52%';
       const block=document.createElement('div');
-      block.className=`cal-evt-block ${cls}`+(e.cat==='special'&&isAdmin?' can-delete':'');
-      block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${widthPct}`;
+      block.className='cal-evt-block'+(isAdmin?' can-delete':'');
+      block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${widthPct};${hexToEventStyle(e.color)}`;
       const timeLabel=endTime?`${e.time}–${endTime}`:`${e.time} เริ่ม`;
       block.innerHTML=`${e.title}${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}<div class="evt-sub">${timeLabel}</div>`;
-      if(e.cat==='special'&&isAdmin)block.onclick=()=>openCalEdit(e);
+      if(isAdmin)block.onclick=()=>openCalEdit(e);
       grid.appendChild(block);
     });
     col.appendChild(grid);
@@ -2344,6 +2370,15 @@ function toggleTimeInput(){
   document.getElementById('cal-new-end-time').style.display=hide?'none':'';
 }
 
+// Show the anchor-date picker for non-weekly recurrences where the exact start
+// date materially matters (once/biweekly/monthly). Weekly/daily default to today
+// if left blank, so the picker is optional but still shown for clarity.
+function toggleRecurrenceAnchor(which){
+  const rec=document.getElementById(`cal-${which}-recurrence`).value;
+  const wrap=document.getElementById(`cal-${which}-anchor-wrap`);
+  if(wrap)wrap.style.display=(rec==='once'||rec==='biweekly'||rec==='monthly')?'':'none';
+}
+
 function calNavWeek(dir){
   const d=new Date(_calWeekStart);d.setDate(d.getDate()+dir*7);
   _calWeekStart=d.toISOString().slice(0,10);loadCalendarWeek();
@@ -2357,19 +2392,22 @@ async function addCalendarEvent(){
   const time=timeType==='allday'?'allday':(document.getElementById('cal-new-time').value||'');
   const endTime=timeType==='allday'?'allday':(document.getElementById('cal-new-end-time').value||'');
   const tag=document.getElementById('cal-new-tag').value;
-  const isFixed=document.getElementById('cal-new-fixed').value==='Y';
+  const recurrence=document.getElementById('cal-new-recurrence').value;
+  const anchorInput=document.getElementById('cal-new-anchor').value;
+  const anchorDate=anchorInput||_calWeekStart; // default to this week if not specified
   const msg=document.getElementById('cal-add-msg');
   if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
   msg.textContent='Saving...';msg.style.color='var(--muted)';
-  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day,title,time,tag,isFixed,weekStart:isFixed?'':_calWeekStart,endTime});
+  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day,title,time,tag,recurrence,anchorDate,endTime});
   if(r.ok){
     msg.textContent='เพิ่มแล้ว: '+title;msg.style.color='var(--green)';
     document.getElementById('cal-new-title').value='';
     document.getElementById('cal-new-time').value='';
     document.getElementById('cal-new-end-time').value='';
     document.getElementById('cal-new-time-type').value='timed';
+    document.getElementById('cal-new-anchor').value='';
     toggleTimeInput();
     await loadCalendarWeek();
   }else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
@@ -2383,20 +2421,34 @@ async function deleteCalEvent(eventId,title){
   else alert('Error: '+r.error);
 }
 
+// Live-update the color swatch next to the tag input in the edit modal as the
+// admin types — looks up _calTagColors (cached from getTagColors) with a gray
+// fallback for unrecognized tags, matching what the calendar itself will show.
+function updateTagColorPreview(){
+  const tag=(document.getElementById('cal-edit-tag').value||'').toLowerCase().trim();
+  const sw=document.getElementById('cal-edit-color-preview');
+  if(!sw)return;
+  sw.style.background=_calTagColors[tag]||'#8A8580';
+}
+
 let _calEditCtx=null;
 function openCalEdit(e){
   if(!isAdmin)return;
-  _calEditCtx={event_id:e.event_id,week_start:e.week_start||''};
+  _calEditCtx={event_id:e.event_id};
   document.getElementById('cal-edit-title').value=e.title||'';
   document.getElementById('cal-edit-day').value=+e.day_of_week;
   const isAllday=e.time==='allday'||!e.time;
   document.getElementById('cal-edit-time-type').value=isAllday?'allday':'timed';
   document.getElementById('cal-edit-time').value=isAllday?'':e.time;
   document.getElementById('cal-edit-time').style.display=isAllday?'none':'';
-  const endVal=e.end||e.end_time||'';
+  const endVal=e.end_time||'';
   document.getElementById('cal-edit-end-time').value=isAllday?'':(endVal==='allday'?'':endVal);
   document.getElementById('cal-edit-end-time').style.display=isAllday?'none':'';
-  document.getElementById('cal-edit-tag').value=e.tag||'Social';
+  document.getElementById('cal-edit-tag').value=e.tag||'';
+  document.getElementById('cal-edit-recurrence').value=e.recurrence||'weekly';
+  document.getElementById('cal-edit-anchor').value=e.anchor_date||'';
+  toggleRecurrenceAnchor('edit');
+  updateTagColorPreview();
   document.getElementById('cal-edit-msg').textContent='';
   document.getElementById('cal-edit-modal').style.display='flex';
 }
@@ -2415,13 +2467,15 @@ async function saveCalEdit(){
   const time=timeType==='allday'?'allday':(document.getElementById('cal-edit-time').value||'');
   const endTime=timeType==='allday'?'allday':(document.getElementById('cal-edit-end-time').value||'');
   const tag=document.getElementById('cal-edit-tag').value;
+  const recurrence=document.getElementById('cal-edit-recurrence').value;
+  const anchorInput=document.getElementById('cal-edit-anchor').value;
+  const anchorDate=anchorInput||_calWeekStart;
   const msg=document.getElementById('cal-edit-msg');
   if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
   if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
   msg.textContent='Saving...';msg.style.color='var(--muted)';
-  // special events are always is_fixed=false; preserve original week_start
-  const r=await gasPost({action:'saveCalendarEvent',eventId:_calEditCtx.event_id,day,title,time,tag,isFixed:false,weekStart:_calEditCtx.week_start,endTime});
+  const r=await gasPost({action:'saveCalendarEvent',eventId:_calEditCtx.event_id,day,title,time,tag,recurrence,anchorDate,endTime});
   if(r.ok){closeCalEdit();await loadCalendarWeek()}
   else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
 }
