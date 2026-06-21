@@ -1606,7 +1606,7 @@ async function renderQueueManager(){
 }
 
 async function toggleQueueStatus(date,position,status){
-  const doneDate=status==='done'?new Date().toISOString().slice(0,10):'';
+  const doneDate=status==='done'?toDateStr(new Date()):'';
   const r=await gasPost({action:'updateStatus',date,position,status,doneDate});
   if(r.ok){
     _searchCacheLoaded=false;
@@ -1619,7 +1619,7 @@ async function toggleQueueStatus(date,position,status){
 }
 
 async function drawNewQueue(){
-  const date=new Date().toISOString().slice(0,10);
+  const date=toDateStr(new Date());
   const pass=document.getElementById('qm-admin-pass').value;
   const statusEl=document.getElementById('qm-draw-status');
   if(!pass){alert('Enter admin password');return}
@@ -1955,7 +1955,7 @@ function getWeekMonday(date){
   const day=d.getDay();
   const diff=d.getDate()-(day===0?6:day-1);
   d.setDate(diff);
-  return d.toISOString().slice(0,10);
+  return toDateStr(d);
 }
 
 function setDesignatedThisWeek(){
@@ -2048,7 +2048,7 @@ function renderDesignatedQueues(rows){
 }
 
 async function toggleDesignatedStatus(weekStart,position,status){
-  const doneDate=status==='done'?new Date().toISOString().slice(0,10):'';
+  const doneDate=status==='done'?toDateStr(new Date()):'';
   const r=await gasPost({action:'saveDesignatedLog',weekStart,position,status,doneDate});
   if(r.ok) await loadDesignatedWeek();
   else alert('Update failed: '+r.error);
@@ -2083,7 +2083,7 @@ function getCalVisibleDates(){
     const dates=[];
     for(let i=-1;i<=1;i++){
       const d=new Date(anchor);d.setDate(anchor.getDate()+i);
-      dates.push(d.toISOString().slice(0,10));
+      dates.push(toDateStr(d));
     }
     return dates;
   }
@@ -2095,7 +2095,7 @@ function getCalVisibleDates(){
   const dates=[];
   for(let i=0;i<7;i++){
     const d=new Date(mon);d.setDate(mon.getDate()+i);
-    dates.push(d.toISOString().slice(0,10));
+    dates.push(toDateStr(d));
   }
   return dates;
 }
@@ -2105,7 +2105,20 @@ function mondayOfDate(dateStr){
   const d=new Date(dateStr+'T00:00:00');
   const dow=(d.getDay()+6)%7; // 0=Mon..6=Sun
   d.setDate(d.getDate()-dow);
-  return d.toISOString().slice(0,10);
+  return toDateStr(d);
+}
+
+// Format a Date object as 'YYYY-MM-DD' using its LOCAL date components —
+// never use d.toISOString().slice(0,10) for this, because toISOString()
+// converts to UTC first. For a user in Thailand (UTC+7), any local time
+// before 07:00 falls on the *previous* UTC day, so toISOString() would
+// silently return yesterday's date — this was the cause of the calendar
+// starting on the wrong day for users opening the page in the early morning.
+function toDateStr(d){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
 }
 
 // Convert a tag's hex color into the tinted background/border/text style used
@@ -2152,12 +2165,12 @@ function getWeekMondayFromDate(d){
   const dt=new Date(d||Date.now());
   const day=dt.getDay();
   const diff=dt.getDate()-(day===0?6:day-1);
-  dt.setDate(diff);return dt.toISOString().slice(0,10);
+  dt.setDate(diff);return toDateStr(dt);
 }
 
 async function initCalendarPage(){
   if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
-  if(!_calAnchorDate)_calAnchorDate=new Date().toISOString().slice(0,10); // always start on today, mobile or desktop
+  if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date()); // always start on today, mobile or desktop
   _calLastMobileState=isCalMobileView();
   buildTimeAxis();
   await loadCalendarWeek();
@@ -2215,7 +2228,7 @@ async function loadCalendarWeek(){
     const weekMon=new Date(weeksNeeded[idx]+'T00:00:00');
     er.rows.forEach(ev=>{
       const d=new Date(weekMon);d.setDate(weekMon.getDate()+(ev.day_of_week-1));
-      const dateStr=d.toISOString().slice(0,10);
+      const dateStr=toDateStr(d);
       if(!visibleSet.has(dateStr))return; // outside the currently-displayed range
                                            // (e.g. rest of a fetched week in 3-day mode)
       const key=ev.event_id+'|'+dateStr;
@@ -2284,7 +2297,7 @@ function renderCalGrid(){
   const end=new Date(visibleDates[visibleDates.length-1]+'T00:00:00');
   const fmt=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
   document.getElementById('cal-week-label').textContent=`กิจกรรมประจำสัปดาห์: ${fmt(mon)} – ${fmt(end)}`;
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=toDateStr(new Date());
   const cols=document.getElementById('cal-day-cols');
   cols.innerHTML='';
   const gridH=TOTAL_SLOTS*SLOT_H;
@@ -2396,16 +2409,16 @@ window.addEventListener('resize',()=>{
 function calNavWeek(dir){
   if(isCalMobileView()){
     const d=new Date(_calAnchorDate+'T00:00:00');d.setDate(d.getDate()+dir);
-    _calAnchorDate=d.toISOString().slice(0,10);
+    _calAnchorDate=toDateStr(d);
   }else{
     const d=new Date(_calWeekStart+'T00:00:00');d.setDate(d.getDate()+dir*7);
-    _calWeekStart=d.toISOString().slice(0,10);
+    _calWeekStart=toDateStr(d);
   }
   loadCalendarWeek();
 }
 function calGoToday(){
   _calWeekStart=getWeekMondayFromDate();
-  _calAnchorDate=new Date().toISOString().slice(0,10);
+  _calAnchorDate=toDateStr(new Date());
   loadCalendarWeek();
 }
 
