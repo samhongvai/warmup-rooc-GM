@@ -195,7 +195,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .pm-bar.ba{background:var(--amber);opacity:0.6}
 .pm-bar.bd{background:var(--red);opacity:0.6}
 .pm-info{display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
-.pm-name{color:rgba(242,232,216,0.92);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-name{color:rgba(67,53,42,0.92);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pm-cls-label{font-size:11px;color:var(--muted);margin-top:2px}
 .pm-note{font-size:11px;color:var(--red);font-weight:500}
 .pm-note-leave{font-size:11px;color:var(--blue);font-weight:500}
@@ -210,7 +210,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .srch-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .srch-item .si{opacity:0.45;display:flex;align-items:center}
 .srch-item .si svg{width:13px;height:13px}
-.srch-item .sv{font-size:13px;color:rgba(242,232,216,0.6)}
+.srch-item .sv{font-size:13px;color:rgba(67,53,42,0.6)}
 .srch-discord .si{color:#7289da;opacity:0.75}
 .srch-section{padding:16px 20px;border-bottom:0.5px solid rgba(194,114,62,0.08)}
 .srch-section:last-child{border-bottom:none}
@@ -340,6 +340,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cal-evt-block{position:absolute;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;border-left-width:3px;border-left-style:solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
 .cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:0.7;margin-top:2px}
 .cal-evt-block .evt-time{font-size:9px;font-weight:500;opacity:0.75}
+.cal-evt-block.is-narrow{white-space:normal}
+.cal-evt-block.is-narrow .evt-title-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-evt-block.is-narrow .evt-time{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
 /* 3 colors */
 .ev-war{background:rgba(92,138,110,0.22);border-color:#5C8A6E;color:#3A5A45}
 .ev-personal{background:rgba(90,126,150,0.22);border-color:#5A7E96;color:#36495A}
@@ -418,9 +421,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .fbar{position:relative;height:22px;width:92px;border-radius:7px;overflow:hidden;display:inline-block}
 .fbar .fbar-track{position:absolute;inset:0;background:rgba(194,114,62,0.06)}
 .fbar .fbar-fill{position:absolute;left:0;top:0;height:100%}
-.fbar .fbar-fill.fok{background:rgba(92,138,110,0.4)}
-.fbar .fbar-fill.fmiss{background:rgba(169,136,92,0.4)}
-.fbar .fbar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:0.2px;text-shadow:0 1px 3px rgba(0,0,0,0.5);z-index:1;color:rgba(255,255,255,0.85)}
+.fbar .fbar-fill.fok{background:rgba(92,138,110,0.55)}
+.fbar .fbar-fill.fmiss{background:rgba(169,136,92,0.55)}
+.fbar .fbar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:0.2px;z-index:1;color:#43352A}
 /* FEATHER INPUTS IN MODAL */
 .feather-inputs{margin:12px 0 14px}
 .feather-inputs .fi-title{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
@@ -484,7 +487,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .loc-item{font-size:12px;display:flex;align-items:center;gap:6px}
 .loc-pg{font-size:11px;padding:2px 8px;border-radius:5px;font-weight:700;flex-shrink:0}
 .pg-card{background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)}
-.pg-w{background:rgba(200,210,255,0.12);color:rgba(200,210,255,0.75);border:1px solid rgba(200,210,255,0.25)}
+.pg-w{background:rgba(90,126,150,0.15);color:#36495A;border:1px solid rgba(90,126,150,0.35)}
 .pg-d{background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
 .loc-detail{color:var(--muted)}
 .pers-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-soft)}
@@ -2084,6 +2087,10 @@ function getCalVisibleDates(){
     }
     return dates;
   }
+  // defensively re-normalize to the actual Monday of whatever week _calWeekStart
+  // falls in — guards against drift if it was ever set to a non-Monday date by
+  // any code path (e.g. stale state carried over from a mode switch).
+  _calWeekStart=mondayOfDate(_calWeekStart);
   const mon=new Date(_calWeekStart+'T00:00:00');
   const dates=[];
   for(let i=0;i<7;i++){
@@ -2319,7 +2326,12 @@ function renderCalGrid(){
       line.style.top=(s*SLOT_H)+'px';
       grid.appendChild(line);
     }
-    // timed events
+    // timed events — two-pass overlap layout:
+    //  pass 1: compute each event's top/height/column index
+    //  pass 2: for each event, find the actual final size of its overlap group
+    //          (every event whose time range intersects it, not just ones placed
+    //          earlier in iteration order — fixes the first event in a clash
+    //          never finding out a later one will overlap it)
     const placed=[];
     timedEvts.forEach(e=>{
       const top=timeToTop(e.time);
@@ -2334,18 +2346,26 @@ function renderCalGrid(){
       }
       let col_idx=0;
       for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
-      placed.push({top,h,col:col_idx});
-      // evenly split width when events overlap in the same time slot, instead of
-      // a fixed 52%/45% split that can overflow with longer titles
+      placed.push({top,h,col:col_idx,e,endTime});
+    });
+    placed.forEach(item=>{
+      const {top,h,col:col_idx,e,endTime}=item;
+      // true overlap-group size: count every placed item (regardless of order)
+      // whose time range intersects this one's
       const totalCols=Math.max(1,placed.filter(p=>top<p.top+p.h&&top+h>p.top).length);
       const colWidth=totalCols>1?`calc(${100/totalCols}% - 4px)`:'calc(100% - 4px)';
       const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 2px)`:'2px';
       const block=document.createElement('div');
-      block.className='cal-evt-block';
+      block.className='cal-evt-block'+(totalCols>1?' is-narrow':'');
       block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${colWidth};${hexToEventStyle(e.color)}`;
       const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
       block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
-      block.innerHTML=`${e.title} <span class="evt-time">(${timeLabel})</span>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`;
+      // when columns are narrow (overlapping events), put the time on its own
+      // line so each piece can truncate independently with ellipsis instead of
+      // one long "Title (HH:MM - HH:MM)" string getting cut off mid-word
+      block.innerHTML=totalCols>1
+        ? `<div class="evt-title-line">${e.title}</div><div class="evt-time">${timeLabel}</div>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`
+        : `${e.title} <span class="evt-time">(${timeLabel})</span>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`;
       grid.appendChild(block);
     });
     col.appendChild(grid);
