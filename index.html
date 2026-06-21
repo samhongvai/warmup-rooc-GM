@@ -5,55 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Warmup Guild Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mali:wght@500;600;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&family=Mali:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* === Warmup Muted theme — calm earth-tones, kawaii shapes without the sugary brightness === */
-  --bg:#F0EAE0;--bg2:#FAF7F1;--bg3:#F5F0E6;
-  --card:#FAF7F1;--card2:#FFFFFF;
-  --orange:#C2723E;--orange-l:#A85F32;--orange-dim:#EDDFCD;--orange-border:#D4B48C;
-  --gold:#A9885C;--gold-l:#8A6D45;--gold-dim:#F0E6D2;
-  --border:#E3D7C4;--border2:#D4B48C;
-  --text:#43352A;--muted:#8A7860;--faint:#B8A789;
-  --green:#5C8A6E;--green-dim:#E3EDE5;--green-b:#A9C7B3;
-  --red:#B85A4E;--red-dim:#F3E2DE;--red-b:#DDAA9F;
-  --amber:#A9885C;--amber-dim:#F0E6D2;--amber-b:#D4BD8E;
-  --blue:#5A7E96;--blue-dim:#E2EAEE;--blue-b:#AFC4D0;
-  --font:'Baloo 2','Mali','Segoe UI',system-ui,sans-serif;
-  --font-pixel:'VT323',monospace;
-  /* v2 design system: soft kawaii corners + warm depth */
-  --radius-lg:28px;--radius-md:20px;--radius-sm:14px;
-  --shadow-card:0 8px 24px rgba(67,53,42,0.10),0 2px 6px rgba(67,53,42,0.06);
-  --shadow-soft:0 4px 14px rgba(67,53,42,0.07);
+  /* === Fusion theme: Neumorphic calm + Brutalist accent + Terminal sharpness === */
+  /* base surface — card and page share the SAME grey (neumorphic), depth comes from shadow not color */
+  --bg:#E8EAED;--bg2:#E8EAED;--bg3:#E8EAED;
+  --card:#E8EAED;--card2:#FFFFFF;
+  /* accent: bold orange/red, used sparingly and only on things that truly need attention */
+  --orange:#B23410;--orange-l:#8A2A0D;--orange-dim:#FFE4DB;--orange-border:#B23410;
+  --gold:#C99A3A;--gold-l:#6B5212;--gold-dim:#FBF0D6;
+  --border:#D5D8DC;--border2:#B8BCC2;
+  --text:#1A1C1E;--muted:#5A5F65;--faint:#5E6469;
+  --green:#0F6B36;--green-dim:#DFF3E6;--green-b:#9ED9B6;
+  --red:#C01F2E;--red-dim:#FDE2DF;--red-b:#F2A89E;
+  --amber:#7A5818;--amber-dim:#FBF0D6;--amber-b:#E8C988;
+  --blue:#255590;--blue-dim:#E2EDFB;--blue-b:#A8C8EE;
+  --font:'Inter','Mali','Segoe UI',system-ui,sans-serif;
+  --font-pixel:'JetBrains Mono',monospace; /* repurposed: sharp numbers/labels, not pixel-art anymore */
+  /* v3 design system: soft neumorphic corners, shadow-driven depth instead of borders */
+  --radius-lg:18px;--radius-md:14px;--radius-sm:10px;
+  --shadow-out:6px 6px 14px #c8cbd0,-6px -6px 14px #ffffff; /* raised neumorphic surface */
+  --shadow-out-sm:4px 4px 10px #c8cbd0,-4px -4px 10px #ffffff;
+  --shadow-in:inset 3px 3px 8px #c8cbd0,inset -3px -3px 8px #ffffff; /* pressed/active state */
+  --shadow-card:var(--shadow-out);
+  --shadow-soft:var(--shadow-out-sm);
 }
-body{font-family:var(--font);background:linear-gradient(180deg,var(--bg) 0%,#E5DBC8 100%);background-attachment:fixed;color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
 .app{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:0.5px solid var(--border);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease}
-.logo-area{padding:1.2rem 1rem 1rem;border-bottom:0.5px solid var(--border);margin-bottom:0.8rem}
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease;box-shadow:4px 0 14px rgba(0,0,0,0.06)}
+.logo-area{padding:1.3rem 1rem 1.1rem;margin-bottom:0.8rem}
 .logo-img-wrap{width:100%;display:flex;justify-content:center;margin-bottom:10px}
-.logo-img{width:76px;height:76px;object-fit:contain;border-radius:var(--radius-sm);box-shadow:var(--shadow-soft)}
+.logo-img{width:48px;height:48px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--orange),var(--orange-l));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--shadow-out-sm);color:#fff}
 .logo-text{text-align:center}
-.logo-text h1{font-family:var(--font-pixel);font-size:22px;font-weight:400;color:var(--orange-l);letter-spacing:2px}
-.logo-text p{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px;font-weight:600}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1rem;margin:1px 8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);border-left:none}
-.nav-item:hover{color:var(--text);background:rgba(194,114,62,0.06)}
-.nav-item.active{color:var(--orange-l);background:var(--orange-dim);box-shadow:inset 2px 0 0 var(--orange)}
+.logo-text h1{font-family:var(--font-pixel);font-size:18px;font-weight:800;color:var(--text);letter-spacing:1px}
+.logo-text p{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:1px;font-weight:600;font-family:var(--font-pixel);text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1rem;margin:0 10px;font-size:13px;font-weight:600;font-family:var(--font-pixel);color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);border-bottom:1px solid var(--border)}
+.nav-item:last-of-type{border-bottom:none}
+.nav-item.active{border-bottom-color:transparent}
+.nav-item:hover{color:var(--text);box-shadow:var(--shadow-out-sm)}
+.nav-item.active{color:#fff;background:var(--orange);box-shadow:var(--shadow-out-sm);font-weight:800}
 .nav-item .ni{font-size:16px;width:18px;text-align:center}
 .nav-spacer{flex:1}
-.nav-section{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:12px 1.2rem 5px;opacity:0.65}
+.nav-section{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:14px 1.2rem 5px;opacity:0.7;font-family:var(--font-pixel)}
 .nav-lock{font-size:10px;opacity:0.4;margin-left:auto}
 .admin-locked{opacity:0.35;cursor:not-allowed;pointer-events:none}
 .admin-locked-wrap{position:relative}
 .admin-locked-wrap::after{content:'🔐';position:absolute;top:50%;right:8px;transform:translateY(-50%);font-size:10px;opacity:0.5;pointer-events:none}
-.nav-divider{height:0.5px;background:var(--border);margin:8px 1rem}
-.nav-footer{padding:0.8rem 1.2rem;border-top:0.5px solid var(--border);font-size:11px;color:var(--muted);line-height:1.7}
+.nav-divider{height:1px;background:var(--border);margin:10px 1rem;opacity:0.5}
+.nav-footer{padding:0.9rem 1.2rem;font-size:11px;color:var(--muted);line-height:1.7;font-family:var(--font-pixel)}
 .sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;box-shadow:0 0 6px var(--green)}
-.hamburger{display:none;position:fixed;top:11px;left:11px;z-index:300;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-soft)}
-.topbar-admin{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);align-items:center;gap:6px;box-shadow:var(--shadow-soft)}
-.topbar-admin.on{border-color:var(--orange-border);color:var(--orange);background:var(--orange-dim)}
+.hamburger{display:none;position:fixed;top:11px;left:11px;z-index:300;background:var(--bg2);border-radius:var(--radius-sm);padding:8px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm)}
+.topbar-admin{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--bg2);border-radius:var(--radius-sm);padding:8px 14px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;box-shadow:var(--shadow-out-sm)}
+.topbar-admin.on{color:var(--orange-l);background:var(--orange-dim);box-shadow:var(--shadow-out-sm)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150}
 .sidebar-overlay.show{display:block}
 @media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0!important;padding:3.5rem 0.9rem 2rem!important;max-width:100vw!important}.hamburger{display:flex;align-items:center}}
@@ -175,30 +182,37 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .field-section{margin-bottom:2rem}
 .field-section:last-child{margin-bottom:0}
 .field-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.field-head h4{font-size:16px;font-weight:700;color:var(--text)}
-.field-tag{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600}
-.ft-main{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
-.ft-sec{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
+.field-head h4{font-size:16px;font-weight:700;color:var(--text);font-family:var(--font-pixel)}
+.field-tag{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:700;font-family:var(--font-pixel)}
+/* "สนามหลัก/สนามรอง" are structural labels, not class-type indicators — they use
+   the site's own accent/neutral colors, NOT --green/--amber (those are reserved
+   for Support/All-Rounder class colors and must never be reused for other meanings) */
+/* main/secondary field use the SAME orange hue — secondary is just a lighter
+   tint, so players don't feel singled out as "lesser" for being in a secondary
+   field. Only intensity differs, not color identity. */
+.ft-main{background:var(--orange);color:#fff;box-shadow:var(--shadow-out-sm);font-weight:800}
+.ft-sec{background:var(--orange-dim);color:var(--orange-l);box-shadow:var(--shadow-out-sm)}
 .party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr));gap:12px}
-.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
+.pc{background:var(--card);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out)}
 .pc-head{padding:11px 14px;display:flex;justify-content:space-between;align-items:center}
-.pc-head.ph-main{background:rgba(92,138,110,0.12);border-bottom:1px solid rgba(92,138,110,0.25)}
-.pc-head.ph-sec{background:rgba(169,136,92,0.12);border-bottom:1px solid rgba(169,136,92,0.25)}
-.pc-head.ph-main .pn{color:var(--green);font-size:14px;font-weight:700}
-.pc-head.ph-sec .pn{color:var(--amber);font-size:14px;font-weight:700}
-.pc-count{font-size:12px;color:var(--muted);font-weight:500}
+.pc-head.ph-main{background:var(--orange);box-shadow:inset 0 -2px 0 rgba(0,0,0,0.08)}
+.pc-head.ph-sec{background:var(--orange-dim);box-shadow:inset 0 -1px 0 var(--orange-border)}
+.pc-head.ph-main .pn{color:#fff;font-size:14px;font-weight:800;font-family:var(--font-pixel)}
+.pc-head.ph-sec .pn{color:var(--orange-l);font-size:14px;font-weight:800;font-family:var(--font-pixel)}
+.pc-head.ph-main .pc-count{color:rgba(255,255,255,0.85)}
+.pc-count{font-size:12px;color:var(--muted);font-weight:600}
 .pm-body{padding:6px 0;display:flex;flex-direction:column}
-.pm{display:flex;align-items:stretch;gap:10px;padding:8px 14px;border-bottom:0.5px solid rgba(194,114,62,0.06)}
+.pm{display:flex;align-items:stretch;gap:10px;padding:8px 14px;border-bottom:0.5px solid var(--border)}
 .pm:last-child{border-bottom:none}
 .pm-bar{width:4px;border-radius:3px;flex-shrink:0;min-height:22px}
-.pm-bar.bs{background:var(--green);opacity:0.6}
-.pm-bar.ba{background:var(--amber);opacity:0.6}
-.pm-bar.bd{background:var(--red);opacity:0.6}
+.pm-bar.bs{background:var(--green)}
+.pm-bar.ba{background:var(--amber)}
+.pm-bar.bd{background:var(--red)}
 .pm-info{display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
-.pm-name{color:rgba(67,53,42,0.92);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pm-cls-label{font-size:11px;color:var(--muted);margin-top:2px}
-.pm-note{font-size:11px;color:var(--red);font-weight:500}
-.pm-note-leave{font-size:11px;color:var(--blue);font-weight:500}
+.pm-name{color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-cls-label{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
+.pm-note{font-size:11px;color:var(--muted);font-weight:600}
+.pm-note-leave{font-size:11px;color:var(--muted);font-weight:600}
 
 /* SEARCH CARD */
 .srch-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-card)}
@@ -538,23 +552,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <nav class="sidebar" id="sidebar-el">
   <div class="logo-area">
     <div class="logo-img-wrap">
-      <img src="logo.png" alt="Warmup Guild" class="logo-img">
+      <div class="logo-img">⚔</div>
     </div>
     <div class="logo-text">
-      <h1>Warmup</h1>
-      <p>Guild Manager</p>
+      <h1>WARMUP</h1>
+      <p>GUILD MANAGER</p>
     </div>
   </div>
-  <div class="nav-section">Member Zone</div>
   <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span>Search</div>
   <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span>Calendar</div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span>Party</div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
-  <div class="nav-divider"></div>
-  <div class="nav-section">Guild Management</div>
   <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
-  <div class="nav-divider"></div>
   <div class="nav-spacer"></div>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
 </nav>
@@ -1048,12 +1058,12 @@ function renderStats(){
       <div class="cap-head"><span class="cap-title">Guild Capacity</span>${capEditBtn}</div>
       <div class="cap-grid">
         <div class="cap-box"><div class="cap-num">${_guildCap}</div><div class="cap-lbl">รับเต็ม</div></div>
-        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">มีคนอยู่</div></div>
-        <div class="cap-box"><div class="cap-num" style="color:var(--blue)">${altCount}</div><div class="cap-lbl">ตัวเด็ก (Alt)</div></div>
-        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">กิลด์ว่าง</div></div>
+        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">นับเข้าโควต้า</div></div>
+        <div class="cap-box"><div class="cap-num" style="color:var(--blue)">${altCount}</div><div class="cap-lbl">ตัวเด็ก (ไม่นับโควต้า)</div></div>
+        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">รับเพิ่มได้</div></div>
       </div>
       <div class="cap-bar-wrap"><div class="cap-bar" style="width:${_guildCap>0?Math.min(100,Math.round(activeCount/_guildCap*100)):0}%"></div></div>
-      <div class="cap-note">รับได้อีก ${freeSlots>0?freeSlots:0} คน · ไม่นับตัวเด็ก</div>
+      <div class="cap-note">${_guildCap} ที่ − ${activeCount} คนปัจจุบัน = รับเพิ่มได้ ${freeSlots>0?freeSlots:0} คน (ตัวเด็ก ${altCount} ตัวไม่ถูกนับในโควต้านี้)</div>
     </div>`;
 }
 
@@ -1091,8 +1101,20 @@ function renderParty(){
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
   const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
-  const mkSection=(list,isMain)=>list.map(p=>{const isM=isMain;return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pts[p].map(m=>{const type=getType(m.class),tb=typeBar(type);const sub=isAlt(m);const leave=isLeaveNote(m);const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.noted)}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class}</div></div>${noteTag}</div>`}).join('')}</div></div>`}).join('');
-  document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">Party 9+</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
+  const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
+  const mkSection=(list,isMain)=>list.map(p=>{
+    const isM=isMain;
+    // sort each party's roster: Support -> All Rounder -> Attack(DPS), so the
+    // healer/support core is always visible first regardless of sheet order
+    const sortedMembers=[...pts[p]].sort((a,b)=>TYPE_ORDER[getType(a.class)]-TYPE_ORDER[getType(b.class)]);
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${sortedMembers.map(m=>{const type=getType(m.class),tb=typeBar(type);const sub=isAlt(m);const leave=isLeaveNote(m);const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.noted)}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class}</div></div>${noteTag}</div>`}).join('')}</div></div>`;
+  }).join('');
+  // secondary field label reflects the actual highest party number present,
+  // e.g. "Party 9–16" instead of a hardcoded "Party 9+" — falls back to just
+  // "Party 9+" if there happen to be no secondary parties yet (nothing to show a max of)
+  const secMax=secPts.length?secPts[secPts.length-1]:null;
+  const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
+  document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
 /* SEARCH */
