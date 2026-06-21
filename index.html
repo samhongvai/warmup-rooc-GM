@@ -320,13 +320,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cal-wrap{display:flex;border:1px solid rgba(194,114,62,0.16);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-soft)}
 .cal-time-axis{width:38px;flex-shrink:0;background:rgba(194,114,62,0.06);border-right:0.5px solid rgba(194,114,62,0.1);position:sticky;left:0;z-index:2}
 .cal-time-head{height:44px;border-bottom:0.5px solid rgba(194,114,62,0.12);background:rgba(194,114,62,0.05)}
-.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:0.5px solid rgba(194,114,62,0.05)}
+.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:1px solid rgba(194,114,62,0.1)}
 .cal-time-slot span{font-size:9px;color:rgba(156,123,79,0.55);line-height:1;white-space:nowrap}
 .cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
 @media(max-width:760px){.cal-day-cols{grid-template-columns:repeat(3,1fr)}}
-.cal-dcol{border-right:0.5px solid rgba(194,114,62,0.08);display:flex;flex-direction:column}
+.cal-dcol{border-right:1px solid rgba(194,114,62,0.18);display:flex;flex-direction:column}
 .cal-dcol:last-child{border-right:none}
-.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:0.5px solid rgba(194,114,62,0.12);background:rgba(194,114,62,0.05);position:sticky;top:0;z-index:1}
+.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1.5px solid rgba(194,114,62,0.25);background:rgba(194,114,62,0.05);position:sticky;top:0;z-index:1}
 .cal-dname{font-size:10px;color:rgba(156,123,79,0.7);text-transform:uppercase;letter-spacing:1px;font-weight:600}
 .cal-dnum{font-size:17px;font-weight:700;color:rgba(92,64,35,0.85);line-height:1.1}
 .cal-dcol.today-day{background:rgba(194,114,62,0.04)}
@@ -334,8 +334,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cal-dcol.today-day .cal-dname{color:#A85F32}
 .cal-dcol.today-day .cal-dnum{color:#A85F32}
 .cal-dgrid{position:relative;height:1728px}
-.cal-grid-line{position:absolute;left:0;right:0;height:0.5px;background:rgba(194,114,62,0.05)}
-.cal-grid-line.hour{background:rgba(194,114,62,0.1)}
+.cal-grid-line{position:absolute;left:0;right:0;height:1px;background:rgba(194,114,62,0.1)}
+.cal-grid-line.hour{height:1.5px;background:rgba(194,114,62,0.22)}
+.cal-hour-band{position:absolute;left:0;right:0;background:rgba(194,114,62,0.035);pointer-events:none}
 /* event blocks */
 .cal-evt-block{position:absolute;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;border-left-width:3px;border-left-style:solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
 .cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:0.7;margin-top:2px}
@@ -2331,8 +2332,19 @@ function renderCalGrid(){
     const grid=document.createElement('div');
     grid.className='cal-dgrid';
     grid.style.height=gridH+'px';
-    // grid lines — bold "hour" line every 4th slot (60min / 15min = 4)
+    // alternating hour-band backgrounds — every other hour gets a faint tint
+    // so the eye can scan rows without needing to trace thin grid lines
     const slotsPerHourLine=60/SLOT_MINS;
+    const totalHours=Math.ceil(TOTAL_SLOTS/slotsPerHourLine);
+    for(let hr=0;hr<totalHours;hr++){
+      if(hr%2!==0)continue;
+      const band=document.createElement('div');
+      band.className='cal-hour-band';
+      band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';
+      band.style.height=(Math.min(slotsPerHourLine,TOTAL_SLOTS-hr*slotsPerHourLine)*SLOT_H)+'px';
+      grid.appendChild(band);
+    }
+    // grid lines — bold "hour" line every 4th slot (60min / 15min = 4)
     for(let s=0;s<TOTAL_SLOTS;s++){
       const line=document.createElement('div');
       line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');
