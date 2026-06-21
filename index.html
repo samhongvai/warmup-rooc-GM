@@ -4,26 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Warmup Guild Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mali:wght@500;600;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#1A150E;--bg2:#1E1710;--bg3:#241C12;
-  --card:rgba(255,248,230,0.04);--card2:rgba(255,248,230,0.07);
-  --orange:#E8732A;--orange-l:#F5A06A;--orange-dim:rgba(232,115,42,0.13);--orange-border:rgba(232,115,42,0.35);
-  --gold:#C9A84C;--gold-l:#EDD28A;--gold-dim:rgba(237,210,138,0.08);
-  --border:rgba(232,115,42,0.14);--border2:rgba(232,115,42,0.35);
-  --text:#EDD28A;--muted:rgba(237,210,138,0.45);--faint:rgba(237,210,138,0.22);
-  --green:#5DBF8A;--green-dim:rgba(93,191,138,0.1);--green-b:rgba(93,191,138,0.28);
-  --red:#E0706A;--red-dim:rgba(224,112,106,0.1);--red-b:rgba(224,112,106,0.28);
-  --amber:#D4A044;--amber-dim:rgba(212,160,68,0.1);--amber-b:rgba(212,160,68,0.28);
-  --blue:#6BA3D6;--blue-dim:rgba(107,163,214,0.1);--blue-b:rgba(107,163,214,0.28);
-  --font:'Segoe UI',system-ui,sans-serif;
-  /* v2 design system: softer corners + depth for readability, colors unchanged */
-  --radius-lg:20px;--radius-md:14px;--radius-sm:10px;
-  --shadow-card:0 4px 24px rgba(0,0,0,0.25);
-  --shadow-soft:0 2px 12px rgba(0,0,0,0.15);
+  /* === Warmup Muted theme — calm earth-tones, kawaii shapes without the sugary brightness === */
+  --bg:#F0EAE0;--bg2:#FAF7F1;--bg3:#F5F0E6;
+  --card:#FAF7F1;--card2:#FFFFFF;
+  --orange:#C2723E;--orange-l:#A85F32;--orange-dim:#EDDFCD;--orange-border:#D4B48C;
+  --gold:#A9885C;--gold-l:#8A6D45;--gold-dim:#F0E6D2;
+  --border:#E3D7C4;--border2:#D4B48C;
+  --text:#43352A;--muted:#8A7860;--faint:#B8A789;
+  --green:#5C8A6E;--green-dim:#E3EDE5;--green-b:#A9C7B3;
+  --red:#B85A4E;--red-dim:#F3E2DE;--red-b:#DDAA9F;
+  --amber:#A9885C;--amber-dim:#F0E6D2;--amber-b:#D4BD8E;
+  --blue:#5A7E96;--blue-dim:#E2EAEE;--blue-b:#AFC4D0;
+  --font:'Baloo 2','Mali','Segoe UI',system-ui,sans-serif;
+  --font-pixel:'VT323',monospace;
+  /* v2 design system: soft kawaii corners + warm depth */
+  --radius-lg:28px;--radius-md:20px;--radius-sm:14px;
+  --shadow-card:0 8px 24px rgba(67,53,42,0.10),0 2px 6px rgba(67,53,42,0.06);
+  --shadow-soft:0 4px 14px rgba(67,53,42,0.07);
 }
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
+body{font-family:var(--font);background:linear-gradient(180deg,var(--bg) 0%,#E5DBC8 100%);background-attachment:fixed;color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
 .app{display:flex;min-height:100vh}
 
 /* SIDEBAR */
@@ -32,10 +36,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .logo-img-wrap{width:100%;display:flex;justify-content:center;margin-bottom:10px}
 .logo-img{width:76px;height:76px;object-fit:contain;border-radius:var(--radius-sm);box-shadow:var(--shadow-soft)}
 .logo-text{text-align:center}
-.logo-text h1{font-size:16px;font-weight:700;color:var(--gold-l);letter-spacing:2px}
-.logo-text p{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px}
+.logo-text h1{font-family:var(--font-pixel);font-size:22px;font-weight:400;color:var(--orange-l);letter-spacing:2px}
+.logo-text p{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px;font-weight:600}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 1rem;margin:1px 8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);border-left:none}
-.nav-item:hover{color:var(--text);background:rgba(232,115,42,0.06)}
+.nav-item:hover{color:var(--text);background:rgba(194,114,62,0.06)}
 .nav-item.active{color:var(--orange-l);background:var(--orange-dim);box-shadow:inset 2px 0 0 var(--orange)}
 .nav-item .ni{font-size:16px;width:18px;text-align:center}
 .nav-spacer{flex:1}
@@ -58,7 +62,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 /* MAIN */
 .main{margin-left:220px;flex:1;padding:2rem 2.2rem;min-width:0;max-width:calc(100vw - 220px)}
 .page{display:none}.page.active{display:block}
-.page-title{font-size:22px;font-weight:700;color:var(--gold-l);margin-bottom:5px;letter-spacing:0.2px}
+.page-title{font-family:var(--font-pixel);font-size:30px;font-weight:400;color:var(--orange-l);margin-bottom:5px;letter-spacing:1px}
 .page-sub{font-size:13px;color:var(--muted);margin-bottom:1.3rem}
 
 /* COMMON */
@@ -69,8 +73,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .btn{padding:9px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);border:1.5px solid;transition:all 0.15s}
 .btn:active{transform:scale(0.97)}
 .btn-primary{background:var(--orange-dim);border-color:var(--orange);color:var(--orange-l)}
-.btn-primary:hover{background:rgba(232,115,42,0.24);box-shadow:0 4px 14px rgba(232,115,42,0.18)}
-.btn-ghost{background:transparent;border-color:rgba(255,255,255,0.14);color:var(--muted)}
+.btn-primary:hover{background:rgba(194,114,62,0.24);box-shadow:0 4px 14px rgba(194,114,62,0.18)}
+.btn-ghost{background:transparent;border-color:rgba(194,114,62,0.13);color:var(--muted)}
 .btn-ghost:hover{border-color:var(--border2);color:var(--text)}
 .btn-green{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .btn-red{background:var(--red-dim);border-color:var(--red-b);color:var(--red)}
@@ -87,7 +91,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;margin-bottom:1.4rem}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 14px;text-align:center;box-shadow:var(--shadow-soft);transition:transform 0.15s,border-color 0.15s}
 .sc:hover{transform:translateY(-2px);border-color:var(--border2)}
-.sc .n{font-size:26px;font-weight:700;color:var(--gold-l);letter-spacing:-0.5px;line-height:1.1}.sc .l{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:0.5px;font-weight:500}
+.sc .n{font-family:var(--font-pixel);font-size:34px;font-weight:400;color:var(--orange-l);letter-spacing:0px;line-height:1}.sc .l{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:0.5px;font-weight:500}
 
 /* OVERVIEW BOX */
 .overview-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-card)}
@@ -99,12 +103,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .ov-type-head{display:flex;justify-content:space-between;align-items:baseline}
 .ov-type-name{font-size:14px;font-weight:600}
 .ov-type-count{font-size:14px;font-weight:700}
-.ov-bar-wrap{height:8px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden}
+.ov-bar-wrap{height:8px;background:rgba(194,114,62,0.06);border-radius:8px;overflow:hidden}
 .ov-bar{height:100%;border-radius:8px;transition:width 0.5s ease}
 .ov-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
 .ov-chip{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
 .ov-chip .cn{font-weight:600}.ov-chip .cc{opacity:0.7}
-.ov-divider{height:0.5px;background:rgba(255,255,255,0.07);margin:10px 0}
+.ov-divider{height:0.5px;background:rgba(194,114,62,0.07);margin:10px 0}
 .ov-s .ov-type-name,.ov-s .ov-type-count{color:var(--green)}
 .ov-s .ov-bar{background:linear-gradient(90deg,var(--green),#7DD4A8)}
 .ov-s .ov-chip{background:var(--green-dim);border:1px solid var(--green-b);color:var(--green)}
@@ -112,10 +116,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .ov-a .ov-bar{background:linear-gradient(90deg,var(--amber),#E8C478)}
 .ov-a .ov-chip{background:var(--amber-dim);border:1px solid var(--amber-b);color:var(--amber)}
 .ov-d .ov-type-name,.ov-d .ov-type-count{color:var(--red)}
-.ov-d .ov-bar{background:linear-gradient(90deg,var(--red),#E89490)}
+.ov-d .ov-bar{background:linear-gradient(90deg,var(--red),#DDAA9F)}
 .ov-d .ov-chip{background:var(--red-dim);border:1px solid var(--red-b);color:var(--red)}
 /* GUILD CAPACITY */
-.cap-section{margin-top:18px;padding-top:18px;border-top:0.5px solid rgba(232,115,42,0.15)}
+.cap-section{margin-top:18px;padding-top:18px;border-top:0.5px solid rgba(194,114,62,0.15)}
 .cap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .cap-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--orange-l);font-weight:600}
 .cap-edit-btn{font-size:11px;padding:5px 12px;border-radius:var(--radius-sm);background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange-l);cursor:pointer;font-weight:600}
@@ -123,9 +127,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .cap-box{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;box-shadow:var(--shadow-soft)}
 .cap-free{border-color:var(--orange-border);background:var(--orange-dim)}
-.cap-num{font-size:26px;font-weight:700;color:var(--text);line-height:1.1;letter-spacing:-0.5px}
+.cap-num{font-family:var(--font-pixel);font-size:34px;font-weight:400;color:var(--text);line-height:1;letter-spacing:0px}
 .cap-lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
-.cap-bar-wrap{height:8px;background:rgba(0,0,0,0.3);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.cap-bar-wrap{height:8px;background:rgba(194,114,62,0.09);border-radius:8px;overflow:hidden;margin-bottom:8px}
 .cap-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:8px;transition:width 0.3s}
 .cap-note{font-size:12px;color:var(--muted);text-align:center}
 @media(max-width:520px){.cap-grid{grid-template-columns:repeat(2,1fr)}}
@@ -151,18 +155,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .b-s{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
 .b-a{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
 .b-d{background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
-.b-note{background:rgba(107,163,214,0.12);color:var(--blue);border:1px solid var(--blue-b)}
+.b-note{background:rgba(90,126,150,0.12);color:var(--blue);border:1px solid var(--blue-b)}
 
 /* MEMBERS TABLE */
 .tbl-wrap{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border);box-shadow:var(--shadow-soft)}
 .mtbl{width:100%;border-collapse:collapse;font-size:13px}
-.mtbl th{text-align:left;padding:11px 12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;white-space:nowrap;user-select:none;background:rgba(0,0,0,0.22)}
+.mtbl th{text-align:left;padding:11px 12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;white-space:nowrap;user-select:none;background:rgba(194,114,62,0.07)}
 .mtbl th:hover{color:var(--text)}
 .mtbl th.asc::after{content:' ↑';color:var(--orange)}
 .mtbl th.desc::after{content:' ↓';color:var(--orange)}
-.mtbl td{padding:11px 12px;border-bottom:0.5px solid rgba(232,115,42,0.07);vertical-align:middle}
+.mtbl td{padding:11px 12px;border-bottom:0.5px solid rgba(194,114,62,0.07);vertical-align:middle}
 .mtbl tr:last-child td{border-bottom:none}
-.mtbl tr:hover td{background:rgba(232,115,42,0.045)}
+.mtbl tr:hover td{background:rgba(194,114,62,0.045)}
 .m-num{color:var(--faint);font-size:12px;width:30px;text-align:center}
 .type-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle;flex-shrink:0}
 .td-s{background:var(--green)}.td-a{background:var(--amber)}.td-d{background:var(--red)}
@@ -178,13 +182,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr));gap:12px}
 .pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
 .pc-head{padding:11px 14px;display:flex;justify-content:space-between;align-items:center}
-.pc-head.ph-main{background:rgba(93,191,138,0.12);border-bottom:1px solid rgba(93,191,138,0.25)}
-.pc-head.ph-sec{background:rgba(212,160,68,0.12);border-bottom:1px solid rgba(212,160,68,0.25)}
+.pc-head.ph-main{background:rgba(92,138,110,0.12);border-bottom:1px solid rgba(92,138,110,0.25)}
+.pc-head.ph-sec{background:rgba(169,136,92,0.12);border-bottom:1px solid rgba(169,136,92,0.25)}
 .pc-head.ph-main .pn{color:var(--green);font-size:14px;font-weight:700}
 .pc-head.ph-sec .pn{color:var(--amber);font-size:14px;font-weight:700}
 .pc-count{font-size:12px;color:var(--muted);font-weight:500}
 .pm-body{padding:6px 0;display:flex;flex-direction:column}
-.pm{display:flex;align-items:stretch;gap:10px;padding:8px 14px;border-bottom:0.5px solid rgba(255,255,255,0.05)}
+.pm{display:flex;align-items:stretch;gap:10px;padding:8px 14px;border-bottom:0.5px solid rgba(194,114,62,0.06)}
 .pm:last-child{border-bottom:none}
 .pm-bar{width:4px;border-radius:3px;flex-shrink:0;min-height:22px}
 .pm-bar.bs{background:var(--green);opacity:0.6}
@@ -199,64 +203,64 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 /* SEARCH CARD */
 .srch-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-card)}
 .srch-head{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:0.5px solid var(--border)}
-.srch-avatar{width:40px;height:40px;border-radius:50%;background:rgba(232,115,42,0.1);border:1px solid rgba(232,115,42,0.2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;opacity:0.7}
+.srch-avatar{width:40px;height:40px;border-radius:50%;background:rgba(194,114,62,0.1);border:1px solid rgba(194,114,62,0.2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;opacity:0.7}
 .srch-meta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;min-width:0}
 .srch-name{font-size:17px;font-weight:700;color:var(--text);white-space:nowrap}
-.srch-sep{width:1px;height:16px;background:rgba(255,255,255,0.12);flex-shrink:0}
+.srch-sep{width:1px;height:16px;background:rgba(194,114,62,0.11);flex-shrink:0}
 .srch-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .srch-item .si{opacity:0.45;display:flex;align-items:center}
 .srch-item .si svg{width:13px;height:13px}
 .srch-item .sv{font-size:13px;color:rgba(242,232,216,0.6)}
 .srch-discord .si{color:#7289da;opacity:0.75}
-.srch-section{padding:16px 20px;border-bottom:0.5px solid rgba(232,115,42,0.08)}
+.srch-section{padding:16px 20px;border-bottom:0.5px solid rgba(194,114,62,0.08)}
 .srch-section:last-child{border-bottom:none}
 .srch-sec-lbl{font-size:11px;font-weight:700;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 /* party V3 */
 .party-v3{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.party-v3-box{display:flex;align-items:center;justify-content:center;min-width:32px;height:32px;flex-shrink:0;padding:0 10px;background:rgba(232,115,42,0.08);border:1px solid rgba(232,115,42,0.18);border-radius:var(--radius-sm)}
+.party-v3-box{display:flex;align-items:center;justify-content:center;min-width:32px;height:32px;flex-shrink:0;padding:0 10px;background:rgba(194,114,62,0.08);border:1px solid rgba(194,114,62,0.18);border-radius:var(--radius-sm)}
 .party-v3-num{font-size:15px;font-weight:700;color:var(--orange-l);line-height:1}
-.party-v3-div{width:0.5px;height:18px;background:rgba(255,255,255,0.1);margin:0 3px;flex-shrink:0}
+.party-v3-div{width:0.5px;height:18px;background:rgba(194,114,62,0.10);margin:0 3px;flex-shrink:0}
 .party-v3-chips{display:flex;flex-wrap:wrap;gap:9px}
-.party-v3-chip{font-size:13px;height:32px;display:flex;align-items:center;padding:0 14px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-weight:500}
+.party-v3-chip{font-size:13px;height:32px;display:flex;align-items:center;padding:0 14px;border-radius:var(--radius-sm);background:rgba(194,114,62,0.06);border:1px solid rgba(194,114,62,0.10);color:var(--muted);font-weight:500}
 /* queue box */
-.srch-queue{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-soft)}
-.srch-q-pos{font-size:32px;font-weight:700;color:var(--gold-l);line-height:1;min-width:46px;text-align:center;letter-spacing:-1px}
+.srch-queue{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(194,114,62,0.04);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-soft)}
+.srch-q-pos{font-family:var(--font-pixel);font-size:40px;font-weight:400;color:var(--orange-l);line-height:1;min-width:46px;text-align:center;letter-spacing:0px}
 .srch-q-info{flex:1}
 .srch-q-date{font-size:12px;color:var(--muted);margin-bottom:4px}
 .srch-q-total{font-size:13px;color:var(--text);font-weight:500}
 /* history table */
 .srch-hist{width:100%;border-collapse:collapse;font-size:13px}
 .srch-hist th{text-align:left;padding:8px 8px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.8px;text-transform:uppercase}
-.srch-hist td{padding:10px 8px;border-bottom:0.5px solid rgba(232,115,42,0.06)}
+.srch-hist td{padding:10px 8px;border-bottom:0.5px solid rgba(194,114,62,0.06)}
 .srch-hist tr:last-child td{border-bottom:none}
 .srch-pos{font-family:monospace;font-size:13px;color:var(--faint)}
-.profile{background:rgba(255,255,255,0.035);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.2rem;margin-top:12px;box-shadow:var(--shadow-soft)}
+.profile{background:rgba(194,114,62,0.045);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.2rem;margin-top:12px;box-shadow:var(--shadow-soft)}
 .phead{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
 .avatar{width:48px;height:48px;border-radius:50%;background:var(--orange-dim);border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--orange-l);flex-shrink:0;font-weight:700}
 .pinfo .name{font-size:17px;font-weight:700}.pinfo .sub{font-size:13px;color:var(--muted);margin-top:3px}
 .igrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.ii{background:rgba(255,255,255,0.035);border-radius:var(--radius-sm);padding:11px 13px}
+.ii{background:rgba(194,114,62,0.045);border-radius:var(--radius-sm);padding:11px 13px}
 .ii .ik{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;font-weight:500}
 .ii .iv{font-size:14px;font-weight:600}
 .mates{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .mates h4{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;font-weight:600}
 .mtags{display:flex;flex-wrap:wrap;gap:7px}
-.mtag{font-size:12px;padding:4px 11px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;font-weight:500}
-.nf{text-align:center;color:var(--muted);font-size:14px;padding:1.5rem;background:rgba(255,255,255,0.025);border-radius:var(--radius-md);border:1px solid var(--border);margin-top:12px}
+.mtag{font-size:12px;padding:4px 11px;background:rgba(194,114,62,0.06);border:1px solid var(--border);border-radius:20px;font-weight:500}
+.nf{text-align:center;color:var(--muted);font-size:14px;padding:1.5rem;background:rgba(194,114,62,0.035);border-radius:var(--radius-md);border:1px solid var(--border);margin-top:12px}
 
 /* REWARDS */
 .rw-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:12px;margin-bottom:16px}
 .rw-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;box-shadow:var(--shadow-soft)}
 .rw-card .ri{font-size:22px;margin-bottom:6px}.rw-card .rv{font-size:24px;font-weight:700;color:var(--gold-l);letter-spacing:-0.5px}
 .rw-card .rl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
-.rw-card .rm{font-size:12px;color:rgba(201,168,76,0.55);margin-top:3px}
+.rw-card .rm{font-size:12px;color:rgba(169,136,92,0.55);margin-top:3px}
 .evts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:12px;margin-bottom:14px}
 .evt{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-soft)}
 .evt .et{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;font-weight:500}
 .evt .en{font-size:14px;font-weight:700;margin-bottom:3px}.evt .ed{font-size:13px;color:var(--gold)}
 .rtbl{width:100%;border-collapse:collapse;font-size:13px}
 .rtbl th{text-align:left;padding:9px 10px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.8px;text-transform:uppercase}
-.rtbl td{padding:9px 10px;border-bottom:0.5px solid rgba(255,255,255,0.05);color:var(--text)}
+.rtbl td{padding:9px 10px;border-bottom:0.5px solid rgba(194,114,62,0.06);color:var(--text)}
 .rtbl tr:last-child td{border-bottom:none}
 .cs-y{color:var(--green);font-size:11px;font-weight:600}.cs-n{color:var(--red);font-size:11px;font-weight:600}
 
@@ -267,19 +271,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .chk input{accent-color:var(--orange);width:14px;height:14px;flex-shrink:0}
 .btns-col{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .rl{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-.rrow{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);font-size:13px;background:rgba(255,255,255,0.03);animation:fi 0.2s ease}
+.rrow{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);font-size:13px;background:rgba(194,114,62,0.04);animation:fi 0.2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 .rnum{color:var(--gold);font-weight:700;min-width:22px;font-size:12px}
 .rign{flex:1;color:var(--text);font-weight:500}.rcls{font-size:11px;color:var(--muted)}.rp{font-size:11px;color:var(--gold);opacity:0.65}
 .rsumm{display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap}
-.rsumm span{font-size:12px;background:rgba(255,255,255,0.05);padding:5px 11px;border-radius:20px;color:var(--muted);font-weight:500}
+.rsumm span{font-size:12px;background:rgba(194,114,62,0.06);padding:5px 11px;border-radius:20px;color:var(--muted);font-weight:500}
 .saved-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 11px;border-radius:20px;background:var(--green-dim);color:var(--green);border:1px solid var(--green-b);margin-left:8px;font-weight:600}
 .rand-tbl{width:100%;border-collapse:collapse;font-size:13px}
 .rand-tbl th{text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.8px}
-.rand-tbl td{padding:8px 10px;border-bottom:0.5px solid rgba(255,255,255,0.05);color:var(--text)}
+.rand-tbl td{padding:8px 10px;border-bottom:0.5px solid rgba(194,114,62,0.06);color:var(--text)}
 .rand-tbl tr:last-child td{border-bottom:none}
-.rand-tbl tr:hover td{background:rgba(232,115,42,0.035)}
-.log-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);margin-bottom:7px;font-size:13px}
+.rand-tbl tr:hover td{background:rgba(194,114,62,0.035)}
+.log-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(194,114,62,0.04);border-radius:var(--radius-sm);margin-bottom:7px;font-size:13px}
 .log-item .ld{color:var(--muted);font-size:12px;flex:1}.log-item .lc{color:var(--gold);font-size:12px;white-space:nowrap;font-weight:500}
 
 /* CALC */
@@ -289,9 +293,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 @media(max-width:480px){.num-row{grid-template-columns:1fr}}
 .num-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.8px;font-weight:500}
 .num-row input{width:100%}
-.hint-box{background:var(--gold-dim);border:1px solid rgba(201,168,76,0.22);border-radius:var(--radius-sm);padding:11px 13px;font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:12px}
+.hint-box{background:var(--gold-dim);border:1px solid rgba(169,136,92,0.22);border-radius:var(--radius-sm);padding:11px 13px;font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:12px}
 .hint-box b{color:var(--text)}.hint-box span{color:var(--gold-l);font-weight:600}
-.co-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.035);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;flex-wrap:wrap}
+.co-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(194,114,62,0.045);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;flex-wrap:wrap}
 .co-item .co-name{font-size:13px;font-weight:600;min-width:90px;flex:1;color:var(--text)}
 .co-fields{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .co-fields label{font-size:11px;color:var(--muted);font-weight:500}
@@ -302,10 +306,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .ctab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
 .rtable{width:100%;border-collapse:collapse;font-size:13px}
 .rtable th{text-align:left;padding:9px 10px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;white-space:nowrap}
-.rtable td{padding:9px 10px;border-bottom:0.5px solid rgba(255,255,255,0.05);vertical-align:middle;color:var(--text)}
+.rtable td{padding:9px 10px;border-bottom:0.5px solid rgba(194,114,62,0.06);vertical-align:middle;color:var(--text)}
 .rtable tr:last-child td{border-bottom:none}
 .rtable tr.co-row td{color:var(--green)}
-.mvp-res{background:var(--gold-dim);border:1px solid rgba(201,168,76,0.28);border-radius:var(--radius-md);padding:16px;margin-top:14px;box-shadow:var(--shadow-soft)}
+.mvp-res{background:var(--gold-dim);border:1px solid rgba(169,136,92,0.28);border-radius:var(--radius-md);padding:16px;margin-top:14px;box-shadow:var(--shadow-soft)}
 .mvp-res h4{font-size:13px;color:var(--gold-l);margin-bottom:10px;font-weight:700}
 .mvp-tags{display:flex;flex-wrap:wrap;gap:8px}
 .mvp-tag{font-size:13px;padding:5px 12px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:20px;color:var(--gold-l);font-weight:500}
@@ -313,49 +317,45 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
 
 /* CALENDAR */
-.cal-wrap{display:flex;border:1px solid rgba(232,115,42,0.16);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-soft)}
-.cal-time-axis{width:38px;flex-shrink:0;background:rgba(0,0,0,0.2);border-right:0.5px solid rgba(232,115,42,0.1);position:sticky;left:0;z-index:2}
-.cal-time-head{height:44px;border-bottom:0.5px solid rgba(232,115,42,0.12);background:rgba(0,0,0,0.15)}
-.cal-time-slot{height:36px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:0.5px solid rgba(232,115,42,0.05)}
-.cal-time-slot span{font-size:9px;color:rgba(237,210,138,0.32);line-height:1;white-space:nowrap}
+.cal-wrap{display:flex;border:1px solid rgba(194,114,62,0.16);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-soft)}
+.cal-time-axis{width:38px;flex-shrink:0;background:rgba(194,114,62,0.06);border-right:0.5px solid rgba(194,114,62,0.1);position:sticky;left:0;z-index:2}
+.cal-time-head{height:44px;border-bottom:0.5px solid rgba(194,114,62,0.12);background:rgba(194,114,62,0.05)}
+.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:0.5px solid rgba(194,114,62,0.05)}
+.cal-time-slot span{font-size:9px;color:rgba(156,123,79,0.55);line-height:1;white-space:nowrap}
 .cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
-.cal-dcol{border-right:0.5px solid rgba(232,115,42,0.08);display:flex;flex-direction:column}
+@media(max-width:760px){.cal-day-cols{grid-template-columns:repeat(3,1fr)}}
+.cal-dcol{border-right:0.5px solid rgba(194,114,62,0.08);display:flex;flex-direction:column}
 .cal-dcol:last-child{border-right:none}
-.cal-dcol.action-day{background:rgba(232,115,42,0.03)}
-.cal-dcol.sat-day{background:rgba(93,191,138,0.02)}
-.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:0.5px solid rgba(232,115,42,0.12);background:rgba(0,0,0,0.15);position:sticky;top:0;z-index:1}
-.cal-dname{font-size:10px;color:rgba(237,210,138,0.45);text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.cal-dnum{font-size:17px;font-weight:700;color:rgba(237,210,138,0.65);line-height:1.1}
-.cal-dcol.action-day .cal-dname{color:#F5A06A}
-.cal-dcol.action-day .cal-dnum{color:#F5A06A}
-.cal-dcol.action-day .cal-dhead{background:rgba(232,115,42,0.08)}
-.cal-dcol.sat-day .cal-dname{color:#5DBF8A}
-.cal-dcol.sat-day .cal-dnum{color:#5DBF8A}
-.cal-dcol.today-day .cal-dhead{box-shadow:inset 0 -2px 0 rgba(232,115,42,0.6)}
-.cal-dcol.today-day .cal-dnum{color:#F5A06A}
+.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:0.5px solid rgba(194,114,62,0.12);background:rgba(194,114,62,0.05);position:sticky;top:0;z-index:1}
+.cal-dname{font-size:10px;color:rgba(156,123,79,0.7);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.cal-dnum{font-size:17px;font-weight:700;color:rgba(92,64,35,0.85);line-height:1.1}
+.cal-dcol.today-day{background:rgba(194,114,62,0.04)}
+.cal-dcol.today-day .cal-dhead{box-shadow:inset 0 -2px 0 rgba(194,114,62,0.6);background:rgba(194,114,62,0.1)}
+.cal-dcol.today-day .cal-dname{color:#A85F32}
+.cal-dcol.today-day .cal-dnum{color:#A85F32}
 .cal-dgrid{position:relative;height:1728px}
-.cal-grid-line{position:absolute;left:0;right:0;height:0.5px;background:rgba(232,115,42,0.05)}
-.cal-grid-line.hour{background:rgba(232,115,42,0.1)}
+.cal-grid-line{position:absolute;left:0;right:0;height:0.5px;background:rgba(194,114,62,0.05)}
+.cal-grid-line.hour{background:rgba(194,114,62,0.1)}
 /* event blocks */
 .cal-evt-block{position:absolute;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;border-left-width:3px;border-left-style:solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
 .cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:0.7;margin-top:2px}
 .cal-evt-block .evt-time{font-size:9px;font-weight:500;opacity:0.75}
 /* 3 colors */
-.ev-war{background:rgba(93,191,138,0.15);border-color:#5DBF8A;color:#7DD4A8}
-.ev-personal{background:rgba(107,163,214,0.15);border-color:#6BA3D6;color:#9ABFE8}
-.ev-special{background:rgba(224,112,106,0.18);border-color:#E0706A;color:#E89490}
+.ev-war{background:rgba(92,138,110,0.22);border-color:#5C8A6E;color:#3A5A45}
+.ev-personal{background:rgba(90,126,150,0.22);border-color:#5A7E96;color:#36495A}
+.ev-special{background:rgba(184,90,78,0.22);border-color:#B85A4E;color:#6E372F}
 .ev-special.can-delete:hover{opacity:0.7;cursor:pointer}
 /* helper strip */
-.helper-strip{background:rgba(232,115,42,0.08);border:1px solid rgba(232,115,42,0.2);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.helper-strip{background:rgba(194,114,62,0.08);border:1px solid rgba(194,114,62,0.2);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .helper-chips{display:flex;flex-wrap:wrap;gap:6px}
 .hchip{font-size:12px;padding:4px 11px;border-radius:20px;font-weight:600}
-.hchip-support{background:rgba(93,191,138,0.13);border:1px solid rgba(93,191,138,0.32);color:#7DD4A8}
-.hchip-ar{background:rgba(212,160,68,0.13);border:1px solid rgba(212,160,68,0.32);color:#D4A044}
-.hchip-dps{background:rgba(224,112,106,0.13);border:1px solid rgba(224,112,106,0.32);color:#E0706A}
-.hchip-unknown{background:rgba(255,248,230,0.06);border:1px solid rgba(237,210,138,0.18);color:rgba(237,210,138,0.55)}
+.hchip-support{background:rgba(92,138,110,0.18);border:1px solid rgba(92,138,110,0.4);color:#3A5A45}
+.hchip-ar{background:rgba(169,136,92,0.18);border:1px solid rgba(169,136,92,0.4);color:#6B5638}
+.hchip-dps{background:rgba(184,90,78,0.18);border:1px solid rgba(184,90,78,0.4);color:#6E372F}
+.hchip-unknown{background:rgba(255,248,230,0.6);border:1px solid rgba(196,168,122,0.4);color:rgba(156,123,79,0.65)}
 /* legend */
 .cal-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-.cal-leg{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(237,210,138,0.5);font-weight:500}
+.cal-leg{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(156,123,79,0.6);font-weight:500}
 .cal-leg-dot{width:9px;height:9px;border-radius:3px}
 .al-head{display:flex;gap:10px;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap}
 .al-head select{flex:1;max-width:230px}
@@ -364,31 +364,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .au-tab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
 .al-stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .al-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;text-align:center;min-width:80px;box-shadow:var(--shadow-soft)}
-.al-stat .n{font-size:21px;font-weight:700;color:var(--gold-l)}.al-stat .l{font-size:11px;color:var(--muted);font-weight:500;margin-top:3px}
-.qrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:0.5px solid rgba(232,115,42,0.07);font-size:13px;transition:background 0.1s}
-.qrow:hover{background:rgba(232,115,42,0.035)}.qrow:last-child{border-bottom:none}
+.al-stat .n{font-family:var(--font-pixel);font-size:28px;font-weight:400;color:var(--orange-l)}.al-stat .l{font-size:11px;color:var(--muted);font-weight:500;margin-top:3px}
+.qrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:0.5px solid rgba(194,114,62,0.07);font-size:13px;transition:background 0.1s}
+.qrow:hover{background:rgba(194,114,62,0.035)}.qrow:last-child{border-bottom:none}
 .q-num{min-width:32px;font-size:12px;color:var(--faint)}
 .q-name{flex:1;font-weight:600;color:var(--text)}.q-id{font-size:12px;color:var(--muted)}
 .qs{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;white-space:nowrap}
 .qs-done{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
 .qs-pend{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
-.qs-skip{background:rgba(107,163,214,0.15);color:#9ABFE8;border:1px solid rgba(107,163,214,0.35)}
+.qs-skip{background:rgba(90,126,150,0.18);color:#36495A;border:1px solid rgba(90,126,150,0.4)}
 .row-skip{opacity:0.6}
 .q-btn{padding:5px 11px;font-size:12px;font-weight:600;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);border:1px solid;transition:all 0.15s}
 /* AUCTION TABLE FIXED LAYOUT */
 /* AUCTION TABLE — user view */
 .au-tbl{width:100%;border-collapse:collapse;font-size:13px}
-.au-tbl th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.8px;text-transform:uppercase;background:rgba(0,0,0,0.22);white-space:nowrap}
-.au-tbl td{padding:11px 12px;border-bottom:0.5px solid rgba(232,115,42,0.06);vertical-align:middle}
+.au-tbl th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.8px;text-transform:uppercase;background:rgba(194,114,62,0.07);white-space:nowrap}
+.au-tbl td{padding:11px 12px;border-bottom:0.5px solid rgba(194,114,62,0.06);vertical-align:middle}
 .au-tbl tr:last-child td{border-bottom:none}
-.au-tbl tr:hover td{background:rgba(232,115,42,0.03)}
+.au-tbl tr:hover td{background:rgba(194,114,62,0.03)}
 /* AUCTION MANAGER — flex rows */
 .mgr-list{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
 .mgr-list-head,.mgr-row{display:flex;align-items:center;padding:0 6px}
-.mgr-list-head{background:rgba(0,0,0,0.25);border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;height:38px}
-.mgr-row{border-bottom:0.5px solid rgba(232,115,42,0.06);font-size:13px;min-height:50px;transition:background 0.1s}
+.mgr-list-head{background:rgba(194,114,62,0.08);border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;height:38px}
+.mgr-row{border-bottom:0.5px solid rgba(194,114,62,0.06);font-size:13px;min-height:50px;transition:background 0.1s}
 .mgr-row:last-child{border-bottom:none}
-.mgr-row:hover{background:rgba(232,115,42,0.035)}
+.mgr-row:hover{background:rgba(194,114,62,0.035)}
 .mc-num{width:40px;min-width:40px;max-width:40px;text-align:center;color:var(--faint);font-size:12px;padding:0 4px;flex-shrink:0}
 .mc-name{flex:1;min-width:80px;padding:0 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mc-status{width:100px;min-width:100px;max-width:100px;padding:0 8px;flex-shrink:0;white-space:nowrap}
@@ -397,10 +397,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .mc-act{width:124px;min-width:124px;max-width:124px;padding:0 8px;text-align:right;flex-shrink:0}
 @media(max-width:700px){.mc-bar{display:none}.mc-date{display:none}.mc-status{width:100px;min-width:100px;max-width:100px}.mc-act{width:100px;min-width:100px;max-width:100px}}
 /* DESIGNATED AUCTION distribution rows */
-.da-row{display:flex;align-items:center;padding:0 6px;border-bottom:0.5px solid rgba(232,115,42,0.06);font-size:13px;min-height:48px}
+.da-row{display:flex;align-items:center;padding:0 6px;border-bottom:0.5px solid rgba(194,114,62,0.06);font-size:13px;min-height:48px}
 .da-row:last-child{border-bottom:none}
-.da-row:hover{background:rgba(232,115,42,0.035)}
-.da-head{background:rgba(0,0,0,0.25);border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;min-height:36px}
+.da-row:hover{background:rgba(194,114,62,0.035)}
+.da-head{background:rgba(194,114,62,0.08);border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;min-height:36px}
 .da-num{width:34px;min-width:34px;text-align:center;color:var(--faint);font-size:12px;flex-shrink:0}
 .da-name{flex:1;min-width:70px;padding:0 6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .da-card{width:80px;min-width:80px;padding:0 4px;font-size:12px;flex-shrink:0}
@@ -411,24 +411,24 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 @media(max-width:760px){.da-white,.da-red{width:90px;min-width:90px}.da-act{width:90px;min-width:90px}}
 .q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
 .q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
-.q-btn-skip{background:rgba(212,160,68,0.13);border-color:rgba(212,160,68,0.4);color:var(--amber);margin-right:6px}
-.dup-badge{display:inline-block;margin-left:7px;font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(224,112,106,0.15);border:1px solid rgba(224,112,106,0.32);color:#E0706A;white-space:nowrap;font-weight:600}
+.q-btn-skip{background:rgba(169,136,92,0.13);border-color:rgba(169,136,92,0.4);color:var(--amber);margin-right:6px}
+.dup-badge{display:inline-block;margin-left:7px;font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(184,90,78,0.18);border:1px solid rgba(184,90,78,0.4);color:#6E372F;white-space:nowrap;font-weight:600}
 /* FEATHER BAR */
 .fbar-cell{text-align:center}
 .fbar{position:relative;height:22px;width:92px;border-radius:7px;overflow:hidden;display:inline-block}
-.fbar .fbar-track{position:absolute;inset:0;background:rgba(255,255,255,0.06)}
+.fbar .fbar-track{position:absolute;inset:0;background:rgba(194,114,62,0.06)}
 .fbar .fbar-fill{position:absolute;left:0;top:0;height:100%}
-.fbar .fbar-fill.fok{background:rgba(93,191,138,0.4)}
-.fbar .fbar-fill.fmiss{background:rgba(212,160,68,0.4)}
+.fbar .fbar-fill.fok{background:rgba(92,138,110,0.4)}
+.fbar .fbar-fill.fmiss{background:rgba(169,136,92,0.4)}
 .fbar .fbar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:0.2px;text-shadow:0 1px 3px rgba(0,0,0,0.5);z-index:1;color:rgba(255,255,255,0.85)}
 /* FEATHER INPUTS IN MODAL */
 .feather-inputs{margin:12px 0 14px}
 .feather-inputs .fi-title{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
-.feather-inputs .fi-hint{font-size:12px;color:var(--muted);background:rgba(212,160,68,0.08);border:1px solid var(--amber-b);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.6}
+.feather-inputs .fi-hint{font-size:12px;color:var(--muted);background:rgba(169,136,92,0.08);border:1px solid var(--amber-b);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.6}
 .feather-inputs .fi-row{display:flex;gap:10px}
 .fi-field{flex:1;text-align:center}
 .fi-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:500}
-.fi-field input{width:100%;text-align:center;font-size:20px;font-weight:700;padding:9px 8px;background:rgba(255,255,255,0.045);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text)}
+.fi-field input{width:100%;text-align:center;font-size:20px;font-weight:700;padding:9px 8px;background:rgba(194,114,62,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text)}
 .fi-field .fi-max{font-size:11px;color:var(--muted);margin-top:4px}
 
 /* ATTENDANCE */
@@ -450,8 +450,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .att-ctr .acn{font-size:18px;font-weight:700}.att-ctr .acl{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
 .att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:9px}
 .att-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;display:flex;align-items:center;gap:10px;transition:border-color 0.15s;box-shadow:var(--shadow-soft)}
-.att-card.present{border-color:var(--green-b);background:rgba(93,191,138,0.07)}
-.att-card.absent{border-color:var(--red-b);background:rgba(224,112,106,0.07)}
+.att-card.present{border-color:var(--green-b);background:rgba(92,138,110,0.07)}
+.att-card.absent{border-color:var(--red-b);background:rgba(184,90,78,0.07)}
 .att-card.leave{border-color:var(--blue-b);background:var(--blue-dim)}
 .att-info{flex:1;min-width:0}
 .att-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -464,9 +464,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .att-card.leave .att-select{border-color:var(--blue-b);color:var(--blue)}
 .sum-tbl{width:100%;border-collapse:collapse;font-size:13px}
 .sum-tbl th{text-align:left;padding:9px 10px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.8px}
-.sum-tbl td{padding:9px 10px;border-bottom:0.5px solid rgba(255,255,255,0.05);color:var(--text)}
+.sum-tbl td{padding:9px 10px;border-bottom:0.5px solid rgba(194,114,62,0.06);color:var(--text)}
 .sum-tbl tr:last-child td{border-bottom:none}
-.rate-bar{height:7px;border-radius:8px;background:rgba(255,255,255,0.08);width:85px;overflow:hidden;display:inline-block;vertical-align:middle}
+.rate-bar{height:7px;border-radius:8px;background:rgba(194,114,62,0.08);width:85px;overflow:hidden;display:inline-block;vertical-align:middle}
 .rate-fill{height:100%;border-radius:8px;background:var(--green)}
 .rate-fill.low{background:var(--red)}
 .new-session-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.3rem;margin-bottom:1.2rem;box-shadow:var(--shadow-soft)}
@@ -478,7 +478,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 /* AUCTION DETAIL */
 .detail-head{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-md);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;box-shadow:var(--shadow-soft)}
 .detail-chips{display:flex;gap:8px;flex-wrap:wrap}
-.dchip{font-size:12px;padding:4px 11px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-weight:500}
+.dchip{font-size:12px;padding:4px 11px;border-radius:20px;background:rgba(194,114,62,0.06);border:1px solid var(--border);color:var(--muted);font-weight:500}
 .dchip b{color:var(--text)}
 .loc{display:flex;flex-direction:column;gap:4px}
 .loc-item{font-size:12px;display:flex;align-items:center;gap:6px}
@@ -489,9 +489,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .loc-detail{color:var(--muted)}
 .pers-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-soft)}
 .pers-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.pers-avatar{width:38px;height:38px;border-radius:50%;background:rgba(232,115,42,0.12);border:1px solid var(--orange-border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--orange-l);flex-shrink:0}
+.pers-avatar{width:38px;height:38px;border-radius:50%;background:rgba(194,114,62,0.12);border:1px solid var(--orange-border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--orange-l);flex-shrink:0}
 .pers-secs{display:grid;grid-template-columns:repeat(3,1fr)}
-.pers-sec{padding:14px 18px;border-right:0.5px solid rgba(232,115,42,0.09)}
+.pers-sec{padding:14px 18px;border-right:0.5px solid rgba(194,114,62,0.09)}
 .pers-sec:last-child{border-right:none}
 .pers-sec-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;font-weight:700}
 .slot-vis{display:flex;flex-direction:column;gap:10px}
@@ -505,11 +505,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .box-on-card{background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange-l)}
 .box-on-w{background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange-l)}
 .box-on-d{background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange-l)}
-.box-off{background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);color:var(--faint)}
-#detail-tbody tr{border-bottom:0.5px solid rgba(232,115,42,0.13)}
+.box-off{background:rgba(194,114,62,0.045);border:1px solid rgba(194,114,62,0.08);color:var(--faint)}
+#detail-tbody tr{border-bottom:0.5px solid rgba(194,114,62,0.13)}
 #detail-tbody tr:last-child{border-bottom:none}
-#detail-tbody tr:hover td{background:rgba(232,115,42,0.035)}
-@media(max-width:580px){.pers-secs{grid-template-columns:1fr}.pers-sec{border-right:none;border-bottom:0.5px solid rgba(232,115,42,0.09)}.pers-sec:last-child{border-bottom:none}}
+#detail-tbody tr:hover td{background:rgba(194,114,62,0.035)}
+@media(max-width:580px){.pers-secs{grid-template-columns:1fr}.pers-sec{border-right:none;border-bottom:0.5px solid rgba(194,114,62,0.09)}.pers-sec:last-child{border-bottom:none}}
 .done-modal{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.4rem;width:320px;max-width:90vw;box-shadow:var(--shadow-card)}
 .done-modal h4{font-size:14px;font-weight:700;color:var(--gold-l);margin-bottom:12px}
 .date-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
@@ -694,7 +694,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <div id="lucky-mvp-list" class="tbl-wrap"></div>
 
       <div style="font-size:11px;font-weight:600;color:var(--faint);margin:14px 0 8px" id="lucky-step2-title">Step 2 — Draw remaining feathers</div>
-      <div id="lucky-step2-box" style="background:rgba(255,255,255,0.035);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;text-align:center;font-size:13px;color:var(--faint)">
+      <div id="lucky-step2-box" style="background:rgba(194,114,62,0.045);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;text-align:center;font-size:13px;color:var(--faint)">
         Complete Step 1 first
       </div>
 
@@ -796,7 +796,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <!-- CALENDAR -->
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar</div>
-  <div class="page-sub">กิจกรรมประจำสัปดาห์ + ผู้ช่วยเหลือกิลด์</div>
 
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
     <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
@@ -807,16 +806,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
   <!-- helper strip -->
   <div class="helper-strip" id="cal-helper-strip">
-    <div style="font-size:10px;color:rgba(232,115,42,0.7);text-transform:uppercase;letter-spacing:1px">🤝 ผู้ช่วยเหลือสัปดาห์นี้</div>
+    <div style="font-size:10px;color:rgba(194,114,62,0.7);text-transform:uppercase;letter-spacing:1px">🤝 ผู้ช่วยเหลือสัปดาห์นี้</div>
     <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อ</span></div>
   </div>
 
-  <!-- legend -->
-  <div class="cal-legend">
-    <div class="cal-leg"><div class="cal-leg-dot" style="background:#5DBF8A"></div>Guild War (GL / Overrun)</div>
-    <div class="cal-leg"><div class="cal-leg-dot" style="background:#6BA3D6"></div>Personal Event (fixed)</div>
-    <div class="cal-leg"><div class="cal-leg-dot" style="background:#E0706A"></div>Special Event</div>
-  </div>
+  <!-- legend — dynamically populated from the tags actually present in this week's events -->
+  <div class="cal-legend" id="cal-legend"></div>
 
   <!-- time-axis calendar -->
   <div class="cal-wrap" id="cal-wrap">
@@ -826,65 +821,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
     </div>
     <!-- day columns -->
     <div class="cal-day-cols" id="cal-day-cols"></div>
-  </div>
-
-  <!-- admin: add/edit events -->
-  <div class="sep" style="margin:14px 0"></div>
-  <div class="admin-only admin-locked" id="cal-admin-wrap">
-    <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:10px">🔐 เพิ่ม Event (Admin)</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
-      <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">วัน (เลือกได้หลายวัน)</label>
-        <div id="cal-new-days" style="display:flex;gap:3px;flex-wrap:wrap;max-width:230px">
-          <label class="day-chk"><input type="checkbox" value="1">จ.</label>
-          <label class="day-chk"><input type="checkbox" value="2">อ.</label>
-          <label class="day-chk"><input type="checkbox" value="3">พ.</label>
-          <label class="day-chk"><input type="checkbox" value="4">พฤ.</label>
-          <label class="day-chk"><input type="checkbox" value="5">ศ.</label>
-          <label class="day-chk"><input type="checkbox" value="6">ส.</label>
-          <label class="day-chk"><input type="checkbox" value="7">อา.</label>
-        </div>
-      </div>
-      <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ชื่อ Event</label>
-        <input type="text" id="cal-new-title" placeholder="เช่น Summer Festival" style="width:160px">
-      </div>
-      <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">เวลา</label>
-        <select id="cal-new-time-type" onchange="toggleTimeInput()" style="width:90px;margin-bottom:4px">
-          <option value="timed">ระบุเวลา</option>
-          <option value="allday">ทั้งวัน</option>
-        </select>
-        <input type="time" id="cal-new-time" style="width:90px">
-      </div>
-      <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ถึงเวลา</label>
-        <input type="time" id="cal-new-end-time" style="width:90px">
-      </div>
-      <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Tag</label>
-        <input type="text" id="cal-new-tag" placeholder="เช่น guild, helper, ..." style="width:100px" value="guild">
-        <div style="font-size:9px;color:var(--faint);margin-top:2px">สีตาม tag — ตั้งได้ใน sheet Calendar_Tags</div>
-      </div>
-      <div>
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">ซ้ำ</label>
-        <select id="cal-new-recurrence" onchange="toggleRecurrenceAnchor('new')" style="width:90px">
-          <option value="once">ครั้งเดียว</option>
-          <option value="weekly" selected>ทุกสัปดาห์</option>
-          <option value="biweekly">ทุก 2 สัปดาห์</option>
-          <option value="monthly">ทุกเดือน</option>
-          <option value="daily">ทุกวัน</option>
-        </select>
-      </div>
-      <div id="cal-new-anchor-wrap" style="display:none">
-        <label style="font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">เริ่มนับจากวันที่</label>
-        <input type="date" id="cal-new-anchor" style="width:130px">
-      </div>
-      <button class="btn btn-primary" onclick="addCalendarEvent()">+ เพิ่ม</button>
-    </div>
-    <div id="cal-add-msg" style="font-size:11px;color:var(--muted)"></div>
-
-    <div style="font-size:10px;color:var(--faint);margin-top:4px;font-style:italic">กด event ใน calendar เพื่อแก้ไข/ลบ — แก้ใน Google Sheet (Calendar_Events) ได้โดยตรงเช่นกัน</div>
   </div>
 </div>
 
@@ -941,68 +877,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   </div>
 </div>
 
-<div id="cal-edit-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeCalEdit()">
-  <div class="modal">
-    <h3>📅 แก้ Special Event</h3>
-    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ชื่อ Event</label>
-    <input type="text" id="cal-edit-title" placeholder="ชื่อ event..." style="width:100%;margin-bottom:8px">
-    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">วัน (เลือกได้หลายวัน)</label>
-    <div id="cal-edit-days" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-      <label class="day-chk"><input type="checkbox" value="1">จ.</label>
-      <label class="day-chk"><input type="checkbox" value="2">อ.</label>
-      <label class="day-chk"><input type="checkbox" value="3">พ.</label>
-      <label class="day-chk"><input type="checkbox" value="4">พฤ.</label>
-      <label class="day-chk"><input type="checkbox" value="5">ศ.</label>
-      <label class="day-chk"><input type="checkbox" value="6">ส.</label>
-      <label class="day-chk"><input type="checkbox" value="7">อา.</label>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <div style="flex:1">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เวลา</label>
-        <select id="cal-edit-time-type" onchange="toggleEditTimeInput()" style="width:100%"><option value="timed">ระบุเวลา</option><option value="allday">ทั้งวัน</option></select>
-      </div>
-      <div style="flex:1">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เริ่ม</label>
-        <input type="time" id="cal-edit-time" style="width:100%">
-      </div>
-      <div style="flex:1">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ถึง</label>
-        <input type="time" id="cal-edit-end-time" style="width:100%">
-      </div>
-    </div>
-    <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Tag</label>
-    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-      <input type="text" id="cal-edit-tag" placeholder="เช่น guild, helper, ..." style="flex:1" oninput="updateTagColorPreview()">
-      <span id="cal-edit-color-preview" style="width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,0.15);flex-shrink:0" title="สีตาม tag (ตั้งใน sheet Calendar_Tags)"></span>
-    </div>
-    <div style="margin-bottom:8px">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">ซ้ำ</label>
-      <select id="cal-edit-recurrence" onchange="toggleRecurrenceAnchor('edit')" style="width:100%">
-        <option value="once">ครั้งเดียว</option>
-        <option value="weekly">ทุกสัปดาห์</option>
-        <option value="biweekly">ทุก 2 สัปดาห์</option>
-        <option value="monthly">ทุกเดือน</option>
-        <option value="daily">ทุกวัน</option>
-      </select>
-    </div>
-    <div id="cal-edit-anchor-wrap" style="margin-bottom:8px">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">เริ่มนับจากวันที่ (anchor)</label>
-      <input type="date" id="cal-edit-anchor" style="width:100%">
-    </div>
-    <div id="cal-edit-msg" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
-    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:4px">
-      <button class="btn btn-ghost" style="color:var(--red);border-color:var(--red-b)" onclick="deleteCalEditEvent()">🗑 ลบ</button>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost" onclick="closeCalEdit()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveCalEdit()">บันทึก</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbzC_koQNAzRHupf36PJQGae7ac0NawyaJL-fuYWytz3NN6MFe6GGt0hTrlClRcjLSCq/exec';
+const GAS='https://script.google.com/macros/s/AKfycbwUpyRVW2IjFk-P6FXLRSVRv6YTNqPynD4g4OYFX052sAigJkzobhghSKBiuly27FXL/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -1056,6 +933,7 @@ function swAdmin(t){
   openAdminModal();
 }
 function sw(t){
+  _currentPage=t;
   document.querySelectorAll('.nav-item').forEach(el=>{
     const fn=el.getAttribute('onclick')||'';
     const match=fn.match(/sw[^(]*\('([^']+)'\)/);
@@ -1069,6 +947,7 @@ function sw(t){
   if(t==='attendance')loadAttendance();
   if(t==='calendar')initCalendarPage();
 }
+let _currentPage='';
 
 /* DATA LOAD */
 async function loadData(){
@@ -2174,17 +2053,53 @@ async function toggleDesignatedStatus(weekStart,position,status){
 
 /* ═══════════ CALENDAR ═══════════ */
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
-const SLOT_H=36; // px per 30-min slot
-let TOTAL_SLOTS=6; // computed dynamically per week from actual events
+const SLOT_MINS=15; // minutes per grid slot — 4 slots per hour
+const SLOT_H=24; // px per 15-min slot (96px/hour total — taller than the old 72px/hour so each 15-min row stays comfortably readable)
+let TOTAL_SLOTS=24; // computed dynamically per week from actual events (in 15-min units)
 let TIME_START=18; // computed dynamically per week from actual events
 const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
 // All calendar events (including former "fixed" recurring ones like Guild League)
 // now live entirely in the Calendar_Events sheet, identified by their `recurrence`
 // field (once/daily/weekly/biweekly/monthly). Admins edit everything via Google Sheet
 // or the on-page edit modal — nothing is hardcoded here anymore.
-let _calWeekStart='';
+let _calWeekStart=''; // Monday of the week being viewed (week mode), or the Monday of
+                       // whichever week _calAnchorDate falls in (3-day mode, for data loading)
+let _calAnchorDate=''; // the centered/reference date — only meaningful in 3-day mode
+let _calLastMobileState=null; // tracks mobile/desktop mode to detect breakpoint crossings on resize
 let _calSpecialEvents=[];
-let _calTagColors={}; // cached tag→hex color map from Calendar_Tags sheet
+const CAL_MOBILE_BREAKPOINT=760; // px — matches the layout's existing mobile breakpoints
+function isCalMobileView(){return window.innerWidth<=CAL_MOBILE_BREAKPOINT}
+
+// Returns the array of date strings (YYYY-MM-DD) currently being displayed —
+// 7 days starting Monday in week mode, or 3 days (yesterday/today/tomorrow
+// relative to _calAnchorDate) in mobile 3-day mode. Both rendering and data
+// loading use this so they always agree on exactly which dates are in view.
+function getCalVisibleDates(){
+  if(isCalMobileView()){
+    const anchor=new Date(_calAnchorDate+'T00:00:00');
+    const dates=[];
+    for(let i=-1;i<=1;i++){
+      const d=new Date(anchor);d.setDate(anchor.getDate()+i);
+      dates.push(d.toISOString().slice(0,10));
+    }
+    return dates;
+  }
+  const mon=new Date(_calWeekStart+'T00:00:00');
+  const dates=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(mon);d.setDate(mon.getDate()+i);
+    dates.push(d.toISOString().slice(0,10));
+  }
+  return dates;
+}
+
+// Given a Monday-of-week date, returns it normalized to YYYY-MM-DD.
+function mondayOfDate(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const dow=(d.getDay()+6)%7; // 0=Mon..6=Sun
+  d.setDate(d.getDate()-dow);
+  return d.toISOString().slice(0,10);
+}
 
 // Convert a tag's hex color into the tinted background/border/text style used
 // by event blocks — mirrors the look of the old fixed .ev-war/.ev-personal/.ev-special
@@ -2200,7 +2115,7 @@ function timeToTop(timeStr){
   const [h,m]=(timeStr).split(':').map(Number);
   const offsetMins=(h*60+m)-(TIME_START*60);
   if(offsetMins<0)return null;
-  return Math.round(offsetMins/30*SLOT_H);
+  return Math.round(offsetMins/SLOT_MINS*SLOT_H);
 }
 
 // Compute flexible time-axis range (TIME_START/TOTAL_SLOTS) from the actual
@@ -2208,7 +2123,7 @@ function timeToTop(timeStr){
 function computeTimeRange(){
   const allTimed=[];
   _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
-  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;TOTAL_SLOTS=(TIME_END_DEFAULT-TIME_START_DEFAULT)*2;return}
+  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;TOTAL_SLOTS=(TIME_END_DEFAULT-TIME_START_DEFAULT)*(60/SLOT_MINS);return}
   const toMins=t=>{const [h,m]=t.split(':').map(Number);return h*60+(m||0)};
   let minStart=Infinity,maxEnd=-Infinity;
   allTimed.forEach(({start,end})=>{
@@ -2217,13 +2132,13 @@ function computeTimeRange(){
     if(e>maxEnd)maxEnd=e;
     if(s>maxEnd)maxEnd=s; // safety: end shouldn't be before start, but guard anyway
   });
-  // round start down to the hour, end up to the next half-hour, add small padding
+  // round start down to the hour, end up to the next 15-min slot, add small padding
   let startH=Math.floor(minStart/60);
-  let endMins=Math.ceil(maxEnd/30)*30+30; // pad 30 min after the last event ends
+  let endMins=Math.ceil(maxEnd/SLOT_MINS)*SLOT_MINS+30; // pad 30 min after the last event ends
   let endH=Math.ceil(endMins/60);
   if(endH<=startH)endH=startH+1;
   TIME_START=startH;
-  TOTAL_SLOTS=(endH-startH)*2;
+  TOTAL_SLOTS=(endH-startH)*(60/SLOT_MINS);
 }
 
 function getWeekMondayFromDate(d){
@@ -2235,6 +2150,8 @@ function getWeekMondayFromDate(d){
 
 async function initCalendarPage(){
   if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
+  if(!_calAnchorDate)_calAnchorDate=new Date().toISOString().slice(0,10); // always start on today, mobile or desktop
+  _calLastMobileState=isCalMobileView();
   buildTimeAxis();
   await loadCalendarWeek();
 }
@@ -2244,34 +2161,63 @@ function buildTimeAxis(){
   while(axis.children.length>1)axis.removeChild(axis.lastChild);
   // allday row
   const adRow=document.createElement('div');
-  adRow.style.cssText='height:28px;display:flex;align-items:center;padding:0 3px;border-bottom:0.5px solid rgba(232,115,42,0.1);font-size:8px;color:rgba(237,210,138,0.3)';
+  adRow.style.cssText='height:28px;display:flex;align-items:center;padding:0 3px;border-bottom:0.5px solid rgba(194,114,62,0.1);font-size:8px;color:rgba(156,123,79,0.5)';
   adRow.textContent='ทั้งวัน';
   axis.appendChild(adRow);
-  // time slots 18:00–21:00
+  // time slots, 15-min granularity — show the hour label only on the slot
+  // that lands exactly on the hour (every 4th slot), not on every quarter-hour
+  const slotsPerHour=60/SLOT_MINS;
   for(let i=0;i<TOTAL_SLOTS;i++){
     const div=document.createElement('div');
     div.className='cal-time-slot';
-    const totalMins=TIME_START*60+i*30;
+    const totalMins=TIME_START*60+i*SLOT_MINS;
     const h=String(Math.floor(totalMins/60)).padStart(2,'0');
     const m=String(totalMins%60).padStart(2,'0');
-    if(i%2===0) div.innerHTML=`<span>${h}:${m}</span>`;
+    if(i%slotsPerHour===0) div.innerHTML=`<span>${h}:${m}</span>`;
     axis.appendChild(div);
   }
 }
 
 async function loadCalendarWeek(){
-  // run independent GAS calls in parallel instead of sequentially — cuts load time roughly in half
-  const [hr,er]=await Promise.all([
-    gasGet('getHelpers&weekStart='+_calWeekStart),
-    gasGet('getCalendarEvents&weekStart='+_calWeekStart)
+  const visibleDates=getCalVisibleDates();
+  // helper-strip data is keyed to the week containing the first visible date,
+  // matching prior behavior (helpers don't need per-day granularity)
+  const helperWeekStart=mondayOfDate(visibleDates[0]);
+  // events: fetch every distinct ISO week the visible date range touches —
+  // in week mode this is always just one week; in 3-day mode it can be two
+  // if the 3-day window crosses a Sunday→Monday boundary.
+  const weeksNeeded=Array.from(new Set(visibleDates.map(mondayOfDate)));
+  const [hr,...eventResults]=await Promise.all([
+    gasGet('getHelpers&weekStart='+helperWeekStart),
+    ...weeksNeeded.map(ws=>gasGet('getCalendarEvents&weekStart='+ws))
   ]);
   renderHelperStrip(hr.ok?hr.rows:[]);
   // GAS already filters by recurrence (once/daily/weekly/biweekly/monthly) for this week,
   // and joins each event with its tag's color from Calendar_Tags, so every row here
   // is ready to render directly (event.color is already resolved).
-  _calSpecialEvents=er.ok?er.rows:[];
-  // also fetch the raw tag→color map for the admin edit-form color preview swatch
-  gasGet('getTagColors').then(r=>{if(r.ok)_calTagColors=r.colors||{}}).catch(()=>{});
+  // Resolve each event's day_of_week into an actual calendar date for the week
+  // it came from, and tag it on — this lets rendering match events to specific
+  // dates instead of relying on column position, which breaks once a 3-day
+  // mobile view can span two different weeks.
+  const merged=[];
+  const seen=new Set(); // event_id+date — guards against the same recurring event
+                         // appearing twice if two fetched weeks somehow overlap
+  const visibleSet=new Set(visibleDates);
+  eventResults.forEach((er,idx)=>{
+    if(!er.ok)return;
+    const weekMon=new Date(weeksNeeded[idx]+'T00:00:00');
+    er.rows.forEach(ev=>{
+      const d=new Date(weekMon);d.setDate(weekMon.getDate()+(ev.day_of_week-1));
+      const dateStr=d.toISOString().slice(0,10);
+      if(!visibleSet.has(dateStr))return; // outside the currently-displayed range
+                                           // (e.g. rest of a fetched week in 3-day mode)
+      const key=ev.event_id+'|'+dateStr;
+      if(seen.has(key))return;
+      seen.add(key);
+      merged.push({...ev,date:dateStr});
+    });
+  });
+  _calSpecialEvents=merged;
   computeTimeRange();
   buildTimeAxis();
   renderCalGrid();
@@ -2304,41 +2250,60 @@ function renderHelperStrip(rows){
   }).join('');
 }
 
+// Build the legend dynamically from whichever tags are actually present in
+// the currently-loaded week's events — no more hardcoded "Guild War/Personal/
+// Special" list. Each tag's color comes from the server (already resolved via
+// GAS colorForTag), so the dot here always matches what's drawn on the grid.
+function renderCalLegend(){
+  const el=document.getElementById('cal-legend');
+  if(!el)return;
+  const seen=new Map(); // tag(lowercase) -> {label, color} — preserves first-seen order
+  _calSpecialEvents.forEach(e=>{
+    const tag=(e.tag||'').trim();
+    if(!tag)return;
+    const key=tag.toLowerCase();
+    if(!seen.has(key))seen.set(key,{label:tag,color:e.color||'#8A7860'});
+  });
+  if(!seen.size){el.innerHTML='';return}
+  el.innerHTML=Array.from(seen.values()).map(({label,color})=>
+    `<div class="cal-leg"><div class="cal-leg-dot" style="background:${color}"></div>${label}</div>`
+  ).join('');
+}
+
 function renderCalGrid(){
-  const mon=new Date(_calWeekStart);
-  const end=new Date(mon);end.setDate(mon.getDate()+6);
+  renderCalLegend();
+  const visibleDates=getCalVisibleDates();
+  const mon=new Date(visibleDates[0]+'T00:00:00');
+  const end=new Date(visibleDates[visibleDates.length-1]+'T00:00:00');
   const fmt=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('cal-week-label').textContent=`สัปดาห์ ${fmt(mon)} – ${fmt(end)}`;
+  document.getElementById('cal-week-label').textContent=`กิจกรรมประจำสัปดาห์: ${fmt(mon)} – ${fmt(end)}`;
   const todayStr=new Date().toISOString().slice(0,10);
   const cols=document.getElementById('cal-day-cols');
   cols.innerHTML='';
   const gridH=TOTAL_SLOTS*SLOT_H;
-  for(let i=0;i<7;i++){
-    const dt=new Date(mon);dt.setDate(mon.getDate()+i);
-    const dateStr=dt.toISOString().slice(0,10);
+  visibleDates.forEach(dateStr=>{
+    const dt=new Date(dateStr+'T00:00:00');
+    const dayIdx=(dt.getDay()+6)%7; // 0=Mon..6=Sun — used only to pick the Thai day-name label
     const isToday=dateStr===todayStr;
-    const isAction=i===1||i===3;
-    const isSat=i===5;
-    const dayEvts=_calSpecialEvents.filter(e=>+e.day_of_week===i+1);
+    const dayEvts=_calSpecialEvents.filter(e=>e.date===dateStr);
     const allEvts=dayEvts;
     const alldayEvts=allEvts.filter(e=>e.time==='allday'||!e.time);
     const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
     const col=document.createElement('div');
-    col.className='cal-dcol'+(isAction?' action-day':isSat?' sat-day':'')+(isToday?' today-day':'');
+    col.className='cal-dcol'+(isToday?' today-day':'');
     // header
     col.innerHTML=`<div class="cal-dhead">
-      <div class="cal-dname">${CAL_DAYS_SHORT[i]}</div>
+      <div class="cal-dname">${CAL_DAYS_SHORT[dayIdx]}</div>
       <div class="cal-dnum">${dt.getDate()}</div>
     </div>`;
     // allday strip
     const adStrip=document.createElement('div');
-    adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(232,115,42,0.1);display:flex;flex-direction:column;gap:2px;background:rgba(0,0,0,0.1)';
+    adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(194,114,62,0.1);display:flex;flex-direction:column;gap:2px;background:rgba(194,114,62,0.04)';
     alldayEvts.forEach(e=>{
       const pill=document.createElement('div');
       pill.className='cal-evt-block';
       pill.style.cssText=`position:static;margin:0;font-size:8px;padding:2px 5px;${hexToEventStyle(e.color)}`;
       pill.textContent=e.title;
-      if(isAdmin){pill.classList.add('can-delete');pill.onclick=()=>openCalEdit(e)}
       adStrip.appendChild(pill);
     });
     col.appendChild(adStrip);
@@ -2346,10 +2311,11 @@ function renderCalGrid(){
     const grid=document.createElement('div');
     grid.className='cal-dgrid';
     grid.style.height=gridH+'px';
-    // grid lines
+    // grid lines — bold "hour" line every 4th slot (60min / 15min = 4)
+    const slotsPerHourLine=60/SLOT_MINS;
     for(let s=0;s<TOTAL_SLOTS;s++){
       const line=document.createElement('div');
-      line.className='cal-grid-line'+(s%2===0?' hour':'');
+      line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');
       line.style.top=(s*SLOT_H)+'px';
       grid.appendChild(line);
     }
@@ -2364,7 +2330,7 @@ function renderCalGrid(){
         const [sh,sm]=e.time.split(':').map(Number);
         const [eh,em]=endTime.split(':').map(Number);
         const durMins=(eh*60+em)-(sh*60+sm);
-        if(durMins>0)h=Math.max(20,Math.round(durMins/30*SLOT_H));
+        if(durMins>0)h=Math.max(20,Math.round(durMins/SLOT_MINS*SLOT_H));
       }
       let col_idx=0;
       for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
@@ -2375,160 +2341,52 @@ function renderCalGrid(){
       const colWidth=totalCols>1?`calc(${100/totalCols}% - 4px)`:'calc(100% - 4px)';
       const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 2px)`:'2px';
       const block=document.createElement('div');
-      block.className='cal-evt-block'+(isAdmin?' can-delete':'');
+      block.className='cal-evt-block';
       block.style.cssText=`top:${top}px;height:${h}px;left:${leftPct};width:${colWidth};${hexToEventStyle(e.color)}`;
       const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
       block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
       block.innerHTML=`${e.title} <span class="evt-time">(${timeLabel})</span>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`;
-      if(isAdmin)block.onclick=()=>openCalEdit(e);
       grid.appendChild(block);
     });
     col.appendChild(grid);
     cols.appendChild(col);
-  }
+  });
   // no need to scroll — 18:00 is already the start
 }
 
-function toggleTimeInput(){
-  const type=document.getElementById('cal-new-time-type').value;
-  const hide=type==='allday';
-  document.getElementById('cal-new-time').style.display=hide?'none':'';
-  document.getElementById('cal-new-end-time').style.display=hide?'none':'';
-}
-
-// Show the anchor-date picker for non-weekly recurrences where the exact start
-// date materially matters (once/biweekly/monthly). Weekly/daily default to today
-// if left blank, so the picker is optional but still shown for clarity.
-function toggleRecurrenceAnchor(which){
-  const rec=document.getElementById(`cal-${which}-recurrence`).value;
-  const wrap=document.getElementById(`cal-${which}-anchor-wrap`);
-  if(wrap)wrap.style.display=(rec==='once'||rec==='biweekly'||rec==='monthly')?'':'none';
-}
+// Re-render the calendar if the viewport crosses the mobile breakpoint while
+// the user is on the Calendar page (e.g. rotating a phone, resizing a window) —
+// debounced so rapid resize events don't spam reloads, and only acts when the
+// 7-day/3-day mode actually needs to change.
+let _calResizeTimer=null;
+window.addEventListener('resize',()=>{
+  if(_currentPage!=='calendar')return;
+  clearTimeout(_calResizeTimer);
+  _calResizeTimer=setTimeout(()=>{
+    const nowMobile=isCalMobileView();
+    if(_calLastMobileState!==null&&nowMobile!==_calLastMobileState){
+      _calLastMobileState=nowMobile;
+      loadCalendarWeek();
+    }else{
+      _calLastMobileState=nowMobile;
+    }
+  },200);
+});
 
 function calNavWeek(dir){
-  const d=new Date(_calWeekStart);d.setDate(d.getDate()+dir*7);
-  _calWeekStart=d.toISOString().slice(0,10);loadCalendarWeek();
+  if(isCalMobileView()){
+    const d=new Date(_calAnchorDate+'T00:00:00');d.setDate(d.getDate()+dir);
+    _calAnchorDate=d.toISOString().slice(0,10);
+  }else{
+    const d=new Date(_calWeekStart+'T00:00:00');d.setDate(d.getDate()+dir*7);
+    _calWeekStart=d.toISOString().slice(0,10);
+  }
+  loadCalendarWeek();
 }
-function calGoToday(){_calWeekStart=getWeekMondayFromDate();loadCalendarWeek();}
-
-function getCheckedDays(containerId){
-  const boxes=document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`);
-  return Array.from(boxes).map(b=>+b.value).sort((a,b)=>a-b);
-}
-function setCheckedDays(containerId,daysArr){
-  document.querySelectorAll(`#${containerId} input[type=checkbox]`).forEach(b=>{
-    b.checked=daysArr.includes(+b.value);
-  });
-}
-
-async function addCalendarEvent(){
-  const dayList=getCheckedDays('cal-new-days');
-  const title=(document.getElementById('cal-new-title').value||'').trim();
-  const timeType=document.getElementById('cal-new-time-type').value;
-  const time=timeType==='allday'?'allday':(document.getElementById('cal-new-time').value||'');
-  const endTime=timeType==='allday'?'allday':(document.getElementById('cal-new-end-time').value||'');
-  const tag=document.getElementById('cal-new-tag').value;
-  const recurrence=document.getElementById('cal-new-recurrence').value;
-  const anchorInput=document.getElementById('cal-new-anchor').value;
-  const anchorDate=anchorInput||_calWeekStart; // default to this week if not specified
-  const msg=document.getElementById('cal-add-msg');
-  if(!dayList.length){msg.textContent='เลือกอย่างน้อย 1 วัน';msg.style.color='var(--red)';return}
-  if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
-  if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
-  if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
-  msg.textContent='Saving...';msg.style.color='var(--muted)';
-  // day = first selected day (kept for backward-compat with old single-day rows);
-  // days = full comma list used by getCalendarEvents to expand into every selected day
-  const r=await gasPost({action:'saveCalendarEvent',eventId:'evt_'+Date.now(),day:dayList[0],title,time,tag,recurrence,anchorDate,endTime,days:dayList.join(',')});
-  if(r.ok){
-    msg.textContent='เพิ่มแล้ว: '+title;msg.style.color='var(--green)';
-    document.getElementById('cal-new-title').value='';
-    document.getElementById('cal-new-time').value='';
-    document.getElementById('cal-new-end-time').value='';
-    document.getElementById('cal-new-time-type').value='timed';
-    document.getElementById('cal-new-anchor').value='';
-    setCheckedDays('cal-new-days',[]);
-    toggleTimeInput();
-    await loadCalendarWeek();
-  }else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
-}
-
-async function deleteCalEvent(eventId,title){
-  if(!isAdmin)return;
-  if(!confirm(`ลบ event "${title}" ออกไหม?`))return;
-  const r=await gasPost({action:'deleteCalendarEvent',eventId});
-  if(r.ok) await loadCalendarWeek();
-  else alert('Error: '+r.error);
-}
-
-// Live-update the color swatch next to the tag input in the edit modal as the
-// admin types — looks up _calTagColors (cached from getTagColors) with a gray
-// fallback for unrecognized tags, matching what the calendar itself will show.
-function updateTagColorPreview(){
-  const tag=(document.getElementById('cal-edit-tag').value||'').toLowerCase().trim();
-  const sw=document.getElementById('cal-edit-color-preview');
-  if(!sw)return;
-  sw.style.background=_calTagColors[tag]||'#8A8580';
-}
-
-let _calEditCtx=null;
-function openCalEdit(e){
-  if(!isAdmin)return;
-  _calEditCtx={event_id:e.event_id};
-  document.getElementById('cal-edit-title').value=e.title||'';
-  // pre-check days from the event's `days` list if present, else just its single day_of_week
-  const daysArr=e.days?e.days.split(',').map(d=>+d.trim()).filter(d=>!isNaN(d)):[+e.day_of_week];
-  setCheckedDays('cal-edit-days',daysArr);
-  const isAllday=e.time==='allday'||!e.time;
-  document.getElementById('cal-edit-time-type').value=isAllday?'allday':'timed';
-  document.getElementById('cal-edit-time').value=isAllday?'':e.time;
-  document.getElementById('cal-edit-time').style.display=isAllday?'none':'';
-  const endVal=e.end_time||'';
-  document.getElementById('cal-edit-end-time').value=isAllday?'':(endVal==='allday'?'':endVal);
-  document.getElementById('cal-edit-end-time').style.display=isAllday?'none':'';
-  document.getElementById('cal-edit-tag').value=e.tag||'';
-  document.getElementById('cal-edit-recurrence').value=e.recurrence||'weekly';
-  document.getElementById('cal-edit-anchor').value=e.anchor_date||'';
-  toggleRecurrenceAnchor('edit');
-  updateTagColorPreview();
-  document.getElementById('cal-edit-msg').textContent='';
-  document.getElementById('cal-edit-modal').style.display='flex';
-}
-function closeCalEdit(){document.getElementById('cal-edit-modal').style.display='none';_calEditCtx=null}
-function toggleEditTimeInput(){
-  const t=document.getElementById('cal-edit-time-type').value;
-  const hide=t==='allday';
-  document.getElementById('cal-edit-time').style.display=hide?'none':'';
-  document.getElementById('cal-edit-end-time').style.display=hide?'none':'';
-}
-async function saveCalEdit(){
-  if(!_calEditCtx)return;
-  const title=(document.getElementById('cal-edit-title').value||'').trim();
-  const dayList=getCheckedDays('cal-edit-days');
-  const timeType=document.getElementById('cal-edit-time-type').value;
-  const time=timeType==='allday'?'allday':(document.getElementById('cal-edit-time').value||'');
-  const endTime=timeType==='allday'?'allday':(document.getElementById('cal-edit-end-time').value||'');
-  const tag=document.getElementById('cal-edit-tag').value;
-  const recurrence=document.getElementById('cal-edit-recurrence').value;
-  const anchorInput=document.getElementById('cal-edit-anchor').value;
-  const anchorDate=anchorInput||_calWeekStart;
-  const msg=document.getElementById('cal-edit-msg');
-  if(!dayList.length){msg.textContent='เลือกอย่างน้อย 1 วัน';msg.style.color='var(--red)';return}
-  if(!title){msg.textContent='ใส่ชื่อ Event ก่อน';msg.style.color='var(--red)';return}
-  if(timeType!=='allday'&&(!time||!endTime)){msg.textContent='กรอกเวลาเริ่มและเวลาสิ้นสุดให้ครบ';msg.style.color='var(--red)';return}
-  if(timeType!=='allday'&&endTime<=time){msg.textContent='เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม';msg.style.color='var(--red)';return}
-  msg.textContent='Saving...';msg.style.color='var(--muted)';
-  const r=await gasPost({action:'saveCalendarEvent',eventId:_calEditCtx.event_id,day:dayList[0],title,time,tag,recurrence,anchorDate,endTime,days:dayList.join(',')});
-  if(r.ok){closeCalEdit();await loadCalendarWeek()}
-  else{msg.textContent='Error: '+r.error;msg.style.color='var(--red)'}
-}
-async function deleteCalEditEvent(){
-  if(!_calEditCtx)return;
-  const title=document.getElementById('cal-edit-title').value;
-  if(!confirm(`ลบ event "${title}" ออกไหม?`))return;
-  const r=await gasPost({action:'deleteCalendarEvent',eventId:_calEditCtx.event_id});
-  if(r.ok){closeCalEdit();await loadCalendarWeek()}
-  else alert('Error: '+r.error);
+function calGoToday(){
+  _calWeekStart=getWeekMondayFromDate();
+  _calAnchorDate=new Date().toISOString().slice(0,10);
+  loadCalendarWeek();
 }
 
 loadData();
