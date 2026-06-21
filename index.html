@@ -131,15 +131,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cap-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--orange-l);font-weight:600}
 .cap-edit-btn{font-size:11px;padding:5px 12px;border-radius:var(--radius-sm);background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange-l);cursor:pointer;font-weight:600}
 .cap-edit-btn:hover{background:var(--orange-border)}
-.cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .cap-box{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;box-shadow:var(--shadow-soft)}
 .cap-free{border-color:var(--orange-border);background:var(--orange-dim)}
 .cap-num{font-family:var(--font-pixel);font-size:34px;font-weight:400;color:var(--text);line-height:1;letter-spacing:0px}
 .cap-lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
 .cap-bar-wrap{height:8px;background:rgba(194,114,62,0.09);border-radius:8px;overflow:hidden;margin-bottom:8px}
 .cap-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:8px;transition:width 0.3s}
-.cap-note{font-size:12px;color:var(--muted);text-align:center}
-@media(max-width:520px){.cap-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.cap-grid{grid-template-columns:1fr}}
 /* TYPE PILLS */
 .type-summary{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
 .tp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
@@ -591,9 +590,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <th id="th-party" onclick="sortM('party')">Party</th>
       <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
       <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
-      <th id="th-noted" onclick="sortM('noted')">Noted</th>
     </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
   </table></div>
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
@@ -987,7 +985,7 @@ async function loadData(){
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
-  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
+  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
 }
 
 function buildFilters(){
@@ -1030,7 +1028,6 @@ function renderStats(){
   if(!el)return;
   // capacity numbers
   const activeCount=total;           // main members (alts excluded — counted already excludes alts)
-  const altCount=members.filter(isAlt).length;
   const freeSlots=_guildCap-activeCount;
   const capEditBtn=isAdmin?`<button class="cap-edit-btn" onclick="editGuildCap()">✏️ แก้</button>`:'';
   el.innerHTML=`
@@ -1058,13 +1055,11 @@ function renderStats(){
     <div class="cap-section">
       <div class="cap-head"><span class="cap-title">Guild Capacity</span>${capEditBtn}</div>
       <div class="cap-grid">
-        <div class="cap-box"><div class="cap-num">${_guildCap}</div><div class="cap-lbl">รับเต็ม</div></div>
-        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">นับเข้าโควต้า</div></div>
-        <div class="cap-box"><div class="cap-num" style="color:var(--blue)">${altCount}</div><div class="cap-lbl">ตัวเด็ก (ไม่นับโควต้า)</div></div>
-        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">รับเพิ่มได้</div></div>
+        <div class="cap-box"><div class="cap-num">${_guildCap}</div><div class="cap-lbl">จำนวนสูงสุดที่รับได้</div></div>
+        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">สมาชิกกิลด์</div></div>
+        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">จำนวนที่รับเพิ่มได้</div></div>
       </div>
       <div class="cap-bar-wrap"><div class="cap-bar" style="width:${_guildCap>0?Math.min(100,Math.round(activeCount/_guildCap*100)):0}%"></div></div>
-      <div class="cap-note">${_guildCap} ที่ − ${activeCount} คนปัจจุบัน = รับเพิ่มได้ ${freeSlots>0?freeSlots:0} คน (ตัวเด็ก ${altCount} ตัวไม่ถูกนับในโควต้านี้)</div>
     </div>`;
 }
 
@@ -1084,14 +1079,14 @@ async function editGuildCap(){
 }
 
 let mSortKey='party',mSortDir=1;
-function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','party','char_id','discord','noted'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',party:'th-party',char_id:'th-char',discord:'th-discord',noted:'th-noted'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
+function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','party','char_id','discord'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',party:'th-party',char_id:'th-char',discord:'th-discord'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
   let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
   if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
-  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type);const nl=noteLabel(m.noted);const noted=nl?`<span class="badge b-note">${nl}</span>`:`<span style="color:var(--faint)">—</span>`;return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}">${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td><td>${noted}</td></tr>`}).join('');
+  tbody.innerHTML=f.map((m,i)=>{const type=getType(m.class),tc=getTypeCls(type);return`<tr><td class="m-num">${i+1}</td><td style="font-weight:500">${m.ign}</td><td><span class="badge ${tc}">${m.class}</span></td><td style="color:var(--muted)">${m.party||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.char_id||'—'}</td><td class="admin-col" style="display:none;font-size:11px;color:var(--muted)">${m.discord||'—'}</td></tr>`}).join('');
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
 }
 
