@@ -332,16 +332,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 /* CALENDAR */
 .cal-wrap{display:flex;border:1px solid rgba(194,114,62,0.16);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-soft)}
 .cal-time-axis{width:38px;flex-shrink:0;background:rgba(194,114,62,0.06);border-right:0.5px solid rgba(194,114,62,0.1);position:sticky;left:0;z-index:2}
-.cal-time-head{height:44px;border-bottom:0.5px solid rgba(194,114,62,0.12);background:rgba(194,114,62,0.05)}
-.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:1px solid rgba(194,114,62,0.1)}
-.cal-time-slot span{font-size:9px;color:rgba(156,123,79,0.55);line-height:1;white-space:nowrap}
+.cal-time-head{height:48px;border-bottom:0.5px solid rgba(194,114,62,0.12);background:rgba(194,114,62,0.05)}
+.cal-time-slot{height:32px;display:flex;align-items:flex-start;padding:2px 3px 0;border-bottom:1px solid rgba(194,114,62,0.1)}
+.cal-time-slot span{font-size:10px;color:rgba(156,123,79,0.6);line-height:1;white-space:nowrap}
 .cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
 @media(max-width:760px){.cal-day-cols{grid-template-columns:repeat(3,1fr)}}
 .cal-dcol{border-right:1px solid rgba(194,114,62,0.18);display:flex;flex-direction:column}
 .cal-dcol:last-child{border-right:none}
-.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1.5px solid rgba(194,114,62,0.25);background:rgba(194,114,62,0.05);position:sticky;top:0;z-index:1}
-.cal-dname{font-size:10px;color:rgba(156,123,79,0.7);text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.cal-dnum{font-size:17px;font-weight:700;color:rgba(92,64,35,0.85);line-height:1.1}
+.cal-dhead{height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1.5px solid rgba(194,114,62,0.25);background:rgba(194,114,62,0.05);position:sticky;top:0;z-index:1}
+.cal-dname{font-size:11px;color:rgba(156,123,79,0.7);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.cal-dnum{font-size:19px;font-weight:700;color:rgba(92,64,35,0.85);line-height:1.1}
 .cal-dcol.today-day{background:rgba(194,114,62,0.04)}
 .cal-dcol.today-day .cal-dhead{box-shadow:inset 0 -2px 0 rgba(194,114,62,0.6);background:rgba(194,114,62,0.1)}
 .cal-dcol.today-day .cal-dname{color:#A85F32}
@@ -351,9 +351,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cal-grid-line.hour{height:1.5px;background:rgba(194,114,62,0.22)}
 .cal-hour-band{position:absolute;left:0;right:0;background:rgba(194,114,62,0.035);pointer-events:none}
 /* event blocks */
-.cal-evt-block{position:absolute;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;border-left-width:3px;border-left-style:solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
-.cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:0.7;margin-top:2px}
-.cal-evt-block .evt-time{font-size:9px;font-weight:500;opacity:0.75}
+.cal-evt-block{position:absolute;border-radius:7px;padding:5px 7px;font-size:12px;font-weight:600;overflow:hidden;border-left-width:3px;border-left-style:solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
+.cal-evt-block .evt-sub{font-size:10px;font-weight:500;opacity:0.7;margin-top:2px}
+.cal-evt-block .evt-time{font-size:11px;font-weight:500;opacity:0.75}
 .cal-evt-block.is-narrow{white-space:normal}
 .cal-evt-block.is-narrow .evt-title-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-evt-block.is-narrow .evt-time{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
@@ -1374,6 +1374,7 @@ function updateAucSaveAsLabel(){
 
 /* ─── REWARD CALCULATOR ─── */
 let _aucGlobalMul=1; // single global multiplier for all fields
+let _aucFieldOverrides={}; // per-field manual overrides — null/missing means "use base × multiplier" as before
 
 function onGlobalMul(){
   _aucGlobalMul=+document.getElementById('auc-global-mul').value||1;
@@ -1383,8 +1384,21 @@ function onGlobalMul(){
 
 function onAucRankReset(){
   _aucGlobalMul=1;
+  _aucFieldOverrides={};
   const mulEl=document.getElementById('auc-global-mul');
   if(mulEl)mulEl.value=1;
+}
+
+// Called when the admin (or anyone testing numbers) edits a field's value
+// directly. An empty input clears the override and falls back to the
+// multiplier-calculated value, so the two methods (multiplier vs direct edit)
+// can be freely combined — e.g. multiply everything ×1.1, then hand-correct
+// just the one field that was pulled wrong.
+function onRewardFieldEdit(key,inputEl){
+  const v=inputEl.value.trim();
+  if(v===''){delete _aucFieldOverrides[key]}
+  else{_aucFieldOverrides[key]=Math.max(0,Math.round(+v)||0)}
+  renderDistribution();
 }
 
 function renderRewardInputs(){
@@ -1404,11 +1418,13 @@ function renderRewardInputs(){
   if(base.mvp_box!=null) fields.push({k:'mvp_box',label:'MVP box count',base:base.mvp_box,accent:true});
 
   wrap.innerHTML=fields.map(f=>{
-    const val=Math.round(f.base*mul);
-    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${f.accent?'var(--amber-b)':'var(--border)'};border-radius:8px;padding:10px 12px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}</div>
-      <div style="font-size:22px;font-weight:700;${f.accent?'color:var(--amber)':''}">${val}</div>
-      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base}</div>
+    const calcVal=Math.round(f.base*mul);
+    const hasOverride=_aucFieldOverrides[f.k]!=null;
+    const displayVal=hasOverride?_aucFieldOverrides[f.k]:calcVal;
+    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${hasOverride?'var(--orange-border)':(f.accent?'var(--amber-b)':'var(--border)')};border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}${hasOverride?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+      <input type="number" min="0" value="${displayVal}" oninput="onRewardFieldEdit('${f.k}',this)" style="width:100%;font-size:22px;font-weight:700;${f.accent?'color:var(--amber)':''}background:transparent;border:none;outline:none;padding:0;font-family:inherit">
+      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base} ${mul!==1?`× ${mul} = ${calcVal}`:''}${hasOverride?` · เคลียร์ช่องนี้เพื่อกลับไปใช้ค่าคำนวณ`:''}</div>
     </div>`;
   }).join('');
 }
@@ -1417,11 +1433,12 @@ function getRewardValues(){
   const base=getCurrentReward();
   if(!base)return null;
   const m=_aucGlobalMul||1;
+  const ov=_aucFieldOverrides;
   return {
-    card:Math.round(base.card*m),
-    white:Math.round(base.feather_white*m),
-    red:Math.round(base.feather_red_black*m),
-    mvp:base.mvp_box!=null?Math.round(base.mvp_box*m):null,
+    card:ov.card!=null?ov.card:Math.round(base.card*m),
+    white:ov.feather_white!=null?ov.feather_white:Math.round(base.feather_white*m),
+    red:ov.feather_red_black!=null?ov.feather_red_black:Math.round(base.feather_red_black*m),
+    mvp:ov.mvp_box!=null?ov.mvp_box:(base.mvp_box!=null?Math.round(base.mvp_box*m):null),
     event_name:base.event_name,
     rank:base.rank
   };
@@ -2076,7 +2093,7 @@ async function toggleDesignatedStatus(weekStart,position,status){
 /* ═══════════ CALENDAR ═══════════ */
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 const SLOT_MINS=15; // minutes per grid slot — 4 slots per hour
-const SLOT_H=24; // px per 15-min slot (96px/hour total — taller than the old 72px/hour so each 15-min row stays comfortably readable)
+const SLOT_H=32; // px per 15-min slot (128px/hour total — increased from 96px so event blocks have more breathing room and overlapping events are easier to read)
 let TOTAL_SLOTS=24; // computed dynamically per week from actual events (in 15-min units)
 let TIME_START=18; // computed dynamically per week from actual events
 const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
