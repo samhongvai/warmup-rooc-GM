@@ -351,7 +351,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 .cal-grid-line.hour{height:2px;background:rgba(194,114,62,0.32)}
 .cal-hour-band{position:absolute;left:0;right:0;background:rgba(194,114,62,0.05);pointer-events:none}
 /* event blocks */
-.cal-evt-block{position:absolute;border-radius:9px;padding:5px 7px;font-size:10px;font-weight:600;overflow:hidden;border:1.5px solid;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
+.cal-evt-block{position:absolute;border-radius:9px;padding:5px 7px;font-size:10px;font-weight:600;overflow:hidden;line-height:1.4;white-space:nowrap;text-overflow:ellipsis}
 .cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:0.7;margin-top:2px}
 .cal-evt-block .evt-time{font-size:9px;font-weight:500;opacity:0.75}
 .cal-evt-block.is-narrow{white-space:normal}
@@ -2163,7 +2163,7 @@ function toDateStr(d){
 function hexToEventStyle(hex){
   const h=(hex||'#8A8580').replace('#','');
   const r=parseInt(h.substring(0,2),16)||138,g=parseInt(h.substring(2,4),16)||133,b=parseInt(h.substring(4,6),16)||128;
-  return `background:rgba(${r},${g},${b},0.5);border-color:#${h};color:var(--text)`;
+  return `background:rgba(${r},${g},${b},0.5);color:var(--text)`;
 }
 
 function timeToTop(timeStr){
