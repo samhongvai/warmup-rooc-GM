@@ -2295,7 +2295,9 @@ function classToTier(className){
 function getHelperClass(name,sheetClass){
   // prefer class from sheet (Helper_Log), fallback to members lookup by name
   if(sheetClass) return classToTier(sheetClass);
-  const m=members.find(x=>x.ign===name);
+  const norm=s=>String(s||'').trim().toLowerCase();
+  const target=norm(name);
+  const m=members.find(x=>norm(x.ign)===target);
   if(!m)return 'unknown';
   return classToTier(m.class);
 }
