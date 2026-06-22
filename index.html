@@ -1449,7 +1449,7 @@ function renderRewardInputs(){
   if(ppWrap){
     const rw=getRewardValues();
     if(rw){
-      const n=Math.min(rw.card,_aucPendingAll.length)||1;
+      const n=rw.card||1; // card = number of members this round
       const autoW=Math.floor(rw.white/n);
       const autoR=Math.floor(rw.red/n);
       const hasW=_aucPerPersonOverrides.white!=null;
