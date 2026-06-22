@@ -652,7 +652,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <span style="font-size:10px;color:var(--faint);font-style:italic">คูณทุก field พร้อมกัน (Card / White / Red/Black)</span>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap" id="auc-reward-inputs"></div>
-    <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:12px">Card count = number of members this round.</div>
+    <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:10px">Card count = number of members this round.</div>
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Per person (ต่อคน)</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="auc-per-person-inputs"></div>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="auc-summary-cards"></div>
     <div class="tbl-wrap"><table class="au-tbl">
       <thead><tr>
@@ -1380,6 +1382,7 @@ function updateAucSaveAsLabel(){
 /* ─── REWARD CALCULATOR ─── */
 let _aucGlobalMul=1; // single global multiplier for all fields
 let _aucFieldOverrides={}; // per-field manual overrides — null/missing means "use base × multiplier" as before
+let _aucPerPersonOverrides={}; // per-person overrides: {white: number|null, red: number|null}
 
 function onGlobalMul(){
   _aucGlobalMul=+document.getElementById('auc-global-mul').value||1;
@@ -1390,8 +1393,16 @@ function onGlobalMul(){
 function onAucRankReset(){
   _aucGlobalMul=1;
   _aucFieldOverrides={};
+  _aucPerPersonOverrides={};
   const mulEl=document.getElementById('auc-global-mul');
   if(mulEl)mulEl.value=1;
+}
+
+function onPerPersonEdit(key,inputEl){
+  const v=inputEl.value.trim();
+  if(v===''){delete _aucPerPersonOverrides[key]}
+  else{_aucPerPersonOverrides[key]=Math.max(0,Math.round(+v)||0)}
+  renderDistribution();
 }
 
 // Called when the admin (or anyone testing numbers) edits a field's value
@@ -1403,6 +1414,7 @@ function onRewardFieldEdit(key,inputEl){
   const v=inputEl.value.trim();
   if(v===''){delete _aucFieldOverrides[key]}
   else{_aucFieldOverrides[key]=Math.max(0,Math.round(+v)||0)}
+  renderRewardInputs(); // re-render per-person auto values when total changes
   renderDistribution();
 }
 
@@ -1432,6 +1444,31 @@ function renderRewardInputs(){
       <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base} ${mul!==1?`× ${mul} = ${calcVal}`:''}${hasOverride?` · เคลียร์ช่องนี้เพื่อกลับไปใช้ค่าคำนวณ`:''}</div>
     </div>`;
   }).join('');
+  // --- Per-person override row (rendered after total fields) ---
+  const ppWrap=document.getElementById('auc-per-person-inputs');
+  if(ppWrap){
+    const rw=getRewardValues();
+    if(rw){
+      const n=Math.min(rw.card,_aucPendingAll.length)||1;
+      const autoW=Math.floor(rw.white/n);
+      const autoR=Math.floor(rw.red/n);
+      const hasW=_aucPerPersonOverrides.white!=null;
+      const hasR=_aucPerPersonOverrides.red!=null;
+      const ppW=hasW?_aucPerPersonOverrides.white:autoW;
+      const ppR=hasR?_aucPerPersonOverrides.red:autoR;
+      ppWrap.innerHTML=`
+        <div style="flex:1;min-width:140px;background:var(--card2);border:0.5px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">White / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+          <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--blue)">
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${rw.white}÷${n}⌋=${autoW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
+        </div>
+        <div style="flex:1;min-width:140px;background:var(--card2);border:0.5px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Red/Black / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+          <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${rw.red}÷${n}⌋=${autoR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
+        </div>`;
+    }else{ppWrap.innerHTML='';}
+  }
 }
 
 function getRewardValues(){
@@ -1477,15 +1514,18 @@ function computeDistribution(){
   if(!n)return null;
   const memberNames=_aucPendingAll.slice(0,n).map(r=>r.member_name);
   const white=rw.white,red=rw.red;
-  const pW=Math.floor(white/n),pR=Math.floor(red/n);
-  const wRem=white-(n*pW),rRem=red-(n*pR);
+  // per-person: use override if set, otherwise floor(total/n)
+  const pW=_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n);
+  const pR=_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n);
+  const wUsedTotal=n*pW,rUsedTotal=n*pR;
+  const wRem=white-wUsedTotal,rRem=red-rUsedTotal;
   let wPos=1,rPos=white+1;
   const rows=memberNames.map((name,i)=>{
     const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
     wPos+=pW;rPos+=pR;
     return row;
   });
-  return {rows,card:n,cardTarget:rw.card,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank};
+  return {rows,card:n,cardTarget:rw.card,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0};
 }
 
 function renderDistribution(){
@@ -1497,21 +1537,25 @@ function renderDistribution(){
     sumWrap.innerHTML='';
     return;
   }
-  const wUsed=dist.n*Math.floor(dist.white/dist.n);
-  const rUsed=dist.n*Math.floor(dist.red/dist.n);
+  const wUsed=dist.n*dist.pW;
+  const rUsed=dist.n*dist.pR;
   const cardLeft=dist.cardTarget-dist.card;
+  const wBorder=dist.wOverflow?'var(--red-b)':'var(--border)';
+  const rBorder=dist.rOverflow?'var(--red-b)':'var(--border)';
+  const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`${dist.wRem} left`;
+  const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`${dist.rRem} left`;
   sumWrap.innerHTML=`
     <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
       <div style="font-size:18px;font-weight:700">${dist.card}/${dist.cardTarget}</div>
       <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (${cardLeft} left)</div>
     </div>
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
-      <div style="font-size:18px;font-weight:700">${wUsed}/${dist.white}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">White (${dist.wRem} left)</div>
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${wBorder};border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
+      <div style="font-size:18px;font-weight:700;${dist.wOverflow?'color:var(--red)':''}">${wUsed}/${dist.white}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">White (${wRemLbl})</div>
     </div>
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
-      <div style="font-size:18px;font-weight:700">${rUsed}/${dist.red}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">Red/Black (${dist.rRem} left)</div>
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${rBorder};border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
+      <div style="font-size:18px;font-weight:700;${dist.rOverflow?'color:var(--red)':''}">${rUsed}/${dist.red}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Red/Black (${rRemLbl})</div>
     </div>`;
   tbody.innerHTML=dist.rows.map((r,i)=>{
     const card=_toPageBox(r.cardSlot);
