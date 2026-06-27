@@ -598,7 +598,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
   <button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
 </div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
-<div class="app">
+<div class="app" id="app-root">
 <nav class="sidebar" id="sidebar-el">
   <div class="logo-area">
     <div class="logo-img-wrap">
@@ -2589,7 +2589,12 @@ function calGoToday(){
 let _zoomLevel=100;
 function onZoomSlider(v){
   _zoomLevel=+v;
-  document.body.style.fontSize=(_zoomLevel/100*15)+'px';
+  const scale=_zoomLevel/100;
+  const app=document.getElementById('app-root');
+  app.style.transform='scale('+scale+')';
+  app.style.transformOrigin='top left';
+  app.style.width=(100/scale)+'%';
+  app.style.height=(100/scale)+'%';
   document.getElementById('zoom-lbl').textContent=_zoomLevel+'%';
   const pct=((_zoomLevel-60)/(150-60)*100);
   document.getElementById('zoom-range').style.background=
