@@ -41,19 +41,35 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .app{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--bg2);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease;box-shadow:4px 0 14px rgba(0,0,0,0.06)}
-.logo-area{padding:1.3rem 1rem 1.1rem;margin-bottom:0.8rem}
+/* ── SIDEBAR ── */
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:width 0.22s cubic-bezier(.4,0,.2,1),transform 0.25s ease;box-shadow:4px 0 14px rgba(0,0,0,0.06);overflow:hidden}
+/* desktop collapsed → icon rail */
+.sidebar.rail{width:52px}
+.sidebar.rail .nav-label{opacity:0;width:0;overflow:hidden;display:inline-block}
+.sidebar.rail .logo-text{opacity:0;width:0;overflow:hidden}
+.sidebar.rail .nav-footer-text{opacity:0;width:0;overflow:hidden;display:inline-block}
+.sidebar.rail .nav-item{justify-content:center;padding:10px 0;margin:0 6px}
+.sidebar.rail .nav-item .ni{width:auto}
+/* toggle btn (desktop only) */
+/* sb-toggle removed — desktop sidebar always expanded */
+/* tooltip on rail */
+.nav-tip{position:absolute;left:58px;background:var(--text);color:#fff;font-size:11px;font-family:var(--font-pixel);padding:5px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:400;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.sidebar.rail .nav-item:hover .nav-tip{opacity:1}
+.logo-area{padding:1.3rem 1rem 1.1rem;margin-bottom:0.8rem;overflow:hidden;transition:padding 0.22s}
+.sidebar.rail .logo-area{padding:1rem 0;display:flex;justify-content:center;align-items:center}
 .logo-img-wrap{width:100%;display:flex;justify-content:center;margin-bottom:10px}
-.logo-img{width:48px;height:48px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--orange),var(--orange-l));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--shadow-out-sm);color:#fff}
-.logo-text{text-align:center}
+.sidebar.rail .logo-img-wrap{margin-bottom:0}
+.logo-img{width:48px;height:48px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--orange),var(--orange-l));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--shadow-out-sm);color:#fff;flex-shrink:0}
+.logo-text{text-align:center;transition:opacity 0.22s,width 0.22s;white-space:nowrap;overflow:hidden}
 .logo-text h1{font-family:var(--font-pixel);font-size:18px;font-weight:800;color:var(--text);letter-spacing:1px}
 .logo-text p{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:1px;font-weight:600;font-family:var(--font-pixel);text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1rem;margin:0 10px;font-size:13px;font-weight:600;font-family:var(--font-pixel);color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);border-bottom:1px solid var(--border)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1rem;margin:0 10px;font-size:13px;font-weight:600;font-family:var(--font-pixel);color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);border-bottom:1px solid var(--border);position:relative;white-space:nowrap;overflow:hidden}
 .nav-item:last-of-type{border-bottom:none}
 .nav-item.active{border-bottom-color:transparent}
 .nav-item:hover{color:var(--text);box-shadow:var(--shadow-out-sm)}
 .nav-item.active{color:#fff;background:var(--orange);box-shadow:var(--shadow-out-sm);font-weight:800}
-.nav-item .ni{font-size:16px;width:18px;text-align:center}
+.nav-item .ni{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.nav-label{transition:opacity 0.22s,width 0.22s;overflow:hidden;white-space:nowrap}
 .nav-spacer{flex:1}
 .nav-section{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:14px 1.2rem 5px;opacity:0.7;font-family:var(--font-pixel)}
 .nav-lock{font-size:10px;opacity:0.4;margin-left:auto}
@@ -61,18 +77,40 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .admin-locked-wrap{position:relative}
 .admin-locked-wrap::after{content:'🔐';position:absolute;top:50%;right:8px;transform:translateY(-50%);font-size:10px;opacity:0.5;pointer-events:none}
 .nav-divider{height:1px;background:var(--border);margin:10px 1rem;opacity:0.5}
-.nav-footer{padding:0.9rem 1.2rem;font-size:11px;color:var(--muted);line-height:1.7;font-family:var(--font-pixel)}
+.nav-footer{padding:0.9rem 1.2rem;font-size:11px;color:var(--muted);line-height:1.7;font-family:var(--font-pixel);white-space:nowrap;overflow:hidden}
+.nav-footer-text{transition:opacity 0.22s,width 0.22s;white-space:nowrap;overflow:hidden}
 .sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;box-shadow:0 0 6px var(--green)}
-.hamburger{display:none;position:fixed;top:11px;left:11px;z-index:300;background:var(--bg2);border-radius:var(--radius-sm);padding:8px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm)}
-.topbar-admin{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--bg2);border-radius:var(--radius-sm);padding:8px 14px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;box-shadow:var(--shadow-out-sm)}
-.topbar-admin.on{color:var(--orange-l);background:var(--orange-dim);box-shadow:var(--shadow-out-sm)}
+/* ── TOPBAR (fused pill) ── */
+.topbar-wrap{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--bg2);border-radius:var(--radius-sm);box-shadow:var(--shadow-out-sm);overflow:hidden;align-items:center}
+.topbar-zoom-seg{display:flex;align-items:center;gap:8px;padding:8px 12px;border-right:1px solid var(--border)}
+.zoom-reset{background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);padding:0;line-height:1;transition:color .15s}
+.zoom-reset:hover{color:var(--orange-l)}
+.zoom-pct{font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);min-width:34px}
+.zoom-range{-webkit-appearance:none;appearance:none;width:80px;height:4px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--orange) 50%,rgba(var(--tint-rgb),0.25) 50%)}
+.zoom-range::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 2px var(--orange-dim),0 1px 3px rgba(0,0,0,.18);cursor:pointer}
+.topbar-admin{display:flex;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;background:none;border:none;transition:color .15s}
+.topbar-admin.on{color:var(--orange-l);background:var(--orange-dim)}
+/* hamburger — mobile only */
+.hamburger{display:none;position:fixed;top:8px;left:11px;z-index:300;background:var(--bg2);border-radius:var(--radius-sm);padding:8px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150}
 .sidebar-overlay.show{display:block}
-@media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0!important;padding:3.5rem 0.9rem 2rem!important;max-width:100vw!important}.hamburger{display:flex;align-items:center}}
+/* ── RESPONSIVE ── */
+/* desktop: main offset matches sidebar width */
+.main{margin-left:220px;flex:1;padding:2rem 2.2rem;min-width:0;max-width:calc(100vw - 220px);transition:margin-left 0.22s cubic-bezier(.4,0,.2,1),max-width 0.22s cubic-bezier(.4,0,.2,1)}
+.main.rail-offset{margin-left:52px;max-width:calc(100vw - 52px)}
+/* zoom slider hidden on mobile to save space */
+@media(max-width:1024px){
+  .sidebar{transform:translateX(-100%);width:220px!important}
+  .sidebar.open{transform:translateX(0)}
+  .sb-toggle{display:none}
+  .main{margin-left:0!important;max-width:100vw!important;padding:3.5rem 0.9rem 2rem!important}
+  .hamburger{display:flex;align-items:center}
+  .topbar-zoom-seg{display:none}
+  .topbar-wrap{top:8px;right:11px}
+}
 
 
-/* MAIN */
-.main{margin-left:220px;flex:1;padding:2rem 2.2rem;min-width:0;max-width:calc(100vw - 220px)}
+/* MAIN — managed in sidebar block above for transition sync */
 .page{display:none}.page.active{display:block}
 .page-title{font-family:var(--font-pixel);font-size:30px;font-weight:400;color:var(--orange-l);margin-bottom:5px;letter-spacing:1px}
 .page-sub{font-size:13px;color:var(--muted);margin-bottom:1.3rem}
@@ -551,7 +589,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 </head>
 <body>
 <button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
-<button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
+<div class="topbar-wrap">
+  <div class="topbar-zoom-seg">
+    <button class="zoom-reset" onclick="resetZoom()" title="Reset">↺</button>
+    <span class="zoom-pct" id="zoom-lbl">100%</span>
+    <input type="range" class="zoom-range" id="zoom-range" min="60" max="150" step="10" value="100" oninput="onZoomSlider(this.value)">
+  </div>
+  <button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
+</div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app">
 <nav class="sidebar" id="sidebar-el">
@@ -564,16 +609,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
       <p>GUILD MANAGER</p>
     </div>
   </div>
-  <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span>Search</div>
-  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span>Calendar</div>
-  <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span>Party</div>
-  <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span>Members</div>
-  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span>Auction</div>
-  <div class="nav-item" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span>Attendance<span class="nav-lock" id="lock-attendance">🔒</span></div>
+  <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
+  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
+  <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
+  <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
+  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
+  <div class="nav-item admin-only admin-locked" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span><span class="nav-label">Attendance<span class="nav-lock" id="lock-attendance">🔒</span></span><span class="nav-tip">Attendance 🔒</span></div>
   <div class="nav-spacer"></div>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
 </nav>
-<main class="main">
+<main class="main" id="main-wrap">
 
 <!-- MEMBERS -->
 <div id="page-members" class="page">
@@ -817,11 +862,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar</div>
 
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-    <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
-    <span style="flex:1;text-align:center;font-size:13px;font-weight:500;color:var(--gold-l)" id="cal-week-label">Loading...</span>
-    <button class="btn btn-ghost" onclick="calNavWeek(1)">▶</button>
-    <button class="btn btn-ghost" onclick="calGoToday()">สัปดาห์นี้</button>
+  <div style="margin-bottom:14px">
+    <div style="font-size:13px;font-weight:600;color:var(--gold-l);margin-bottom:8px;min-height:20px" id="cal-week-label">Loading...</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
+      <button class="btn btn-ghost" onclick="calGoToday()">สัปดาห์นี้</button>
+      <button class="btn btn-ghost" onclick="calNavWeek(1)">▶</button>
+      <button class="btn btn-ghost" id="cal-refresh-btn" onclick="calRefresh()" title="รีเฟรชข้อมูล">🔄</button>
+    </div>
   </div>
 
   <!-- helper strip -->
@@ -914,8 +962,16 @@ let _aucQueueRows=[]; // rows for currently-viewed queue date
 let _pendingNav='';
 
 /* HAMBURGER */
-function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');s.classList.toggle('open');o.classList.toggle('show')}
-function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
+function toggleSidebar(){
+  // mobile: overlay mode
+  const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');
+  s.classList.toggle('open');o.classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar-el').classList.remove('open');
+  document.getElementById('sov').classList.remove('show');
+}
+/* toggleDesktopRail removed — desktop sidebar always expanded */
 
 /* ADMIN */
 function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderStats();renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
@@ -2282,39 +2338,50 @@ function buildTimeAxis(){
   }
 }
 
+// ── Calendar cache ──
+const _calCache={}; // key: weekStart → {events: rows[], ts: timestamp}
+const _calHelperCache={}; // key: helperWeekStart → rows[]
+const CAL_CACHE_TTL=0; // no auto-expiry — manual refresh only
+
+async function calRefresh(){
+  // clear all cache and reload current week
+  Object.keys(_calCache).forEach(k=>delete _calCache[k]);
+  Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
+  const btn=document.getElementById('cal-refresh-btn');
+  if(btn){btn.textContent='⏳';btn.disabled=true}
+  await loadCalendarWeek();
+  if(btn){btn.textContent='🔄';btn.disabled=false}
+}
+
 async function loadCalendarWeek(){
   const visibleDates=getCalVisibleDates();
-  // helper-strip data is keyed to the week containing the first visible date,
-  // matching prior behavior (helpers don't need per-day granularity)
   const helperWeekStart=mondayOfDate(visibleDates[0]);
-  // events: fetch every distinct ISO week the visible date range touches —
-  // in week mode this is always just one week; in 3-day mode it can be two
-  // if the 3-day window crosses a Sunday→Monday boundary.
   const weeksNeeded=Array.from(new Set(visibleDates.map(mondayOfDate)));
-  const [hr,...eventResults]=await Promise.all([
-    gasGet('getHelpers&weekStart='+helperWeekStart),
-    ...weeksNeeded.map(ws=>gasGet('getCalendarEvents&weekStart='+ws))
-  ]);
-  renderHelperStrip(hr.ok?hr.rows:[]);
-  // GAS already filters by recurrence (once/daily/weekly/biweekly/monthly) for this week,
-  // and joins each event with its tag's color from Calendar_Tags, so every row here
-  // is ready to render directly (event.color is already resolved).
-  // Resolve each event's day_of_week into an actual calendar date for the week
-  // it came from, and tag it on — this lets rendering match events to specific
-  // dates instead of relying on column position, which breaks once a 3-day
-  // mobile view can span two different weeks.
+
+  // figure out which weeks need fetching vs can be served from cache
+  const weeksMissing=weeksNeeded.filter(ws=>!_calCache[ws]);
+  const helperMissing=!_calHelperCache[helperWeekStart];
+
+  // fetch only what's missing — parallel
+  const fetches=[];
+  if(helperMissing) fetches.push(gasGet('getHelpers&weekStart='+helperWeekStart).then(r=>{if(r.ok)_calHelperCache[helperWeekStart]=r.rows}));
+  weeksMissing.forEach(ws=>fetches.push(
+    gasGet('getCalendarEvents&weekStart='+ws).then(r=>{if(r.ok)_calCache[ws]=r.rows})
+  ));
+  if(fetches.length) await Promise.all(fetches);
+
+  // render from cache
+  renderHelperStrip(_calHelperCache[helperWeekStart]||[]);
   const merged=[];
-  const seen=new Set(); // event_id+date — guards against the same recurring event
-                         // appearing twice if two fetched weeks somehow overlap
+  const seen=new Set();
   const visibleSet=new Set(visibleDates);
-  eventResults.forEach((er,idx)=>{
-    if(!er.ok)return;
-    const weekMon=new Date(weeksNeeded[idx]+'T00:00:00');
-    er.rows.forEach(ev=>{
+  weeksNeeded.forEach((ws,idx)=>{
+    const rows=_calCache[ws]||[];
+    const weekMon=new Date(ws+'T00:00:00');
+    rows.forEach(ev=>{
       const d=new Date(weekMon);d.setDate(weekMon.getDate()+(ev.day_of_week-1));
       const dateStr=toDateStr(d);
-      if(!visibleSet.has(dateStr))return; // outside the currently-displayed range
-                                           // (e.g. rest of a fetched week in 3-day mode)
+      if(!visibleSet.has(dateStr))return;
       const key=ev.event_id+'|'+dateStr;
       if(seen.has(key))return;
       seen.add(key);
@@ -2519,6 +2586,19 @@ function calGoToday(){
   loadCalendarWeek();
 }
 
+let _zoomLevel=100;
+function onZoomSlider(v){
+  _zoomLevel=+v;
+  document.body.style.fontSize=(_zoomLevel/100*15)+'px';
+  document.getElementById('zoom-lbl').textContent=_zoomLevel+'%';
+  const pct=((_zoomLevel-60)/(150-60)*100);
+  document.getElementById('zoom-range').style.background=
+    `linear-gradient(to right,var(--orange) ${pct}%,rgba(106,87,86,0.25) ${pct}%)`;
+}
+function resetZoom(){
+  document.getElementById('zoom-range').value=100;
+  onZoomSlider(100);
+}
 loadData();
 </script>
 </body>
