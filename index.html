@@ -737,16 +737,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 
   <!-- TAB: LUCKY DRAW (public view + admin draw) -->
   <div id="auc-lucky" style="display:none">
-    <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:4px" id="lucky-title">Lucky Draw</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:14px" id="lucky-sub">ผลการจับสลากรอบล่าสุด</div>
-
-    <!-- PUBLIC: Latest result -->
-    <div id="lucky-latest-wrap">
-      <div style="font-size:11px;font-weight:600;color:var(--gold-l);margin-bottom:8px">ผลรอบล่าสุด</div>
-      <div id="lucky-latest-result" class="tbl-wrap"><div class="loading">Loading...</div></div>
-    </div>
-
-    <div class="sep" style="margin:16px 0"></div>
+    <div style="font-size:14px;font-weight:600;color:var(--gold-l);margin-bottom:14px">Lucky Draw</div>
 
     <!-- ADMIN: Run draw -->
     <div class="admin-only admin-locked" id="lucky-admin-wrap">
@@ -1634,7 +1625,7 @@ function swAucTab(t){
     const el=document.getElementById('auc-'+id);
     if(el)el.style.display=id===t?'block':'none';
   });
-  if(t==='lucky')initLuckyDrawTab();
+
   if(t==='designated')initDesignatedTab();
   if(t==='manage')renderQueueManager();
   if(t==='rewards')renderRewardsPreview();
@@ -2057,35 +2048,6 @@ async function saveAuctionResult(){
   }
 }
 /* ─── LUCKY DRAW TAB (public + admin) ─── */
-async function initLuckyDrawTab(){
-  // load latest result for everyone
-  const wrap=document.getElementById('lucky-latest-result');
-  wrap.innerHTML='<div class="loading">Loading...</div>';
-  const r=await gasGet('getLatestLuckyDraw');
-  if(!r.ok||!r.rows.length){
-    wrap.innerHTML='<div class="empty">ยังไม่มีผล Lucky Draw</div>';
-    document.getElementById('lucky-title').textContent='Lucky Draw';
-    document.getElementById('lucky-sub').textContent='ยังไม่มีผลรอบล่าสุด';
-  } else {
-    const rankLabel=/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank;
-    document.getElementById('lucky-title').textContent=`Lucky Draw — ${r.event_type} — ${rankLabel}`;
-    document.getElementById('lucky-sub').textContent=`วันที่จับสลาก: ${r.draw_date}`;
-    const rows=r.rows.map((row,i)=>`<tr>
-      <td style="color:var(--faint);font-size:11px">${i+1}</td>
-      <td style="font-weight:500">${row.member_name}</td>
-      <td>${row.mvp_box?'<span style="color:var(--amber)">✓</span>':'-'}</td>
-      <td>${row.extra_white||'-'}</td>
-      <td>${row.extra_red||'-'}</td>
-    </tr>`).join('');
-    wrap.innerHTML=`<table class="au-tbl">
-      <thead><tr><th style="width:30px">#</th><th>Name</th><th>MVP box</th><th>Extra white</th><th>Extra red</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-  }
-  // admin draw panel
-  if(isAdmin) initLuckyDraw();
-}
-
 /* ─── DESIGNATED AUCTION ─── */
 const DA_REWARD={card:5,white:15,red:15};
 let _daWeekStart='';
