@@ -1680,8 +1680,14 @@ async function initCalendarPage(){
 
 function buildTimeAxis(){
   const axis=document.getElementById('cal-time-axis');
-  const existing=axis.querySelectorAll('.cal-time-slot');
+  const existing=axis.querySelectorAll('.cal-time-slot,.cal-allday-label');
   existing.forEach(e=>e.remove());
+  // allday label row — same height as allday strip (28px), sticky below header (44px)
+  const adLabel=document.createElement('div');
+  adLabel.className='cal-allday-label';
+  adLabel.style.cssText='height:28px;display:flex;align-items:center;padding:0 4px;border-bottom:2px solid var(--border);background:var(--card2);position:sticky;top:44px;z-index:1';
+  adLabel.innerHTML='<span style="font-size:8px;color:var(--faint);font-family:var(--font-pixel);letter-spacing:.5px;text-transform:uppercase">All day</span>';
+  axis.appendChild(adLabel);
   for(let s=0;s<getTotalSlots();s++){
     const slot=document.createElement('div');
     slot.className='cal-time-slot';
@@ -1753,16 +1759,18 @@ function renderCalGrid(){
     const col=document.createElement('div');
     col.className='cal-dcol'+(isToday?' today-day':'');
     col.innerHTML=`<div class="cal-dhead"><div class="cal-dname">${CAL_DAYS_SHORT[dayIdx]}</div><div class="cal-dnum">${dt.getDate()}</div></div>`;
+    // allday strip — sticky below column header
     const adStrip=document.createElement('div');
-    adStrip.style.cssText='min-height:24px;padding:2px 3px;border-bottom:1px solid rgba(160,140,118,.1);display:flex;flex-direction:column;gap:2px;background:rgba(160,140,118,.04)';
+    adStrip.style.cssText='min-height:28px;padding:3px 4px;border-bottom:2px solid var(--border);display:flex;flex-direction:column;gap:2px;background:var(--card2);position:sticky;top:44px;z-index:1';
     alldayEvts.forEach(e=>{
       const pill=document.createElement('div');
-      pill.style.cssText=`display:flex;align-items:center;gap:4px;padding:2px 5px;border-radius:5px;font-size:9px;font-weight:600;${hexToEventStyle(e.color)}`;
-      const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.background=e.color||'var(--muted)';
-      const title=document.createElement('span');title.className='cal-evt-title';title.textContent=e.title;
+      pill.style.cssText=`display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:600;background:${e.color?e.color+'22':'rgba(160,140,118,.12)'};border:1px solid ${e.color?e.color+'55':'var(--border)'}`;
+      const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.cssText=`background:${e.color||'var(--muted)'};width:6px;height:6px;border-radius:50%;flex-shrink:0`;
+      const title=document.createElement('span');title.style.cssText='color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';title.textContent=e.title;
       pill.appendChild(dot);pill.appendChild(title);
       adStrip.appendChild(pill);
     });
+    // always show strip (even empty) so timed grid starts at consistent offset
     col.appendChild(adStrip);
     const grid=document.createElement('div');
     grid.className='cal-dgrid';grid.style.height=gridH+'px';
