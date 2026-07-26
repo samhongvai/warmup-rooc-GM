@@ -840,8 +840,11 @@ async function loadData(){
     const mj=parse(mr);
     const cols=mj.table.cols.map(c=>(c.label||'').toLowerCase().replace(/\s+/g,'_'));
     const get=(v,k)=>{const i=cols.findIndex(c=>c===k||c.includes(k));return i>=0&&v[i]&&v[i].v!=null?String(v[i].v).trim():''};
-    const getExact=(v,k)=>{const i=cols.findIndex(c=>c===k);return i>=0&&v[i]&&v[i].v!=null?String(v[i].v).trim():''};
-    members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:getExact(v,'party'),guild_field:get(v,'guild_field'),note:get(v,'note'),status:get(v,'status'),tag:get(v,'tag')}}).filter(m=>m.ign);
+    // getParty: find column where header is exactly 'party' (to avoid matching 'guild_field' which contains 'party')
+    const partyColIdx=cols.findIndex(c=>c==='party');
+    const getParty=(v)=>partyColIdx>=0&&v[partyColIdx]&&v[partyColIdx].v!=null?String(v[partyColIdx].v).trim():'';
+    console.log('cols:', cols, 'partyColIdx:', partyColIdx);
+    members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:getParty(v),guild_field:get(v,'guild_field'),note:get(v,'note'),status:get(v,'status'),tag:get(v,'tag')}}).filter(m=>m.ign);
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
