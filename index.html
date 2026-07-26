@@ -152,7 +152,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
 .mtbl,.au-tbl,.rtbl,.sum-tbl{width:100%;border-collapse:collapse}
 .mtbl th,.au-tbl th,.rtbl th,.sum-tbl th{text-align:left;padding:9px 13px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.8px;background:var(--card2);cursor:pointer}
-.mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px}
+.mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{padding:6px 13px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px}
 .mtbl tr:last-child td,.au-tbl tr:last-child td,.rtbl tr:last-child td,.sum-tbl tr:last-child td{border-bottom:none}
 .mtbl tr:hover td,.au-tbl tr:hover td{background:rgba(160,140,118,.04)}
 .m-num{color:var(--faint);font-size:10px;font-family:var(--font-pixel);width:28px}
@@ -965,7 +965,7 @@ function renderStats(){
       <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--amber)">All Rounder</span><span class="ov-type-count" style="color:var(--amber)">${arC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%;background:var(--amber)"></div></div><div class="ov-chips">${mkChips('All Rounder')}</div></div>
       <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--red)">DPS</span><span class="ov-type-count" style="color:var(--red)">${dpsC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%;background:var(--red)"></div></div><div class="ov-chips">${mkChips('Attack (DPS)')}</div></div>
     </div>
-    <div class="cap-head"><span class="cap-label">Capacity</span><span style="font-size:11px;color:var(--faint);font-family:var(--font-pixel)">${total}/${_guildCap}</span></div>
+    <div class="cap-head"><span class="cap-label">Capacity</span></div>
     <div class="cap-boxes">
       <div class="cap-box"><div class="cn">${total}</div><div class="cl">Members</div></div>
       <div class="cap-box"><div class="cn" style="color:var(--green)">${freeSlots}</div><div class="cl">Free</div></div>
