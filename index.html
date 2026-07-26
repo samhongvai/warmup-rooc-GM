@@ -695,6 +695,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 
   <!-- TAB: REWARDS PREVIEW -->
   <div id="auc-rewards" style="display:none">
+    <div id="auc-rewards-wrap"></div>id="auc-rewards" style="display:none">
     <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)" id="rwprev-title">Rewards Preview</div>
     <div class="tbl-wrap" style="margin-bottom:16px"><table class="rtbl">
       <thead><tr id="rwprev-thead"></tr></thead>
@@ -872,53 +873,31 @@ function renderStats(){
   const counted=getCountedMembers();
   const total=counted.length;
   const pct=(n)=>total>0?Math.round(n/total*100):0;
-  const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]}; 
+  const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]};
   counted.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
   const byClass={};
   counted.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
   const mkChips=(type)=>Object.entries(byClass)
-    .filter(([cls])=>getType(cls)===type)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([cls,n])=>`<span class="ov-chip"><span class="cn">${cls}</span><span class="cc">${n}</span></span>`)
-    .join('');
+    .filter(([cls])=>getType(cls)===type).sort((a,b)=>b[1]-a[1])
+    .map(([cls,n])=>`<span class="ov-chip ${getTypeCls(type)}"><span class="cn">${cls}</span><span class="cc">${n}</span></span>`).join('');
   const supC=byType['Support'].length,arC=byType['All Rounder'].length,dpsC=byType['Attack (DPS)'].length;
+  const freeSlots=Math.max(0,_guildCap-total);
   const el=document.getElementById('class-overview');
   if(!el)return;
-  // capacity numbers
-  const activeCount=total;           // main members (alts excluded — counted already excludes alts)
-  const freeSlots=_guildCap-activeCount;
-  const capEditBtn=isAdmin?`<button class="cap-edit-btn" onclick="editGuildCap()">✏️ แก้</button>`:'';
   el.innerHTML=`
-    <div class="ov-header">
-      <span class="ov-title">Class Overview</span>
-      <span class="ov-total">${total} members</span>
+    <div class="ov-header"><span class="ov-title">Class Overview</span><span class="ov-total">${total} members</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
+      <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--green)">Support</span><span class="ov-type-count" style="color:var(--green)">${supC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(supC)}%;background:var(--green)"></div></div><div class="ov-chips">${mkChips('Support')}</div></div>
+      <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--amber)">All Rounder</span><span class="ov-type-count" style="color:var(--amber)">${arC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%;background:var(--amber)"></div></div><div class="ov-chips">${mkChips('All Rounder')}</div></div>
+      <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--red)">DPS</span><span class="ov-type-count" style="color:var(--red)">${dpsC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%;background:var(--red)"></div></div><div class="ov-chips">${mkChips('Attack (DPS)')}</div></div>
     </div>
-    <div class="ov-type ov-s">
-      <div class="ov-type-head"><span class="ov-type-name">Support</span><span class="ov-type-count">${supC} คน</span></div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(supC)}%"></div></div>
-      <div class="ov-chips">${mkChips('Support')}</div>
+    <div class="cap-head"><span class="cap-label">Capacity</span></div>
+    <div class="cap-boxes">
+      <div class="cap-box"><div class="cn">${total}</div><div class="cl">Members</div></div>
+      <div class="cap-box"><div class="cn" style="color:var(--green)">${freeSlots}</div><div class="cl">Free</div></div>
+      <div class="cap-box"><div class="cn">${_guildCap}</div><div class="cl">Capacity</div></div>
     </div>
-    <div class="ov-divider"></div>
-    <div class="ov-type ov-a">
-      <div class="ov-type-head"><span class="ov-type-name">All Rounder</span><span class="ov-type-count">${arC} คน</span></div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%"></div></div>
-      <div class="ov-chips">${mkChips('All Rounder')}</div>
-    </div>
-    <div class="ov-divider"></div>
-    <div class="ov-type ov-d">
-      <div class="ov-type-head"><span class="ov-type-name">Attack (DPS)</span><span class="ov-type-count">${dpsC} คน</span></div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%"></div></div>
-      <div class="ov-chips">${mkChips('Attack (DPS)')}</div>
-    </div>
-    <div class="cap-section">
-      <div class="cap-head"><span class="cap-title">Guild Capacity</span>${capEditBtn}</div>
-      <div class="cap-grid">
-        <div class="cap-box"><div class="cap-num">${_guildCap}</div><div class="cap-lbl">จำนวนสูงสุดที่รับได้</div></div>
-        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">สมาชิกกิลด์</div></div>
-        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">จำนวนที่รับเพิ่มได้</div></div>
-      </div>
-      <div class="cap-bar-wrap"><div class="cap-bar" style="width:${_guildCap>0?Math.min(100,Math.round(activeCount/_guildCap*100)):0}%"></div></div>
-    </div>`;
+    <div class="cap-bar-wrap"><div class="cap-bar" style="width:${Math.min(100,pct(total))}%"></div></div>`;
 }
 
 async function loadGuildCap(){
@@ -1769,19 +1748,27 @@ async function saveLuckyDrawResult(){
 
 /* ─── REWARDS PREVIEW ─── */
 function renderRewardsPreview(){
-  const type=document.getElementById('auc-event-type').value;
-  document.getElementById('rwprev-title').textContent=`Rewards Preview — ${type}`;
-  const rows=_botConfig.filter(r=>r.event_name===type);
-  const hasMvp=rows.some(r=>r.mvp_box!=null);
-  document.getElementById('rwprev-thead').innerHTML=
-    '<th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th>'+(hasMvp?'<th>MVP box</th>':'');
-  document.getElementById('rwprev-tbody').innerHTML=rows.map(r=>`<tr>
-    <td>${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</td>
-    <td>${r.card}</td>
-    <td>${r.feather_white}</td>
-    <td>${r.feather_red_black}</td>
-    ${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'-'}</td>`:''}
-  </tr>`).join('');
+  const wrap=document.getElementById('auc-rewards-wrap');
+  if(!wrap||!_botConfig.length)return;
+  const EVENT_GROUPS=['Guild Overrun','Major League','Intra-server League'];
+  const allTypes=[...new Set(_botConfig.map(r=>r.event_name))];
+  const orderedTypes=EVENT_GROUPS.filter(t=>allTypes.includes(t)).concat(allTypes.filter(t=>!EVENT_GROUPS.includes(t)));
+  wrap.innerHTML=orderedTypes.map(type=>{
+    const rows=_botConfig.filter(r=>r.event_name===type);
+    if(!rows.length)return'';
+    const hasMvp=rows.some(r=>r.mvp_box!=null);
+    return`<div style="margin-bottom:18px">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">${type}</div>
+      <div class="tbl-wrap"><table class="rtbl">
+        <thead><tr><th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th>${hasMvp?'<th>MVP Box</th>':''}</tr></thead>
+        <tbody>${rows.map(r=>`<tr>
+          <td style="font-weight:700;font-family:var(--font-pixel);color:var(--orange-l)">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</td>
+          <td>${r.card}</td><td>${r.feather_white}</td><td>${r.feather_red_black}</td>
+          ${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'—'}</td>`:''}
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+  }).join('');
 }
 
 /* ─── AUCTION HISTORY ─── */
@@ -2272,15 +2259,19 @@ function renderCalGrid(){
       const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 4px)`:'4px';
       const block=document.createElement('div');
       block.className='cal-evt-block'+(totalCols>1?' is-narrow':'');
-      block.style.cssText=`top:${top}px;height:calc(${h}px - 2px);left:${leftPct};width:${colWidth};${hexToEventStyle(e.color)}`;
+      block.style.cssText=`top:${top}px;height:calc(${h}px - 2px);left:${leftPct};width:${colWidth};background:var(--card);border:1px solid ${e.color?e.color+'55':'var(--border)'}`;
       const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
       block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
       // when columns are narrow (overlapping events), put the time on its own
       // line so each piece can truncate independently with ellipsis instead of
       // one long "Title (HH:MM - HH:MM)" string getting cut off mid-word
-      block.innerHTML=totalCols>1
-        ? `<div class="evt-title-line">${e.title}</div><div class="evt-time">${timeLabel}</div>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`
-        : `${e.title} <span class="evt-time">(${timeLabel})</span>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`;
+      // V3 Style E: dot + body(title+time)
+      const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.background=e.color||'var(--muted)';
+      const body=document.createElement('div');body.className='cal-evt-body';
+      const titleEl=document.createElement('span');titleEl.className='cal-evt-title';titleEl.textContent=e.title;
+      const timeEl=document.createElement('span');timeEl.className='cal-evt-time';timeEl.textContent=endTime?`${e.time} – ${endTime}`:e.time;
+      body.appendChild(titleEl);body.appendChild(timeEl);
+      block.appendChild(dot);block.appendChild(body);
       grid.appendChild(block);
     });
     col.appendChild(grid);
