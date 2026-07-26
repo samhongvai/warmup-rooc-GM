@@ -131,8 +131,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .ov-type-count{font-size:12px;font-weight:700;font-family:var(--font-pixel)}
 .ov-bar-wrap{height:5px;border-radius:4px;background:rgba(160,140,118,.12);overflow:hidden;margin:6px 0 8px}
 .ov-bar{height:100%;border-radius:4px}
-.ov-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.ov-chip{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;border:1px solid;display:inline-flex;align-items:center;gap:4px}
+.ov-chips{display:flex;flex-wrap:nowrap;gap:5px;margin-bottom:14px;overflow:hidden}
+.ov-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;border:1px solid;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;flex-shrink:0}
+@media(max-width:600px){.ov-chips{flex-wrap:wrap;overflow:visible}.ov-chip{font-size:10px}}
 .ov-chip .cn{font-weight:600}.ov-chip .cc{font-weight:800;font-family:var(--font-pixel)}
 .cap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .cap-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-pixel)}
@@ -907,7 +908,6 @@ async function loadData(){
   };
   loadAllHistoryCache().catch(()=>{});
   if(!_botConfig.length) gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}).catch(()=>{});
-  gasGet('getAuctionHistory&limit=10').then(r=>{if(r.ok){_aucHistoryLoaded=true;}}).catch(()=>{});
   gasGet('getGuildCap').then(r=>{if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap;renderStats()}}).catch(()=>{});
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
@@ -1028,7 +1028,7 @@ function renderParty(){
       const sub=isAlt(m);const leave=isLeaveNote(m);
       const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.noted)}</span>`:'';
       const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';
-      return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div></div>${gfTag}${noteTag}</div>`;
+      return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`;
     }).join('')}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
@@ -1653,22 +1653,8 @@ function renderRewardsPreview(){
 
 /* CALENDAR */
 const SLOT_MINS=15,SLOT_H=24;
-// Dynamic time range — computed after events load, default fallback
-let CAL_START_HOUR=19,CAL_END_HOUR=23;
-function computeCalTimeRange(events){
-  if(!events||!events.length){CAL_START_HOUR=19;CAL_END_HOUR=23;return}
-  let minH=23,maxH=19;
-  events.forEach(e=>{
-    if(!e.time||e.time==='allday')return;
-    const[h]=e.time.split(':').map(Number);if(h<minH)minH=h;
-    const et=e.end_time||e.endTime||'';
-    if(et&&et!=='allday'){const[eh]=et.split(':').map(Number);if(eh>maxH)maxH=eh;}
-    else if(h>maxH)maxH=h;
-  });
-  CAL_START_HOUR=Math.max(0,minH);
-  CAL_END_HOUR=Math.min(24,maxH+1);
-  if(CAL_END_HOUR<=CAL_START_HOUR)CAL_END_HOUR=CAL_START_HOUR+4;
-}
+const CAL_START_HOUR=18,CAL_END_HOUR=23;
+function computeCalTimeRange(events){}
 function getTotalSlots(){return(CAL_END_HOUR-CAL_START_HOUR)*(60/SLOT_MINS)}
 const CAL_DAYS_SHORT=['จ','อ','พ','พฤ','ศ','ส','อา'];
 let _calWeekStart='',_calAnchorDate='',_calSpecialEvents=[],_calCacheKey='',_calCacheData=null;
@@ -1710,7 +1696,17 @@ async function loadCalendarWeek(){
   const key=dates.join(',');
   if(_calFetchCache[key]){_calSpecialEvents=_calFetchCache[key];computeCalTimeRange(_calSpecialEvents);buildTimeAxis();renderCalGrid();renderCalHelpers();return}
   const r=await gasGet('getCalendarEvents&weekStart='+dates[0]);
-  if(r.ok&&r.rows){_calSpecialEvents=r.rows;_calFetchCache[key]=r.rows}
+  if(r.ok&&r.rows){
+    // GAS returns day_of_week (1=Mon..7=Sun), convert to actual date for this week
+    const weekMon=new Date(dates[0]+'T00:00:00');
+    const mapped=r.rows.map(e=>{
+      const dow=+e.day_of_week; // 1=Mon, 7=Sun
+      const d=new Date(weekMon);
+      d.setDate(weekMon.getDate()+(dow-1));
+      return Object.assign({},e,{date:toDateStr(d)});
+    });
+    _calSpecialEvents=mapped;_calFetchCache[key]=mapped;
+  }
   else _calSpecialEvents=[];
   computeCalTimeRange(_calSpecialEvents);buildTimeAxis();renderCalGrid();renderCalHelpers();
 }
