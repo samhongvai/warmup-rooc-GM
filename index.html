@@ -529,7 +529,7 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
   <div class="overview-box" id="class-overview" style="margin-bottom:14px"></div>
   <div class="filter-row">
-    <input type="text" id="search-m" placeholder="Search name / ID..." oninput="renderMembers()" style="flex:2;min-width:160px">
+    <input type="text" id="search-m" placeholder="Search name / ID..." oninput="debouncedRenderMembers()" style="flex:2;min-width:160px">
     <select id="fc" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All classes</option></select>
     <select id="ft" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
     <select id="fp" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All party</option></select>
@@ -595,36 +595,50 @@ input[type=checkbox]{accent-color:var(--orange)}
 
   <!-- TAB: GUILD AUCTION -->
   <div id="auc-calc">
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;box-shadow:var(--shadow-soft)">
-      <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">Multiplier</span>
-      <span style="font-size:13px;color:var(--muted)">×</span>
-      <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:64px;font-size:16px;font-weight:700;color:var(--orange-l);background:var(--card2);border:1px solid var(--orange-border);border-radius:6px;padding:4px 8px;text-align:center">
-      <span style="font-size:10px;color:var(--faint);font-style:italic">Multiplies all fields (Card / White / Red/Black)</span>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap" id="auc-reward-inputs"></div>
-    <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:10px">Card count = number of members this round.</div>
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px;font-family:var(--font-pixel)">Per person</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="auc-per-person-inputs"></div>
-    <!-- Reward summary cards -->
-    <div class="rb-cards" id="auc-summary-cards"></div>
-    <div class="tbl-wrap"><table class="au-tbl">
-      <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card</th><th>White</th><th>Red/Black</th></tr></thead>
-      <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">No pending queue members</td></tr></tbody>
-    </table></div>
-    <div class="sep" style="margin:18px 0"></div>
-    <div class="admin-only admin-locked" id="auc-save-result-wrap">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;font-family:var(--font-pixel)">Save auction result</div>
-      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px">
-        <div style="flex:1;min-width:160px">
-          <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px">Auction date</label>
-          <input type="date" id="auc-result-date" style="width:100%">
-        </div>
-        <div style="font-size:11px;color:var(--muted);padding-bottom:9px" id="auc-save-as-label">Save as —</div>
-        <button class="btn btn-primary" onclick="saveAuctionResult()">✓ Save result</button>
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
+
+    <!-- ADMIN SECTION -->
+    <div class="admin-only admin-locked" id="auc-admin-block" style="background:var(--card);border:1px solid var(--orange-border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft);margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--orange-dim);border-bottom:1px solid var(--orange-border)">
+        <span style="font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);text-transform:uppercase;letter-spacing:1px;flex:1">🔐 Admin</span>
+        <span style="font-size:9px;padding:2px 8px;border-radius:20px;background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange-l);font-family:var(--font-pixel)" id="auc-save-as-label">—</span>
       </div>
-      <div style="font-size:10px;color:var(--faint);font-style:italic;margin-bottom:4px">Select the actual auction date then press Save. Existing records for that date will be replaced.</div>
-      <div id="auc-save-result-msg" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+      <div style="padding:14px">
+        <!-- Row 1: Multiplier + Totals + Per person -->
+        <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid var(--border2,rgba(160,140,118,.35));flex-shrink:0">
+            <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--orange-l)">Mul ×</span>
+            <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:56px;font-size:20px;font-weight:700;color:var(--orange);background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);text-align:center">
+          </div>
+          <div id="auc-reward-inputs" style="display:flex;flex:1"></div>
+          <div style="border-left:2px solid var(--border2,rgba(160,140,118,.35))"></div>
+          <div id="auc-per-person-inputs" style="display:flex"></div>
+        </div>
+        <!-- Row 2: คงเหลือ (progress bars) -->
+        <div id="auc-summary-cards" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+        <!-- Row 3: Save -->
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="flex:1;min-width:150px">
+            <label style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--faint);display:block;margin-bottom:5px">Auction date</label>
+            <input type="date" id="auc-result-date" style="width:100%">
+          </div>
+          <button class="btn btn-primary" onclick="saveAuctionResult()">✓ Save result</button>
+        </div>
+        <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:6px">Select the actual auction date then press Save.</div>
+        <div id="auc-save-result-msg" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- USER SECTION: what each person gets -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)">
+      <div style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:var(--text)" id="auc-user-title">การแจกรางวัล</span>
+        <span style="font-size:11px;color:var(--muted)" id="auc-per-person-summary">—</span>
+      </div>
+      <table class="au-tbl">
+        <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card slot</th><th>White feather</th><th>Red/Black feather</th></tr></thead>
+        <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">No pending queue members</td></tr></tbody>
+      </table>
     </div>
   </div>
 
@@ -978,7 +992,8 @@ function renderStats(){
 }
 
 /* MEMBERS TABLE */
-let _mSortKey='',_mSortAsc=true;
+let _mSortKey='',_mSortAsc=true;let _mDebTimer=null;
+function debouncedRenderMembers(){clearTimeout(_mDebTimer);_mDebTimer=setTimeout(renderMembers,200)}
 function sortM(k){if(_mSortKey===k)_mSortAsc=!_mSortAsc;else{_mSortKey=k;_mSortAsc=true}renderMembers()}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase().trim();
@@ -1207,9 +1222,12 @@ function onAucEventType(){
   onAucRank();
 }
 
+function _cellStyle(hasOverride){return`display:flex;flex-direction:column;justify-content:center;padding:10px 12px;border-right:1px solid var(--border);flex:1;min-width:0;background:${hasOverride?'var(--orange-dim)':'transparent'}`}
 function onAucRank(){
   const rw=getCurrentReward();
-  if(!rw){document.getElementById('auc-reward-inputs').innerHTML='';return}
+  const ri=document.getElementById('auc-reward-inputs');
+  const pi=document.getElementById('auc-per-person-inputs');
+  if(!rw){if(ri)ri.innerHTML='';if(pi)pi.innerHTML='';return}
   const m=_aucGlobalMul||1;
   const ov=_aucFieldOverrides;
   const effCard=ov.card!=null?ov.card:Math.round(rw.card*m);
@@ -1217,25 +1235,16 @@ function onAucRank(){
   const effR=ov.feather_red_black!=null?ov.feather_red_black:Math.round(rw.feather_red_black*m);
   const effMvp=rw.mvp_box!=null?Math.round(rw.mvp_box*m):null;
   const hasCard=ov.card!=null,hasW=ov.feather_white!=null,hasR=ov.feather_red_black!=null;
-  document.getElementById('auc-reward-inputs').innerHTML=`
-    <div style="flex:1;min-width:140px;background:var(--card2);border:1px solid ${hasCard?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Card${hasCard?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-      <input type="number" min="0" value="${effCard}" oninput="onFieldOverride('card',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--orange-l)">
-      <div style="font-size:10px;color:var(--faint);margin-top:4px">base: ${Math.round(rw.card*m)}${hasCard?' · เคลียร์เพื่อกลับ auto':''}</div>
-    </div>
-    <div style="flex:1;min-width:140px;background:var(--card2);border:1px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">White${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-      <input type="number" min="0" value="${effW}" oninput="onFieldOverride('feather_white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--orange-l)">
-      <div style="font-size:10px;color:var(--faint);margin-top:4px">base: ${Math.round(rw.feather_white*m)}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
-    </div>
-    <div style="flex:1;min-width:140px;background:var(--card2);border:1px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Red/Black${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-      <input type="number" min="0" value="${effR}" oninput="onFieldOverride('feather_red_black',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--orange-l)">
-      <div style="font-size:10px;color:var(--faint);margin-top:4px">base: ${Math.round(rw.feather_red_black*m)}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
-    </div>
-    ${effMvp!=null?`<div style="flex:1;min-width:140px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">MVP Box</div><div style="font-size:22px;font-weight:700;color:var(--amber)">${effMvp}</div></div>`:''}`;
-  document.getElementById('auc-calc-title').textContent=`Distribution result — ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
-  const saveLabel=document.getElementById('auc-save-as-label');if(saveLabel)saveLabel.textContent=`Save as — ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
+  const lbl=(t,has)=>`<span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:${has?'var(--orange-l)':'var(--faint)'}">${t}${has?' ●':''}</span>`;
+  const inp=(val,fn)=>`<input type="number" min="0" value="${val}" oninput="${fn}" style="font-size:20px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);color:var(--orange-l);width:100%">`;
+  if(ri)ri.innerHTML=
+    `<div style="${_cellStyle(hasCard)}">${lbl('Card',hasCard)}${inp(effCard,"onFieldOverride('card',this)")}</div>`+
+    `<div style="${_cellStyle(hasW)}">${lbl('White',hasW)}${inp(effW,"onFieldOverride('feather_white',this)")}</div>`+
+    `<div style="${_cellStyle(hasR)}">${lbl('Red/Black',hasR)}${inp(effR,"onFieldOverride('feather_red_black',this)")}</div>`+
+    (effMvp!=null?`<div style="${_cellStyle(false)}">${lbl('MVP Box',false)}<span style="font-size:20px;font-weight:700;font-family:var(--font-pixel);color:var(--amber)">${effMvp}</span></div>`:'');
+  const title=`Distribution result — ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
+  const el=document.getElementById('auc-calc-title');if(el)el.textContent=title;
+  const sl=document.getElementById('auc-save-as-label');if(sl)sl.textContent=`${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
   renderDistribution();
 }
 
@@ -1285,26 +1294,28 @@ function renderDistribution(){
   const cardLeft=dist.cardTarget-dist.card;
   const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`${dist.wRem} left`;
   const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`${dist.rRem} left`;
-  // Style B monochrome summary cards
-  sumWrap.innerHTML=`
-    <div class="rb-card">
-      <div class="rb-label">Card</div>
-      <div class="rb-total"><b>${dist.card}</b>/ ${dist.cardTarget}</div>
-      <div class="rb-bar-row"><div class="rb-bar-wrap"><div class="rb-bar" style="width:${Math.min(100,dist.cardTarget>0?dist.card/dist.cardTarget*100:0)}%"></div></div><span class="rb-frac">${dist.card}/${dist.cardTarget}</span></div>
-      <div class="rb-foot"><div class="rb-stat"><span class="rb-lbl">Remaining</span><span class="rb-val">${cardLeft}</span></div><div class="rb-pp"><span class="rb-pp-lbl">Per person</span><span class="rb-pp-val">1</span></div></div>
-    </div>
-    <div class="rb-card">
-      <div class="rb-label">White Feather</div>
-      <div class="rb-total"><b>${wUsed}</b>/ ${dist.white}</div>
-      <div class="rb-bar-row"><div class="rb-bar-wrap"><div class="rb-bar" style="width:${Math.min(100,dist.white>0?wUsed/dist.white*100:0)}%;${dist.wOverflow?'background:var(--red)':''}"></div></div><span class="rb-frac" style="${dist.wOverflow?'color:var(--red)':''}">${wUsed}/${dist.white}</span></div>
-      <div class="rb-foot"><div class="rb-stat"><span class="rb-lbl">Remaining</span><span class="rb-val" style="${dist.wOverflow?'color:var(--red)':''}">${dist.wRem}</span></div><div class="rb-pp"><span class="rb-pp-lbl">Per person</span><span class="rb-pp-val">${dist.pW}</span></div></div>
-    </div>
-    <div class="rb-card">
-      <div class="rb-label">Red/Black Feather</div>
-      <div class="rb-total"><b>${rUsed}</b>/ ${dist.red}</div>
-      <div class="rb-bar-row"><div class="rb-bar-wrap"><div class="rb-bar" style="width:${Math.min(100,dist.red>0?rUsed/dist.red*100:0)}%;${dist.rOverflow?'background:var(--red)':''}"></div></div><span class="rb-frac" style="${dist.rOverflow?'color:var(--red)':''}">${rUsed}/${dist.red}</span></div>
-      <div class="rb-foot"><div class="rb-stat"><span class="rb-lbl">Remaining</span><span class="rb-val" style="${dist.rOverflow?'color:var(--red)':''}">${dist.rRem}</span></div><div class="rb-pp"><span class="rb-pp-lbl">Per person</span><span class="rb-pp-val">${dist.pR}</span></div></div>
+  // Summary cards: bar + remaining only (per person is in inputs above)
+  const mkRemChip=(name,used,total,rem,overflow)=>{
+    const pct=Math.min(100,total>0?used/total*100:0);
+    const rc=overflow?'var(--red)':'var(--green)';
+    return`<div style="flex:1;min-width:110px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--faint)">${name}</span>
+        <span style="font-size:10px;font-weight:700;font-family:var(--font-pixel);color:${rc}">${overflow?'เกิน '+Math.abs(rem):'rem '+rem}</span>
+      </div>
+      <div style="height:4px;border-radius:4px;background:rgba(160,140,118,.15);overflow:hidden;margin-bottom:5px"><div style="height:100%;border-radius:4px;width:${pct}%;background:${overflow?'var(--red)':'var(--orange)'}"></div></div>
+      <div style="font-size:10px;color:var(--faint);font-family:var(--font-pixel)">${used}/${total} used</div>
     </div>`;
+  };
+  if(sumWrap)sumWrap.innerHTML=
+    mkRemChip('Card',dist.card,dist.cardTarget,cardLeft,false)+
+    mkRemChip('White',wUsed,dist.white,dist.wRem,dist.wOverflow)+
+    mkRemChip('Red/Black',rUsed,dist.red,dist.rRem,dist.rOverflow);
+  // update user section header
+  const userTitle=document.getElementById('auc-user-title');
+  const perSumEl=document.getElementById('auc-per-person-summary');
+  if(userTitle)userTitle.textContent=`การแจกรางวัล — ${dist.event_name} ${/^\d+$/.test(dist.rank)?'Rank '+dist.rank:dist.rank}`;
+  if(perSumEl)perSumEl.textContent=`จำนวนรางวัล (ต่อคน): Card = 1 · ขนนกขาว = ${dist.pW} · ขนนกดำ/แดง = ${dist.pR}`;
   renderPerPersonInputs(dist);
   tbody.innerHTML=dist.rows.map((r,i)=>{const card=_toPageBox(r.cardSlot);return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:500">${r.name}</td><td style="font-size:11px;font-family:var(--font-pixel)">Page${card.page}(${card.box})</td><td style="font-size:11px;font-family:var(--font-pixel)">${fmtSlots(r.wStart,r.white)}</td><td style="font-size:11px;font-family:var(--font-pixel)">${fmtSlots(r.rStart,r.red)}</td></tr>`}).join('');
 }
@@ -1312,23 +1323,14 @@ function renderDistribution(){
 function renderPerPersonInputs(dist){
   const ppWrap=document.getElementById('auc-per-person-inputs');
   if(!ppWrap)return;
-  if(dist){
-    const rw=getCurrentReward();const n=dist.n;
-    const autoW=Math.floor(dist.white/n),autoR=Math.floor(dist.red/n);
-    const ppW=dist.pW,ppR=dist.pR;
-    const hasW=_aucPerPersonOverrides.white!=null,hasR=_aucPerPersonOverrides.red!=null;
-    ppWrap.innerHTML=`
-      <div style="flex:1;min-width:140px;background:var(--card2);border:1px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">White / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-        <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--orange-l)">
-        <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${dist.white}÷${n}⌋=${autoW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
-      </div>
-      <div style="flex:1;min-width:140px;background:var(--card2);border:1px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Red/Black / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-        <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
-        <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${dist.red}÷${n}⌋=${autoR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
-      </div>`;
-  }else{ppWrap.innerHTML='';}
+  if(!dist){ppWrap.innerHTML='';return}
+  const n=dist.n;
+  const autoW=Math.floor(dist.white/n),autoR=Math.floor(dist.red/n);
+  const hasW=_aucPerPersonOverrides.white!=null,hasR=_aucPerPersonOverrides.red!=null;
+  const lbl=(t,has)=>`<span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:${has?'var(--orange-l)':'var(--faint)'}">${t}${has?' ●':''}</span>`;
+  ppWrap.innerHTML=
+    `<div style="${_cellStyle(hasW)};border-right:1px solid var(--border)">${lbl('W/คน',hasW)}<input type="number" min="0" value="${dist.pW}" oninput="onPerPersonEdit('white',this)" style="font-size:20px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);color:var(--orange-l);width:72px"><span style="font-size:9px;color:var(--faint);font-family:var(--font-pixel)">⌊${dist.white}÷${n}⌋=${autoW}</span></div>`+
+    `<div style="${_cellStyle(hasR)}">${lbl('R/คน',hasR)}<input type="number" min="0" value="${dist.pR}" oninput="onPerPersonEdit('red',this)" style="font-size:20px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);color:var(--red);width:72px"><span style="font-size:9px;color:var(--faint);font-family:var(--font-pixel)">⌊${dist.red}÷${n}⌋=${autoR}</span></div>`;
 }
 
 /* SAVE RESULT */
@@ -1398,7 +1400,7 @@ async function renderQueueManager(){
   const list=document.getElementById('qm-list');
   if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
   list.innerHTML=`<div class="mgr-list-head"><div class="mc-num">#</div><div class="mc-name">Name</div><div class="mc-status">Status</div><div class="mc-date">Auction date</div></div>`+filtered.map(r=>{
-    const isDone=r.status==='done',isSkip=r.status==='skip';
+    const isDone=r.status==='done',isSkip=r.status==='skip'||r.status==='skipped';
     const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':isSkip?'<span class="qs qs-skip">⤷ Skipped</span>':'<span class="qs qs-pend">⏳ Pending</span>';
     const dupDate=pendingElsewhere[r.member_name];
     const dupBadge=(dupDate&&!isDone)?`<span class="dup-badge" title="ซ้ำกับคิว ${dupDate}">⚠ ซ้ำ</span>`:'';
