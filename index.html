@@ -734,3 +734,1657 @@ input[type=checkbox]{accent-color:var(--orange)}
 
 
 </main>
+
+<script>
+const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
+const GAS='https://script.google.com/macros/s/AKfycbwUpyRVW2IjFk-P6FXLRSVRv6YTNqPynD4g4OYFX052sAigJkzobhghSKBiuly27FXL/exec';
+const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
+const CFG={max_card:1,max_white:4,max_red:7};
+const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
+
+// guild_field stored in sheet as full text e.g. "Elite Party (Fixed)"
+const GF_CODE_MAP={'Elite Party (Fixed)':'EF','Elite Party (Split)':'ES','Sub Party (Fixed)':'SF','Sub Party (Split)':'SS'};
+const GF_LABEL_MAP={EF:'Elite Party (Fixed)',ES:'Elite Party (Split)',SF:'Sub Party (Fixed)',SS:'Sub Party (Split)'};
+function getGfCode(gf){if(!gf)return '';return GF_CODE_MAP[gf]||gf}
+function getGfLabel(gf){if(!gf)return '';return GF_LABEL_MAP[gf]||GF_LABEL_MAP[GF_CODE_MAP[gf]]||gf}
+
+function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
+function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
+function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
+function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
+
+let members=[],isAdmin=false;
+let _botConfig=[]; // bot config rows from getBotConfig
+let _aucQueueRows=[]; // rows for currently-viewed queue date
+let _pendingNav='';
+
+/* HAMBURGER */
+function toggleSidebar(){
+  // mobile: overlay mode
+  const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');
+  s.classList.toggle('open');o.classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar-el').classList.remove('open');
+  document.getElementById('sov').classList.remove('show');
+}
+/* toggleDesktopRail removed — desktop sidebar always expanded */
+
+/* ADMIN */
+function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderStats();renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
+function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
+async function submitAdmin(){
+  const pw=document.getElementById('admin-pass').value;
+  if(!pw)return;
+  const btn=document.querySelector('#admin-modal .btn-primary');
+  btn.textContent='Verifying...';btn.disabled=true;
+  const r=await gasPost({action:'verifyAdmin',password:pw});
+  btn.textContent='Login';btn.disabled=false;
+  if(r.ok){
+    isAdmin=true;
+    closeAdminModal();
+    const tb=document.getElementById('topbar-admin-btn');
+    if(tb){tb.textContent='🔓 Admin (on)';tb.classList.add('on')}
+    document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
+    document.querySelectorAll('.admin-only').forEach(el=>{el.classList.remove('admin-locked');el.disabled=false});
+    document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
+    renderStats();
+    renderMembers();
+    renderQueueManager();
+    if(_pendingNav){sw(_pendingNav);_pendingNav='';}
+  } else {
+    document.getElementById('admin-err').style.display='block';
+    document.getElementById('admin-pass').value='';
+  }
+}
+
+/* NAV */
+function swAdmin(t){
+  if(isAdmin){sw(t);return}
+  _pendingNav=t;
+  openAdminModal();
+}
+function sw(t){
+  _currentPage=t;
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    const fn=el.getAttribute('onclick')||'';
+    const match=fn.match(/sw[^(]*\('([^']+)'\)/);
+    el.classList.toggle('active',match&&match[1]===t);
+  });
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+t).classList.add('active');
+  if(t==='party')renderParty();
+  if(t==='search')preloadSearchCache();
+  if(t==='auction')initAuctionPage();
+  if(t==='calendar')initCalendarPage();
+}
+let _currentPage='';
+
+/* DATA LOAD */
+async function loadData(){
+  const setS=(ok,msg,clr='var(--green)')=>{
+    document.getElementById('stxt').textContent=msg;
+    document.getElementById('snav').textContent=ok?members.length+' members':'Error';
+    document.getElementById('dot').style.background=clr;
+    document.getElementById('sdot').style.background=clr;
+  };
+  // GAS preloads run independently in background — must NOT block or break Members load
+  loadAllHistoryCache().catch(()=>{});
+  if(!_botConfig.length) gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}).catch(()=>{});
+  gasGet('getAuctionHistory&limit=10').then(r=>{if(r.ok){renderAuctionHistory(r.rows);_aucHistoryLoaded=true;}}).catch(()=>{});
+  gasGet('getGuildCap').then(r=>{if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap;renderStats()}}).catch(()=>{});
+  try{
+    const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
+    const mr=await fetch(mkUrl('Members')).then(r=>r.text());
+    const mj=parse(mr);
+    const cols=mj.table.cols.map(c=>(c.label||'').toLowerCase().replace(/\s+/g,'_'));
+    const get=(v,k)=>{const i=cols.findIndex(c=>c.includes(k));return i>=0&&v[i]?String(v[i].v||'').trim():''};
+    members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:get(v,'party'),guild_field:get(v,'guild_field'),note:get(v,'note'),status:get(v,'status'),tag:get(v,'tag')}}).filter(m=>m.ign);
+    setS(true,`Loaded · ${members.length} members`);
+    buildFilters();renderStats();renderMembers();
+    _searchCacheLoaded=false;
+  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
+}
+
+function buildFilters(){
+  const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
+  const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
+  document.getElementById('fc').innerHTML='<option value="">All classes</option>'+cls.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('fp').innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('');
+}
+
+let _hideAlts=true; // default: hide alt characters from members list + overview
+let _guildCap=78; // guild capacity (editable by admin, persisted in Settings sheet)
+const isAlt=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
+const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
+// map a raw Noted value to a display label: Alt / Absent / original text
+function noteLabel(noted){
+  if(!noted||!noted.trim())return '';
+  const n=noted.toLowerCase();
+  if(n.includes('ตัวรอง')||n.includes('alt'))return 'Alt';
+  if(n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent'))return 'Absent';
+  return noted;
+}
+function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
+function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked;renderStats();renderMembers()}
+
+function renderStats(){
+  const counted=getCountedMembers();
+  const total=counted.length;
+  const pct=(n)=>total>0?Math.round(n/total*100):0;
+  const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]}; 
+  counted.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
+  const byClass={};
+  counted.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
+  const mkChips=(type)=>Object.entries(byClass)
+    .filter(([cls])=>getType(cls)===type)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([cls,n])=>`<span class="ov-chip"><span class="cn">${cls}</span><span class="cc">${n}</span></span>`)
+    .join('');
+  const supC=byType['Support'].length,arC=byType['All Rounder'].length,dpsC=byType['Attack (DPS)'].length;
+  const el=document.getElementById('class-overview');
+  if(!el)return;
+  // capacity numbers
+  const activeCount=total;           // main members (alts excluded — counted already excludes alts)
+  const freeSlots=_guildCap-activeCount;
+  const capEditBtn=isAdmin?`<button class="cap-edit-btn" onclick="editGuildCap()">✏️ แก้</button>`:'';
+  el.innerHTML=`
+    <div class="ov-header">
+      <span class="ov-title">Class Overview</span>
+      <span class="ov-total">${total} members</span>
+    </div>
+    <div class="ov-type ov-s">
+      <div class="ov-type-head"><span class="ov-type-name">Support</span><span class="ov-type-count">${supC} คน</span></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(supC)}%"></div></div>
+      <div class="ov-chips">${mkChips('Support')}</div>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-type ov-a">
+      <div class="ov-type-head"><span class="ov-type-name">All Rounder</span><span class="ov-type-count">${arC} คน</span></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%"></div></div>
+      <div class="ov-chips">${mkChips('All Rounder')}</div>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-type ov-d">
+      <div class="ov-type-head"><span class="ov-type-name">Attack (DPS)</span><span class="ov-type-count">${dpsC} คน</span></div>
+      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%"></div></div>
+      <div class="ov-chips">${mkChips('Attack (DPS)')}</div>
+    </div>
+    <div class="cap-section">
+      <div class="cap-head"><span class="cap-title">Guild Capacity</span>${capEditBtn}</div>
+      <div class="cap-grid">
+        <div class="cap-box"><div class="cap-num">${_guildCap}</div><div class="cap-lbl">จำนวนสูงสุดที่รับได้</div></div>
+        <div class="cap-box"><div class="cap-num" style="color:var(--green)">${activeCount}</div><div class="cap-lbl">สมาชิกกิลด์</div></div>
+        <div class="cap-box cap-free"><div class="cap-num" style="color:${freeSlots>0?'var(--amber)':'var(--red)'}">${freeSlots}</div><div class="cap-lbl">จำนวนที่รับเพิ่มได้</div></div>
+      </div>
+      <div class="cap-bar-wrap"><div class="cap-bar" style="width:${_guildCap>0?Math.min(100,Math.round(activeCount/_guildCap*100)):0}%"></div></div>
+    </div>`;
+}
+
+async function loadGuildCap(){
+  try{const r=await gasGet('getGuildCap');if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap}}catch(e){}
+  renderStats();
+}
+async function editGuildCap(){
+  if(!isAdmin){alert('Admin only');return}
+  const v=prompt('จำนวนที่กิลด์รับได้เต็ม (คน):',_guildCap);
+  if(v===null)return;
+  const n=Math.max(0,Math.floor(+v||0));
+  if(!n){alert('กรอกตัวเลขที่ถูกต้อง');return}
+  _guildCap=n;renderStats();
+  const r=await gasPost({action:'setGuildCap',cap:n});
+  if(!r.ok){alert('บันทึกไม่สำเร็จ: '+(r.error||''))}
+}
+
+let mSortKey='party',mSortDir=1;
+function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','party','char_id','discord'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',party:'th-party',char_id:'th-char',discord:'th-discord'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
+function renderMembers(){
+  const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
+  let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
+  f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
+  const tbody=document.getElementById('m-tbody');
+  if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  tbody.innerHTML=f.map((m,i)=>{
+    const type=getType(m.class);
+    const badge=`<span class="badge ${getTypeCls(type)}">${type==='Attack (DPS)'?'DPS':type}</span>`;
+    const gfCode=getGfCode(m.guild_field);const gfBadge=m.guild_field?`<span class="gf">${gfCode}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${getGfLabel(m.guild_field)}</span>`:'';
+    const noteHtml=m.note?`<span style="font-size:11px;color:var(--faint)">${m.note}</span>`:'';
+    const tagHtml=m.tag?`<span style="font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px 8px">${m.tag}</span>`:'';
+    return`<tr>
+      <td class="m-num">${i+1}</td>
+      <td style="font-weight:600">${m.ign}</td>
+      <td style="font-size:12px;color:var(--text)">${m.class||'—'}</td>
+      <td>${badge}</td>
+      <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
+      <td>${gfBadge}</td>
+      <td>${noteHtml}</td>
+      <td>${tagHtml}</td>
+      <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.char_id||'—'}</td>
+      <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.discord||'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
+}
+
+/* PARTY */
+function renderParty(){
+  const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
+  const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
+  const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
+  const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
+  const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
+  const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
+  const mkSection=(list,isMain)=>list.map(p=>{
+    const isM=isMain;
+    // sort each party's roster: Support -> All Rounder -> Attack(DPS), so the
+    // healer/support core is always visible first regardless of sheet order
+    const sortedMembers=[...pts[p]].sort((a,b)=>TYPE_ORDER[getType(a.class)]-TYPE_ORDER[getType(b.class)]);
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${sortedMembers.map(m=>{const type=getType(m.class),tb=typeBar(type);const sub=isAlt(m);const leave=isLeaveNote(m);const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`}).join('')}</div></div>`;
+  }).join('');
+  // secondary field label reflects the actual highest party number present,
+  // e.g. "Party 9–16" instead of a hardcoded "Party 9+" — falls back to just
+  // "Party 9+" if there happen to be no secondary parties yet (nothing to show a max of)
+  const secMax=secPts.length?secPts[secPts.length-1]:null;
+  const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
+  document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
+}
+
+/* SEARCH */
+let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
+
+async function preloadSearchCache(){
+  if(_searchCacheLoaded)return;
+  // reuse _aucAllRows if already loaded, else fetch once
+  if(!_aucCacheLoaded) await loadAllHistoryCache();
+  const rows=_aucAllRows;
+  _searchHistMap={};
+  rows.forEach(r=>{
+    const key=r.member_name;
+    if(!_searchHistMap[key])_searchHistMap[key]=[];
+    const exists=_searchHistMap[key].some(x=>x.queue_date===r.queue_date&&x.position===r.position);
+    if(!exists)_searchHistMap[key].push(r);
+  });
+  const allDates=[...new Set(rows.map(r=>r.queue_date))].sort().reverse();
+  _searchLatestDate=allDates.length?allDates[0]:'';
+  _searchQueueRows=_searchLatestDate?rows.filter(r=>r.queue_date===_searchLatestDate):[];
+  _searchCacheLoaded=true;
+}
+const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
+const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
+const ID_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`;
+
+async function searchMain(){
+  const q=(document.getElementById('si-main').value||'').toLowerCase().trim();
+  const el=document.getElementById('search-result');
+  if(!q){el.innerHTML='';return}
+  const found=members.filter(m=>
+    m.ign.toLowerCase().includes(q)||
+    (m.char_id&&m.char_id.toLowerCase().includes(q))||
+    (m.discord&&m.discord.toLowerCase().includes(q))
+  );
+  if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
+
+  // render party section ทันทีก่อน — ไม่รอ GAS
+  const renderCard=(m,qRow,hist)=>{
+    const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
+    const metaItems=[
+      `<div class="srch-item"><span class="si">${CLASS_SVG}</span><span class="sv">${m.class||'—'}</span></div>`,
+      m.char_id?`<div class="srch-sep"></div><div class="srch-item"><span class="si">${ID_SVG}</span><span class="sv">${m.char_id}</span></div>`:'',
+      m.discord?`<div class="srch-sep"></div><div class="srch-item srch-discord"><span class="si">${DISCORD_SVG}</span><span class="sv">${m.discord}</span></div>`:''
+    ].join('');
+    const partyHtml=m.party?`
+      <div class="party-v3">
+        <div class="party-v3-box"><span class="party-v3-num">${m.party}</span></div>
+        <div class="party-v3-div"></div>
+        <div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div>
+      </div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
+    const queueHtml=qRow?`
+      <div class="srch-queue">
+        <div class="srch-q-pos">${String(qRow.position).padStart(2,'0')}</div>
+        <div class="srch-q-info">
+          <div class="srch-q-date">Queue date: ${_searchLatestDate}</div>
+          <div class="srch-q-total">Position ${qRow.position} of ${_searchQueueRows.length}</div>
+        </div>
+        <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'}">${qRow.status==='done'?'✓ Drawn':'⏳ Pending'}</span>
+      </div>`
+      :'<span style="font-size:12px;color:var(--faint);font-style:italic">No active queue for this member</span>';
+    const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading history...</div>':
+      hist.length?`<table class="srch-hist">
+        <thead><tr><th>Queue date</th><th style="width:80px">Position</th><th>Auction</th></tr></thead>
+        <tbody>${hist.map(r=>`<tr>
+          <td style="color:var(--muted)">${r.queue_date}</td>
+          <td><span class="srch-pos">${String(r.position).padStart(2,'0')}</span></td>
+          <td>${r.status==='done'
+            ?`<span style="color:var(--green);font-size:11px">✓ ${r.drawn_date?String(r.drawn_date).slice(0,10):''}</span>`
+            :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}</td>
+        </tr>`).join('')}</tbody>
+      </table>`:'<span style="font-size:12px;color:var(--faint);font-style:italic">No auction history</span>';
+    return`<div class="srch-card">
+      <div class="srch-head">
+        <div class="srch-avatar">👤</div>
+        <div class="srch-meta-row">
+          <span class="srch-name">${m.ign}</span>${metaItems}
+        </div>
+      </div>
+      <div class="srch-section"><div class="srch-sec-lbl">Party · Teammates</div>${partyHtml}</div>
+      <div class="srch-section"><div class="srch-sec-lbl">Current Queue</div>${queueHtml}</div>
+      <div class="srch-section" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
+    </div>`;
+  };
+
+  // แสดงผลทันที (history = null = loading)
+  el.innerHTML=found.map(m=>{
+    const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
+    return renderCard(m,qRow,_searchCacheLoaded?(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null);
+  }).join('');
+
+  // ถ้ายังไม่มี cache ให้โหลดแบบ background แล้วอัพเดท history
+  if(!_searchCacheLoaded){
+    await preloadSearchCache();
+    // อัพเดท history section เฉพาะคนที่ค้นหา
+    found.forEach(m=>{
+      const histEl=document.getElementById('hist-'+m.ign.replace(/[^a-zA-Z0-9]/g,'_'));
+      if(!histEl)return;
+      const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
+      const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
+      histEl.innerHTML=`<div class="srch-sec-lbl">Auction History</div>`+renderCard(m,qRow,hist).match(/id="hist-[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*$/)?.[1]||'';
+      // แทนที่ทั้ง section
+      const fullCard=renderCard(m,qRow,hist);
+      const tmpDiv=document.createElement('div');tmpDiv.innerHTML=fullCard;
+      const newHistSection=tmpDiv.querySelector('[id^="hist-"]');
+      if(newHistSection)histEl.replaceWith(newHistSection);
+    });
+    // อัพเดท queue ด้วยถ้าเปลี่ยน
+    found.forEach(m=>{
+      const card=el.querySelector('.srch-card');
+      if(card){
+        const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
+        const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
+      }
+    });
+  }
+}
+
+
+/* GAS */
+async function gasGet(action){try{const r=await fetch(GAS+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
+async function gasPost(body){try{const r=await fetch(GAS,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
+
+let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
+let _aucDistDate=''; // currently displayed distribution date
+const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
+
+let _aucCacheLoaded=false;
+let _aucAllRows=[];
+let _aucDates=[];
+let _historyFetchPromise=null; // dedup: reuse in-flight promise
+let _aucHistoryLoaded=false;
+
+async function loadAllHistoryCache(){
+  if(_aucCacheLoaded)return;
+  if(_historyFetchPromise)return _historyFetchPromise; // reuse — ไม่ยิง GAS ซ้ำ
+  _historyFetchPromise=(async()=>{
+    try{
+      const r=await gasGet('getAllHistory');
+      if(r.ok){
+        _aucAllRows=r.rows;
+        _aucDates=[...new Set(r.rows.filter(x=>x.queue_date).map(x=>x.queue_date))].sort().reverse();
+        _aucCacheLoaded=true;
+      }
+    }catch(e){/* leave cache empty, will retry next call */}
+    _historyFetchPromise=null;
+  })();
+  return _historyFetchPromise;
+}
+
+async function initAuctionPage(){
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
+    else{el.classList.add('admin-locked');el.disabled=true;}
+  });
+  // await in-flight promise (ถ้ากำลังโหลดอยู่แล้ว จะ reuse ไม่ยิงซ้ำ)
+  if(!_aucCacheLoaded) await loadAllHistoryCache();
+  if(!_botConfig.length){const r=await gasGet('getBotConfig');if(r.ok)_botConfig=r.rows;}
+  populateAucEventTypes();
+  buildPendingFromCache();
+  populateQueueManagerDates();
+  if(!_aucHistoryLoaded) await loadAuctionHistory();
+  swAucTab('calc');
+}
+
+function buildPendingFromCache(){
+  // rebuild _aucPendingAll from cache — sorted queue_date ASC → position ASC
+  const pending=_aucAllRows
+    .filter(r=>r.status==='pending')
+    .sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
+  _aucPendingAll=pending;
+  renderDistribution();
+}
+
+async function loadAllPending(){
+  // force refresh cache then rebuild
+  await loadAllHistoryCache();
+  buildPendingFromCache();
+}
+
+function populateAucEventTypes(){
+  const sel=document.getElementById('auc-event-type');
+  if(sel.options.length)return;
+  const types=[...new Set(_botConfig.map(r=>r.event_name))].sort((a,b)=>EVENT_ORDER.indexOf(a)-EVENT_ORDER.indexOf(b));
+  sel.innerHTML=types.map(t=>`<option value="${t}">${t}</option>`).join('');
+  onAucEventType();
+}
+
+function onAucEventType(){
+  const type=document.getElementById('auc-event-type').value;
+  const rankSel=document.getElementById('auc-event-rank');
+  const ranks=_botConfig.filter(r=>r.event_name===type);
+  rankSel.innerHTML=ranks.map(r=>`<option value="${r.rank}">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</option>`).join('');
+  onAucRank();
+}
+
+function getCurrentReward(){
+  const type=document.getElementById('auc-event-type').value;
+  const rank=document.getElementById('auc-event-rank').value;
+  return _botConfig.find(r=>r.event_name===type&&r.rank===rank);
+}
+
+function onAucRank(){
+  onAucRankReset();
+  renderRewardInputs();
+  renderDistribution();
+  updateAucSaveAsLabel();
+}
+
+function updateAucSaveAsLabel(){
+  const rw=getRewardValues();
+  const label=document.getElementById('auc-save-as-label');
+  if(!label)return;
+  if(!rw){label.textContent='บันทึกเป็น —';return}
+  const rankLabel=/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank;
+  label.innerHTML=`บันทึกเป็น <span style="color:var(--gold-l);font-weight:500">${rw.event_name} — ${rankLabel}</span>`;
+}
+
+/* ─── REWARD CALCULATOR ─── */
+let _aucGlobalMul=1; // single global multiplier for all fields
+let _aucFieldOverrides={}; // per-field manual overrides — null/missing means "use base × multiplier" as before
+let _aucPerPersonOverrides={}; // per-person overrides: {white: number|null, red: number|null}
+
+function onGlobalMul(){
+  _aucGlobalMul=+document.getElementById('auc-global-mul').value||1;
+  renderRewardInputs();
+  renderDistribution();
+}
+
+function onAucRankReset(){
+  _aucGlobalMul=1;
+  _aucFieldOverrides={};
+  _aucPerPersonOverrides={};
+  const mulEl=document.getElementById('auc-global-mul');
+  if(mulEl)mulEl.value=1;
+}
+
+function onPerPersonEdit(key,inputEl){
+  const v=inputEl.value.trim();
+  if(v===''){delete _aucPerPersonOverrides[key]}
+  else{_aucPerPersonOverrides[key]=Math.max(0,Math.round(+v)||0)}
+  renderDistribution();
+}
+
+// Called when the admin (or anyone testing numbers) edits a field's value
+// directly. An empty input clears the override and falls back to the
+// multiplier-calculated value, so the two methods (multiplier vs direct edit)
+// can be freely combined — e.g. multiply everything ×1.1, then hand-correct
+// just the one field that was pulled wrong.
+function onRewardFieldEdit(key,inputEl){
+  const v=inputEl.value.trim();
+  if(v===''){delete _aucFieldOverrides[key]}
+  else{_aucFieldOverrides[key]=Math.max(0,Math.round(+v)||0)}
+  renderRewardInputs(); // re-render per-person auto values when total changes
+  renderDistribution();
+}
+
+function renderRewardInputs(){
+  const base=getCurrentReward();
+  const wrap=document.getElementById('auc-reward-inputs');
+  const title=document.getElementById('auc-calc-title');
+  if(!base){wrap.innerHTML='';title.textContent='Distribution result';return}
+  const evLabel=/^\d+$/.test(base.rank)?'Rank '+base.rank:base.rank;
+  title.textContent=`Distribution result — ${base.event_name} — ${evLabel}`;
+
+  const mul=_aucGlobalMul;
+  const fields=[
+    {k:'card',label:'Card (= members)',base:base.card,accent:false},
+    {k:'feather_white',label:'Feather white',base:base.feather_white,accent:false},
+    {k:'feather_red_black',label:'Feather white & black',base:base.feather_red_black,accent:false}
+  ];
+  if(base.mvp_box!=null) fields.push({k:'mvp_box',label:'MVP box count',base:base.mvp_box,accent:true});
+
+  wrap.innerHTML=fields.map(f=>{
+    const calcVal=Math.round(f.base*mul);
+    const hasOverride=_aucFieldOverrides[f.k]!=null;
+    const displayVal=hasOverride?_aucFieldOverrides[f.k]:calcVal;
+    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${hasOverride?'var(--orange-border)':(f.accent?'var(--amber-b)':'var(--border)')};border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}${hasOverride?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+      <input type="number" min="0" value="${displayVal}" oninput="onRewardFieldEdit('${f.k}',this)" style="width:100%;font-size:22px;font-weight:700;${f.accent?'color:var(--amber)':''}background:transparent;border:none;outline:none;padding:0;font-family:inherit">
+      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base} ${mul!==1?`× ${mul} = ${calcVal}`:''}${hasOverride?` · เคลียร์ช่องนี้เพื่อกลับไปใช้ค่าคำนวณ`:''}</div>
+    </div>`;
+  }).join('');
+  // --- Per-person override row (rendered after total fields) ---
+  const ppWrap=document.getElementById('auc-per-person-inputs');
+  if(ppWrap){
+    const rw=getRewardValues();
+    if(rw){
+      const n=rw.card||1; // card = number of members this round
+      const autoW=Math.floor(rw.white/n);
+      const autoR=Math.floor(rw.red/n);
+      const hasW=_aucPerPersonOverrides.white!=null;
+      const hasR=_aucPerPersonOverrides.red!=null;
+      const ppW=hasW?_aucPerPersonOverrides.white:autoW;
+      const ppR=hasR?_aucPerPersonOverrides.red:autoR;
+      ppWrap.innerHTML=`
+        <div style="flex:1;min-width:140px;background:var(--card2);border:0.5px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">White / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+          <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--blue)">
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${rw.white}÷${n}⌋=${autoW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
+        </div>
+        <div style="flex:1;min-width:140px;background:var(--card2);border:0.5px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Red/Black / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+          <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${rw.red}÷${n}⌋=${autoR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
+        </div>`;
+    }else{ppWrap.innerHTML='';}
+  }
+}
+
+function getRewardValues(){
+  const base=getCurrentReward();
+  if(!base)return null;
+  const m=_aucGlobalMul||1;
+  const ov=_aucFieldOverrides;
+  return {
+    card:ov.card!=null?ov.card:Math.round(base.card*m),
+    white:ov.feather_white!=null?ov.feather_white:Math.round(base.feather_white*m),
+    red:ov.feather_red_black!=null?ov.feather_red_black:Math.round(base.feather_red_black*m),
+    mvp:ov.mvp_box!=null?ov.mvp_box:(base.mvp_box!=null?Math.round(base.mvp_box*m):null),
+    event_name:base.event_name,
+    rank:base.rank
+  };
+}
+
+/* ─── DISTRIBUTION TABLE ─── */
+const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
+const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
+const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
+function fmtSlots(start,count){
+  if(count<=0)return '-';
+  const slots=_slotRange(start,count);
+  const grp=_grpByPage(slots);
+  return grp.map(([pg,boxes])=>{
+    const ranges=[];
+    let s=boxes[0],p=boxes[0];
+    for(let i=1;i<=boxes.length;i++){
+      const b=boxes[i];
+      if(b===p+1){p=b;continue}
+      ranges.push(s===p?`${s}`:`${s}-${p}`);
+      s=b;p=b;
+    }
+    return `Page${pg}(${ranges.join(',')})`;
+  }).join(', ');
+}
+
+function computeDistribution(){
+  const rw=getRewardValues();
+  if(!rw)return null;
+  const n=Math.min(rw.card,_aucPendingAll.length);
+  if(!n)return null;
+  const memberNames=_aucPendingAll.slice(0,n).map(r=>r.member_name);
+  const white=rw.white,red=rw.red;
+  // per-person: use override if set, otherwise floor(total/n)
+  const pW=_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n);
+  const pR=_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n);
+  const wUsedTotal=n*pW,rUsedTotal=n*pR;
+  const wRem=white-wUsedTotal,rRem=red-rUsedTotal;
+  let wPos=1,rPos=white+1;
+  const rows=memberNames.map((name,i)=>{
+    const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
+    wPos+=pW;rPos+=pR;
+    return row;
+  });
+  return {rows,card:n,cardTarget:rw.card,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0};
+}
+
+function renderDistribution(){
+  const dist=computeDistribution();
+  const tbody=document.getElementById('auc-dist-tbody');
+  const sumWrap=document.getElementById('auc-summary-cards');
+  if(!dist){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">No pending queue members</td></tr>';
+    sumWrap.innerHTML='';
+    return;
+  }
+  const wUsed=dist.n*dist.pW;
+  const rUsed=dist.n*dist.pR;
+  const cardLeft=dist.cardTarget-dist.card;
+  const wBorder=dist.wOverflow?'var(--red-b)':'var(--border)';
+  const rBorder=dist.rOverflow?'var(--red-b)':'var(--border)';
+  const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`${dist.wRem} left`;
+  const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`${dist.rRem} left`;
+  sumWrap.innerHTML=`
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
+      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.cardTarget}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (${cardLeft} left)</div>
+    </div>
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${wBorder};border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
+      <div style="font-size:18px;font-weight:700;${dist.wOverflow?'color:var(--red)':''}">${wUsed}/${dist.white}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">White (${wRemLbl})</div>
+    </div>
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${rBorder};border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
+      <div style="font-size:18px;font-weight:700;${dist.rOverflow?'color:var(--red)':''}">${rUsed}/${dist.red}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Red/Black (${rRemLbl})</div>
+    </div>`;
+  tbody.innerHTML=dist.rows.map((r,i)=>{
+    const card=_toPageBox(r.cardSlot);
+    return `<tr>
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td>Page${card.page}(${card.box})</td>
+      <td>${fmtSlots(r.wStart,r.white)}</td>
+      <td>${fmtSlots(r.rStart,r.red)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── TABS ─── */
+function swAucTab(t){
+  document.querySelectorAll('#page-auction .au-tab').forEach(b=>{
+    b.classList.toggle('active',b.dataset.tab===t);
+  });
+  ['calc','lucky','designated','manage','rewards'].forEach(id=>{
+    const el=document.getElementById('auc-'+id);
+    if(el)el.style.display=id===t?'block':'none';
+  });
+
+  if(t==='designated')initDesignatedTab();
+  if(t==='manage')renderQueueManager();
+  if(t==='rewards')renderRewardsPreview();
+}
+
+/* ─── QUEUE MANAGER ─── */
+function populateQueueManagerDates(){
+  if(!_aucDates.length)return;
+  const drawSel=document.getElementById('qm-filter-draw');
+  drawSel.innerHTML='<option value="">Draw date: All</option>'+_aucDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+  loadQueueRowsFromCache(_aucDates[0]);
+}
+
+async function loadQueueManagerDates(){
+  // used when explicitly refreshing (e.g. after draw new queue)
+  await loadAllHistoryCache();
+  populateQueueManagerDates();
+}
+
+function loadQueueRowsFromCache(date){
+  if(!date)return;
+  const rows=_aucAllRows.filter(r=>r.queue_date===date);
+  _aucQueueRows=rows;
+  _aucDistDate=date;
+  renderDistribution();
+  const auSel=document.getElementById('qm-filter-auction');
+  const drawnDates=[...new Set(rows.filter(x=>x.drawn_date).map(x=>x.drawn_date))].sort().reverse();
+  auSel.innerHTML='<option value="">Auction date: All</option>'+drawnDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+async function loadQueueRows(date){
+  if(!date)return;
+  // try cache first
+  const cached=_aucAllRows.filter(r=>r.queue_date===date);
+  if(cached.length){
+    loadQueueRowsFromCache(date);return;
+  }
+  // fallback: fetch from GAS
+  const r=await gasGet('getLog&date='+date);
+  if(!r.ok)return;
+  // merge into cache
+  r.rows.forEach(row=>{
+    if(!_aucAllRows.find(x=>x.queue_date===row.queue_date&&x.position===row.position))
+      _aucAllRows.push(row);
+  });
+  loadQueueRowsFromCache(date);
+}
+
+async function renderQueueManager(){
+  const drawDate=document.getElementById('qm-filter-draw').value;
+  const auctionDate=document.getElementById('qm-filter-auction').value;
+  const status=document.getElementById('qm-filter-status').value;
+  if(drawDate&&drawDate!==_aucDistDate){
+    loadQueueRowsFromCache(drawDate);
+  }
+  // build set of names that appear pending in OTHER queue_dates (duplicate detection)
+  const curDate=_aucDistDate;
+  const pendingElsewhere={};
+  _aucAllRows.forEach(r=>{
+    if(r.status==='pending'&&r.queue_date!==curDate){
+      pendingElsewhere[r.member_name]=r.queue_date;
+    }
+  });
+  const normStatus=s=>(s==='skipped'||s==='skiped')?'skip':s;
+  let filtered=_aucQueueRows.filter(r=>{
+    if(auctionDate&&r.drawn_date!==auctionDate)return false;
+    if(status&&normStatus(r.status)!==status)return false;
+    return true;
+  });
+  filtered=filtered.slice().sort((a,b)=>a.position-b.position);
+  const list=document.getElementById('qm-list');
+  if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
+  list.innerHTML=`<div class="mgr-list-head">
+      <div class="mc-num">#</div>
+      <div class="mc-name">Name</div>
+      <div class="mc-status">Status</div>
+      <div class="mc-date">Auction date</div>
+      <div class="mc-act"></div>
+    </div>`+filtered.map((r,i)=>{
+    const isDone=r.status==='done';
+    const isSkip=r.status==='skip'||r.status==='skipped'||r.status==='skiped';
+    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':isSkip?'<span class="qs qs-skip">⤷ Skipped</span>':'<span class="qs qs-pend">⏳ Pending</span>';
+    const lockedClass=isAdmin?'':'admin-only admin-locked';
+    // duplicate badge: this person is also pending/skip in another queue date
+    const dupDate=pendingElsewhere[r.member_name];
+    const dupBadge=(dupDate&&!isDone)?`<span class="dup-badge" title="ชื่อซ้ำกับคิว ${dupDate}">⚠ ซ้ำ</span>`:'';
+    let actBtns='';
+    if(isAdmin){
+      if(isDone){
+        actBtns=`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`;
+      }else if(isSkip){
+        actBtns=`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo skip</button>`;
+      }else{
+        // pending → can mark done or skip
+        actBtns=`<button class="q-btn q-btn-skip" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'skip')">⤷ Skip</button>`
+          +`<button class="q-btn q-btn-done" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`;
+      }
+    }
+    return `<div class="mgr-row${isSkip?' row-skip':''}">
+      <div class="mc-num">${r.position}</div>
+      <div class="mc-name">${r.member_name}${dupBadge}</div>
+      <div class="mc-status">${statusHtml}</div>
+      <div class="mc-date">${r.drawn_date||'<span style="color:var(--faint)">—</span>'}</div>
+      <div class="mc-act">${actBtns}</div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleQueueStatus(date,position,status){
+  const doneDate=status==='done'?toDateStr(new Date()):'';
+  const r=await gasPost({action:'updateStatus',date,position,status,doneDate});
+  if(r.ok){
+    _searchCacheLoaded=false;
+    _aucCacheLoaded=false; // invalidate cache
+    await loadAllHistoryCache(); // refresh from GAS
+    buildPendingFromCache();
+    loadQueueRowsFromCache(date);
+    renderQueueManager();
+  }else alert('Update failed: '+r.error);
+}
+
+async function drawNewQueue(){
+  const date=toDateStr(new Date());
+  const pass=document.getElementById('qm-admin-pass').value;
+  const statusEl=document.getElementById('qm-draw-status');
+  if(!pass){alert('Enter admin password');return}
+  statusEl.textContent='Verifying...';
+  const vr=await gasPost({action:'verifyAdmin',password:pass});
+  if(!vr.ok){statusEl.textContent='';alert('Invalid admin password');return}
+  const pool=members.filter(m=>!isAlt(m));
+  const names=pool.map(m=>m.ign);
+  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
+  statusEl.textContent='Saving...';
+  const r=await gasPost({action:'appendQueue',date,members:names});
+  if(r.ok){
+    statusEl.textContent=`Saved ${r.added} members for ${date}`;
+    _searchCacheLoaded=false;
+    _aucCacheLoaded=false;
+    document.getElementById('qm-admin-pass').value='';
+    await loadQueueManagerDates();
+    document.getElementById('qm-filter-draw').value=date;
+    loadQueueRowsFromCache(date);
+    buildPendingFromCache();
+    renderQueueManager();
+  }else{
+    statusEl.textContent='';
+    alert('Save failed: '+r.error);
+  }
+}
+
+/* ─── LUCKY DRAW ─── */
+let _luckyOrder=[];
+let _luckyMvpResult=[];
+let _luckyAskIdx=0;
+let _luckyFinalResult=null;
+
+function initLuckyDraw(){
+  const dist=computeDistribution();
+  if(!dist){
+    // ยังไม่ได้รัน Guild Auction → block
+    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
+    document.getElementById('lucky-mvp-list').innerHTML='<div class="empty" style="color:var(--red)">⚠️ ต้องรัน Guild Auction ก่อน — เลือก Event/Rank และให้มี pending queue</div>';
+    document.getElementById('lucky-step2-box').innerHTML='<span style="color:var(--faint)">รอ Guild Auction</span>';
+    document.getElementById('lucky-result').innerHTML='';
+    return;
+  }
+  if(dist.mvp==null){
+    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
+    document.getElementById('lucky-mvp-list').innerHTML='<div class="empty">Event/Rank นี้ไม่มี MVP box — ใช้ได้เฉพาะ Guild League</div>';
+    document.getElementById('lucky-step2-box').innerHTML='<span style="color:var(--faint)">ไม่มี MVP box สำหรับ event/rank นี้</span>';
+    document.getElementById('lucky-result').innerHTML='';
+    return;
+  }
+  if(!_luckyOrder.length||_luckyOrder.length!==dist.n){
+    luckyShuffle();
+  } else {
+    renderLuckyMvpList();
+  }
+}
+
+function luckyShuffle(){
+  const dist=computeDistribution();
+  if(!dist)return;
+  const names=dist.rows.map(r=>r.name);
+  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
+  _luckyOrder=names;
+  _luckyMvpResult=[];
+  _luckyAskIdx=0;
+  _luckyFinalResult=null;
+  renderLuckyMvpList();
+  document.getElementById('lucky-result').innerHTML='';
+}
+
+function renderLuckyMvpList(){
+  const dist=computeDistribution();
+  const mvpTarget=dist.mvp;
+  const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
+  const allAnswered=_luckyMvpResult.filter(x=>x!==undefined).length===_luckyOrder.length
+    || accepted>=mvpTarget;
+  document.getElementById('lucky-step1-title').textContent=
+    `Step 1 — Mark MVP box recipients (${accepted}/${mvpTarget})${allAnswered?' ✓':''}`;
+
+  const rows=_luckyOrder.map((name,i)=>{
+    const result=_luckyMvpResult[i];
+    const hasAnswer=result!==undefined;
+    let right;
+
+    if(hasAnswer){
+      // ตอบแล้ว — แสดงผล + ปุ่มแก้ไข (toggle)
+      if(result.accepted){
+        right=`<span class="qs qs-done" style="margin-right:6px">✓ Accepted</span>
+          <button class="q-btn q-btn-undo" style="font-size:10px" onclick="luckyMvpToggle(${i})">แก้ไข</button>`;
+      } else {
+        right=`<span class="qs qs-pend" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b);margin-right:6px">✗ Declined</span>
+          <button class="q-btn q-btn-undo" style="font-size:10px" onclick="luckyMvpToggle(${i})">แก้ไข</button>`;
+      }
+    } else if(accepted>=mvpTarget){
+      // MVP quota เต็มแล้ว คนที่ยังไม่ตอบ = skipped
+      right='<span style="font-size:11px;color:var(--faint)">skipped</span>';
+    } else if(i===_luckyAskIdx){
+      // ถามอยู่
+      right=`<span style="font-size:10px;color:var(--muted);margin-right:8px">asking now</span>
+        <button class="q-btn q-btn-done" onclick="luckyMvpAnswer(${i},true)">Accept</button>
+        <button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="luckyMvpAnswer(${i},false)">Decline</button>`;
+    } else {
+      right='<span style="font-size:11px;color:var(--faint)">pending</span>';
+    }
+
+    return `<div class="mgr-row">
+      <div class="mc-num">${i+1}</div>
+      <div class="mc-name">${name}</div>
+      <div class="mc-act" style="width:auto;flex:1;text-align:right;display:flex;justify-content:flex-end;align-items:center;gap:6px">${right}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('lucky-mvp-list').innerHTML=`<div class="mgr-list">${rows}</div>`;
+  renderLuckyStep2();
+}
+
+function luckyMvpAnswer(i,accepted){
+  _luckyMvpResult[i]={accepted};
+  const dist=computeDistribution();
+  const acceptedCount=_luckyMvpResult.filter(x=>x&&x.accepted).length;
+  if(acceptedCount<dist.mvp){
+    // หาคนถัดไปที่ยังไม่ตอบ
+    let next=i+1;
+    while(next<_luckyOrder.length&&_luckyMvpResult[next]!==undefined)next++;
+    _luckyAskIdx=next;
+  }
+  _luckyFinalResult=null; // reset result ถ้ามีการแก้ไข
+  renderLuckyMvpList();
+}
+
+function luckyMvpToggle(i){
+  // เปิด asking again สำหรับคนนี้
+  _luckyMvpResult[i]=undefined;
+  _luckyAskIdx=i;
+  _luckyFinalResult=null;
+  renderLuckyMvpList();
+}
+
+function renderLuckyStep2(){
+  const dist=computeDistribution();
+  const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
+  const box=document.getElementById('lucky-step2-box');
+  document.getElementById('lucky-step2-title').textContent='Step 2 — Draw remaining feathers';
+
+  // check all answered (accepted target reached OR all answered)
+  const allDone=accepted>=dist.mvp||
+    _luckyMvpResult.filter(x=>x!==undefined).length===_luckyOrder.length;
+
+  if(!allDone){
+    box.innerHTML=`Locked — finish marking MVP box recipients first (${accepted}/${dist.mvp})`;
+    box.style.color='var(--faint)';
+    return;
+  }
+  if(_luckyFinalResult){
+    box.innerHTML=`<span style="color:var(--green)">✓ Draw complete</span>
+      <button class="btn btn-ghost" style="font-size:11px;margin-left:10px" onclick="_luckyFinalResult=null;luckyDrawRemainder()">🔄 Re-draw</button>`;
+    box.style.color='';
+    return;
+  }
+  box.style.color='';
+  box.innerHTML=`<button class="btn btn-primary" onclick="luckyDrawRemainder()">🍀 Draw remaining (White ${dist.wRem}, Red/Black ${dist.rRem})</button>`;
+}
+
+function luckyDrawRemainder(){
+  const dist=computeDistribution();
+  const mvpRecipients=_luckyOrder.filter((_,i)=>_luckyMvpResult[i]&&_luckyMvpResult[i].accepted);
+  const pool=_luckyOrder.filter(n=>!mvpRecipients.includes(n));
+  const items=[...Array(dist.wRem).fill('white'),...Array(dist.rRem).fill('red')];
+  const resultMap={};
+  _luckyOrder.forEach(n=>resultMap[n]={mvp:mvpRecipients.includes(n),extra_white:0,extra_red:0});
+  let remaining=[...items];
+  let candidates=pool.length?pool:_luckyOrder.slice();
+  while(remaining.length>0){
+    let order=candidates.slice();
+    for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+    for(const name of order){
+      if(!remaining.length)break;
+      const item=remaining.shift();
+      if(item==='white')resultMap[name].extra_white++;
+      else resultMap[name].extra_red++;
+    }
+    candidates=_luckyOrder.slice();
+  }
+  // slot positions ต่อเนื่องจาก Guild Auction:
+  // Card slots: 1..n → MVP ต่อจาก card → slot n+1
+  // White slots: 1..white → extra white ต่อจาก wEnd → slot wEnd+1
+  // Red/Black slots: white+1..white+red → extra red ต่อจาก rEnd → slot rEnd+1
+  const cardEndSlot=dist.n;
+  const wEndSlot=dist.n*Math.floor(dist.white/dist.n);
+  const rEndSlot=dist.white+dist.n*Math.floor(dist.red/dist.n);
+  let mvpPos=cardEndSlot+1,wPos=wEndSlot+1,rPos=rEndSlot+1;
+  _luckyFinalResult=_luckyOrder.map(name=>{
+    const r=resultMap[name];
+    const out={name,mvp_box:r.mvp,extra_white:r.extra_white,extra_red:r.extra_red,mvpLoc:'',wLoc:'',rLoc:''};
+    if(r.mvp){out.mvpLoc=fmtSlots(mvpPos,1);mvpPos+=1}
+    if(r.extra_white>0){out.wLoc=fmtSlots(wPos,r.extra_white);wPos+=r.extra_white}
+    if(r.extra_red>0){out.rLoc=fmtSlots(rPos,r.extra_red);rPos+=r.extra_red}
+    return out;
+  });
+  renderLuckyResult();
+  renderLuckyStep2();
+  saveLuckyDrawResult();
+}
+
+function renderLuckyResult(){
+  document.getElementById('lucky-result-title').style.display='';
+  const dist=computeDistribution();
+  // แสดงทุกคน — ถ้าไม่ได้อะไรก็แสดง — ทั้งหมด
+  const rows=_luckyFinalResult.map((r,i)=>{
+    const hasExtra=r.mvp_box||r.extra_white>0||r.extra_red>0;
+    return `<tr style="${!hasExtra?'opacity:0.45':''}">
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td>${r.mvpLoc?`<span style="color:var(--amber)">${r.mvpLoc}</span>`:'-'}</td>
+      <td>${r.wLoc||'-'}</td>
+      <td>${r.rLoc||'-'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('lucky-result').innerHTML=`<table class="au-tbl">
+    <thead><tr>
+      <th style="width:30px">#</th>
+      <th>Name</th>
+      <th>MVP box (ต่อจาก Card)</th>
+      <th>Extra white</th>
+      <th>Extra red/black</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:8px">
+    slot ต่อเนื่องจาก Guild Auction — MVP box ต่อจาก Card slot ${dist.n} · White extra ต่อจาก slot ${dist.n*Math.floor(dist.white/dist.n)} · Red/Black extra ต่อจาก slot ${dist.white+dist.n*Math.floor(dist.red/dist.n)}
+  </div>`;
+}
+
+async function saveLuckyDrawResult(){
+  if(!_luckyFinalResult||!_aucDistDate)return;
+  const dist=computeDistribution();
+  const results=_luckyFinalResult.map(r=>({member_name:r.name,mvp_box:r.mvp_box,extra_white:r.extra_white,extra_red:r.extra_red}));
+  await gasPost({action:'saveLuckyDraw',drawDate:_aucDistDate,eventType:dist.event_name,rank:dist.rank,results});
+}
+
+/* ─── REWARDS PREVIEW ─── */
+function renderRewardsPreview(){
+  const type=document.getElementById('auc-event-type').value;
+  document.getElementById('rwprev-title').textContent=`Rewards Preview — ${type}`;
+  const rows=_botConfig.filter(r=>r.event_name===type);
+  const hasMvp=rows.some(r=>r.mvp_box!=null);
+  document.getElementById('rwprev-thead').innerHTML=
+    '<th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th>'+(hasMvp?'<th>MVP box</th>':'');
+  document.getElementById('rwprev-tbody').innerHTML=rows.map(r=>`<tr>
+    <td>${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</td>
+    <td>${r.card}</td>
+    <td>${r.feather_white}</td>
+    <td>${r.feather_red_black}</td>
+    ${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'-'}</td>`:''}
+  </tr>`).join('');
+}
+
+/* ─── AUCTION HISTORY ─── */
+async function loadAuctionHistory(){
+  const r=await gasGet('getAuctionHistory&limit=10');
+  if(!r.ok)return;
+  _aucHistoryLoaded=true;
+  renderAuctionHistory(r.rows);
+}
+
+function renderAuctionHistory(rows){
+  const tbody=document.getElementById('auc-history-tbody');
+  if(!rows||!rows.length){tbody.innerHTML='<tr><td colspan="3" class="empty">No history yet</td></tr>';return}
+  tbody.innerHTML=rows.map(r=>{
+    const rankLabel=/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank;
+    return `<tr>
+      <td style="font-weight:500">${r.auction_date}</td>
+      <td style="color:var(--muted)">${r.event_type}</td>
+      <td style="color:var(--gold-l)">${rankLabel}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveAuctionResult(){
+  const dateInp=document.getElementById('auc-result-date');
+  const date=dateInp.value;
+  const msg=document.getElementById('auc-save-result-msg');
+  const rw=getRewardValues();
+  if(!date){msg.textContent='เลือกวันที่ก่อน';msg.style.color='var(--red)';return}
+  if(!rw){msg.textContent='เลือก Event/Rank ก่อน';msg.style.color='var(--red)';return}
+  msg.textContent='Saving...';msg.style.color='var(--muted)';
+  const r=await gasPost({action:'saveAuctionResult',auctionDate:date,eventType:rw.event_name,rank:rw.rank});
+  if(r.ok){
+    msg.textContent=`บันทึกแล้ว: ${date} → ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
+    msg.style.color='var(--green)';
+    await loadAuctionHistory();
+  }else{
+    msg.textContent='Save failed: '+r.error;
+    msg.style.color='var(--red)';
+  }
+}
+/* ─── LUCKY DRAW TAB (public + admin) ─── */
+/* ─── DESIGNATED AUCTION ─── */
+const DA_REWARD={card:5,white:15,red:15};
+let _daWeekStart='';
+let _daHelpers=[];
+
+function getWeekMonday(date){
+  const d=new Date(date||Date.now());
+  const day=d.getDay();
+  const diff=d.getDate()-(day===0?6:day-1);
+  d.setDate(diff);
+  return toDateStr(d);
+}
+
+function setDesignatedThisWeek(){
+  const monday=getWeekMonday();
+  document.getElementById('da-week-input').value=monday;
+  loadDesignatedWeek();
+}
+
+async function loadDesignatedWeek(){
+  const dateVal=document.getElementById('da-week-input').value;
+  if(!dateVal)return;
+  _daWeekStart=getWeekMonday(dateVal);
+  document.getElementById('da-week-input').value=_daWeekStart;
+  // compute tuesday/thursday dates
+  const mon=new Date(_daWeekStart);
+  const tue=new Date(mon);tue.setDate(mon.getDate()+1);
+  const thu=new Date(mon);thu.setDate(mon.getDate()+3);
+  const tueFmt=tue.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  const thuFmt=thu.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('da-week-label').textContent=`สัปดาห์ ${_daWeekStart} (อ. ${tueFmt} / พฤ. ${thuFmt})`;
+  const r=await gasGet('getDesignatedQueue&weekStart='+_daWeekStart);
+  if(r.ok&&r.rows.length){
+    _daHelpers=r.rows;
+    renderDesignatedQueues(r.rows);
+  } else {
+    _daHelpers=[];
+    renderDesignatedQueues([]);
+  }
+}
+
+function initDesignatedTab(){
+  if(!_daWeekStart) setDesignatedThisWeek();
+  else loadDesignatedWeek();
+}
+
+function renderDesignatedQueues(rows){
+  const tues=rows.filter(r=>r.position<=5);
+  const thurs=rows.filter(r=>r.position>=6);
+  // Designated reward (fixed): White 15, Red/Black 15 per day, 5 people → 3 each (1-3-3)
+  const DA_WHITE=15, DA_RED=15;
+  // compute distribution per day (same logic as Guild Auction: card slot, white/red slots continue per person)
+  const computeDay=(list)=>{
+    const n=list.length;
+    if(!n)return [];
+    const pW=Math.floor(DA_WHITE/n), pR=Math.floor(DA_RED/n);
+    let wPos=1, rPos=DA_WHITE+1; // red slots continue after all white slots (same as Guild Auction)
+    return list.map((r,i)=>{
+      const row={...r, cardSlot:i+1, white:pW, red:pR, wStart:wPos, rStart:rPos};
+      wPos+=pW; rPos+=pR;
+      return row;
+    });
+  };
+  const mkRow=(r)=>{
+    const isDone=r.auction_status==='done';
+    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
+    const isFicelle=r.member_name==='Ficelle';
+    const cls=isFicelle?'':getHelperClass(r.member_name,r.class);
+    const clsColor=cls==='support'?'var(--green)':cls==='ar'?'var(--amber)':cls==='dps'?'var(--red)':'var(--text)';
+    const actHtml=isAdmin&&!isFicelle
+      ?(isDone
+        ?`<button class="q-btn q-btn-undo admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'pending')">↺ Undo</button>`
+        :`<button class="q-btn q-btn-done admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'done')">✓ Mark drawn</button>`)
+      :'';
+    const hasName=!!r.member_name;
+    const card=_toPageBox(r.cardSlot);
+    return `<div class="da-row">
+      <div class="da-num">${r.position}</div>
+      <div class="da-name" style="${cls&&cls!=='unknown'?`color:${clsColor}`:''}">${r.member_name||'<span style="color:var(--faint)">—</span>'}${isFicelle?` <span style="font-size:10px;color:var(--amber)">★</span>`:''}</div>
+      <div class="da-card">${hasName?`Page${card.page}(${card.box})`:'—'}</div>
+      <div class="da-white">${hasName?fmtSlots(r.wStart,r.white):'—'}</div>
+      <div class="da-red">${hasName?fmtSlots(r.rStart,r.red):'—'}</div>
+      <div class="da-status">${hasName?statusHtml:'—'}</div>
+      <div class="da-act">${actHtml}</div>
+    </div>`;
+  };
+  const head=`<div class="da-row da-head">
+    <div class="da-num">คิว</div>
+    <div class="da-name">ชื่อ</div>
+    <div class="da-card">Card</div>
+    <div class="da-white">White</div>
+    <div class="da-red">Red/Black</div>
+    <div class="da-status">Status</div>
+    <div class="da-act"></div>
+  </div>`;
+  const tEl=document.getElementById('da-tuesday-list');
+  const thEl=document.getElementById('da-thursday-list');
+  const tuesD=computeDay(tues), thursD=computeDay(thurs);
+  tEl.innerHTML=tues.length?head+tuesD.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
+  thEl.innerHTML=thurs.length?head+thursD.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
+}
+
+async function toggleDesignatedStatus(weekStart,position,status){
+  const doneDate=status==='done'?toDateStr(new Date()):'';
+  const r=await gasPost({action:'saveDesignatedLog',weekStart,position,status,doneDate});
+  if(r.ok) await loadDesignatedWeek();
+  else alert('Update failed: '+r.error);
+}
+
+/* ═══════════ CALENDAR ═══════════ */
+const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
+const SLOT_MINS=15; // minutes per grid slot — 4 slots per hour
+const SLOT_H=24; // px per 15-min slot (96px/hour total)
+let getTotalSlots()=24; // computed dynamically per week from actual events (in 15-min units)
+let TIME_START=18; // computed dynamically per week from actual events
+const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
+// All calendar events (including former "fixed" recurring ones like Guild League)
+// now live entirely in the Calendar_Events sheet, identified by their `recurrence`
+// field (once/daily/weekly/biweekly/monthly). Admins edit everything via Google Sheet
+// or the on-page edit modal — nothing is hardcoded here anymore.
+let _calWeekStart=''; // Monday of the week being viewed (week mode), or the Monday of
+                       // whichever week _calAnchorDate falls in (3-day mode, for data loading)
+let _calAnchorDate=''; // the centered/reference date — only meaningful in 3-day mode
+let _calLastMobileState=null; // tracks mobile/desktop mode to detect breakpoint crossings on resize
+let _calSpecialEvents=[];
+const CAL_MOBILE_BREAKPOINT=760; // px — matches the layout's existing mobile breakpoints
+function isCalMobileView(){return window.innerWidth<=CAL_MOBILE_BREAKPOINT}
+
+// Returns the array of date strings (YYYY-MM-DD) currently being displayed —
+// 7 days starting Monday in week mode, or 3 days (yesterday/today/tomorrow
+// relative to _calAnchorDate) in mobile 3-day mode. Both rendering and data
+// loading use this so they always agree on exactly which dates are in view.
+function getCalVisibleDates(){
+  if(isCalMobileView()){
+    const anchor=new Date(_calAnchorDate+'T00:00:00');
+    const dates=[];
+    for(let i=-1;i<=1;i++){
+      const d=new Date(anchor);d.setDate(anchor.getDate()+i);
+      dates.push(toDateStr(d));
+    }
+    return dates;
+  }
+  // defensively re-normalize to the actual Monday of whatever week _calWeekStart
+  // falls in — guards against drift if it was ever set to a non-Monday date by
+  // any code path (e.g. stale state carried over from a mode switch).
+  _calWeekStart=mondayOfDate(_calWeekStart);
+  const mon=new Date(_calWeekStart+'T00:00:00');
+  const dates=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(mon);d.setDate(mon.getDate()+i);
+    dates.push(toDateStr(d));
+  }
+  return dates;
+}
+
+// Given a Monday-of-week date, returns it normalized to YYYY-MM-DD.
+function mondayOfDate(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const dow=(d.getDay()+6)%7; // 0=Mon..6=Sun
+  d.setDate(d.getDate()-dow);
+  return toDateStr(d);
+}
+
+// Format a Date object as 'YYYY-MM-DD' using its LOCAL date components —
+// never use d.toISOString().slice(0,10) for this, because toISOString()
+// converts to UTC first. For a user in Thailand (UTC+7), any local time
+// before 07:00 falls on the *previous* UTC day, so toISOString() would
+// silently return yesterday's date — this was the cause of the calendar
+// starting on the wrong day for users opening the page in the early morning.
+function toDateStr(d){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+// Convert a tag's hex color into the tinted background/border/text style used
+// by event blocks — mirrors the look of the old fixed .ev-war/.ev-personal/.ev-special
+// CSS classes, but works for any arbitrary color from the Calendar_Tags sheet.
+function hexToEventStyle(hex){
+  const h=(hex||'#6B6661').replace('#','');
+  return `background:#${h};color:#fff`;
+}
+
+function timeToTop(timeStr){
+  if(!timeStr||timeStr==='allday')return null; // allday handled separately
+  const [h,m]=(timeStr).split(':').map(Number);
+  const offsetMins=(h*60+m)-(TIME_START*60);
+  if(offsetMins<0)return null;
+  return Math.round(offsetMins/SLOT_MINS*SLOT_H);
+}
+
+// Compute flexible time-axis range (TIME_START/getTotalSlots()) from the actual
+// timed events present this week — fits the grid exactly to the schedule.
+function computeTimeRange(){
+  const allTimed=[];
+  _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
+  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;getTotalSlots()=(TIME_END_DEFAULT-TIME_START_DEFAULT)*(60/SLOT_MINS);return}
+  const toMins=t=>{const [h,m]=t.split(':').map(Number);return h*60+(m||0)};
+  let minStart=Infinity,maxEnd=-Infinity;
+  allTimed.forEach(({start,end})=>{
+    const s=toMins(start),e=toMins(end);
+    if(s<minStart)minStart=s;
+    if(e>maxEnd)maxEnd=e;
+    if(s>maxEnd)maxEnd=s; // safety: end shouldn't be before start, but guard anyway
+  });
+  // round start down to the hour, end up to the next 15-min slot, add small padding
+  let startH=Math.floor(minStart/60);
+  let endMins=Math.ceil(maxEnd/SLOT_MINS)*SLOT_MINS+30; // pad 30 min after the last event ends
+  let endH=Math.ceil(endMins/60);
+  if(endH<=startH)endH=startH+1;
+  TIME_START=startH;
+  getTotalSlots()=(endH-startH)*(60/SLOT_MINS);
+}
+
+function getWeekMondayFromDate(d){
+  const dt=new Date(d||Date.now());
+  const day=dt.getDay();
+  const diff=dt.getDate()-(day===0?6:day-1);
+  dt.setDate(diff);return toDateStr(dt);
+}
+
+async function initCalendarPage(){
+  if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
+  if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date()); // always start on today, mobile or desktop
+  _calLastMobileState=isCalMobileView();
+  buildTimeAxis();
+  await loadCalendarWeek();
+}
+
+function buildTimeAxis(){
+  const axis=document.getElementById('cal-time-axis');
+  while(axis.children.length>1)axis.removeChild(axis.lastChild);
+  // allday row
+  const adRow=document.createElement('div');
+  adRow.style.cssText='height:28px;display:flex;align-items:center;padding:0 3px;border-bottom:0.5px solid rgba(var(--tint-rgb),0.1);font-size:8px;color:rgba(90,95,101,0.5)';
+  adRow.textContent='ทั้งวัน';
+  axis.appendChild(adRow);
+  // time slots, 15-min granularity — show the hour label only on the slot
+  // that lands exactly on the hour (every 4th slot), not on every quarter-hour
+  const slotsPerHour=60/SLOT_MINS;
+  for(let i=0;i<getTotalSlots();i++){
+    const div=document.createElement('div');
+    div.className='cal-time-slot';
+    const totalMins=TIME_START*60+i*SLOT_MINS;
+    const h=String(Math.floor(totalMins/60)).padStart(2,'0');
+    const m=String(totalMins%60).padStart(2,'0');
+    if(i%slotsPerHour===0) div.innerHTML=`<span>${h}:${m}</span>`;
+    axis.appendChild(div);
+  }
+}
+
+// ── Calendar cache ──
+const _calCache={}; // key: weekStart → {events: rows[], ts: timestamp}
+const _calHelperCache={}; // key: helperWeekStart → rows[]
+const CAL_CACHE_TTL=0; // no auto-expiry — manual refresh only
+
+async function calRefresh(){
+  // clear all cache and reload current week
+  Object.keys(_calCache).forEach(k=>delete _calCache[k]);
+  Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
+  const btn=document.getElementById('cal-refresh-btn');
+  if(btn){btn.textContent='⏳';btn.disabled=true}
+  await loadCalendarWeek();
+  if(btn){btn.textContent='🔄';btn.disabled=false}
+}
+
+async function loadCalendarWeek(){
+  const visibleDates=getCalVisibleDates();
+  const helperWeekStart=mondayOfDate(visibleDates[0]);
+  const weeksNeeded=Array.from(new Set(visibleDates.map(mondayOfDate)));
+
+  // figure out which weeks need fetching vs can be served from cache
+  const weeksMissing=weeksNeeded.filter(ws=>!_calCache[ws]);
+  const helperMissing=!_calHelperCache[helperWeekStart];
+
+  // fetch only what's missing — parallel
+  const fetches=[];
+  if(helperMissing) fetches.push(gasGet('getHelpers&weekStart='+helperWeekStart).then(r=>{if(r.ok)_calHelperCache[helperWeekStart]=r.rows}));
+  weeksMissing.forEach(ws=>fetches.push(
+    gasGet('getCalendarEvents&weekStart='+ws).then(r=>{if(r.ok)_calCache[ws]=r.rows})
+  ));
+  if(fetches.length) await Promise.all(fetches);
+
+  // render from cache
+  renderHelperStrip(_calHelperCache[helperWeekStart]||[]);
+  const merged=[];
+  const seen=new Set();
+  const visibleSet=new Set(visibleDates);
+  weeksNeeded.forEach((ws,idx)=>{
+    const rows=_calCache[ws]||[];
+    const weekMon=new Date(ws+'T00:00:00');
+    rows.forEach(ev=>{
+      const d=new Date(weekMon);d.setDate(weekMon.getDate()+(ev.day_of_week-1));
+      const dateStr=toDateStr(d);
+      if(!visibleSet.has(dateStr))return;
+      const key=ev.event_id+'|'+dateStr;
+      if(seen.has(key))return;
+      seen.add(key);
+      merged.push({...ev,date:dateStr});
+    });
+  });
+  _calSpecialEvents=merged;
+  computeTimeRange();
+  buildTimeAxis();
+  renderCalGrid();
+}
+
+function classToTier(className){
+  // map a class name string → support/ar/dps
+  if(!className)return 'unknown';
+  const t=getType(className);
+  if(t==='Support')return 'support';
+  if(t==='All Rounder')return 'ar';
+  return 'dps';
+}
+
+function getHelperClass(name,sheetClass){
+  // prefer class from sheet (Helper_Log), fallback to members lookup by name
+  if(sheetClass) return classToTier(sheetClass);
+  const norm=s=>String(s||'').trim().toLowerCase();
+  const target=norm(name);
+  const m=members.find(x=>norm(x.ign)===target);
+  if(!m)return 'unknown';
+  return classToTier(m.class);
+}
+
+function renderHelperStrip(rows){
+  const el=document.getElementById('cal-helper-chips');
+  const helpers=rows.filter(r=>r.member_name&&r.member_name!=='Ficelle'&&r.member_name!=='');
+  if(!helpers.length){el.innerHTML='<span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อสัปดาห์นี้</span>';return}
+  el.innerHTML=helpers.map(r=>{
+    const cls=getHelperClass(r.member_name,r.class);
+    return `<span class="hchip hchip-${cls}">${r.member_name}</span>`;
+  }).join('');
+}
+
+// Build the legend dynamically from whichever tags are actually present in
+// the currently-loaded week's events — no more hardcoded "Guild War/Personal/
+// Special" list. Each tag's color comes from the server (already resolved via
+// GAS colorForTag), so the dot here always matches what's drawn on the grid.
+function renderCalLegend(){
+  const el=document.getElementById('cal-legend');
+  if(!el)return;
+  const seen=new Map(); // tag(lowercase) -> {label, color} — preserves first-seen order
+  _calSpecialEvents.forEach(e=>{
+    const tag=(e.tag||'').trim();
+    if(!tag)return;
+    const key=tag.toLowerCase();
+    if(!seen.has(key))seen.set(key,{label:tag,color:e.color||'#8A7860'});
+  });
+  if(!seen.size){el.innerHTML='';return}
+  el.innerHTML=Array.from(seen.values()).map(({label,color})=>
+    `<div class="cal-leg"><div class="cal-leg-dot" style="background:${color}"></div>${label}</div>`
+  ).join('');
+}
+
+function renderCalGrid(){
+  renderCalLegend();
+  const visibleDates=getCalVisibleDates();
+  const mon=new Date(visibleDates[0]+'T00:00:00');
+  const end=new Date(visibleDates[visibleDates.length-1]+'T00:00:00');
+  const fmt=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('cal-week-label').textContent=`กิจกรรมประจำสัปดาห์: ${fmt(mon)} – ${fmt(end)}`;
+  const todayStr=toDateStr(new Date());
+  const cols=document.getElementById('cal-day-cols');
+  cols.innerHTML='';
+  const gridH=getTotalSlots()*SLOT_H;
+  visibleDates.forEach(dateStr=>{
+    const dt=new Date(dateStr+'T00:00:00');
+    const dayIdx=(dt.getDay()+6)%7; // 0=Mon..6=Sun — used only to pick the Thai day-name label
+    const isToday=dateStr===todayStr;
+    const dayEvts=_calSpecialEvents.filter(e=>e.date===dateStr);
+    const allEvts=dayEvts;
+    const alldayEvts=allEvts.filter(e=>e.time==='allday'||!e.time);
+    const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
+    const col=document.createElement('div');
+    col.className='cal-dcol'+(isToday?' today-day':'');
+    // header
+    col.innerHTML=`<div class="cal-dhead">
+      <div class="cal-dname">${CAL_DAYS_SHORT[dayIdx]}</div>
+      <div class="cal-dnum">${dt.getDate()}</div>
+    </div>`;
+    // allday strip
+    const adStrip=document.createElement('div');
+    adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(var(--tint-rgb),0.1);display:flex;flex-direction:column;gap:2px;background:rgba(var(--tint-rgb),0.04)';
+    alldayEvts.forEach(e=>{
+      const pill=document.createElement('div');
+      pill.className='cal-evt-block';
+      pill.style.cssText=`position:static;margin:0;font-size:8px;padding:2px 5px;${hexToEventStyle(e.color)}`;
+      pill.textContent=e.title;
+      adStrip.appendChild(pill);
+    });
+    col.appendChild(adStrip);
+    // timed grid
+    const grid=document.createElement('div');
+    grid.className='cal-dgrid';
+    grid.style.height=gridH+'px';
+    // alternating hour-band backgrounds — every other hour gets a faint tint
+    // so the eye can scan rows without needing to trace thin grid lines
+    const slotsPerHourLine=60/SLOT_MINS;
+    const totalHours=Math.ceil(getTotalSlots()/slotsPerHourLine);
+    for(let hr=0;hr<totalHours;hr++){
+      if(hr%2!==0)continue;
+      const band=document.createElement('div');
+      band.className='cal-hour-band';
+      band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';
+      band.style.height=(Math.min(slotsPerHourLine,getTotalSlots()-hr*slotsPerHourLine)*SLOT_H)+'px';
+      grid.appendChild(band);
+    }
+    // grid lines — bold "hour" line every 4th slot (60min / 15min = 4)
+    for(let s=0;s<getTotalSlots();s++){
+      const line=document.createElement('div');
+      line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');
+      line.style.top=(s*SLOT_H)+'px';
+      grid.appendChild(line);
+    }
+    // timed events — two-pass overlap layout:
+    //  pass 1: compute each event's top/height/column index
+    //  pass 2: for each event, find the actual final size of its overlap group
+    //          (every event whose time range intersects it, not just ones placed
+    //          earlier in iteration order — fixes the first event in a clash
+    //          never finding out a later one will overlap it)
+    const placed=[];
+    timedEvts.forEach(e=>{
+      const top=timeToTop(e.time);
+      if(top===null)return;
+      const endTime=e.end&&e.end!=='allday'?e.end:(e.end_time&&e.end_time!=='allday'?e.end_time:null);
+      let h=SLOT_H; // fallback: 1 slot tall if no end time set
+      if(endTime){
+        const [sh,sm]=e.time.split(':').map(Number);
+        const [eh,em]=endTime.split(':').map(Number);
+        const durMins=(eh*60+em)-(sh*60+sm);
+        if(durMins>0)h=Math.max(20,Math.round(durMins/SLOT_MINS*SLOT_H));
+      }
+      let col_idx=0;
+      for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
+      placed.push({top,h,col:col_idx,e,endTime});
+    });
+    placed.forEach(item=>{
+      const {top,h,col:col_idx,e,endTime}=item;
+      // true overlap-group size: count every placed item (regardless of order)
+      // whose time range intersects this one's
+      const totalCols=Math.max(1,placed.filter(p=>top<p.top+p.h&&top+h>p.top).length);
+      const colWidth=totalCols>1?`calc(${100/totalCols}% - 8px)`:'calc(100% - 8px)';
+      const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 4px)`:'4px';
+      const block=document.createElement('div');
+      block.className='cal-evt-block'+(totalCols>1?' is-narrow':'');
+      block.style.cssText=`top:${top}px;height:calc(${h}px - 2px);left:${leftPct};width:${colWidth};${hexToEventStyle(e.color)}`;
+      const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
+      block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
+      // when columns are narrow (overlapping events), put the time on its own
+      // line so each piece can truncate independently with ellipsis instead of
+      // one long "Title (HH:MM - HH:MM)" string getting cut off mid-word
+      block.innerHTML=totalCols>1
+        ? `<div class="evt-title-line">${e.title}</div><div class="evt-time">${timeLabel}</div>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`
+        : `${e.title} <span class="evt-time">(${timeLabel})</span>${e.sub?`<div class="evt-sub">${e.sub}</div>`:''}`;
+      grid.appendChild(block);
+    });
+    col.appendChild(grid);
+    cols.appendChild(col);
+  });
+  // no need to scroll — 18:00 is already the start
+}
+
+// Re-render the calendar if the viewport crosses the mobile breakpoint while
+// the user is on the Calendar page (e.g. rotating a phone, resizing a window) —
+// debounced so rapid resize events don't spam reloads, and only acts when the
+// 7-day/3-day mode actually needs to change.
+let _calResizeTimer=null;
+window.addEventListener('resize',()=>{
+  if(_currentPage!=='calendar')return;
+  clearTimeout(_calResizeTimer);
+  _calResizeTimer=setTimeout(()=>{
+    const nowMobile=isCalMobileView();
+    if(_calLastMobileState!==null&&nowMobile!==_calLastMobileState){
+      _calLastMobileState=nowMobile;
+      loadCalendarWeek();
+    }else{
+      _calLastMobileState=nowMobile;
+    }
+  },200);
+});
+
+function calNavWeek(dir){
+  if(isCalMobileView()){
+    const d=new Date(_calAnchorDate+'T00:00:00');d.setDate(d.getDate()+dir);
+    _calAnchorDate=toDateStr(d);
+  }else{
+    const d=new Date(_calWeekStart+'T00:00:00');d.setDate(d.getDate()+dir*7);
+    _calWeekStart=toDateStr(d);
+  }
+  loadCalendarWeek();
+}
+function calGoToday(){
+  _calWeekStart=getWeekMondayFromDate();
+  _calAnchorDate=toDateStr(new Date());
+  loadCalendarWeek();
+}
+
+/* WAR HISTORY */
+let _whHistoryRows=[],_whHistoryLoaded=false;
+let _whOverrunPage=0,_whLeaguePage=0;
+const WH_PER_PAGE=10;
+
+async function renderWarHistory(){
+  const overrunEl=document.getElementById('wh-overrun');
+  const leagueEl=document.getElementById('wh-league');
+  if(!_whHistoryLoaded){
+    if(overrunEl)overrunEl.innerHTML='<div class="empty">Loading...</div>';
+    if(leagueEl)leagueEl.innerHTML='<div class="empty">Loading...</div>';
+    const r=await gasGet('getAuctionHistory&limit=200');
+    if(r.ok){_whHistoryRows=r.rows;_whHistoryLoaded=true;}
+    else{if(overrunEl)overrunEl.innerHTML='<div class="empty">Load failed</div>';if(leagueEl)leagueEl.innerHTML='';return;}
+  }
+  const overrunRows=_whHistoryRows.filter(r=>r.event_type&&r.event_type.toLowerCase().includes('overrun'));
+  const leagueRows=_whHistoryRows.filter(r=>r.event_type&&!r.event_type.toLowerCase().includes('overrun'));
+  if(overrunEl)overrunEl.innerHTML=renderWhSection('Guild Overrun',overrunRows,_whOverrunPage,'overrun');
+  if(leagueEl)leagueEl.innerHTML=renderWhSection('Guild League',leagueRows,_whLeaguePage,'league');
+}
+
+function renderWhSection(title,rows,page,key){
+  const total=rows.length;
+  const start=page*WH_PER_PAGE;
+  const pageItems=rows.slice(start,start+WH_PER_PAGE);
+  const totalPages=Math.ceil(total/WH_PER_PAGE);
+  const rowsHtml=pageItems.length?pageItems.map(g=>{
+    const rankLabel=/^\d+$/.test(g.rank)?'Rank '+g.rank:g.rank||'—';
+    return`<div class="wh-row"><div class="wh-vbar" style="background:var(--orange)"></div><div class="wh-date">${g.auction_date||g.date||'—'}</div><span class="wh-rank">${rankLabel}</span></div>`;
+  }).join(''):'<div class="empty">No history yet</div>';
+  const pagerHtml=total>WH_PER_PAGE?`<div class="wh-pager"><span class="pager-info">${start+1}–${Math.min(start+WH_PER_PAGE,total)} of ${total}</span><div class="pager-btns"><button class="pager-btn ${page===0?'disabled':''}" onclick="whChangePage('${key}',-1)">◀</button><button class="pager-btn cur">${page+1}</button><button class="pager-btn ${page>=totalPages-1?'disabled':''}" onclick="whChangePage('${key}',1)">▶</button></div></div>`:'';
+  return`<div class="wh-head"><span class="wh-title">${title}</span><span class="wh-badge" style="background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)">${total} events</span></div><div class="wh-body">${rowsHtml}${pagerHtml}</div>`;
+}
+
+function whChangePage(key,dir){
+  if(key==='overrun')_whOverrunPage=Math.max(0,_whOverrunPage+dir);
+  else _whLeaguePage=Math.max(0,_whLeaguePage+dir);
+  renderWarHistory();
+}
+
+
+let _zoomLevel=100;
+function onZoomSlider(v){
+  _zoomLevel=+v;
+  const scale=_zoomLevel/100;
+  const app=document.getElementById('app-root');
+  app.style.transform='scale('+scale+')';
+  app.style.transformOrigin='top left';
+  app.style.width=(100/scale)+'%';
+  app.style.height=(100/scale)+'%';
+  document.getElementById('zoom-lbl').textContent=_zoomLevel+'%';
+  const pct=((_zoomLevel-60)/(150-60)*100);
+  document.getElementById('zoom-range').style.background=
+    `linear-gradient(to right,var(--orange) ${pct}%,rgba(106,87,86,0.25) ${pct}%)`;
+}
+function resetZoom(){
+  document.getElementById('zoom-range').value=100;
+  onZoomSlider(100);
+}
+loadData();
+</script>
+
+</body>
+</html>
