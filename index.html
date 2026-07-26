@@ -1207,7 +1207,12 @@ async function loadAllHistoryCache(){
   _historyFetchPromise=(async()=>{
     try{
       const r=await gasGet('getAllHistory');
-      if(r.ok){_aucAllRows=r.rows;_aucDates=[...new Set(r.rows.map(x=>x.queue_date))].sort().reverse();_aucCacheLoaded=true;}
+      if(r.ok){
+        _aucAllRows=r.rows;
+        // include all queue_dates (pending, done, skip/skipped)
+        _aucDates=[...new Set(r.rows.filter(x=>x.queue_date).map(x=>x.queue_date))].sort().reverse();
+        _aucCacheLoaded=true;
+      }
     }catch(e){}
     _historyFetchPromise=null;
   })();
@@ -1421,7 +1426,12 @@ async function renderQueueManager(){
   const curDate=_aucDistDate;
   const pendingElsewhere={};
   _aucAllRows.forEach(r=>{if(r.status==='pending'&&r.queue_date!==curDate)pendingElsewhere[r.member_name]=r.queue_date});
-  let filtered=_aucQueueRows.filter(r=>{if(auctionDate&&r.drawn_date!==auctionDate)return false;if(status&&r.status!==status)return false;return true});
+  const normStatus=s=>s==='skipped'?'skip':s;
+  let filtered=_aucQueueRows.filter(r=>{
+    if(auctionDate&&r.drawn_date!==auctionDate)return false;
+    if(status&&normStatus(r.status)!==status)return false;
+    return true;
+  });
   filtered=filtered.slice().sort((a,b)=>(a.queue_date||'').localeCompare(b.queue_date||'')||(a.drawn_date||'').localeCompare(b.drawn_date||'')||a.position-b.position);
   const list=document.getElementById('qm-list');
   if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
