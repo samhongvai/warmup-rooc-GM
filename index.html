@@ -2,1851 +2,243 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Warmup Guild Manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&family=Mali:wght@500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lucky Draw Mockup v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* === Warm Cream Theme A === */
-  --bg:#EDE8E0;--bg2:#EDE8E0;--bg3:#F5F2EC;
-  --card:#F5F2EC;--card2:#E6E0D6;
-  --orange:#B23410;--orange-l:#8A2A0D;--orange-dim:rgba(178,52,16,.1);--orange-border:rgba(178,52,16,.28);
-  --tint-rgb:160,140,118;
-  --gold:#8A2A0D;--gold-l:#8A2A0D;--gold-dim:rgba(178,52,16,.08);
-  --border:rgba(160,140,118,.22);--border2:rgba(160,140,118,.35);
+  --bg:#EDE8E0;--card:#F5F2EC;--card2:#E6E0D6;
+  --border:rgba(160,140,118,.22);
   --text:#2A2420;--muted:#7A6E64;--faint:#A89E94;
+  --orange:#B23410;--orange-l:#8A2A0D;--orange-dim:rgba(178,52,16,.1);--orange-b:rgba(178,52,16,.28);
   --green:#2A7A48;--green-dim:rgba(42,122,72,.1);--green-b:rgba(42,122,72,.28);
-  --red:#9A2020;--red-dim:rgba(154,32,32,.1);--red-b:rgba(154,32,32,.26);
   --amber:#7A5010;--amber-dim:rgba(122,80,16,.1);--amber-b:rgba(122,80,16,.26);
-  --blue:#1A4A7A;--blue-dim:rgba(26,74,122,.08);--blue-b:rgba(26,74,122,.22);
-  --font:'Inter','Mali','Segoe UI',system-ui,sans-serif;
-  --font-pixel:'JetBrains Mono',monospace;
-  --radius-lg:14px;--radius-md:10px;--radius-sm:8px;
-  --shadow-out:3px 3px 10px rgba(160,140,118,.2),-1px -1px 6px rgba(255,252,248,.8);
-  --shadow-out-sm:2px 2px 7px rgba(160,140,118,.16),-1px -1px 4px rgba(255,252,248,.7);
-  --shadow-in:inset 2px 2px 6px rgba(160,140,118,.18),inset -1px -1px 4px rgba(255,252,248,.7);
-  --shadow-card:var(--shadow-out);
-  --shadow-soft:var(--shadow-out-sm);
+  --shadow:2px 2px 7px rgba(160,140,118,.16),-1px -1px 4px rgba(255,252,248,.7);
+  --mono:'JetBrains Mono',monospace;--r:10px;
 }
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
-.app{display:flex;min-height:100vh}
+body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);padding:24px;max-width:900px}
 
-/* SIDEBAR */
-.sidebar{width:200px;flex-shrink:0;background:var(--card);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease;border-right:1px solid var(--border);overflow:hidden}
-.sidebar.rail{width:52px}
-.sidebar.rail .nav-label{opacity:0;width:0;overflow:hidden;display:inline-block}
-.sidebar.rail .logo-text{opacity:0;width:0;overflow:hidden}
-.sidebar.rail .nav-footer-text{opacity:0;width:0;overflow:hidden;display:inline-block}
-.sidebar.rail .nav-item{justify-content:center;padding:10px 0;margin:0 6px}
-.sidebar.rail .nav-item .ni{width:auto}
-.nav-tip{position:absolute;left:58px;background:var(--text);color:#fff;font-size:11px;font-family:var(--font-pixel);padding:5px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:400}
-.sidebar.rail .nav-item:hover .nav-tip{opacity:1}
-.logo-area{padding:1.1rem 1rem 1rem;margin-bottom:0.6rem;overflow:hidden;border-bottom:1px solid var(--border)}
-.sidebar.rail .logo-area{padding:1rem 0;display:flex;justify-content:center;align-items:center}
-.logo-img-wrap{width:100%;display:flex;justify-content:center;margin-bottom:8px}
-.sidebar.rail .logo-img-wrap{margin-bottom:0}
-.logo-img{width:40px;height:40px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--orange),var(--orange-l));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--shadow-out-sm);color:#fff;flex-shrink:0}
-.logo-text{text-align:center;transition:opacity 0.22s,width 0.22s;white-space:nowrap;overflow:hidden}
-.logo-text h1{font-family:var(--font-pixel);font-size:16px;font-weight:800;color:var(--text);letter-spacing:1px}
-.logo-text p{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:1px;font-weight:600;font-family:var(--font-pixel);text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:2px 8px;font-size:12px;font-weight:600;font-family:var(--font-pixel);color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);position:relative;white-space:nowrap;overflow:hidden}
-.nav-item:hover{color:var(--text);background:rgba(160,140,118,.1)}
-.nav-item.active{color:#fff;background:var(--orange);font-weight:800}
-.nav-item .ni{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.nav-label{transition:opacity 0.22s,width 0.22s;overflow:hidden;white-space:nowrap}
-.nav-spacer{flex:1}
-.nav-lock{font-size:10px;opacity:0.4;margin-left:auto}
-.admin-locked{opacity:0.35;cursor:not-allowed;pointer-events:none}
-.admin-locked-wrap{position:relative}
-.admin-locked-wrap::after{content:'🔐';position:absolute;top:50%;right:8px;transform:translateY(-50%);font-size:10px;opacity:0.5;pointer-events:none}
-.nav-footer{padding:0.8rem 1.2rem;font-size:11px;color:var(--muted);line-height:1.7;font-family:var(--font-pixel);white-space:nowrap;overflow:hidden;border-top:1px solid var(--border)}
-.nav-footer-text{transition:opacity 0.22s,width 0.22s;white-space:nowrap;overflow:hidden}
-.sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;box-shadow:0 0 5px var(--green)}
-
-/* TOPBAR */
-.topbar-wrap{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow-out-sm);overflow:hidden;align-items:center;border:1px solid var(--border)}
-.topbar-zoom-seg{display:flex;align-items:center;gap:8px;padding:7px 12px;border-right:1px solid var(--border)}
-.zoom-reset{background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);padding:0;line-height:1;transition:color .15s}
-.zoom-reset:hover{color:var(--orange-l)}
-.zoom-pct{font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);min-width:34px}
-.zoom-range{-webkit-appearance:none;appearance:none;width:70px;height:3px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--orange) 50%,rgba(var(--tint-rgb),0.25) 50%)}
-.zoom-range::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--orange);cursor:pointer}
-.topbar-admin{display:flex;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;background:none;border:none;transition:color .15s}
-.topbar-admin.on{color:var(--orange-l);background:var(--orange-dim)}
-.hamburger{display:none;position:fixed;top:8px;left:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);padding:7px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm);border:1px solid var(--border)}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150}
-.sidebar-overlay.show{display:block}
-
-/* RESPONSIVE */
-.main{margin-left:200px;flex:1;padding:2rem 2.2rem;min-width:0;max-width:calc(100vw - 200px);transition:margin-left 0.22s}
-.main.rail-offset{margin-left:52px;max-width:calc(100vw - 52px)}
-@media(max-width:1024px){
-  .sidebar{transform:translateX(-100%);width:200px!important}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0!important;max-width:100vw!important;padding:3.5rem 0.9rem 2rem!important}
-  .hamburger{display:flex;align-items:center}
-  .topbar-zoom-seg{display:none}
-}
-
-/* MAIN */
-.page{display:none}.page.active{display:block}
-.page-title{font-family:var(--font-pixel);font-size:26px;font-weight:400;color:var(--muted);margin-bottom:4px;letter-spacing:1px}
-.page-sub{font-size:12px;color:var(--faint);margin-bottom:1.2rem}
-
-/* COMMON */
-input,select,textarea{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-size:13px;outline:none;font-family:var(--font)}
-input::placeholder,textarea::placeholder{color:var(--faint)}
-input:focus,select:focus,textarea:focus{border-color:var(--border2)}
-input[type=checkbox]{accent-color:var(--orange)}
-.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);border:1.5px solid;transition:all 0.15s}
-.btn:active{transform:scale(0.97)}
-.btn-primary{background:var(--orange);border-color:var(--orange);color:#fff}
-.btn-primary:hover{opacity:.9}
-.btn-ghost{background:var(--card);border-color:var(--border2);color:var(--muted)}
-.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
-.btn-green{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
-.btn-red{background:var(--red-dim);border-color:var(--red-b);color:var(--red)}
-.btn-full{width:100%;margin-top:6px;text-align:center}
-.sep{height:1px;background:var(--border);margin:14px 0}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem 1.3rem;box-shadow:var(--shadow-soft)}
-.section-h{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:1.2rem 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
-.section-h:first-child{margin-top:0}
-.empty{text-align:center;color:var(--muted);font-size:13px;padding:2.8rem}
-.loading{text-align:center;color:var(--muted);font-size:13px;padding:2.2rem;opacity:0.75}
-
-/* STATS */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1.2rem}
-.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 12px;text-align:center;box-shadow:var(--shadow-soft)}
-.sc .n{font-family:var(--font-pixel);font-size:30px;font-weight:400;color:var(--orange-l);line-height:1}.sc .l{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
-
-/* OVERVIEW BOX */
-.overview-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;box-shadow:var(--shadow-soft)}
-.ov-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.ov-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-pixel)}
-.ov-total{font-size:13px;font-weight:700;color:var(--orange-l);font-family:var(--font-pixel)}
-.ov-type-head{display:flex;justify-content:space-between;align-items:baseline}
-.ov-type-name{font-size:13px;font-weight:600}
-.ov-type-count{font-size:12px;font-weight:700;font-family:var(--font-pixel)}
-.ov-bar-wrap{height:5px;border-radius:4px;background:rgba(160,140,118,.12);overflow:hidden;margin:6px 0 8px}
-.ov-bar{height:100%;border-radius:4px}
-.ov-chips{display:flex;flex-wrap:nowrap;gap:5px;margin-bottom:14px;overflow:hidden}
-.ov-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;border:1px solid;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;flex-shrink:0}
-@media(max-width:600px){.ov-chips{flex-wrap:wrap;overflow:visible}.ov-chip{font-size:10px}}
-.ov-chip .cn{font-weight:600}.ov-chip .cc{font-weight:800;font-family:var(--font-pixel)}
-.cap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.cap-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-pixel)}
-.cap-boxes{display:flex;gap:10px}
-.cap-box{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center}
-.cap-box .cn{font-family:var(--font-pixel);font-size:24px;font-weight:700;color:var(--text);line-height:1}
-.cap-box .cl{font-size:11px;color:var(--muted);margin-top:4px}
-.cap-bar-wrap{height:5px;background:rgba(160,140,118,.12);border-radius:4px;overflow:hidden;margin-top:12px}
-.cap-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--amber))}
-
-/* FILTER ROW */
-.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.alt-toggle{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;margin-left:auto}
-
-/* TABLE */
-.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
-.mtbl,.au-tbl,.rtbl,.sum-tbl{width:100%;border-collapse:collapse}
-.mtbl th,.au-tbl th,.rtbl th,.sum-tbl th{text-align:left;padding:9px 13px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.8px;background:var(--card2);cursor:pointer}
-.mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{padding:6px 13px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px}
-.mtbl tr:last-child td,.au-tbl tr:last-child td,.rtbl tr:last-child td,.sum-tbl tr:last-child td{border-bottom:none}
-.mtbl tr:hover td,.au-tbl tr:hover td{background:rgba(160,140,118,.04)}
-.m-num{color:var(--faint);font-size:10px;font-family:var(--font-pixel);width:28px}
-.admin-col{display:none}
-
-/* STATUS BADGES */
-.qs{font-size:10px;font-weight:700;font-family:var(--font-pixel);padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
-.qs-done{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
-.qs-pend{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
-.qs-skip{background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
-
-/* CLASS BADGES */
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:transparent;white-space:nowrap}
-.b-s{color:var(--green);border:1.5px solid var(--green-b)}
-.b-a{color:var(--amber);border:1.5px solid var(--amber-b)}
-.b-d{color:var(--red);border:1.5px solid var(--red-b)}
-
-/* GF BADGE */
-.gf{font-size:9px;font-weight:800;font-family:var(--font-pixel);border-radius:4px;padding:2px 6px;letter-spacing:.5px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25)}
-
-/* CLASS AVATAR ICONS */
-.cls-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid}
-.av-s{background:var(--green);border-color:var(--green-b);color:#fff}
-.av-a{background:var(--amber);border-color:var(--amber-b);color:#fff}
-.av-d{background:var(--red);border-color:var(--red-b);color:#fff}
-.av-ico{width:20px;height:20px}
-
-/* PARTY */
-.field-section{margin-bottom:2rem}
-.field-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.field-head h4{font-size:14px;font-weight:700;color:var(--text);font-family:var(--font-pixel)}
-.field-tag{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;font-family:var(--font-pixel)}
-.ft-main{background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)}
-.ft-sec{background:rgba(160,140,118,.1);color:var(--muted);border:1px solid var(--border2)}
-.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr));gap:12px}
-.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
-.pc-head{padding:10px 13px;display:flex;justify-content:space-between;align-items:center;background:var(--card2);border-bottom:3px solid}
-.ph-main{border-bottom-color:var(--orange)}
-.ph-sec{border-bottom-color:#5A7A6A}
-.ph-main .pn{color:var(--orange-l);font-size:13px;font-weight:800;font-family:var(--font-pixel)}
-.ph-sec .pn{color:#3A5A4A;font-size:13px;font-weight:800;font-family:var(--font-pixel)}
-.pc-count{font-size:10px;color:var(--faint);font-weight:600;font-family:var(--font-pixel)}
-.pm-body{padding:4px 0}
-.pm{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border)}
-.pm:last-child{border-bottom:none}
-.pm-bar{width:3px;border-radius:2px;flex-shrink:0;min-height:22px}
-.pm-bar.bs{background:var(--green)}.pm-bar.ba{background:var(--amber)}.pm-bar.bd{background:var(--red)}
-.pm-info{display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
-.pm-name{color:var(--text);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pm-cls-label{font-size:10px;color:var(--muted);margin-top:1px;font-weight:500}
-.pm-note{font-size:10px;color:var(--muted);font-weight:600}
-.pm-note-leave{font-size:10px;color:var(--muted);font-weight:600}
-
-/* SEARCH */
-.nf{text-align:center;color:var(--muted);font-size:13px;padding:2rem}
-.srch-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow-out)}
-.srch-head{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--card2)}
-.srch-meta-row{flex:1;min-width:0}
-.srch-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
-.srch-name{font-size:16px;font-weight:700;color:var(--text)}
-.srch-gf-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.srch-gf-lbl{font-size:11px;color:var(--muted);font-family:var(--font-pixel);font-weight:600}
-.srch-gf-badge{font-size:11px;font-weight:700;font-family:var(--font-pixel);border-radius:5px;padding:3px 9px;letter-spacing:.2px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25)}
-.srch-meta-items{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
-.srch-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
-.srch-sep{width:1px;height:12px;background:var(--border2)}
-.srch-section{padding:12px 16px;border-bottom:1px solid var(--border)}
-.srch-section:last-child{border-bottom:none}
-.srch-sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--faint);margin-bottom:8px;font-family:var(--font-pixel)}
-.party-v3{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.party-v3-box{display:flex;align-items:center;justify-content:center;min-width:32px;height:30px;padding:0 10px;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:var(--radius-sm)}
-.party-v3-num{font-size:14px;font-weight:700;color:var(--orange-l);font-family:var(--font-pixel)}
-.party-v3-div{width:1px;height:16px;background:var(--border2)}
-.party-v3-chips{display:flex;flex-wrap:wrap;gap:6px}
-.party-v3-chip{font-size:12px;height:28px;display:flex;align-items:center;padding:0 10px;border-radius:var(--radius-sm);background:var(--card2);border:1px solid var(--border);color:var(--muted);font-weight:500}
-.srch-queue{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm)}
-.srch-q-pos{font-size:20px;font-weight:800;font-family:var(--font-pixel);color:var(--orange-l);min-width:34px}
-.srch-q-info{flex:1}
-.srch-q-date{font-size:11px;color:var(--muted)}
-.srch-q-total{font-size:12px;color:var(--text);font-weight:500;margin-top:2px}
-.srch-hist{width:100%;border-collapse:collapse;font-size:12px}
-.srch-hist th{text-align:left;padding:6px 10px;color:var(--faint);font-weight:600;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.7px}
-.srch-hist td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text)}
-.srch-hist tr:last-child td{border-bottom:none}
-.srch-pos{font-size:10px;font-family:var(--font-pixel);padding:2px 6px;border-radius:4px;background:var(--card2);border:1px solid var(--border)}
-.si{width:14px;height:14px;color:var(--faint);flex-shrink:0}
-
-/* CALENDAR */
-.cal-wrap{display:flex;border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-soft)}
-.cal-time-axis{width:44px;flex-shrink:0;background:var(--card2);border-right:1px solid var(--border)}
-.cal-time-head{height:44px;border-bottom:1px solid var(--border)}
-.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 4px 0;border-bottom:1px solid rgba(160,140,118,.1)}
-.cal-time-slot span{font-size:9px;color:var(--faint);line-height:1;white-space:nowrap;font-family:var(--font-pixel)}
-.cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
-@media(max-width:760px){.cal-day-cols{grid-template-columns:repeat(3,1fr)}}
-.cal-dcol{border-right:1px solid rgba(160,140,118,.12);display:flex;flex-direction:column}
-.cal-dcol:last-child{border-right:none}
-.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid var(--border);background:var(--card2);position:sticky;top:0;z-index:1}
-.cal-dname{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.cal-dnum{font-size:16px;font-weight:700;color:var(--orange-l);line-height:1.2}
-.cal-dcol.today-day .cal-dhead{background:var(--orange-dim);border-bottom:2px solid var(--orange-border)}
-.cal-dcol.today-day .cal-dname{color:var(--orange-l)}
-.cal-dcol.today-day .cal-dnum{color:var(--orange)}
-.cal-dgrid{position:relative;height:1728px}
-.cal-grid-line{position:absolute;left:0;right:0;height:1px;background:rgba(160,140,118,.1)}
-.cal-grid-line.hour{height:1px;background:rgba(160,140,118,.22)}
-.cal-hour-band{position:absolute;left:0;right:0;background:rgba(160,140,118,.04);pointer-events:none}
-/* calendar event style E: dot + title + time */
-.cal-evt-block{position:absolute;border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;line-height:1.4;background:var(--card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:5px}
-.cal-evt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:2px}
-.cal-evt-body{min-width:0;flex:1}
-.cal-evt-title{display:block;color:var(--text);font-weight:600;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-evt-time{font-size:9px;color:var(--faint);display:block;font-weight:500;margin-top:1px;font-family:var(--font-pixel)}
-.cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:.7;margin-top:2px}
-.cal-evt-block.is-narrow .evt-title-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-evt-block.is-narrow .evt-time{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.helper-strip{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow-soft)}
-.helper-chips{display:flex;flex-wrap:wrap;gap:6px}
-.hchip{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
-.hchip-support{background:var(--green-dim);border:1px solid var(--green-b);color:var(--green)}
-.hchip-ar{background:var(--amber-dim);border:1px solid var(--amber-b);color:var(--amber)}
-.hchip-dps{background:var(--red-dim);border:1px solid var(--red-b);color:var(--red)}
-.hchip-unknown{background:var(--card2);border:1px solid var(--border);color:var(--muted)}
-.cal-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.cal-leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:500}
-.cal-leg-dot{width:8px;height:8px;border-radius:50%}
-
-/* AUCTION */
-.au-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.2rem;overflow-x:auto}
-.au-tab{padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--font);white-space:nowrap}
+.au-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px}
+.au-tab{padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
 .au-tab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
+.sel-row{display:flex;gap:8px;margin-bottom:16px}
+.sel-block{flex:1}
+.sel-label{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--mono)}
+select{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px}
 
-/* REWARD CARDS — style B monochrome */
-.rb-cards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.rb-card{flex:1;min-width:140px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
-.rb-label{font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:12px 14px 0}
-.rb-total{font-size:13px;color:var(--muted);padding:4px 14px 10px}
-.rb-total b{font-family:var(--font-pixel);font-size:18px;font-weight:800;color:var(--text);margin-right:4px}
-.rb-bar-row{display:flex;align-items:center;gap:8px;padding:0 14px 10px}
-.rb-bar-wrap{flex:1;height:5px;background:rgba(160,140,118,.14);border-radius:4px;overflow:hidden}
-.rb-bar{height:100%;border-radius:4px;background:var(--orange)}
-.rb-frac{font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);white-space:nowrap}
-.rb-foot{padding:10px 14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
-.rb-stat{display:flex;justify-content:space-between}
-.rb-lbl{font-size:11px;color:var(--muted)}
-.rb-val{font-size:13px;font-weight:700;font-family:var(--font-pixel);color:var(--text)}
-.rb-pp{display:flex;justify-content:space-between;align-items:center}
-.rb-pp-lbl{font-size:11px;color:var(--muted);font-weight:600}
-.rb-pp-val{font-size:18px;font-weight:800;font-family:var(--font-pixel);color:var(--text)}
+.pool-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.pool-card{flex:1;min-width:140px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow)}
+.pool-lbl{font-size:9px;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:.8px;color:var(--faint);margin-bottom:4px}
+.pool-val{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.pool-sub{font-size:10px;color:var(--faint);margin-top:2px}
 
-/* QUEUE MANAGER */
-.mgr-list{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
-.mgr-list-head,.mgr-row{display:flex;align-items:center;padding:0 6px}
-.mgr-list-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700;height:36px}
-.mgr-row{border-bottom:1px solid var(--border);font-size:12px;min-height:48px;transition:background 0.1s;background:var(--card)}
-.mgr-row:last-child{border-bottom:none}
-.mgr-row:hover{background:rgba(160,140,118,.04)}
-.mc-num{width:40px;min-width:40px;text-align:center;color:var(--faint);font-size:11px;padding:0 4px;flex-shrink:0;font-family:var(--font-pixel)}
-.mc-name{flex:1;min-width:80px;padding:0 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mc-status{width:110px;min-width:110px;padding:0 8px}
-.mc-date{width:110px;min-width:110px;padding:0 8px;font-size:11px;color:var(--muted);font-family:var(--font-pixel)}
-.mc-act{width:0;min-width:0;overflow:hidden}
-.q-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid;cursor:pointer;font-family:var(--font)}
-.q-btn-done{background:var(--green-dim);border-color:var(--green-b);color:var(--green)}
-.q-btn-undo{background:var(--card);border-color:var(--border);color:var(--muted)}
-.q-btn-skip{background:var(--amber-dim);border-color:var(--amber-b);color:var(--amber);margin-right:4px}
-.dup-badge{display:inline-block;margin-left:7px;font-size:10px;padding:2px 7px;border-radius:20px;background:var(--red-dim);border:1px solid var(--red-b);color:var(--red);white-space:nowrap;font-weight:600}
-.row-skip{opacity:.6}
+.step{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow)}
+/* step-head: num + title flex:1 + right slot */
+.step-head{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);background:var(--card2)}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:var(--mono);flex-shrink:0}
+.sn-active{background:var(--orange);color:#fff}
+.sn-done{background:var(--green);color:#fff}
+.sn-dim{background:rgba(160,140,118,.15);color:var(--faint);border:1px solid var(--border)}
+.step-title{font-size:12px;font-weight:700;font-family:var(--mono);color:var(--text);flex:1}
+.step-title.dim{color:var(--faint)}
+/* right slot: แสดง button หรือ label ขึ้นอยู่กับ step/scenario */
+.step-right{margin-left:auto;flex-shrink:0}
+.step-right-label{font-size:11px;color:var(--faint);font-style:italic}
+.btn-draw-sm{padding:5px 14px;border-radius:7px;background:var(--orange);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-draw-sm.dim{opacity:.35;cursor:not-allowed}
+.step-body{padding:14px}
+.step-body.dim{opacity:.35;pointer-events:none}
 
-/* DESIGNATED AUCTION */
-.da-row{display:flex;align-items:center;padding:0 6px;border-bottom:1px solid var(--border);font-size:12px;min-height:46px;background:var(--card)}
-.da-row:last-child{border-bottom:none}
-.da-row:hover{background:rgba(160,140,118,.04)}
-.da-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;min-height:34px}
-.da-num{width:34px;min-width:34px;text-align:center;color:var(--faint);font-size:11px;flex-shrink:0;font-family:var(--font-pixel)}
-.da-name{flex:1;min-width:70px;padding:0 6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.da-card{width:90px;min-width:90px;padding:0 4px;font-size:11px;flex-shrink:0;font-family:var(--font-pixel);color:var(--orange-l)}
-.da-white{width:110px;min-width:110px;padding:0 4px;font-size:11px;flex-shrink:0;font-family:var(--font-pixel);color:var(--orange-l)}
-.da-red{width:110px;min-width:110px;padding:0 4px;font-size:11px;flex-shrink:0;font-family:var(--font-pixel);color:var(--orange-l)}
-.da-status{width:90px;min-width:90px;padding:0 4px;flex-shrink:0;white-space:nowrap}
-.da-act{width:120px;min-width:120px;padding:0 6px;text-align:right;flex-shrink:0}
-@media(max-width:760px){.da-white,.da-red{width:90px;min-width:90px}.da-act{width:90px;min-width:90px}}
+.mvp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-bottom:12px}
+.mvp-card{background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;cursor:pointer;font-size:12px;font-weight:700}
+.mvp-card.selected{background:var(--orange-dim);border-color:var(--orange-b);color:var(--orange-l)}
+.mvp-card.selected::before{content:'MVP · ';font-size:9px;font-weight:700;font-family:var(--mono);color:var(--orange);display:block;margin-bottom:2px}
 
-/* FEATHER BAR */
-.fbar-cell{text-align:center}
-.fbar{position:relative;height:22px;width:92px;border-radius:7px;overflow:hidden;display:inline-block}
-.fbar .fbar-track{position:absolute;inset:0;background:rgba(160,140,118,.08)}
-.fbar .fbar-fill{position:absolute;left:0;top:0;height:100%}
-.fbar .fbar-fill.fok{background:rgba(42,122,72,.5)}
-.fbar .fbar-fill.fmiss{background:rgba(122,80,16,.5)}
-.fbar .fbar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;z-index:1;color:var(--text)}
+.prog-wrap{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 13px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.prog-bar-wrap{flex:1;height:5px;background:rgba(160,140,118,.15);border-radius:4px;overflow:hidden}
+.prog-bar{height:100%;border-radius:4px;background:var(--orange)}
+.prog-txt{font-size:12px;font-weight:800;font-family:var(--mono);color:var(--orange-l);white-space:nowrap}
+.btn-row{display:flex;gap:8px;margin-bottom:12px}
+.btn-ghost{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
 
-/* FEATHER INPUTS */
-.feather-inputs{margin:12px 0 14px}
-.feather-inputs .fi-title{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
-.feather-inputs .fi-hint{font-size:12px;color:var(--muted);background:var(--amber-dim);border:1px solid var(--amber-b);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.6}
-.feather-inputs .fi-row{display:flex;gap:10px}
-.fi-field{flex:1;text-align:center}
-.fi-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:500}
-.fi-field input{width:100%;text-align:center;font-size:20px;font-weight:700;padding:9px 8px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text)}
-.fi-field .fi-max{font-size:11px;color:var(--muted);margin-top:4px}
+.tbl-wrap{border-top:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding:8px 13px;border-bottom:1px solid var(--border);text-align:left;background:var(--card2)}
+td{padding:7px 13px;border-bottom:1px solid var(--border);font-size:12px}
+tr:last-child td{border-bottom:none}
+.amber-badge{font-size:10px;font-weight:700;font-family:var(--mono);padding:2px 7px;border-radius:20px;background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
 
-/* LUCKY DRAW */
-.ld-pool-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.ld-pool-card{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-soft)}
-.ld-pool-lbl{font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
-.ld-pool-val{font-size:22px;font-weight:800;font-family:var(--font-pixel);color:var(--text)}
-.ld-prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:11px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-soft)}
-.ld-prog-bar-wrap{flex:1;height:5px;background:rgba(160,140,118,.14);border-radius:4px;overflow:hidden}
-.ld-prog-bar{height:100%;border-radius:4px;background:var(--orange);transition:width .2s}
-.ld-prog-txt{font-size:12px;font-weight:800;font-family:var(--font-pixel);color:var(--orange-l);white-space:nowrap}
-.ld-prog-lbl{font-size:11px;color:var(--faint);white-space:nowrap}
-.ld-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-bottom:12px;max-height:260px;overflow-y:auto}
-.ld-card{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;cursor:pointer;user-select:none;transition:all .15s}
-.ld-card:hover{border-color:var(--border2)}
-.ld-card.selected{background:var(--orange-dim);border-color:var(--orange-border)}
-.ld-card-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.admin-only{}.admin-locked{opacity:0.35;cursor:not-allowed;pointer-events:none}
-.step-head{font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;font-family:var(--font-pixel)}
-.step-num{width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-num.done{background:var(--green)}
-.step-num.pending{background:var(--card2);color:var(--faint);border:1px solid var(--border)}
-.step2-box{background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:12px}
-.step2-hint{font-size:12px;color:var(--orange-l);font-weight:600;margin-bottom:12px}
-.step2-disabled{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;color:var(--faint);font-size:12px;margin-bottom:12px}
-.mvp-badge{font-size:10px;font-weight:700;font-family:var(--font-pixel);padding:2px 7px;border-radius:20px;background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
-
-/* WAR HISTORY */
-.wh-section{margin-bottom:18px}
-.wh-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md) var(--radius-md) 0 0;border-bottom:none}
-.wh-title{font-size:12px;font-weight:800;font-family:var(--font-pixel);flex:1;color:var(--text)}
-.wh-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--font-pixel)}
-.wh-body{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
-.wh-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)}
-.wh-row:last-child{border-bottom:none}
-.wh-row:hover{background:rgba(160,140,118,.04)}
-.wh-vbar{width:3px;height:22px;border-radius:2px;flex-shrink:0}
-.wh-date{font-size:11px;font-family:var(--font-pixel);color:var(--muted);flex:1}
-.wh-rank{font-size:10px;font-family:var(--font-pixel);color:var(--faint);padding:2px 7px;border-radius:20px;background:var(--card2);border:1px solid var(--border)}
-.wh-pager{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--border);background:var(--card2)}
-.pager-info{font-size:10px;font-family:var(--font-pixel);color:var(--faint)}
-.pager-btns{display:flex;gap:5px}
-.pager-btn{font-size:11px;font-weight:700;font-family:var(--font-pixel);padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer}
-.pager-btn.disabled{opacity:.4;cursor:default;pointer-events:none}
-.pager-btn.cur{background:var(--orange);color:#fff;border-color:var(--orange)}
-
-/* REWARDS PREVIEW */
-.evts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:10px;margin-bottom:14px}
-.evt{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-soft)}
-.evt .et{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;font-weight:600;font-family:var(--font-pixel)}
-.evt .en{font-size:14px;font-weight:700;margin-bottom:3px;color:var(--text)}
-.evt .ed{font-size:12px;color:var(--orange-l);font-family:var(--font-pixel);font-weight:600}
-
-/* ATTENDANCE */
-.att-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.2rem;overflow-x:auto}
-.att-tab{padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--font);white-space:nowrap}
-.att-tab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
-.att-sessions-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.2rem}
-.att-session-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:border-color .15s;font-size:13px;box-shadow:var(--shadow-soft)}
-.att-session-row:hover{border-color:var(--border2)}
-.att-session-row.active{border-color:var(--orange-border);background:var(--orange-dim)}
-.att-session-row .as-date{font-weight:600;flex:1;color:var(--text)}
-.att-session-row .as-type{font-size:12px;color:var(--muted)}
-.att-session-row .as-stats{display:flex;gap:10px;font-size:12px}
-.att-bar-top{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-soft)}
-.att-bar-top .abd{font-size:14px;font-weight:700;color:var(--orange-l)}
-.att-bar-top .abm{font-size:12px;color:var(--muted);margin-top:3px}
-.att-ctrs{display:flex;gap:8px}
-.att-ctr{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 13px;text-align:center}
-.att-ctr .acn{font-size:18px;font-weight:700}.att-ctr .acl{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
-.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:9px}
-.att-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;display:flex;align-items:center;gap:10px;transition:border-color .15s;box-shadow:var(--shadow-soft)}
-.att-card.present{border-color:var(--green-b);background:rgba(42,122,72,.06)}
-.att-card.absent{border-color:var(--red-b);background:rgba(154,32,32,.06)}
-.att-card.leave{border-color:var(--blue-b);background:var(--blue-dim)}
-.att-info{flex:1;min-width:0}
-.att-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.att-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.att-noted{font-size:11px;color:var(--blue);margin-top:2px}
-.att-miss{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--red-dim);color:var(--red);border:1px solid var(--red-b);white-space:nowrap;flex-shrink:0;font-weight:600}
-.att-select{font-size:12px;padding:5px 9px;border-radius:var(--radius-sm);background:var(--card2);border:1px solid var(--border);color:var(--text);cursor:pointer;flex-shrink:0}
-.att-card.present .att-select{border-color:var(--green-b);color:var(--green)}
-.att-card.absent .att-select{border-color:var(--red-b);color:var(--red)}
-.att-card.leave .att-select{border-color:var(--blue-b);color:var(--blue)}
-.sum-tbl th{cursor:default}
-.rate-bar{height:7px;border-radius:8px;background:rgba(160,140,118,.08);width:85px;overflow:hidden;display:inline-block;vertical-align:middle}
-.rate-fill{height:100%;border-radius:8px;background:var(--green)}
-.rate-fill.low{background:var(--red)}
-.new-session-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.2rem;margin-bottom:1.2rem;box-shadow:var(--shadow-soft)}
-.new-session-form h4{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:12px}
-.form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.form-row label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;font-weight:500}
-.form-row input,.form-row select{font-size:13px;padding:8px 11px}
-
-/* AUCTION DETAIL */
-.detail-head{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-md);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;box-shadow:var(--shadow-soft)}
-.detail-chips{display:flex;gap:8px;flex-wrap:wrap}
-.dchip{font-size:12px;padding:4px 11px;border-radius:20px;background:rgba(160,140,118,.08);border:1px solid var(--border);color:var(--muted);font-weight:500}
-.dchip b{color:var(--text)}
-.loc{display:flex;flex-direction:column;gap:4px}
-.loc-item{font-size:12px;display:flex;align-items:center;gap:6px}
-.loc-pg{font-size:11px;padding:2px 8px;border-radius:5px;font-weight:700;flex-shrink:0}
-.pg-card{background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)}
-.pg-w{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
-.pg-d{background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
-.loc-detail{color:var(--muted)}
-.pers-card{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-soft)}
-.pers-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.pers-avatar{width:36px;height:36px;border-radius:50%;background:var(--orange-dim);border:1px solid var(--orange-border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--orange-l);flex-shrink:0}
-.pers-secs{display:grid;grid-template-columns:repeat(3,1fr)}
-.pers-sec{padding:13px 16px;border-right:1px solid var(--border)}
-.pers-sec:last-child{border-right:none}
-.pers-sec-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-weight:700}
-.slot-vis{display:flex;flex-direction:column;gap:10px}
-.slot-row{display:flex;align-items:flex-start;gap:9px}
-.slot-pg-card,.slot-pg-w,.slot-pg-d{font-size:12px;font-weight:700;color:var(--orange-l)}
-.slot-boxes{font-size:12px;color:var(--muted);margin-top:2px}
-.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}
-.box{height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.box-on-card,.box-on-w,.box-on-d{background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange-l)}
-.box-off{background:rgba(160,140,118,.06);border:1px solid rgba(160,140,118,.12);color:var(--faint)}
-#detail-tbody tr{border-bottom:1px solid var(--border)}
-#detail-tbody tr:last-child{border-bottom:none}
-#detail-tbody tr:hover td{background:rgba(160,140,118,.04)}
-@media(max-width:580px){.pers-secs{grid-template-columns:1fr}.pers-sec{border-right:none;border-bottom:1px solid var(--border)}.pers-sec:last-child{border-bottom:none}}
-.done-modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.4rem;width:320px;max-width:90vw;box-shadow:var(--shadow-card)}
-.done-modal h4{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:12px}
-.date-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.date-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text);transition:border-color .15s}
-.date-opt:hover{border-color:var(--border2)}
-.date-opt.selected{border-color:var(--orange-border);background:var(--orange-dim)}
-.date-opt input[type=radio]{accent-color:var(--orange)}
-
-/* MODAL */
-.modal-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.8rem;width:360px;max-width:90vw;box-shadow:var(--shadow-card)}
-.modal h3{font-size:17px;font-weight:700;color:var(--muted);margin-bottom:1.2rem;font-family:var(--font-pixel)}
-.modal input{width:100%;margin-bottom:12px}
-.modal-err{font-size:13px;color:var(--red);margin-bottom:10px;display:none;font-weight:500}
-.paste-area{width:100%;height:180px;resize:vertical;font-size:13px;line-height:1.7;margin-bottom:10px}
+.scenario-divider{font-size:11px;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:1.5px;color:var(--faint);margin:28px 0 14px;display:flex;align-items:center;gap:10px}
+.scenario-divider::before,.scenario-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-lbl{font-size:10px;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
 </style>
 </head>
 <body>
-<button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
-<div class="topbar-wrap">
-  <div class="topbar-zoom-seg">
-    <button class="zoom-reset" onclick="resetZoom()" title="Reset">↺</button>
-    <span class="zoom-pct" id="zoom-lbl">100%</span>
-    <input type="range" class="zoom-range" id="zoom-range" min="60" max="150" step="10" value="100" oninput="onZoomSlider(this.value)">
-  </div>
-  <button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
-</div>
-<div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
-<div class="app" id="app-root">
-<nav class="sidebar" id="sidebar-el">
-  <div class="logo-area">
-    <div class="logo-img-wrap"><div class="logo-img">⚔</div></div>
-    <div class="logo-text"><h1>WARMUP</h1><p>GUILD MANAGER</p></div>
-  </div>
-  <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
-  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
-  <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
-  <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
-  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
-  <div class="nav-item admin-only admin-locked" onclick="swAdmin('attendance');closeSidebar()"><span class="ni">📋</span><span class="nav-label">Attendance<span class="nav-lock" id="lock-attendance">🔒</span></span><span class="nav-tip">Attendance 🔒</span></div>
-  <div class="nav-spacer"></div>
-  <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
-</nav>
-<main class="main" id="main-wrap">
 
-<!-- MEMBERS -->
-<div id="page-members" class="page">
-  <div class="page-title">Members</div>
-  <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
-  <div class="overview-box" id="class-overview" style="margin-bottom:14px"></div>
-  <div class="filter-row">
-    <input type="text" id="search-m" placeholder="Search name / ID..." oninput="debouncedRenderMembers()" style="flex:2;min-width:160px">
-    <select id="fc" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All classes</option></select>
-    <select id="ft" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
-    <select id="fp" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All party</option></select>
-    <label class="alt-toggle"><input type="checkbox" id="hide-alts" checked onchange="toggleHideAlts()"> Hide Alts</label>
-  </div>
-  <div class="tbl-wrap"><table class="mtbl">
-    <thead><tr>
-      <th class="m-num">#</th>
-      <th id="th-ign" onclick="sortM('ign')">Name ↕</th>
-      <th id="th-class" onclick="sortM('class')">Class ↕</th>
-      <th id="th-type" onclick="sortM('type')">Type ↕</th>
-      <th id="th-party" onclick="sortM('party')">Party ↕</th>
-      <th id="th-gf" onclick="sortM('guild_field')">Guild Field ↕</th>
-      <th>Note</th>
-      <th>Tag</th>
-      <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
-      <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
-    </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
-  </table></div>
-  <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
+<div class="sel-row">
+  <div class="sel-block"><span class="sel-label">Event type</span><select><option>Major League</option></select></div>
+  <div class="sel-block"><span class="sel-label">Rank</span><select><option>Rank 1</option></select></div>
+</div>
+<div class="au-tabs">
+  <div class="au-tab">Guild Auction</div>
+  <div class="au-tab active">Lucky Draw</div>
+  <div class="au-tab">Designated Auction</div>
+  <div class="au-tab">Auction Queue</div>
+  <div class="au-tab">War History</div>
+  <div class="au-tab">Rewards Preview</div>
 </div>
 
-<!-- PARTY -->
-<div id="page-party" class="page">
-  <div class="page-title">Party</div>
-  <div class="page-sub" id="party-sub"></div>
-  <div id="party-content"><div class="loading">Loading...</div></div>
+<!-- ════════════════════════════════════════════
+     SCENARIO A: GUILD LEAGUE
+════════════════════════════════════════════ -->
+<div class="scenario-divider">Guild League</div>
+
+<div class="sec-lbl">Remaining from Auction</div>
+<div class="pool-row">
+  <div class="pool-card"><div class="pool-lbl">Feather White</div><div class="pool-val">10</div></div>
+  <div class="pool-card"><div class="pool-lbl">Feather Red/Black</div><div class="pool-val">10</div></div>
+  <div class="pool-card"><div class="pool-lbl">MVP Box</div><div class="pool-val">15</div></div>
 </div>
 
-<!-- SEARCH -->
-<div id="page-search" class="page active">
-  <div class="page-title">Search</div>
-  <div class="page-sub">Search by character name or ID</div>
-  <div style="display:flex;gap:8px;margin-bottom:16px">
-    <input type="text" id="si-main" placeholder="Character name / ID..." style="flex:1;font-size:14px;padding:10px 14px" oninput="searchMain()">
-  </div>
-  <div id="search-result"></div>
-</div>
-
-<!-- AUCTION -->
-<div id="page-auction" class="page">
-  <div class="page-title">Auction</div>
-  <div class="page-sub">Queue, rewards, and management</div>
-  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-    <div style="flex:1;min-width:160px">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Event type</label>
-      <select id="auc-event-type" onchange="onAucEventType()" style="width:100%"></select>
-    </div>
-    <div style="flex:1;min-width:160px">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Rank</label>
-      <select id="auc-event-rank" onchange="onAucRank()" style="width:100%"></select>
+<!-- Step 1: Mark MVP — active, draw button locked (ยังไม่ครบ) -->
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-active">1</div>
+    <span class="step-title">Mark MVP Box Recipients (Guild League only)</span>
+    <div class="step-right">
+      <button class="btn-draw-sm dim">🎲 Draw</button>
     </div>
   </div>
-  <div class="au-tabs">
-    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
-    <button class="au-tab" id="auc-tab-lucky" data-tab="lucky" onclick="swAucTab('lucky')">Lucky Draw</button>
-    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated Auction</button>
-    <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Auction Queue</button>
-    <button class="au-tab" data-tab="warhistory" onclick="swAucTab('warhistory')">War History</button>
-    <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards Preview</button>
-  </div>
-
-  <!-- TAB: GUILD AUCTION -->
-  <div id="auc-calc">
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
-
-    <!-- ADMIN SECTION -->
-    <div class="admin-only admin-locked" id="auc-admin-block" style="background:var(--card);border:1px solid var(--orange-border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft);margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--orange-dim);border-bottom:1px solid var(--orange-border)">
-        <span style="font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);text-transform:uppercase;letter-spacing:1px;flex:1">🔐 Admin</span>
-        <span style="font-size:9px;padding:2px 8px;border-radius:20px;background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange-l);font-family:var(--font-pixel)" id="auc-save-as-label">—</span>
-      </div>
-      <div style="padding:14px">
-        <!-- Row 1: Multiplier + Totals + Per person -->
-        <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
-          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid var(--border2,rgba(160,140,118,.35));flex-shrink:0">
-            <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--orange-l)">Mul ×</span>
-            <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:56px;font-size:20px;font-weight:700;color:var(--orange);background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);text-align:center">
-          </div>
-          <div id="auc-reward-inputs" style="display:flex;flex:1"></div>
-          <div style="border-left:2px solid var(--border2,rgba(160,140,118,.35))"></div>
-          <div id="auc-per-person-inputs" style="display:flex"></div>
-        </div>
-        <!-- Row 2: คงเหลือ (progress bars) -->
-        <div id="auc-summary-cards" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
-        <!-- Row 3: Save -->
-        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)">
-          <div style="flex:1;min-width:150px">
-            <label style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--faint);display:block;margin-bottom:5px">Auction date</label>
-            <input type="date" id="auc-result-date" style="width:100%">
-          </div>
-          <button class="btn btn-primary" onclick="saveAuctionResult()">✓ Save result</button>
-        </div>
-        <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:6px">Select the actual auction date then press Save.</div>
-        <div id="auc-save-result-msg" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
-      </div>
+  <div class="step-body">
+    <div class="btn-row"><button class="btn-ghost">🎲 Shuffle</button><button class="btn-ghost">Clear All</button></div>
+    <div class="prog-wrap">
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:53%"></div></div>
+      <span class="prog-txt">8 / 15</span>
+      <span style="font-size:11px;color:var(--faint)">selected</span>
     </div>
-
-    <!-- USER SECTION: what each person gets -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)">
-      <div style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <span style="font-size:13px;font-weight:700;color:var(--text)" id="auc-user-title">การแจกรางวัล</span>
-        <span style="font-size:11px;color:var(--muted)" id="auc-per-person-summary">—</span>
-      </div>
-      <table class="au-tbl">
-        <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card slot</th><th>White feather</th><th>Red/Black feather</th></tr></thead>
-        <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">No pending queue members</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- TAB: LUCKY DRAW -->
-  <div id="auc-lucky" style="display:none">
-    <div style="font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Remaining from Auction</div>
-    <div class="ld-pool-row" id="ld-pool-row">
-      <div class="ld-pool-card"><div class="ld-pool-lbl">Feather White</div><div class="ld-pool-val" id="ld-white-rem">—</div></div>
-      <div class="ld-pool-card"><div class="ld-pool-lbl">Feather Red/Black</div><div class="ld-pool-val" id="ld-red-rem">—</div></div>
-      <div class="ld-pool-card"><div class="ld-pool-lbl">MVP Box</div><div class="ld-pool-val" id="ld-mvp-count">—</div></div>
-    </div>
-    <div class="admin-only admin-locked" id="lucky-admin-wrap">
-      <div class="step-head"><div class="step-num" id="ls1-num">1</div><span id="lucky-step1-title">Mark MVP Box Recipients</span></div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <button class="btn btn-ghost" onclick="luckyShuffle()">🎲 Shuffle Order</button>
-        <button class="btn btn-ghost" onclick="luckyClearAll()">Clear All</button>
-      </div>
-      <div class="ld-prog-wrap">
-        <div class="ld-prog-bar-wrap"><div class="ld-prog-bar" id="ld-prog-bar" style="width:0%"></div></div>
-        <span class="ld-prog-txt" id="ld-prog-txt">0 / 0</span>
-        <span class="ld-prog-lbl">selected</span>
-      </div>
-      <div class="ld-grid" id="lucky-mvp-grid"></div>
-      <div class="sep"></div>
-      <div class="step-head"><div class="step-num pending" id="ls2-num">2</div>Draw Remaining Feathers</div>
-      <div id="lucky-step2-box" class="step2-disabled">Complete Step 1 first</div>
-      <div class="sep"></div>
-      <div class="step-head"><div class="step-num pending" id="ls3-num">✓</div>Lucky Draw Result</div>
-      <div id="lucky-result" class="tbl-wrap" style="display:none">
-        <table class="au-tbl">
-          <thead><tr><th style="width:28px">#</th><th>Name</th><th>Item</th><th>Card Slot (no overlap with Guild Auction)</th></tr></thead>
-          <tbody id="lucky-result-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: DESIGNATED AUCTION -->
-  <div id="auc-designated" style="display:none">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Special rewards for guild helpers · Tuesday (Queue 1–5) · Thursday (Queue 6–10)</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">Week</label>
-      <input type="date" id="da-week-input" style="width:150px" onchange="loadDesignatedWeek()">
-      <button class="btn btn-ghost" onclick="setDesignatedThisWeek()">This Week</button>
-      <span style="font-size:10px;color:var(--faint);font-family:var(--font-pixel)" id="da-week-label"></span>
-    </div>
-    <div style="font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Reward per Person</div>
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;box-shadow:var(--shadow-soft)">
-        <div style="font-size:20px;font-weight:700;font-family:var(--font-pixel)" id="da-reward-card">5</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--font-pixel)">Card</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--font-pixel)">Continues from MVP Box</div>
-      </div>
-      <div style="flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;box-shadow:var(--shadow-soft)">
-        <div style="font-size:20px;font-weight:700;font-family:var(--font-pixel)" id="da-reward-white">15</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--font-pixel)">White</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--font-pixel)">Continues from Guild Auction</div>
-      </div>
-      <div style="flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;box-shadow:var(--shadow-soft)">
-        <div style="font-size:20px;font-weight:700;font-family:var(--font-pixel)" id="da-reward-red">15</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--font-pixel)">Red/Black</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--font-pixel)">Continues from Guild Auction</div>
-      </div>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">📅 Tuesday — Queue 1–5</div>
-    <div id="da-tuesday-list" class="mgr-list" style="margin-bottom:14px"><div class="empty">Select a week first</div></div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">📅 Thursday — Queue 6–10</div>
-    <div id="da-thursday-list" class="mgr-list" style="margin-bottom:14px"><div class="empty">Select a week first</div></div>
-    <div class="sep" style="margin:14px 0"></div>
-    <div style="font-size:11px;color:var(--muted);padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      💡 To assign helpers: Admin enters <b>character_id</b> directly in the <b>Helper_Log</b> sheet (slots 1–4 and 6–9). Names and classes are pulled from Members automatically. Slots 5 and 10 are always <b>Ficelle</b>.
-    </div>
-  </div>
-
-  <!-- TAB: AUCTION QUEUE -->
-  <div id="auc-manage" style="display:none">
-    <div style="font-size:10px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Filter (sorted by Draw date → Auction date → Status)</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="qm-filter-draw" onchange="renderQueueManager()" style="flex:1;min-width:130px"><option value="">Draw date: All</option></select>
-      <select id="qm-filter-auction" onchange="renderQueueManager()" style="flex:1;min-width:130px"><option value="">Auction date: All</option></select>
-      <select id="qm-filter-status" onchange="renderQueueManager()" style="flex:1;min-width:110px">
-        <option value="">Status: All</option><option value="done">Done</option><option value="pending">Pending</option><option value="skip">Skipped</option>
-      </select>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">Queue</div>
-    <div id="qm-list" class="mgr-list"><div class="empty">Loading...</div></div>
-    <div class="sep" style="margin:14px 0"></div>
-    <div class="admin-only admin-locked" id="qm-draw-wrap">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">Draw New Queue (Admin only)</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-        <input type="password" id="qm-admin-pass" placeholder="Admin password" style="flex:1;min-width:140px">
-        <button class="btn btn-primary" onclick="drawNewQueue()">🎰 Draw Queue</button>
-      </div>
-      <div id="qm-draw-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
-    </div>
-  </div>
-
-  <!-- TAB: WAR HISTORY -->
-  <div id="auc-warhistory" style="display:none">
-    <div style="display:flex;gap:14px;flex-wrap:wrap" id="wh-container">
-      <div style="flex:1;min-width:280px">
-        <div class="wh-section" id="wh-overrun"></div>
-      </div>
-      <div style="flex:1;min-width:280px">
-        <div class="wh-section" id="wh-league"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: REWARDS PREVIEW -->
-  <div id="auc-rewards" style="display:none">
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)" id="rwprev-title">Rewards Preview</div>
-    <div class="tbl-wrap" style="margin-bottom:16px"><table class="rtbl">
-      <thead><tr id="rwprev-thead"></tr></thead>
-      <tbody id="rwprev-tbody"></tbody>
-    </table></div>
-    <div class="section-h">Schedule</div>
-    <div class="evts">
-      <div class="evt"><div class="et">Event</div><div class="en">Guild League</div><div class="ed">Tuesday &amp; Thursday</div></div>
-      <div class="evt"><div class="et">Event</div><div class="en">Overrun</div><div class="ed">Sunday</div></div>
-      <div class="evt"><div class="et">GL Rank announced</div><div class="en">Every Monday</div><div class="ed">Weekly</div></div>
+    <div class="mvp-grid">
+      <div class="mvp-card selected">หมีดำกินคน</div>
+      <div class="mvp-card selected">Misskate</div>
+      <div class="mvp-card selected">XEVIERR</div>
+      <div class="mvp-card selected">Directorz</div>
+      <div class="mvp-card selected">no23</div>
+      <div class="mvp-card selected">GimlEt</div>
+      <div class="mvp-card selected">Eligos</div>
+      <div class="mvp-card selected">Aquaza</div>
+      <div class="mvp-card">JOKER888</div>
+      <div class="mvp-card">Ronin</div>
+      <div class="mvp-card">ETAN</div>
     </div>
   </div>
 </div>
 
-<!-- CALENDAR -->
-<div id="page-calendar" class="page">
-  <div class="page-title">Calendar</div>
-  <div style="margin-bottom:14px">
-    <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;min-height:20px;font-family:var(--font-pixel)" id="cal-week-label">Loading...</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
-      <button class="btn btn-ghost" onclick="calGoToday()">สัปดาห์นี้</button>
-      <button class="btn btn-ghost" onclick="calNavWeek(1)">▶</button>
-      <button class="btn btn-ghost" id="cal-refresh-btn" onclick="calRefresh()" title="Refresh">🔄</button>
-    </div>
-  </div>
-  <div class="helper-strip" id="cal-helper-strip">
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">🤝 Helpers this week</div>
-    <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">None listed</span></div>
-  </div>
-  <div class="cal-legend" id="cal-legend"></div>
-  <div class="cal-wrap" id="cal-wrap">
-    <div class="cal-time-axis" id="cal-time-axis"><div class="cal-time-head"></div></div>
-    <div class="cal-day-cols" id="cal-day-cols"></div>
-  </div>
-</div>
-
-<!-- ATTENDANCE -->
-<div id="page-attendance" class="page">
-  <div class="page-title">Attendance</div>
-  <div class="page-sub">Track war participation · Admin can create sessions and mark attendance</div>
-  <div class="att-tabs">
-    <button class="att-tab active" onclick="swAttTab('overview')">Overview</button>
-    <button class="att-tab" onclick="swAttTab('daily')">Daily Check</button>
-  </div>
-  <div id="att-overview">
-    <div class="tbl-wrap" style="margin-top:4px">
-      <table class="sum-tbl">
-        <thead><tr><th>#</th><th>Name</th><th>Party</th><th>Sessions</th><th>Present</th><th>Absent</th><th>Leave</th><th>Rate</th></tr></thead>
-        <tbody id="att-summary-tbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-  <div id="att-daily" style="display:none">
-    <div id="new-session-wrap" class="admin-only" style="display:none;margin-bottom:1rem">
-      <div class="new-session-form">
-        <h4>+ New Session (Admin)</h4>
-        <div class="form-row">
-          <div><label>Date</label><input type="date" id="att-new-date" style="width:150px"></div>
-          <div><label>Type</label>
-            <select id="att-new-type" style="width:140px"><option>Guild League</option><option>Overrun</option><option>Other</option></select>
-          </div>
-          <button class="btn btn-primary" onclick="createAttSession()" style="margin-top:18px">Create Session</button>
-        </div>
-      </div>
-    </div>
-    <div class="att-sessions-list" id="att-sessions-list"><div class="loading">Loading sessions...</div></div>
-    <div id="att-daily-content"></div>
-  </div>
-</div>
-
-</main>
-</div>
-
-<!-- ADMIN MODAL -->
-<div id="admin-modal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeAdminModal()">
-  <div class="modal">
-    <h3>🔐 Admin Login</h3>
-    <div class="modal-err" id="admin-err">Incorrect password</div>
-    <input type="password" id="admin-pass" placeholder="Password..." onkeydown="if(event.key==='Enter')submitAdmin()">
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
-      <button class="btn btn-ghost" onclick="closeAdminModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="submitAdmin()">Login</button>
+<!-- Step 2: Draw feathers — ยังล็อก -->
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-dim">2</div>
+    <span class="step-title dim">Draw Remaining Feathers</span>
+    <div class="step-right">
+      <button class="btn-draw-sm dim">🎲 Draw</button>
     </div>
   </div>
 </div>
-<script>
-const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbwUpyRVW2IjFk-P6FXLRSVRv6YTNqPynD4g4OYFX052sAigJkzobhghSKBiuly27FXL/exec';
-const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
-const CFG={max_card:1,max_white:4,max_red:7};
-const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
-function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
-function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
-function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
-/* Class icon SVGs */
-const HEART_SVG=`<svg class="av-ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-const SHIELD_SVG=`<svg class="av-ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"/></svg>`;
-const FLAME_SVG=`<svg class="av-ico" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>`;
-const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
-const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
-const ID_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`;
+<!-- Step ✓: Result — ยังว่าง -->
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-dim">✓</div>
+    <span class="step-title dim">Lucky Draw Result</span>
+  </div>
+</div>
 
-function getAvatarHtml(type){
-  const cls=type==='Support'?'av-s':type==='All Rounder'?'av-a':'av-d';
-  const ico=type==='Support'?HEART_SVG:type==='All Rounder'?SHIELD_SVG:FLAME_SVG;
-  return `<div class="cls-avatar ${cls}">${ico}</div>`;
-}
-// guild_field stored in sheet as full text e.g. "Elite Party (Fixed)"
-// getGfCode: full text -> short code for party/compact views
-// getGfLabel: code or full text -> full label for search/member views
-const GF_CODE_MAP={'Elite Party (Fixed)':'EF','Elite Party (Split)':'ES','Sub Party (Fixed)':'SF','Sub Party (Split)':'SS'};
-const GF_LABEL_MAP={EF:'Elite Party (Fixed)',ES:'Elite Party (Split)',SF:'Sub Party (Fixed)',SS:'Sub Party (Split)'};
-function getGfCode(gf){if(!gf)return '';return GF_CODE_MAP[gf]||gf}
-function getGfLabel(gf){if(!gf)return '';return GF_LABEL_MAP[gf]||GF_LABEL_MAP[GF_CODE_MAP[gf]]||gf}
+<!-- ════════════════════════════════════════════
+     SCENARIO A2: GUILD LEAGUE (Step 1 ครบแล้ว)
+════════════════════════════════════════════ -->
+<div class="scenario-divider">Guild League — Step 1 ครบ</div>
 
-let members=[],isAdmin=false;
-let _botConfig=[];
-let _aucQueueRows=[];
-let _pendingNav='';
+<div class="sec-lbl">Remaining from Auction</div>
+<div class="pool-row">
+  <div class="pool-card"><div class="pool-lbl">Feather White</div><div class="pool-val">10</div></div>
+  <div class="pool-card"><div class="pool-lbl">Feather Red/Black</div><div class="pool-val">10</div></div>
+  <div class="pool-card"><div class="pool-lbl">MVP Box</div><div class="pool-val">15</div></div>
+</div>
 
-/* HAMBURGER */
-function toggleSidebar(){const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');s.classList.toggle('open');o.classList.toggle('show')}
-function closeSidebar(){document.getElementById('sidebar-el').classList.remove('open');document.getElementById('sov').classList.remove('show')}
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-done">1</div>
+    <span class="step-title">Mark MVP Box Recipients (Guild League only)</span>
+    <div class="step-right" style="font-size:11px;color:var(--green);font-family:var(--mono);font-weight:700">15 / 15 ✓</div>
+  </div>
+</div>
 
-/* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderStats();renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
-function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
-async function submitAdmin(){
-  const pw=document.getElementById('admin-pass').value;
-  if(!pw)return;
-  const btn=document.querySelector('#admin-modal .btn-primary');
-  btn.textContent='Verifying...';btn.disabled=true;
-  const r=await gasPost({action:'verifyAdmin',password:pw});
-  btn.textContent='Login';btn.disabled=false;
-  if(r.ok){
-    isAdmin=true;closeAdminModal();
-    const tb=document.getElementById('topbar-admin-btn');
-    if(tb){tb.textContent='🔓 Admin (on)';tb.classList.add('on')}
-    document.getElementById('new-session-wrap').style.display='';
-    document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
-    document.querySelectorAll('.admin-only').forEach(el=>{el.classList.remove('admin-locked');el.disabled=false});
-    document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
-    renderStats();renderMembers();renderQueueManager();
-    if(_pendingNav){sw(_pendingNav);_pendingNav='';}
-  }else{document.getElementById('admin-err').style.display='block';document.getElementById('admin-pass').value=''}
-}
-
-/* NAV */
-function swAdmin(t){if(isAdmin){sw(t);return}_pendingNav=t;openAdminModal()}
-function sw(t){
-  _currentPage=t;
-  document.querySelectorAll('.nav-item').forEach(el=>{const fn=el.getAttribute('onclick')||'';const match=fn.match(/sw[^(]*\('([^']+)'\)/);el.classList.toggle('active',match&&match[1]===t)});
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+t).classList.add('active');
-  if(t==='party')renderParty();
-  if(t==='search')preloadSearchCache();
-  if(t==='auction')initAuctionPage();
-  if(t==='attendance')loadAttendance();
-  if(t==='calendar')initCalendarPage();
-}
-let _currentPage='';
-
-/* DATA LOAD */
-async function loadData(){
-  const setS=(ok,msg,clr='var(--green)')=>{
-    document.getElementById('stxt').textContent=msg;
-    document.getElementById('snav').textContent=ok?members.length+' members':'Error';
-    document.getElementById('dot').style.background=clr;
-    document.getElementById('sdot').style.background=clr;
-  };
-  loadAllHistoryCache().catch(()=>{});
-  if(!_botConfig.length) gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}).catch(()=>{});
-  gasGet('getGuildCap').then(r=>{if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap;renderStats()}}).catch(()=>{});
-  try{
-    const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
-    const mr=await fetch(mkUrl('Members')).then(r=>r.text());
-    const mj=parse(mr);
-    const cols=mj.table.cols.map(c=>(c.label||'').toLowerCase().replace(/\s+/g,'_'));
-    const get=(v,k)=>{const i=cols.findIndex(c=>c.includes(k));return i>=0&&v[i]?String(v[i].v||'').trim():''};
-    members=mj.table.rows.map(r=>{const v=r.c||[];return{
-      class:get(v,'class'),
-      ign:get(v,'character_name')||get(v,'name'),
-      char_id:get(v,'character_id'),
-      discord:get(v,'discord_id')||get(v,'discord'),
-      party:get(v,'party'),
-      guild_field:get(v,'guild_field'),
-      note:get(v,'note'),
-      status:get(v,'status'),
-      tag:get(v,'tag')
-    }}).filter(m=>m.ign);
-    setS(true,`Loaded · ${members.length} members`);
-    buildFilters();renderStats();renderMembers();
-    _searchCacheLoaded=false;
-  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
-}
-
-function buildFilters(){
-  const cls=[...new Set(members.map(m=>m.class).filter(Boolean))].sort();
-  const pts=[...new Set(members.map(m=>m.party).filter(Boolean))].sort((a,b)=>+a-+b);
-  document.getElementById('fc').innerHTML='<option value="">All classes</option>'+cls.map(c=>`<option>${c}</option>`).join('');
-  document.getElementById('fp').innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('');
-}
-
-let _hideAlts=true;
-let _guildCap=78;
-const isAlt=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
-const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
-function noteLabel(noted){if(!noted||!noted.trim())return '';const n=noted.toLowerCase();if(n.includes('ตัวรอง')||n.includes('alt'))return 'Alt';if(n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent'))return 'Absent';return noted}
-function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
-function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked;renderStats();renderMembers()}
-
-/* STATS / OVERVIEW */
-function renderStats(){
-  const counted=getCountedMembers();
-  const total=counted.length;
-  const pct=(n)=>total>0?Math.round(n/total*100):0;
-  const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]};
-  counted.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
-  const byClass={};
-  counted.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
-  const mkChips=(type)=>Object.entries(byClass).filter(([cls])=>getType(cls)===type).sort((a,b)=>b[1]-a[1]).map(([cls,n])=>`<span class="ov-chip ${getTypeCls(type)}"><span class="cn">${cls}</span><span class="cc">${n}</span></span>`).join('');
-  const supC=byType['Support'].length,arC=byType['All Rounder'].length,dpsC=byType['Attack (DPS)'].length;
-  const freeSlots=Math.max(0,_guildCap-total);
-  document.getElementById('class-overview').innerHTML=`
-    <div class="ov-header"><span class="ov-title">Class Overview</span><span class="ov-total">${total} members</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
-      <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--green)">Support</span><span class="ov-type-count" style="color:var(--green)">${supC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(supC)}%;background:var(--green)"></div></div><div class="ov-chips">${mkChips('Support')}</div></div>
-      <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--amber)">All Rounder</span><span class="ov-type-count" style="color:var(--amber)">${arC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%;background:var(--amber)"></div></div><div class="ov-chips">${mkChips('All Rounder')}</div></div>
-      <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--red)">DPS</span><span class="ov-type-count" style="color:var(--red)">${dpsC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%;background:var(--red)"></div></div><div class="ov-chips">${mkChips('Attack (DPS)')}</div></div>
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-active">2</div>
+    <span class="step-title">Draw Remaining Feathers</span>
+    <div class="step-right">
+      <button class="btn-draw-sm">🎲 Draw</button>
     </div>
-    <div class="cap-head"><span class="cap-label">Capacity</span></div>
-    <div class="cap-boxes">
-      <div class="cap-box"><div class="cn">${total}</div><div class="cl">Members</div></div>
-      <div class="cap-box"><div class="cn" style="color:var(--green)">${freeSlots}</div><div class="cl">Free</div></div>
-      <div class="cap-box"><div class="cn">${_guildCap}</div><div class="cl">Capacity</div></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-dim">✓</div>
+    <span class="step-title dim">Lucky Draw Result</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCENARIO B: GUILD OVERRUN
+════════════════════════════════════════════ -->
+<div class="scenario-divider">Guild Overrun — ไม่มี MVP Box</div>
+
+<div class="sec-lbl">Remaining from Auction</div>
+<div class="pool-row">
+  <div class="pool-card"><div class="pool-lbl">Feather White</div><div class="pool-val">10</div></div>
+  <div class="pool-card"><div class="pool-lbl">Feather Red/Black</div><div class="pool-val">10</div></div>
+</div>
+
+<!-- Step 1: dimmed, header แสดง "—" ขวา -->
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-done">1</div>
+    <span class="step-title">Mark MVP Box Recipients (Guild League only)</span>
+    <div class="step-right">
+      <span class="step-right-label">—</span>
     </div>
-    <div class="cap-bar-wrap"><div class="cap-bar" style="width:${Math.min(100,pct(total))}%"></div></div>`;
-}
+  </div>
+</div>
 
-/* MEMBERS TABLE */
-let _mSortKey='',_mSortAsc=true;let _mDebTimer=null;
-function debouncedRenderMembers(){clearTimeout(_mDebTimer);_mDebTimer=setTimeout(renderMembers,200)}
-function sortM(k){if(_mSortKey===k)_mSortAsc=!_mSortAsc;else{_mSortKey=k;_mSortAsc=true}renderMembers()}
-function renderMembers(){
-  const q=(document.getElementById('search-m').value||'').toLowerCase().trim();
-  const fc=document.getElementById('fc').value;
-  const ft=document.getElementById('ft').value;
-  const fp=document.getElementById('fp').value;
-  let f=getCountedMembers().filter(m=>{
-    if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;
-    if(fc&&m.class!==fc)return false;
-    if(ft&&getType(m.class)!==ft)return false;
-    if(fp&&String(m.party)!==fp)return false;
-    return true;
-  });
-  if(_mSortKey){f.sort((a,b)=>{const va=a[_mSortKey]||'',vb=b[_mSortKey]||'';return _mSortAsc?String(va).localeCompare(String(vb),undefined,{numeric:true}):String(vb).localeCompare(String(va),undefined,{numeric:true})})}
-  const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML=`<tr><td colspan="10" class="empty">No members found</td></tr>`;document.getElementById('m-count').textContent='';return}
-  document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
-  tbody.innerHTML=f.map((m,i)=>{
-    const type=getType(m.class);
-    const badge=`<span class="badge ${getTypeCls(type)}">${type==='Attack (DPS)'?'DPS':type}</span>`;
-    const gfCode=getGfCode(m.guild_field);const gfBadge=m.guild_field?`<span class="gf">${gfCode}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${getGfLabel(m.guild_field)}</span>`:'';
-    const noteHtml=m.note?`<span style="font-size:11px;color:var(--faint)">${m.note}</span>`:'';
-    const tagHtml=m.tag?`<span style="font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px 8px">${m.tag}</span>`:'';
-    return`<tr>
-      <td class="m-num">${i+1}</td>
-      <td style="font-weight:600">${m.ign}</td>
-      <td style="font-size:12px;color:var(--text)">${m.class||'—'}</td>
-      <td>${badge}</td>
-      <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
-      <td>${gfBadge}</td>
-      <td>${noteHtml}</td>
-      <td>${tagHtml}</td>
-      <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.char_id||'—'}</td>
-      <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.discord||'—'}</td>
-    </tr>`;
-  }).join('');
-}
+<!-- Step 2: active ทันที, Draw button ขวา -->
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-active">2</div>
+    <span class="step-title">Draw Remaining Feathers</span>
+    <div class="step-right">
+      <button class="btn-draw-sm">🎲 Draw</button>
+    </div>
+  </div>
+</div>
 
-/* PARTY */
-function renderParty(){
-  if(!members.length){document.getElementById('party-content').innerHTML='<div class="loading">Loading...</div>';return}
-  const pts={};
-  members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
-  const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
-  const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
-  const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' Elite Field · '+secPts.length+' Sub Field';
-  const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
-  const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
-  const mkSection=(list,isMain)=>list.map(p=>{
-    const sortedMembers=[...pts[p]].sort((a,b)=>TYPE_ORDER[getType(a.class)]-TYPE_ORDER[getType(b.class)]);
-    return`<div class="pc"><div class="pc-head ${isMain?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${sortedMembers.map(m=>{
-      const type=getType(m.class),tb=typeBar(type);
-      const sub=isAlt(m);const leave=isLeaveNote(m);
-      const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
-      const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';
-      return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`;
-    }).join('')}</div></div>`;
-  }).join('');
-  const secMax=secPts.length?secPts[secPts.length-1]:null;
-  const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
-  document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>Elite Field</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>Sub Field</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
-}
+<!-- Step ✓: Result (after draw) -->
+<div class="step">
+  <div class="step-head">
+    <div class="step-num sn-done">✓</div>
+    <span class="step-title">Lucky Draw Result</span>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:28px">#</th><th>Name</th><th>Item</th><th>Card Slot</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--faint);font-size:11px">1</td><td style="font-weight:600">JOKER888</td><td>0W + 0R/B</td><td style="font-size:11px;font-family:var(--mono)">Page21(1)</td></tr>
+        <tr><td style="color:var(--faint);font-size:11px">2</td><td style="font-weight:600">Ronin</td><td>0W + 0R/B</td><td style="font-size:11px;font-family:var(--mono)">Page21(2)</td></tr>
+        <tr><td style="color:var(--faint);font-size:11px">3</td><td style="font-weight:600">ETAN</td><td>0W + 0R/B</td><td style="font-size:11px;font-family:var(--mono)">Page21(3)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-/* SEARCH */
-let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
-async function preloadSearchCache(){
-  if(_searchCacheLoaded)return;
-  if(!_aucCacheLoaded)await loadAllHistoryCache();
-  const rows=_aucAllRows;
-  _searchHistMap={};
-  rows.forEach(r=>{const key=r.member_name;if(!_searchHistMap[key])_searchHistMap[key]=[];const exists=_searchHistMap[key].some(x=>x.queue_date===r.queue_date&&x.position===r.position);if(!exists)_searchHistMap[key].push(r)});
-  const allDates=[...new Set(rows.map(r=>r.queue_date))].sort().reverse();
-  _searchLatestDate=allDates.length?allDates[0]:'';
-  _searchQueueRows=_searchLatestDate?rows.filter(r=>r.queue_date===_searchLatestDate):[];
-  _searchCacheLoaded=true;
-}
-
-async function searchMain(){
-  const q=(document.getElementById('si-main').value||'').toLowerCase().trim();
-  const el=document.getElementById('search-result');
-  if(!q){el.innerHTML='';return}
-  const found=members.filter(m=>m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q)));
-  if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
-
-  const renderCard=(m,qRow,hist)=>{
-    const type=getType(m.class);
-    const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
-    const metaItems=[
-      `<div class="srch-item"><span class="si">${CLASS_SVG}</span><span class="sv">${m.class||'—'}</span></div>`,
-      m.char_id?`<div class="srch-sep"></div><div class="srch-item"><span class="si">${ID_SVG}</span><span class="sv">${m.char_id}</span></div>`:'',
-      m.discord?`<div class="srch-sep"></div><div class="srch-item srch-discord"><span class="si">${DISCORD_SVG}</span><span class="sv">${m.discord}</span></div>`:''
-    ].join('');
-    const gfRow='';
-    const partyHtml=m.party?`<div class="party-v3"><div class="party-v3-box"><span class="party-v3-num">${m.party}</span></div><div class="party-v3-div"></div><div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div></div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
-    const queueHtml=qRow?`<div class="srch-queue"><div class="srch-q-pos">${String(qRow.position).padStart(2,'0')}</div><div class="srch-q-info"><div class="srch-q-date">Queue date: ${_searchLatestDate}</div><div class="srch-q-total">Position ${qRow.position} of ${_searchQueueRows.length}</div></div><span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'}">${qRow.status==='done'?'✓ Drawn':'⏳ Pending'}</span></div>`:'<span style="font-size:12px;color:var(--faint);font-style:italic">No active queue for this member</span>';
-    const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading history...</div>':hist.length?`<table class="srch-hist"><thead><tr><th>Queue date</th><th style="width:80px">Position</th><th>Auction</th></tr></thead><tbody>${hist.map(r=>`<tr><td style="color:var(--muted)">${r.queue_date}</td><td><span class="srch-pos">${String(r.position).padStart(2,'0')}</span></td><td>${r.status==='done'?`<span style="color:var(--green);font-size:11px">✓ ${r.drawn_date?String(r.drawn_date).slice(0,10):''}</span>`:`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}</td></tr>`).join('')}</tbody></table>`:'<span style="font-size:12px;color:var(--faint);font-style:italic">No auction history</span>';
-    return`<div class="srch-card">
-      <div class="srch-head">
-        ${getAvatarHtml(type)}
-        <div class="srch-meta-row">
-          <div class="srch-name-row"><span class="srch-name">${m.ign}</span>${getTypeLabel(type)}</div>
-          ${gfRow}
-          <div class="srch-meta-items">${metaItems}</div>
-        </div>
-      </div>
-      <div class="srch-section"><div class="srch-sec-lbl">Party · Teammates</div>${partyHtml}</div>
-      <div class="srch-section"><div class="srch-sec-lbl">Current Queue</div>${queueHtml}</div>
-      <div class="srch-section" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
-    </div>`;
-  };
-
-  el.innerHTML=found.map(m=>{const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);return renderCard(m,qRow,_searchCacheLoaded?(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null)}).join('');
-
-  if(!_searchCacheLoaded){
-    await preloadSearchCache();
-    found.forEach(m=>{
-      const histEl=document.getElementById('hist-'+m.ign.replace(/[^a-zA-Z0-9]/g,'_'));
-      if(!histEl)return;
-      const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
-      const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
-      const fullCard=renderCard(m,qRow,hist);
-      const tmpDiv=document.createElement('div');tmpDiv.innerHTML=fullCard;
-      const newHistSection=tmpDiv.querySelector('[id^="hist-"]');
-      if(newHistSection)histEl.replaceWith(newHistSection);
-    });
-  }
-}
-
-/* GAS */
-async function gasGet(action){try{const r=await fetch(GAS+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
-async function gasPost(body){try{const r=await fetch(GAS,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
-
-/* ATTENDANCE */
-let currentAttDate='';
-async function loadAttendance(){loadAttSummary();loadAttSessions()}
-async function loadAttSummary(){
-  const tbody=document.getElementById('att-summary-tbody');
-  const r=await gasGet('getAttSummary');
-  if(!r.ok||!r.summary.length){tbody.innerHTML='<tr><td colspan="10" class="empty">No attendance data yet</td></tr>';return}
-  tbody.innerHTML=r.summary.map((s,i)=>{const rate=s.sessions>0?Math.round((s.present/s.sessions)*100):0;const low=rate<80;return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:500">${s.member_name}</td><td style="color:var(--muted)">${findParty(s.member_name)}</td><td style="color:var(--muted)">${s.sessions}</td><td style="color:var(--green)">${s.present}</td><td style="${s.absent>0?'color:var(--red);font-weight:500':'color:var(--muted)'}">${s.absent}</td><td style="color:var(--blue)">${s.leave}</td><td><div class="rate-bar"><div class="rate-fill ${low?'low':''}" style="width:${rate}%"></div></div> <span style="font-size:11px;color:${low?'var(--red)':'var(--muted)'}">${rate}%</span></td></tr>`}).join('');
-}
-function findParty(name){const m=members.find(x=>x.ign===name);return m?'P'+m.party:'—'}
-async function loadAttSessions(){
-  const el=document.getElementById('att-sessions-list');
-  const r=await gasGet('getAttDates');
-  if(!r.ok||!r.dates.length){el.innerHTML='<div class="empty">No sessions yet · Admin can create one</div>';return}
-  el.innerHTML=r.dates.map(d=>`<div class="att-session-row ${currentAttDate===d.date?'active':''}" onclick="loadAttSession('${d.date}')"><span class="as-date">${d.date}</span><span class="as-type">${d.type}</span><div class="as-stats"><span style="color:var(--green)">✓ ${d.present}</span><span style="color:var(--red)">✗ ${d.absent}</span><span style="color:var(--muted)">— ${d.total-d.present-d.absent}</span></div></div>`).join('');
-}
-async function loadAttSession(date){
-  currentAttDate=date;loadAttSessions();
-  const el=document.getElementById('att-daily-content');
-  el.innerHTML='<div class="loading">Loading...</div>';
-  const r=await gasGet('getAttSession&date='+date);
-  if(!r.ok){el.innerHTML='<div class="empty" style="color:var(--red)">Load failed</div>';return}
-  const rows=r.rows;
-  const present=rows.filter(r=>r.status==='present').length,absent=rows.filter(r=>r.status==='absent').length,leave=rows.filter(r=>r.status==='leave').length,unset=rows.filter(r=>!r.status).length;
-  const adm=isAdmin;
-  el.innerHTML=`<div class="att-bar-top"><div><div class="abd">${rows[0]?.type||'Session'} · ${date}</div><div class="abm">${adm?'Admin: use dropdown to mark attendance':'View only'}</div></div><div class="att-ctrs"><div class="att-ctr"><div class="acn" style="color:var(--green)">${present}</div><div class="acl">มา</div></div><div class="att-ctr"><div class="acn" style="color:var(--red)">${absent}</div><div class="acl">ขาด</div></div><div class="att-ctr"><div class="acn" style="color:var(--blue)">${leave}</div><div class="acl">ลา</div></div><div class="att-ctr"><div class="acn" style="color:var(--muted)">${unset}</div><div class="acl">ไม่ระบุ</div></div></div></div><div class="att-grid">${rows.map(row=>{const absent=row.status==='absent',present=row.status==='present',leave=row.status==='leave';return`<div class="att-card ${present?'present':absent?'absent':leave?'leave':''}" id="ac-${row.member_name.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="att-info"><div class="att-name">${row.member_name}</div><div class="att-sub">${findParty(row.member_name)}</div>${row.noted?`<div class="att-noted">📝 ${row.noted}</div>`:''}</div>${adm?`<select class="att-select" onchange="updateAtt('${date}','${row.member_name}',this.value)"><option value="" ${!row.status?'selected':''}>— ไม่ระบุ —</option><option value="present" ${present?'selected':''}>✓ มา</option><option value="absent" ${absent?'selected':''}>✗ ขาด</option><option value="leave" ${leave?'selected':''}>📝 ลา (${row.noted||'แจ้งลา'})</option></select>`:`<span class="qs ${present?'qs-done':absent?'qs-pend':''}" style="font-size:11px">${present?'✓ มา':absent?'✗ ขาด':leave?'📝 ลา':'—'}</span>`}</div>`}).join('')}</div>`;
-}
-async function updateAtt(date,member,status){const r=await gasPost({action:'updateAttStatus',date,member_name:member,status});if(r.ok){loadAttSession(date);loadAttSummary()}else alert('Update failed: '+r.error)}
-async function createAttSession(){
-  if(!isAdmin){alert('Admin only');return}
-  const date=document.getElementById('att-new-date').value;
-  const type=document.getElementById('att-new-type').value;
-  if(!date){alert('Select a date');return}
-  const memberData=members.map(m=>({name:m.ign,noted:isLeaveNote(m)?m.status:''}));
-  const r=await gasPost({action:'createAttSession',date,type,members:memberData});
-  if(r.ok){alert(`Session created for ${date} with ${r.added} members`);loadAttSessions();loadAttSession(date)}else alert('Failed: '+r.error);
-}
-function swAttTab(t){document.querySelectorAll('.att-tab').forEach((b,i)=>b.classList.toggle('active',['overview','daily'][i]===t));document.getElementById('att-overview').style.display=t==='overview'?'block':'none';document.getElementById('att-daily').style.display=t==='daily'?'block':'none';if(t==='overview')loadAttSummary()}
-
-/* AUCTION STATE */
-let _aucPendingAll=[];
-let _aucDistDate='';
-const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
-let _aucCacheLoaded=false;
-let _aucAllRows=[];
-let _aucDates=[];
-let _historyFetchPromise=null;
-let _aucHistoryLoaded=false;
-
-async function loadAllHistoryCache(){
-  if(_aucCacheLoaded)return;
-  if(_historyFetchPromise)return _historyFetchPromise;
-  _historyFetchPromise=(async()=>{
-    try{
-      const r=await gasGet('getAllHistory');
-      if(r.ok){_aucAllRows=r.rows;_aucDates=[...new Set(r.rows.map(x=>x.queue_date))].sort().reverse();_aucCacheLoaded=true;}
-    }catch(e){}
-    _historyFetchPromise=null;
-  })();
-  return _historyFetchPromise;
-}
-
-async function initAuctionPage(){
-  document.querySelectorAll('.admin-only').forEach(el=>{if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}else{el.classList.add('admin-locked');el.disabled=true;}});
-  if(!_aucCacheLoaded)await loadAllHistoryCache();
-  if(!_botConfig.length){const r=await gasGet('getBotConfig');if(r.ok)_botConfig=r.rows;}
-  populateAucEventTypes();
-  buildPendingFromCache();
-  populateQueueManagerDates();
-  swAucTab('calc');
-}
-
-function buildPendingFromCache(){
-  const pending=_aucAllRows.filter(r=>r.status==='pending').sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
-  _aucPendingAll=pending;
-  renderDistribution();
-}
-
-async function loadAllPending(){await loadAllHistoryCache();buildPendingFromCache()}
-
-function populateAucEventTypes(){
-  const sel=document.getElementById('auc-event-type');
-  if(sel.options.length)return;
-  const types=[...new Set(_botConfig.map(r=>r.event_name))].sort((a,b)=>EVENT_ORDER.indexOf(a)-EVENT_ORDER.indexOf(b));
-  sel.innerHTML=types.map(t=>`<option value="${t}">${t}</option>`).join('');
-  onAucEventType();
-}
-
-function onAucEventType(){
-  const type=document.getElementById('auc-event-type').value;
-  const rankSel=document.getElementById('auc-event-rank');
-  const ranks=_botConfig.filter(r=>r.event_name===type);
-  rankSel.innerHTML=ranks.map(r=>`<option value="${r.rank}">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</option>`).join('');
-  onAucRank();
-}
-
-function _cellStyle(hasOverride){return`display:flex;flex-direction:column;justify-content:center;padding:10px 12px;border-right:1px solid var(--border);flex:1;min-width:0;background:${hasOverride?'var(--orange-dim)':'transparent'}`}
-function onAucRank(){
-  const rw=getCurrentReward();
-  const ri=document.getElementById('auc-reward-inputs');
-  const pi=document.getElementById('auc-per-person-inputs');
-  if(!rw){if(ri)ri.innerHTML='';if(pi)pi.innerHTML='';return}
-  const m=_aucGlobalMul||1;
-  const ov=_aucFieldOverrides;
-  const effCard=ov.card!=null?ov.card:Math.round(rw.card*m);
-  const effW=ov.feather_white!=null?ov.feather_white:Math.round(rw.feather_white*m);
-  const effR=ov.feather_red_black!=null?ov.feather_red_black:Math.round(rw.feather_red_black*m);
-  const effMvp=rw.mvp_box!=null?Math.round(rw.mvp_box*m):null;
-  const hasCard=ov.card!=null,hasW=ov.feather_white!=null,hasR=ov.feather_red_black!=null;
-  const lbl=(t,has)=>`<span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:${has?'var(--orange-l)':'var(--faint)'}">${t}${has?' ●':''}</span>`;
-  const inp=(val,fn)=>`<input type="number" min="0" value="${val}" oninput="${fn}" style="font-size:20px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);color:var(--orange-l);width:100%">`;
-  if(ri)ri.innerHTML=
-    `<div style="${_cellStyle(hasCard)}">${lbl('Card',hasCard)}${inp(effCard,"onFieldOverride('card',this)")}</div>`+
-    `<div style="${_cellStyle(hasW)}">${lbl('White',hasW)}${inp(effW,"onFieldOverride('feather_white',this)")}</div>`+
-    `<div style="${_cellStyle(hasR)}">${lbl('Red/Black',hasR)}${inp(effR,"onFieldOverride('feather_red_black',this)")}</div>`+
-    (effMvp!=null?`<div style="${_cellStyle(false)}">${lbl('MVP Box',false)}<span style="font-size:20px;font-weight:700;font-family:var(--font-pixel);color:var(--amber)">${effMvp}</span></div>`:'');
-  const title=`Distribution result — ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
-  const el=document.getElementById('auc-calc-title');if(el)el.textContent=title;
-  const sl=document.getElementById('auc-save-as-label');if(sl)sl.textContent=`${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
-  renderDistribution();
-}
-
-let _aucGlobalMul=1;
-let _aucFieldOverrides={card:null,feather_white:null,feather_red_black:null};
-let _aucPerPersonOverrides={white:null,red:null};
-
-function onGlobalMul(){_aucGlobalMul=parseFloat(document.getElementById('auc-global-mul').value)||1;_aucFieldOverrides={card:null,feather_white:null,feather_red_black:null};_aucPerPersonOverrides={white:null,red:null};onAucRank()}
-function onFieldOverride(k,input){const v=input.value===''?null:parseInt(input.value);_aucFieldOverrides[k]=v;renderDistribution()}
-
-function getCurrentReward(){const type=document.getElementById('auc-event-type').value;const rank=document.getElementById('auc-event-rank').value;return _botConfig.find(r=>r.event_name===type&&r.rank===rank)}
-
-function getRewardValues(){
-  const base=getCurrentReward();if(!base)return null;
-  const m=_aucGlobalMul||1;const ov=_aucFieldOverrides;
-  return{card:ov.card!=null?ov.card:Math.round(base.card*m),white:ov.feather_white!=null?ov.feather_white:Math.round(base.feather_white*m),red:ov.feather_red_black!=null?ov.feather_red_black:Math.round(base.feather_red_black*m),mvp:ov.mvp_box!=null?ov.mvp_box:(base.mvp_box!=null?Math.round(base.mvp_box*m):null),event_name:base.event_name,rank:base.rank}
-}
-
-/* DISTRIBUTION TABLE */
-const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
-const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s};
-const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m)};
-function fmtSlots(start,count){if(count<=0)return '-';const slots=_slotRange(start,count);const grp=_grpByPage(slots);return grp.map(([pg,boxes])=>{const ranges=[];let s=boxes[0],p=boxes[0];for(let i=1;i<=boxes.length;i++){const b=boxes[i];if(b===p+1){p=b;continue}ranges.push(s===p?`${s}`:`${s}-${p}`);s=b;p=b}return`Page${pg}(${ranges.join(',')})`}).join(', ')}
-
-function computeDistribution(){
-  const rw=getRewardValues();if(!rw)return null;
-  const n=Math.min(rw.card,_aucPendingAll.length);if(!n)return null;
-  const memberNames=_aucPendingAll.slice(0,n).map(r=>r.member_name);
-  const white=rw.white,red=rw.red;
-  const pW=_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n);
-  const pR=_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n);
-  const wUsedTotal=n*pW,rUsedTotal=n*pR;
-  const wRem=white-wUsedTotal,rRem=red-rUsedTotal;
-  let wPos=1,rPos=white+1;
-  const rows=memberNames.map((name,i)=>{const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};wPos+=pW;rPos+=pR;return row});
-  return{rows,card:n,cardTarget:rw.card,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0}
-}
-
-function onPerPersonEdit(field,input){const v=input.value===''?null:parseInt(input.value);if(field==='white')_aucPerPersonOverrides.white=v;else _aucPerPersonOverrides.red=v;renderDistribution()}
-
-function renderDistribution(){
-  const dist=computeDistribution();
-  const tbody=document.getElementById('auc-dist-tbody');
-  const sumWrap=document.getElementById('auc-summary-cards');
-  if(!dist){tbody.innerHTML='<tr><td colspan="5" class="empty">No pending queue members</td></tr>';sumWrap.innerHTML='';renderPerPersonInputs(null);return}
-  const wUsed=dist.n*dist.pW,rUsed=dist.n*dist.pR;
-  const cardLeft=dist.cardTarget-dist.card;
-  const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`${dist.wRem} left`;
-  const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`${dist.rRem} left`;
-  // Summary cards: bar + remaining only (per person is in inputs above)
-  const mkRemChip=(name,used,total,rem,overflow)=>{
-    const pct=Math.min(100,total>0?used/total*100:0);
-    const rc=overflow?'var(--red)':'var(--green)';
-    return`<div style="flex:1;min-width:110px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--faint)">${name}</span>
-        <span style="font-size:10px;font-weight:700;font-family:var(--font-pixel);color:${rc}">${overflow?'เกิน '+Math.abs(rem):'rem '+rem}</span>
-      </div>
-      <div style="height:4px;border-radius:4px;background:rgba(160,140,118,.15);overflow:hidden;margin-bottom:5px"><div style="height:100%;border-radius:4px;width:${pct}%;background:${overflow?'var(--red)':'var(--orange)'}"></div></div>
-      <div style="font-size:10px;color:var(--faint);font-family:var(--font-pixel)">${used}/${total} used</div>
-    </div>`;
-  };
-  if(sumWrap)sumWrap.innerHTML=
-    mkRemChip('Card',dist.card,dist.cardTarget,cardLeft,false)+
-    mkRemChip('White',wUsed,dist.white,dist.wRem,dist.wOverflow)+
-    mkRemChip('Red/Black',rUsed,dist.red,dist.rRem,dist.rOverflow);
-  // update user section header
-  const userTitle=document.getElementById('auc-user-title');
-  const perSumEl=document.getElementById('auc-per-person-summary');
-  if(userTitle)userTitle.textContent=`การแจกรางวัล — ${dist.event_name} ${/^\d+$/.test(dist.rank)?'Rank '+dist.rank:dist.rank}`;
-  if(perSumEl)perSumEl.textContent=`จำนวนรางวัล (ต่อคน): Card = 1 · ขนนกขาว = ${dist.pW} · ขนนกดำ/แดง = ${dist.pR}`;
-  renderPerPersonInputs(dist);
-  tbody.innerHTML=dist.rows.map((r,i)=>{const card=_toPageBox(r.cardSlot);return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:500">${r.name}</td><td style="font-size:11px;font-family:var(--font-pixel)">Page${card.page}(${card.box})</td><td style="font-size:11px;font-family:var(--font-pixel)">${fmtSlots(r.wStart,r.white)}</td><td style="font-size:11px;font-family:var(--font-pixel)">${fmtSlots(r.rStart,r.red)}</td></tr>`}).join('');
-}
-
-function renderPerPersonInputs(dist){
-  const ppWrap=document.getElementById('auc-per-person-inputs');
-  if(!ppWrap)return;
-  if(!dist){ppWrap.innerHTML='';return}
-  const n=dist.n;
-  const autoW=Math.floor(dist.white/n),autoR=Math.floor(dist.red/n);
-  const hasW=_aucPerPersonOverrides.white!=null,hasR=_aucPerPersonOverrides.red!=null;
-  const lbl=(t,has)=>`<span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:${has?'var(--orange-l)':'var(--faint)'}">${t}${has?' ●':''}</span>`;
-  ppWrap.innerHTML=
-    `<div style="${_cellStyle(hasW)};border-right:1px solid var(--border)">${lbl('W/คน',hasW)}<input type="number" min="0" value="${dist.pW}" oninput="onPerPersonEdit('white',this)" style="font-size:20px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);color:var(--orange-l);width:72px"><span style="font-size:9px;color:var(--faint);font-family:var(--font-pixel)">⌊${dist.white}÷${n}⌋=${autoW}</span></div>`+
-    `<div style="${_cellStyle(hasR)}">${lbl('R/คน',hasR)}<input type="number" min="0" value="${dist.pR}" oninput="onPerPersonEdit('red',this)" style="font-size:20px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);color:var(--red);width:72px"><span style="font-size:9px;color:var(--faint);font-family:var(--font-pixel)">⌊${dist.red}÷${n}⌋=${autoR}</span></div>`;
-}
-
-/* SAVE RESULT */
-async function saveAuctionResult(){
-  const dist=computeDistribution();if(!dist){alert('No distribution to save');return}
-  const date=document.getElementById('auc-result-date').value;
-  if(!date){alert('Select auction date');return}
-  const rw=getRewardValues();
-  const rows=dist.rows.map(r=>({member_name:r.name,queue_date:_aucPendingAll.find(x=>x.member_name===r.name)?.queue_date||'',position:_aucPendingAll.find(x=>x.member_name===r.name)?.position||0,drawn_date:date,status:'done',card_slot:r.cardSlot,feather_white:r.white,feather_white_start:r.wStart,feather_red:r.red,feather_red_start:r.rStart,event_type:rw.event_name,rank:rw.rank}));
-  const msgEl=document.getElementById('auc-save-result-msg');msgEl.textContent='Saving...';
-  const r=await gasPost({action:'saveAuctionResult',date,rows});
-  if(r.ok){msgEl.textContent=`Saved ${r.saved} rows for ${date}`;_searchCacheLoaded=false;_aucCacheLoaded=false;await loadAllHistoryCache();buildPendingFromCache();populateQueueManagerDates()}
-  else{msgEl.textContent='Save failed: '+r.error}
-}
-
-/* AUCTION TABS */
-function swAucTab(t){
-  document.querySelectorAll('#page-auction .au-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  ['calc','lucky','designated','manage','warhistory','rewards'].forEach(id=>{const el=document.getElementById('auc-'+id);if(el)el.style.display=id===t?'block':'none'});
-  if(t==='designated')initDesignatedTab();
-  if(t==='manage')renderQueueManager();
-  if(t==='warhistory')renderWarHistory();
-  if(t==='rewards')renderRewardsPreview();
-  if(t==='lucky')initLuckyDraw();
-}
-
-/* QUEUE MANAGER */
-function populateQueueManagerDates(){
-  if(!_aucDates.length)return;
-  const drawSel=document.getElementById('qm-filter-draw');
-  drawSel.innerHTML='<option value="">Draw date: All</option>'+_aucDates.map(d=>`<option value="${d}">${d}</option>`).join('');
-  loadQueueRowsFromCache(_aucDates[0]);
-}
-
-async function loadQueueManagerDates(){await loadAllHistoryCache();populateQueueManagerDates()}
-
-function loadQueueRowsFromCache(date){
-  if(!date)return;
-  const rows=_aucAllRows.filter(r=>r.queue_date===date);
-  _aucQueueRows=rows;_aucDistDate=date;
-  renderDistribution();
-  const auSel=document.getElementById('qm-filter-auction');
-  const drawnDates=[...new Set(rows.filter(x=>x.drawn_date).map(x=>x.drawn_date))].sort().reverse();
-  auSel.innerHTML='<option value="">Auction date: All</option>'+drawnDates.map(d=>`<option value="${d}">${d}</option>`).join('');
-}
-
-async function loadQueueRows(date){
-  if(!date)return;
-  const cached=_aucAllRows.filter(r=>r.queue_date===date);
-  if(cached.length){loadQueueRowsFromCache(date);return}
-  const r=await gasGet('getLog&date='+date);
-  if(!r.ok)return;
-  r.rows.forEach(row=>{if(!_aucAllRows.find(x=>x.queue_date===row.queue_date&&x.position===row.position))_aucAllRows.push(row)});
-  loadQueueRowsFromCache(date);
-}
-
-async function renderQueueManager(){
-  const drawDate=document.getElementById('qm-filter-draw').value;
-  const auctionDate=document.getElementById('qm-filter-auction').value;
-  const status=document.getElementById('qm-filter-status').value;
-  if(drawDate&&drawDate!==_aucDistDate)loadQueueRowsFromCache(drawDate);
-  const curDate=_aucDistDate;
-  const pendingElsewhere={};
-  _aucAllRows.forEach(r=>{if(r.status==='pending'&&r.queue_date!==curDate)pendingElsewhere[r.member_name]=r.queue_date});
-  let filtered=_aucQueueRows.filter(r=>{if(auctionDate&&r.drawn_date!==auctionDate)return false;if(status&&r.status!==status)return false;return true});
-  filtered=filtered.slice().sort((a,b)=>(a.queue_date||'').localeCompare(b.queue_date||'')||(a.drawn_date||'').localeCompare(b.drawn_date||'')||a.position-b.position);
-  const list=document.getElementById('qm-list');
-  if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
-  list.innerHTML=`<div class="mgr-list-head"><div class="mc-num">#</div><div class="mc-name">Name</div><div class="mc-status">Status</div><div class="mc-date">Auction date</div></div>`+filtered.map(r=>{
-    const isDone=r.status==='done',isSkip=r.status==='skip'||r.status==='skipped';
-    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':isSkip?'<span class="qs qs-skip">⤷ Skipped</span>':'<span class="qs qs-pend">⏳ Pending</span>';
-    const dupDate=pendingElsewhere[r.member_name];
-    const dupBadge=(dupDate&&!isDone)?`<span class="dup-badge" title="ซ้ำกับคิว ${dupDate}">⚠ ซ้ำ</span>`:'';
-    return`<div class="mgr-row${isSkip?' row-skip':''}">
-      <div class="mc-num">${r.position}</div>
-      <div class="mc-name">${r.member_name}${dupBadge}</div>
-      <div class="mc-status">${statusHtml}</div>
-      <div class="mc-date">${r.drawn_date||'<span style="color:var(--faint)">—</span>'}</div>
-    </div>`;
-  }).join('');
-}
-
-async function drawNewQueue(){
-  const date=toDateStr(new Date());
-  const pass=document.getElementById('qm-admin-pass').value;
-  const statusEl=document.getElementById('qm-draw-status');
-  if(!pass){alert('Enter admin password');return}
-  statusEl.textContent='Verifying...';
-  const vr=await gasPost({action:'verifyAdmin',password:pass});
-  if(!vr.ok){statusEl.textContent='';alert('Invalid admin password');return}
-  const pool=members.filter(m=>!isAlt(m));
-  const names=pool.map(m=>m.ign);
-  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
-  statusEl.textContent='Saving...';
-  const r=await gasPost({action:'appendQueue',date,members:names});
-  if(r.ok){statusEl.textContent=`Saved ${r.added} members for ${date}`;_searchCacheLoaded=false;_aucCacheLoaded=false;document.getElementById('qm-admin-pass').value='';await loadQueueManagerDates();document.getElementById('qm-filter-draw').value=date;loadQueueRowsFromCache(date);buildPendingFromCache();renderQueueManager()}
-  else{statusEl.textContent='';alert('Save failed: '+r.error)}
-}
-
-/* LUCKY DRAW */
-let _luckyOrder=[];
-let _luckyMvpSelected=new Set();
-let _luckyFinalResult=null;
-
-function initLuckyDraw(){
-  const dist=computeDistribution();
-  const wRemEl=document.getElementById('ld-white-rem');
-  const rRemEl=document.getElementById('ld-red-rem');
-  const mvpEl=document.getElementById('ld-mvp-count');
-  if(!dist){
-    if(wRemEl)wRemEl.textContent='—';if(rRemEl)rRemEl.textContent='—';if(mvpEl)mvpEl.textContent='—';
-    document.getElementById('lucky-step1-title').textContent='Mark MVP Box Recipients';
-    document.getElementById('lucky-mvp-grid').innerHTML='<div class="empty" style="color:var(--red)">⚠️ Run Guild Auction first</div>';
-    document.getElementById('lucky-step2-box').className='step2-disabled';document.getElementById('lucky-step2-box').innerHTML='Complete Step 1 first';
-    document.getElementById('lucky-result').style.display='none';return;
-  }
-  if(wRemEl)wRemEl.textContent=dist.wRem>0?dist.wRem:0;
-  if(rRemEl)rRemEl.textContent=dist.rRem>0?dist.rRem:0;
-  if(mvpEl)mvpEl.textContent=dist.mvp!=null?dist.mvp:'—';
-  if(dist.mvp==null){
-    document.getElementById('lucky-step1-title').textContent='Mark MVP Box Recipients';
-    document.getElementById('lucky-mvp-grid').innerHTML='<div class="empty">Event/Rank นี้ไม่มี MVP Box</div>';
-    document.getElementById('lucky-step2-box').className='step2-disabled';document.getElementById('lucky-step2-box').innerHTML='No MVP Box for this event/rank';
-    document.getElementById('lucky-result').style.display='none';return;
-  }
-  // mvp=0 → no MVP box for this event, skip Step 1 and go straight to feather draw
-  if(dist.mvp===0){
-    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP Box Recipients (ไม่มี MVP Box สำหรับ event นี้)';
-    document.getElementById('ls1-num').className='step-num done';
-    document.getElementById('ls2-num').className='step-num';
-    document.getElementById('ld-prog-bar').style.width='100%';
-    document.getElementById('ld-prog-txt').textContent='0 / 0';
-    document.getElementById('lucky-mvp-grid').innerHTML='<div style="font-size:12px;color:var(--faint);padding:8px 0">— ไม่มี MVP Box · ข้ามไป Step 2 ได้เลย —</div>';
-    const step2=document.getElementById('lucky-step2-box');
-    step2.className='step2-box';
-    const remaining=dist.rows.map(r=>r.name);
-    step2.innerHTML=`<div class="step2-hint">No MVP Box — Draw feather remainder for all ${remaining.length} members</div><button class="btn btn-primary" onclick="runLuckyDrawNoMvp()">🎲 Draw Feathers</button>`;
-    document.getElementById('lucky-result').style.display='none';
-    return;
-  }
-  if(!_luckyOrder.length||_luckyOrder.length!==dist.n)luckyShuffle();
-  else renderLuckyMvpGrid();
-}
-
-function luckyShuffle(){
-  const dist=computeDistribution();if(!dist)return;
-  const names=dist.rows.map(r=>r.name);
-  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
-  _luckyOrder=names;_luckyMvpSelected=new Set();_luckyFinalResult=null;
-  renderLuckyMvpGrid();
-  document.getElementById('lucky-result').style.display='none';
-}
-
-function luckyClearAll(){_luckyMvpSelected=new Set();renderLuckyMvpGrid()}
-
-function renderLuckyMvpGrid(){
-  const dist=computeDistribution();if(!dist||dist.mvp==null)return;
-  const mvpTarget=dist.mvp;
-  const accepted=_luckyMvpSelected.size;
-  const allDone=accepted>=mvpTarget;
-  document.getElementById('lucky-step1-title').textContent=`Mark MVP Box Recipients (${accepted}/${mvpTarget})${allDone?' ✓':''}`;
-  document.getElementById('ls1-num').className=`step-num ${allDone?'done':''}`;
-  document.getElementById('ls2-num').className=`step-num ${allDone?'':'pending'}`;
-  const pct=mvpTarget>0?Math.min(100,accepted/mvpTarget*100):0;
-  document.getElementById('ld-prog-bar').style.width=pct+'%';
-  document.getElementById('ld-prog-txt').textContent=`${accepted} / ${mvpTarget}`;
-  document.getElementById('lucky-mvp-grid').innerHTML=_luckyOrder.map((name,i)=>{
-    const sel=_luckyMvpSelected.has(name);
-    const disabled=!sel&&accepted>=mvpTarget;
-    return`<div class="ld-card ${sel?'selected':''}" onclick="toggleLuckyMvp('${name.replace(/'/g,"\\'")}')" style="${disabled?'opacity:.4;cursor:not-allowed':''}">${sel?'<span class="mvp-badge">MVP</span> ':''}<div class="ld-card-name">${name}</div></div>`;
-  }).join('');
-  // Step 2
-  const step2=document.getElementById('lucky-step2-box');
-  const step2Lbl=document.getElementById('ls3-num');
-  if(allDone){
-    step2.className='step2-box';
-    step2.innerHTML=`<div class="step2-hint">Step 1 complete — Draw remaining feathers for ${_luckyOrder.filter(n=>!_luckyMvpSelected.has(n)).length} members</div><button class="btn btn-primary" onclick="runLuckyDraw()">🎲 Draw Feathers</button>`;
-    if(step2Lbl)step2Lbl.className='step-num pending';
-  }else{
-    step2.className='step2-disabled';
-    step2.innerHTML=`Complete Step 1 first (${mvpTarget-accepted} more needed)`;
-    if(step2Lbl)step2Lbl.className='step-num pending';
-  }
-}
-
-function toggleLuckyMvp(name){
-  const dist=computeDistribution();if(!dist||dist.mvp==null)return;
-  if(_luckyMvpSelected.has(name))_luckyMvpSelected.delete(name);
-  else if(_luckyMvpSelected.size<dist.mvp)_luckyMvpSelected.add(name);
-  renderLuckyMvpGrid();
-}
-
-function runLuckyDraw(){
-  const dist=computeDistribution();if(!dist)return;
-  const mvpTarget=dist.mvp;
-  const mvpWinners=[..._luckyMvpSelected];
-  const remaining=_luckyOrder.filter(n=>!_luckyMvpSelected.has(n));
-  // shuffle remaining
-  for(let i=remaining.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[remaining[i],remaining[j]]=[remaining[j],remaining[i]]}
-  // card slot continues from MVP Box (cardTarget was for Guild Auction)
-  let nextCard=dist.cardTarget+1;
-  const mvpRows=mvpWinners.map((name,i)=>{const cs=nextCard+i;return{name,item:'MVP Box',cardSlot:cs}});
-  nextCard+=mvpWinners.length;
-  const wPool=dist.wRem>0?dist.wRem:0;
-  const rPool=dist.rRem>0?dist.rRem:0;
-  const pW=remaining.length>0?Math.floor(wPool/remaining.length):0;
-  const pR=remaining.length>0?Math.floor(rPool/remaining.length):0;
-  const remRows=remaining.map((name,i)=>{const cs=nextCard+i;return{name,item:`${pW}W + ${pR}R/B`,cardSlot:cs}});
-  const allRows=[...mvpRows,...remRows];
-  document.getElementById('lucky-result-tbody').innerHTML=allRows.map((r,i)=>{const cb=_toPageBox(r.cardSlot);return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:600">${r.name}</td><td>${r.item}</td><td style="font-size:11px;font-family:var(--font-pixel)">Page${cb.page}(${cb.box})</td></tr>`}).join('');
-  document.getElementById('lucky-result').style.display='block';
-  document.getElementById('ls3-num').className='step-num done';
-}
-
-function runLuckyDrawNoMvp(){
-  const dist=computeDistribution();if(!dist)return;
-  const all=dist.rows.map(r=>r.name);
-  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
-  let nextCard=dist.cardTarget+1;
-  const wPool=dist.wRem>0?dist.wRem:0;
-  const rPool=dist.rRem>0?dist.rRem:0;
-  const pW=all.length>0?Math.floor(wPool/all.length):0;
-  const pR=all.length>0?Math.floor(rPool/all.length):0;
-  const rows=all.map((name,i)=>{const cs=nextCard+i;return{name,item:`${pW}W + ${pR}R/B`,cardSlot:cs}});
-  document.getElementById('lucky-result-tbody').innerHTML=rows.map((r,i)=>{const cb=_toPageBox(r.cardSlot);return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:600">${r.name}</td><td>${r.item}</td><td style="font-size:11px;font-family:var(--font-pixel)">Page${cb.page}(${cb.box})</td></tr>`}).join('');
-  document.getElementById('lucky-result').style.display='block';
-  document.getElementById('ls3-num').className='step-num done';
-}
-
-/* WAR HISTORY */
-let _whOverrunPage=0,_whLeaguePage=0;
-const WH_PER_PAGE=10;
-
-function renderWarHistory(){
-  const overrunEl=document.getElementById('wh-overrun');
-  const leagueEl=document.getElementById('wh-league');
-  if(!_aucAllRows.length){
-    overrunEl.innerHTML='<div class="empty">Loading...</div>';
-    leagueEl.innerHTML='<div class="empty">Loading...</div>';
-    loadAllHistoryCache().then(()=>renderWarHistory());return;
-  }
-  const allDone=_aucAllRows.filter(r=>r.status==='done');
-  const overrunRows=allDone.filter(r=>r.event_type&&r.event_type.toLowerCase().includes('overrun'));
-  const leagueRows=allDone.filter(r=>r.event_type&&!r.event_type.toLowerCase().includes('overrun'));
-  // group by drawn_date + rank
-  const groupBy=(rows)=>{const g={};rows.forEach(r=>{const k=`${r.drawn_date}||${r.rank||''}`;if(!g[k])g[k]={date:r.drawn_date,rank:r.rank,event_type:r.event_type};});return Object.values(g).sort((a,b)=>b.date.localeCompare(a.date))};
-  const overrunGroups=groupBy(overrunRows);
-  const leagueGroups=groupBy(leagueRows);
-  overrunEl.innerHTML=renderWhSection('Guild Overrun',overrunGroups,_whOverrunPage,'overrun');
-  leagueEl.innerHTML=renderWhSection('Guild League',leagueGroups,_whLeaguePage,'league');
-}
-
-function renderWhSection(title,groups,page,key){
-  const total=groups.length;
-  const start=page*WH_PER_PAGE;
-  const pageItems=groups.slice(start,start+WH_PER_PAGE);
-  const totalPages=Math.ceil(total/WH_PER_PAGE);
-  const rowsHtml=pageItems.length?pageItems.map(g=>{const rankLabel=/^\d+$/.test(g.rank)?'Rank '+g.rank:g.rank||'—';return`<div class="wh-row"><div class="wh-vbar" style="background:var(--orange)"></div><div class="wh-date">${g.date||'—'}</div><span class="wh-rank">${rankLabel}</span></div>`}).join(''):`<div class="empty">No history yet</div>`;
-  const pagerHtml=total>WH_PER_PAGE?`<div class="wh-pager"><span class="pager-info">${start+1}–${Math.min(start+WH_PER_PAGE,total)} of ${total}</span><div class="pager-btns"><button class="pager-btn ${page===0?'disabled':''}" onclick="whChangePage('${key}',-1)">◀</button><button class="pager-btn cur">${page+1}</button><button class="pager-btn ${page>=totalPages-1?'disabled':''}" onclick="whChangePage('${key}',1)">▶</button></div></div>`:'';
-  return`<div class="wh-head"><span class="wh-title">${title}</span><span class="wh-badge" style="background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)">${total} events</span></div><div class="wh-body">${rowsHtml}${pagerHtml}</div>`;
-}
-
-function whChangePage(key,dir){
-  if(key==='overrun'){_whOverrunPage=Math.max(0,_whOverrunPage+dir)}
-  else{_whLeaguePage=Math.max(0,_whLeaguePage+dir)}
-  renderWarHistory();
-}
-
-/* DESIGNATED AUCTION */
-let _daHelpers=[];
-function setDesignatedThisWeek(){
-  const mon=getWeekMondayFromDate();
-  document.getElementById('da-week-input').value=mon;
-  updateDaWeekLabel(mon);
-  loadDesignatedWeek();
-}
-function updateDaWeekLabel(mon){
-  if(!mon){document.getElementById('da-week-label').textContent='';return}
-  const d=new Date(mon+'T00:00:00');
-  const thu=new Date(d);thu.setDate(d.getDate()+3);
-  document.getElementById('da-week-label').textContent=`${mon} – ${toDateStr(thu)}`;
-}
-async function loadDesignatedWeek(){
-  const date=document.getElementById('da-week-input').value;
-  updateDaWeekLabel(date);
-  if(!date)return;
-  const r=await gasGet('getHelpers&week='+date);
-  if(!r.ok||!r.helpers){_daHelpers=[];renderDesignatedList();return}
-  _daHelpers=r.helpers;
-  if(r.card)document.getElementById('da-reward-card').textContent=r.card;
-  if(r.white)document.getElementById('da-reward-white').textContent=r.white;
-  if(r.red)document.getElementById('da-reward-red').textContent=r.red;
-  renderDesignatedList();
-}
-function renderDesignatedList(){
-  const tueList=_daHelpers.filter((_,i)=>i<5);
-  const thuList=_daHelpers.filter((_,i)=>i>=5&&i<10);
-  const card=parseInt(document.getElementById('da-reward-card').textContent)||0;
-  const white=parseInt(document.getElementById('da-reward-white').textContent)||0;
-  const red=parseInt(document.getElementById('da-reward-red').textContent)||0;
-  const dist=computeDistribution();
-  const cardOffset=dist?dist.cardTarget+(dist.mvp||0):0;
-  const wOffset=dist?dist.white:0;
-  const rOffset=dist?dist.red:0;
-  const mkRows=(arr,startIdx,cardStart,wStart,rStart)=>arr.map((h,i)=>{
-    const pos=startIdx+i+1;
-    const isFicelle=pos===5||pos===10;
-    const name=isFicelle?'Ficelle':(h?.name||'—');
-    const cs=cardStart+i;const cb=_toPageBox(cs);
-    const wS=wStart+(i*white);const rS=rStart+(i*red);
-    return`<div class="da-row ${i===0?'':''}"><div class="da-num">${pos}</div><div class="da-name" style="${isFicelle?'color:var(--orange-l);font-style:italic':''}">${name}</div><div class="da-card" style="font-size:11px;font-family:var(--font-pixel)">${name!=='—'?`Page${cb.page}(${cb.box})`:'-'}</div><div class="da-white">${name!=='—'?fmtSlots(wS,white):'-'}</div><div class="da-red">${name!=='—'?fmtSlots(rS,red):'-'}</div></div>`;
-  }).join('');
-  const head=`<div class="da-row da-head"><div class="da-num">#</div><div class="da-name">Name</div><div class="da-card">Card</div><div class="da-white">White</div><div class="da-red">Red/Black</div></div>`;
-  document.getElementById('da-tuesday-list').innerHTML=head+mkRows(tueList,0,cardOffset+1,wOffset+1,rOffset+1);
-  document.getElementById('da-thursday-list').innerHTML=head+mkRows(thuList,5,cardOffset+6,wOffset+card*5+1,rOffset+red*5+1);
-}
-function initDesignatedTab(){if(!document.getElementById('da-week-input').value)setDesignatedThisWeek()}
-
-/* REWARDS PREVIEW */
-function renderRewardsPreview(){
-  const type=document.getElementById('auc-event-type').value;
-  document.getElementById('rwprev-title').textContent=`Rewards Preview — ${type}`;
-  const rows=_botConfig.filter(r=>r.event_name===type);
-  const hasMvp=rows.some(r=>r.mvp_box!=null);
-  document.getElementById('rwprev-thead').innerHTML='<th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th>'+(hasMvp?'<th>MVP Box</th>':'');
-  document.getElementById('rwprev-tbody').innerHTML=rows.map(r=>`<tr><td style="font-weight:700;font-family:var(--font-pixel);color:var(--orange-l)">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</td><td>${r.card}</td><td>${r.feather_white}</td><td>${r.feather_red_black}</td>${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'—'}</td>`:''}</tr>`).join('');
-}
-
-/* CALENDAR */
-const SLOT_MINS=15,SLOT_H=24;
-const CAL_START_HOUR=19,CAL_END_HOUR=23;
-function computeCalTimeRange(events){}
-function getTotalSlots(){return(CAL_END_HOUR-CAL_START_HOUR)*(60/SLOT_MINS)}
-const CAL_DAYS_SHORT=['จ','อ','พ','พฤ','ศ','ส','อา'];
-let _calWeekStart='',_calAnchorDate='',_calSpecialEvents=[],_calCacheKey='',_calCacheData=null;
-let _calLastMobileState=null;
-
-function toDateStr(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${dd}`}
-function getWeekMondayFromDate(d=new Date()){const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);const mon=new Date(d);mon.setDate(diff);return toDateStr(mon)}
-function isCalMobileView(){return window.innerWidth<=760}
-function getCalVisibleDates(){
-  if(isCalMobileView()){const d=new Date(_calAnchorDate+'T00:00:00');return[-1,0,1].map(i=>{const dd=new Date(d);dd.setDate(d.getDate()+i);return toDateStr(dd)})}
-  const mon=new Date(_calWeekStart+'T00:00:00');
-  return Array.from({length:7},(_,i)=>{const dd=new Date(mon);dd.setDate(mon.getDate()+i);return toDateStr(dd)});
-}
-function timeToTop(t){if(!t||t==='allday')return null;const [h,m]=t.split(':').map(Number);const slot=(h-CAL_START_HOUR)*(60/SLOT_MINS)+(m/SLOT_MINS);if(slot<0||slot>=getTotalSlots())return null;return slot*SLOT_H}
-function hexToEventStyle(hex){if(!hex)return'background:var(--card2);border-color:var(--border)';return`background:${hex}1A;border-color:${hex}55`}
-
-async function initCalendarPage(){
-  if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
-  if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date());
-  _calLastMobileState=isCalMobileView();
-  await loadCalendarWeek();
-}
-
-function buildTimeAxis(){
-  const axis=document.getElementById('cal-time-axis');
-  const existing=axis.querySelectorAll('.cal-time-slot,.cal-allday-label');
-  existing.forEach(e=>e.remove());
-  // allday label row — same height as allday strip (28px), sticky below header (44px)
-  const adLabel=document.createElement('div');
-  adLabel.className='cal-allday-label';
-  adLabel.style.cssText='height:28px;display:flex;align-items:center;padding:0 4px;border-bottom:2px solid var(--border);background:var(--card2);position:sticky;top:44px;z-index:1';
-  adLabel.innerHTML='<span style="font-size:8px;color:var(--faint);font-family:var(--font-pixel);letter-spacing:.5px;text-transform:uppercase">All day</span>';
-  axis.appendChild(adLabel);
-  for(let s=0;s<getTotalSlots();s++){
-    const slot=document.createElement('div');
-    slot.className='cal-time-slot';
-    if(s%(60/SLOT_MINS)===0){const h=CAL_START_HOUR+Math.floor(s/(60/SLOT_MINS));slot.innerHTML=`<span>${String(h).padStart(2,'0')}:00</span>`}
-    axis.appendChild(slot);
-  }
-}
-
-let _calFetchCache={};
-async function loadCalendarWeek(){
-  const dates=getCalVisibleDates();
-  const key=dates.join(',');
-  if(_calFetchCache[key]){_calSpecialEvents=_calFetchCache[key];computeCalTimeRange(_calSpecialEvents);buildTimeAxis();renderCalGrid();renderCalHelpers();return}
-  const r=await gasGet('getCalendarEvents&weekStart='+dates[0]);
-  if(r.ok&&r.rows){
-    // GAS returns day_of_week (1=Mon..7=Sun), convert to actual date for this week
-    const weekMon=new Date(dates[0]+'T00:00:00');
-    const mapped=r.rows.map(e=>{
-      const dow=+e.day_of_week; // 1=Mon, 7=Sun
-      const d=new Date(weekMon);
-      d.setDate(weekMon.getDate()+(dow-1));
-      return Object.assign({},e,{date:toDateStr(d)});
-    });
-    _calSpecialEvents=mapped;_calFetchCache[key]=mapped;
-  }
-  else _calSpecialEvents=[];
-  computeCalTimeRange(_calSpecialEvents);buildTimeAxis();renderCalGrid();renderCalHelpers();
-}
-
-function calRefresh(){
-  _calFetchCache={};loadCalendarWeek();
-  const btn=document.getElementById('cal-refresh-btn');
-  if(btn){btn.textContent='⏳';setTimeout(()=>btn.textContent='🔄',1500)}
-}
-
-async function renderCalHelpers(){
-  const r=await gasGet('getHelpers&weekStart='+_calWeekStart);
-  const chips=document.getElementById('cal-helper-chips');
-  if(!r.ok||!r.helpers||!r.helpers.length){chips.innerHTML='<span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อ</span>';return}
-  chips.innerHTML=r.helpers.map(h=>{const type=h.class?getType(h.class):'Unknown';const cls=type==='Support'?'hchip-support':type==='All Rounder'?'hchip-ar':type==='Attack (DPS)'?'hchip-dps':'hchip-unknown';return`<span class="hchip ${cls}">${h.name}</span>`}).join('');
-}
-
-function renderCalLegend(){
-  const el=document.getElementById('cal-legend');if(!el)return;
-  const seen=new Map();
-  _calSpecialEvents.forEach(e=>{const tag=(e.tag||'').trim();if(!tag)return;const key=tag.toLowerCase();if(!seen.has(key))seen.set(key,{label:tag,color:e.color||'#8A7860'})});
-  if(!seen.size){el.innerHTML='';return}
-  el.innerHTML=Array.from(seen.values()).map(({label,color})=>`<div class="cal-leg"><div class="cal-leg-dot" style="background:${color}"></div>${label}</div>`).join('');
-}
-
-function renderCalGrid(){
-  renderCalLegend();
-  const visibleDates=getCalVisibleDates();
-  const mon=new Date(visibleDates[0]+'T00:00:00');
-  const end=new Date(visibleDates[visibleDates.length-1]+'T00:00:00');
-  const fmt=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('cal-week-label').textContent=`กิจกรรมประจำสัปดาห์: ${fmt(mon)} – ${fmt(end)}`;
-  const todayStr=toDateStr(new Date());
-  const cols=document.getElementById('cal-day-cols');
-  cols.innerHTML='';
-  const gridH=getTotalSlots()*SLOT_H;
-  visibleDates.forEach(dateStr=>{
-    const dt=new Date(dateStr+'T00:00:00');
-    const dayIdx=(dt.getDay()+6)%7;
-    const isToday=dateStr===todayStr;
-    const dayEvts=_calSpecialEvents.filter(e=>e.date===dateStr);
-    const alldayEvts=dayEvts.filter(e=>e.time==='allday'||!e.time);
-    const timedEvts=dayEvts.filter(e=>e.time&&e.time!=='allday');
-    const col=document.createElement('div');
-    col.className='cal-dcol'+(isToday?' today-day':'');
-    col.innerHTML=`<div class="cal-dhead"><div class="cal-dname">${CAL_DAYS_SHORT[dayIdx]}</div><div class="cal-dnum">${dt.getDate()}</div></div>`;
-    // allday strip — sticky below column header
-    const adStrip=document.createElement('div');
-    adStrip.style.cssText='min-height:28px;padding:3px 4px;border-bottom:2px solid var(--border);display:flex;flex-direction:column;gap:2px;background:var(--card2);position:sticky;top:44px;z-index:1';
-    alldayEvts.forEach(e=>{
-      const pill=document.createElement('div');
-      pill.style.cssText=`display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:600;background:${e.color?e.color+'22':'rgba(160,140,118,.12)'};border:1px solid ${e.color?e.color+'55':'var(--border)'}`;
-      const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.cssText=`background:${e.color||'var(--muted)'};width:6px;height:6px;border-radius:50%;flex-shrink:0`;
-      const title=document.createElement('span');title.style.cssText='color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';title.textContent=e.title;
-      pill.appendChild(dot);pill.appendChild(title);
-      adStrip.appendChild(pill);
-    });
-    // always show strip (even empty) so timed grid starts at consistent offset
-    col.appendChild(adStrip);
-    const grid=document.createElement('div');
-    grid.className='cal-dgrid';grid.style.height=gridH+'px';
-    const slotsPerHourLine=60/SLOT_MINS;
-    const totalHours=Math.ceil(getTotalSlots()/slotsPerHourLine);
-    for(let hr=0;hr<totalHours;hr++){if(hr%2!==0)continue;const band=document.createElement('div');band.className='cal-hour-band';band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';band.style.height=(Math.min(slotsPerHourLine,getTotalSlots()-hr*slotsPerHourLine)*SLOT_H)+'px';grid.appendChild(band)}
-    for(let s=0;s<getTotalSlots();s++){const line=document.createElement('div');line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');line.style.top=(s*SLOT_H)+'px';grid.appendChild(line)}
-    // timed events — style E: dot + body(title+time)
-    const placed=[];
-    timedEvts.forEach(e=>{
-      const top=timeToTop(e.time);if(top===null)return;
-      const endTime=e.end&&e.end!=='allday'?e.end:(e.end_time&&e.end_time!=='allday'?e.end_time:null);
-      let h=SLOT_H;
-      if(endTime){const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=endTime.split(':').map(Number);const dur=(eh*60+em)-(sh*60+sm);if(dur>0)h=Math.max(20,Math.round(dur/SLOT_MINS*SLOT_H))}
-      let col_idx=0;for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
-      placed.push({top,h,col:col_idx,e,endTime});
-    });
-    placed.forEach(item=>{
-      const{top,h,col:col_idx,e,endTime}=item;
-      const totalCols=Math.max(1,placed.filter(p=>top<p.top+p.h&&top+h>p.top).length);
-      const colWidth=totalCols>1?`calc(${100/totalCols}% - 8px)`:'calc(100% - 8px)';
-      const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 4px)`:'4px';
-      const block=document.createElement('div');
-      block.className='cal-evt-block'+(totalCols>1?' is-narrow':'');
-      block.style.cssText=`top:${top}px;height:calc(${h}px - 2px);left:${leftPct};width:${colWidth};background:var(--card);border:1px solid ${e.color?e.color+'55':'var(--border)'}`;
-      block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
-      // Style E: dot + body
-      const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.background=e.color||'var(--muted)';
-      const body=document.createElement('div');body.className='cal-evt-body';
-      const titleEl=document.createElement('span');titleEl.className='cal-evt-title';titleEl.textContent=e.title;
-      const timeEl=document.createElement('span');timeEl.className='cal-evt-time';timeEl.textContent=endTime?`${e.time} – ${endTime}`:e.time;
-      body.appendChild(titleEl);body.appendChild(timeEl);
-      block.appendChild(dot);block.appendChild(body);
-      grid.appendChild(block);
-    });
-    col.appendChild(grid);
-    cols.appendChild(col);
-  });
-}
-
-let _calResizeTimer=null;
-window.addEventListener('resize',()=>{
-  if(_currentPage!=='calendar')return;
-  clearTimeout(_calResizeTimer);
-  _calResizeTimer=setTimeout(()=>{const nowMobile=isCalMobileView();if(_calLastMobileState!==null&&nowMobile!==_calLastMobileState){_calLastMobileState=nowMobile;loadCalendarWeek()}else _calLastMobileState=nowMobile},200);
-});
-
-function calNavWeek(dir){
-  if(isCalMobileView()){const d=new Date(_calAnchorDate+'T00:00:00');d.setDate(d.getDate()+dir);_calAnchorDate=toDateStr(d)}
-  else{const d=new Date(_calWeekStart+'T00:00:00');d.setDate(d.getDate()+dir*7);_calWeekStart=toDateStr(d)}
-  loadCalendarWeek();
-}
-function calGoToday(){_calWeekStart=getWeekMondayFromDate();_calAnchorDate=toDateStr(new Date());loadCalendarWeek()}
-
-/* ZOOM */
-let _zoomLevel=100;
-function onZoomSlider(v){
-  _zoomLevel=+v;const scale=_zoomLevel/100;
-  const app=document.getElementById('app-root');
-  app.style.transform='scale('+scale+')';app.style.transformOrigin='top left';
-  app.style.width=(100/scale)+'%';app.style.height=(100/scale)+'%';
-  document.getElementById('zoom-lbl').textContent=_zoomLevel+'%';
-  const pct=((_zoomLevel-60)/(150-60)*100);
-  document.getElementById('zoom-range').style.background=`linear-gradient(to right,var(--orange) ${pct}%,rgba(160,140,118,0.25) ${pct}%)`;
-}
-function resetZoom(){document.getElementById('zoom-range').value=100;onZoomSlider(100)}
-
-loadData();
-</script>
 </body>
 </html>
