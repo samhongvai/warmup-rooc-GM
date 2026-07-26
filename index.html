@@ -1652,8 +1652,24 @@ function renderRewardsPreview(){
 }
 
 /* CALENDAR */
-const SLOT_MINS=15,SLOT_H=24,START_HOUR=8;
-const TOTAL_SLOTS=(24-START_HOUR)*(60/SLOT_MINS);
+const SLOT_MINS=15,SLOT_H=24;
+// Dynamic time range — computed after events load, default fallback
+let CAL_START_HOUR=19,CAL_END_HOUR=23;
+function computeCalTimeRange(events){
+  if(!events||!events.length){CAL_START_HOUR=19;CAL_END_HOUR=23;return}
+  let minH=23,maxH=19;
+  events.forEach(e=>{
+    if(!e.time||e.time==='allday')return;
+    const[h]=e.time.split(':').map(Number);if(h<minH)minH=h;
+    const et=e.end_time||e.endTime||'';
+    if(et&&et!=='allday'){const[eh]=et.split(':').map(Number);if(eh>maxH)maxH=eh;}
+    else if(h>maxH)maxH=h;
+  });
+  CAL_START_HOUR=Math.max(0,minH);
+  CAL_END_HOUR=Math.min(24,maxH+1);
+  if(CAL_END_HOUR<=CAL_START_HOUR)CAL_END_HOUR=CAL_START_HOUR+4;
+}
+function getTotalSlots(){return(CAL_END_HOUR-CAL_START_HOUR)*(60/SLOT_MINS)}
 const CAL_DAYS_SHORT=['จ','อ','พ','พฤ','ศ','ส','อา'];
 let _calWeekStart='',_calAnchorDate='',_calSpecialEvents=[],_calCacheKey='',_calCacheData=null;
 let _calLastMobileState=null;
@@ -1666,14 +1682,13 @@ function getCalVisibleDates(){
   const mon=new Date(_calWeekStart+'T00:00:00');
   return Array.from({length:7},(_,i)=>{const dd=new Date(mon);dd.setDate(mon.getDate()+i);return toDateStr(dd)});
 }
-function timeToTop(t){if(!t||t==='allday')return null;const [h,m]=t.split(':').map(Number);const slot=(h-START_HOUR)*(60/SLOT_MINS)+(m/SLOT_MINS);if(slot<0||slot>=TOTAL_SLOTS)return null;return slot*SLOT_H}
+function timeToTop(t){if(!t||t==='allday')return null;const [h,m]=t.split(':').map(Number);const slot=(h-CAL_START_HOUR)*(60/SLOT_MINS)+(m/SLOT_MINS);if(slot<0||slot>=getTotalSlots())return null;return slot*SLOT_H}
 function hexToEventStyle(hex){if(!hex)return'background:var(--card2);border-color:var(--border)';return`background:${hex}1A;border-color:${hex}55`}
 
 async function initCalendarPage(){
   if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
   if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date());
   _calLastMobileState=isCalMobileView();
-  buildTimeAxis();
   await loadCalendarWeek();
 }
 
@@ -1681,10 +1696,10 @@ function buildTimeAxis(){
   const axis=document.getElementById('cal-time-axis');
   const existing=axis.querySelectorAll('.cal-time-slot');
   existing.forEach(e=>e.remove());
-  for(let s=0;s<TOTAL_SLOTS;s++){
+  for(let s=0;s<getTotalSlots();s++){
     const slot=document.createElement('div');
     slot.className='cal-time-slot';
-    if(s%(60/SLOT_MINS)===0){const h=START_HOUR+Math.floor(s/(60/SLOT_MINS));slot.innerHTML=`<span>${String(h).padStart(2,'0')}:00</span>`}
+    if(s%(60/SLOT_MINS)===0){const h=CAL_START_HOUR+Math.floor(s/(60/SLOT_MINS));slot.innerHTML=`<span>${String(h).padStart(2,'0')}:00</span>`}
     axis.appendChild(slot);
   }
 }
@@ -1693,11 +1708,11 @@ let _calFetchCache={};
 async function loadCalendarWeek(){
   const dates=getCalVisibleDates();
   const key=dates.join(',');
-  if(_calFetchCache[key]){_calSpecialEvents=_calFetchCache[key];renderCalGrid();renderCalHelpers();return}
-  const r=await gasGet('getCalEvents&start='+dates[0]+'&end='+dates[dates.length-1]);
-  if(r.ok&&r.events){_calSpecialEvents=r.events;_calFetchCache[key]=r.events}
+  if(_calFetchCache[key]){_calSpecialEvents=_calFetchCache[key];computeCalTimeRange(_calSpecialEvents);buildTimeAxis();renderCalGrid();renderCalHelpers();return}
+  const r=await gasGet('getCalendarEvents&weekStart='+dates[0]);
+  if(r.ok&&r.rows){_calSpecialEvents=r.rows;_calFetchCache[key]=r.rows}
   else _calSpecialEvents=[];
-  renderCalGrid();renderCalHelpers();
+  computeCalTimeRange(_calSpecialEvents);buildTimeAxis();renderCalGrid();renderCalHelpers();
 }
 
 function calRefresh(){
@@ -1707,7 +1722,7 @@ function calRefresh(){
 }
 
 async function renderCalHelpers(){
-  const r=await gasGet('getHelpers&week='+_calWeekStart);
+  const r=await gasGet('getHelpers&weekStart='+_calWeekStart);
   const chips=document.getElementById('cal-helper-chips');
   if(!r.ok||!r.helpers||!r.helpers.length){chips.innerHTML='<span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อ</span>';return}
   chips.innerHTML=r.helpers.map(h=>{const type=h.class?getType(h.class):'Unknown';const cls=type==='Support'?'hchip-support':type==='All Rounder'?'hchip-ar':type==='Attack (DPS)'?'hchip-dps':'hchip-unknown';return`<span class="hchip ${cls}">${h.name}</span>`}).join('');
@@ -1731,7 +1746,7 @@ function renderCalGrid(){
   const todayStr=toDateStr(new Date());
   const cols=document.getElementById('cal-day-cols');
   cols.innerHTML='';
-  const gridH=TOTAL_SLOTS*SLOT_H;
+  const gridH=getTotalSlots()*SLOT_H;
   visibleDates.forEach(dateStr=>{
     const dt=new Date(dateStr+'T00:00:00');
     const dayIdx=(dt.getDay()+6)%7;
@@ -1756,9 +1771,9 @@ function renderCalGrid(){
     const grid=document.createElement('div');
     grid.className='cal-dgrid';grid.style.height=gridH+'px';
     const slotsPerHourLine=60/SLOT_MINS;
-    const totalHours=Math.ceil(TOTAL_SLOTS/slotsPerHourLine);
-    for(let hr=0;hr<totalHours;hr++){if(hr%2!==0)continue;const band=document.createElement('div');band.className='cal-hour-band';band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';band.style.height=(Math.min(slotsPerHourLine,TOTAL_SLOTS-hr*slotsPerHourLine)*SLOT_H)+'px';grid.appendChild(band)}
-    for(let s=0;s<TOTAL_SLOTS;s++){const line=document.createElement('div');line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');line.style.top=(s*SLOT_H)+'px';grid.appendChild(line)}
+    const totalHours=Math.ceil(getTotalSlots()/slotsPerHourLine);
+    for(let hr=0;hr<totalHours;hr++){if(hr%2!==0)continue;const band=document.createElement('div');band.className='cal-hour-band';band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';band.style.height=(Math.min(slotsPerHourLine,getTotalSlots()-hr*slotsPerHourLine)*SLOT_H)+'px';grid.appendChild(band)}
+    for(let s=0;s<getTotalSlots();s++){const line=document.createElement('div');line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');line.style.top=(s*SLOT_H)+'px';grid.appendChild(line)}
     // timed events — style E: dot + body(title+time)
     const placed=[];
     timedEvts.forEach(e=>{
