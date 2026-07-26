@@ -307,7 +307,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .mgr-list{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-soft)}
 .mgr-list-head,.mgr-row{display:flex;align-items:center;padding:0 6px}
 .mgr-list-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700;height:36px}
-.mgr-row{border-bottom:1px solid var(--border);font-size:12px;min-height:48px;transition:background 0.1s;background:var(--card)}
+.mgr-row{border-bottom:1px solid var(--border);font-size:12px;min-height:36px;transition:background 0.1s;background:var(--card)}
 .mgr-row:last-child{border-bottom:none}
 .mgr-row:hover{background:rgba(160,140,118,.04)}
 .mc-num{width:40px;min-width:40px;text-align:center;color:var(--faint);font-size:11px;padding:0 4px;flex-shrink:0;font-family:var(--font-pixel)}
@@ -323,10 +323,10 @@ input[type=checkbox]{accent-color:var(--orange)}
 .row-skip{opacity:.6}
 
 /* DESIGNATED AUCTION */
-.da-row{display:flex;align-items:center;padding:0 6px;border-bottom:1px solid var(--border);font-size:12px;min-height:46px;background:var(--card)}
+.da-row{display:flex;align-items:center;padding:0 6px;border-bottom:1px solid var(--border);font-size:12px;min-height:36px;background:var(--card)}
 .da-row:last-child{border-bottom:none}
 .da-row:hover{background:rgba(160,140,118,.04)}
-.da-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;min-height:34px}
+.da-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;height:36px}
 .da-num{width:34px;min-width:34px;text-align:center;color:var(--faint);font-size:11px;flex-shrink:0;font-family:var(--font-pixel)}
 .da-name{flex:1;min-width:70px;padding:0 6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .da-card{width:90px;min-width:90px;padding:0 4px;font-size:11px;flex-shrink:0;font-family:var(--font-pixel);color:var(--orange-l)}
@@ -1383,7 +1383,7 @@ function swAucTab(t){
   ['calc','lucky','designated','manage','warhistory','rewards'].forEach(id=>{const el=document.getElementById('auc-'+id);if(el)el.style.display=id===t?'block':'none'});
   if(t==='designated')initDesignatedTab();
   if(t==='manage')renderQueueManager();
-  if(t==='warhistory')renderWarHistory();
+  if(t==='warhistory'){_whHistoryLoaded=false;renderWarHistory();}
   if(t==='rewards')renderRewardsPreview();
   if(t==='lucky')initLuckyDraw();
 }
@@ -1596,23 +1596,23 @@ function runLuckyDrawNoMvp(){
 let _whOverrunPage=0,_whLeaguePage=0;
 const WH_PER_PAGE=10;
 
-function renderWarHistory(){
+let _whHistoryRows=[];
+let _whHistoryLoaded=false;
+
+async function renderWarHistory(){
   const overrunEl=document.getElementById('wh-overrun');
   const leagueEl=document.getElementById('wh-league');
-  if(!_aucAllRows.length){
+  if(!_whHistoryLoaded){
     overrunEl.innerHTML='<div class="empty">Loading...</div>';
     leagueEl.innerHTML='<div class="empty">Loading...</div>';
-    loadAllHistoryCache().then(()=>renderWarHistory());return;
+    const r=await gasGet('getAuctionHistory&limit=200');
+    if(r.ok){_whHistoryRows=r.rows;_whHistoryLoaded=true;}
+    else{overrunEl.innerHTML='<div class="empty">Load failed</div>';leagueEl.innerHTML='';return;}
   }
-  const allDone=_aucAllRows.filter(r=>r.status==='done');
-  const overrunRows=allDone.filter(r=>r.event_type&&r.event_type.toLowerCase().includes('overrun'));
-  const leagueRows=allDone.filter(r=>r.event_type&&!r.event_type.toLowerCase().includes('overrun'));
-  // group by drawn_date + rank
-  const groupBy=(rows)=>{const g={};rows.forEach(r=>{const k=`${r.drawn_date}||${r.rank||''}`;if(!g[k])g[k]={date:r.drawn_date,rank:r.rank,event_type:r.event_type};});return Object.values(g).sort((a,b)=>b.date.localeCompare(a.date))};
-  const overrunGroups=groupBy(overrunRows);
-  const leagueGroups=groupBy(leagueRows);
-  overrunEl.innerHTML=renderWhSection('Guild Overrun',overrunGroups,_whOverrunPage,'overrun');
-  leagueEl.innerHTML=renderWhSection('Guild League',leagueGroups,_whLeaguePage,'league');
+  const overrunRows=_whHistoryRows.filter(r=>r.event_type&&r.event_type.toLowerCase().includes('overrun'));
+  const leagueRows=_whHistoryRows.filter(r=>r.event_type&&!r.event_type.toLowerCase().includes('overrun'));
+  overrunEl.innerHTML=renderWhSection('Guild Overrun',overrunRows,_whOverrunPage,'overrun');
+  leagueEl.innerHTML=renderWhSection('Guild League',leagueRows,_whLeaguePage,'league');
 }
 
 function renderWhSection(title,groups,page,key){
@@ -1620,7 +1620,7 @@ function renderWhSection(title,groups,page,key){
   const start=page*WH_PER_PAGE;
   const pageItems=groups.slice(start,start+WH_PER_PAGE);
   const totalPages=Math.ceil(total/WH_PER_PAGE);
-  const rowsHtml=pageItems.length?pageItems.map(g=>{const rankLabel=/^\d+$/.test(g.rank)?'Rank '+g.rank:g.rank||'—';return`<div class="wh-row"><div class="wh-vbar" style="background:var(--orange)"></div><div class="wh-date">${g.date||'—'}</div><span class="wh-rank">${rankLabel}</span></div>`}).join(''):`<div class="empty">No history yet</div>`;
+  const rowsHtml=pageItems.length?pageItems.map(g=>{const rankLabel=/^\d+$/.test(g.rank)?'Rank '+g.rank:g.rank||'—';return`<div class="wh-row"><div class="wh-vbar" style="background:var(--orange)"></div><div class="wh-date">${g.auction_date||g.date||'—'}</div><span class="wh-rank">${rankLabel}</span></div>`}).join(''):`<div class="empty">No history yet</div>`;
   const pagerHtml=total>WH_PER_PAGE?`<div class="wh-pager"><span class="pager-info">${start+1}–${Math.min(start+WH_PER_PAGE,total)} of ${total}</span><div class="pager-btns"><button class="pager-btn ${page===0?'disabled':''}" onclick="whChangePage('${key}',-1)">◀</button><button class="pager-btn cur">${page+1}</button><button class="pager-btn ${page>=totalPages-1?'disabled':''}" onclick="whChangePage('${key}',1)">▶</button></div></div>`:'';
   return`<div class="wh-head"><span class="wh-title">${title}</span><span class="wh-badge" style="background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)">${total} events</span></div><div class="wh-body">${rowsHtml}${pagerHtml}</div>`;
 }
