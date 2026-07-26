@@ -540,13 +540,15 @@ input[type=checkbox]{accent-color:var(--orange)}
       <th class="m-num">#</th>
       <th id="th-ign" onclick="sortM('ign')">Name ↕</th>
       <th id="th-class" onclick="sortM('class')">Class ↕</th>
+      <th id="th-type" onclick="sortM('type')">Type ↕</th>
       <th id="th-party" onclick="sortM('party')">Party ↕</th>
       <th id="th-gf" onclick="sortM('guild_field')">Guild Field ↕</th>
       <th>Note</th>
+      <th>Tag</th>
       <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
       <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
     </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
   </table></div>
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
@@ -783,7 +785,7 @@ input[type=checkbox]{accent-color:var(--orange)}
     <div class="tbl-wrap" style="margin-top:4px">
       <table class="sum-tbl">
         <thead><tr><th>#</th><th>Name</th><th>Party</th><th>Sessions</th><th>Present</th><th>Absent</th><th>Leave</th><th>Rate</th></tr></thead>
-        <tbody id="att-summary-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+        <tbody id="att-summary-tbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -921,14 +923,15 @@ async function loadData(){
       char_id:get(v,'character_id'),
       discord:get(v,'discord_id')||get(v,'discord'),
       party:get(v,'party'),
-      noted:get(v,'noted'),
       guild_field:get(v,'guild_field'),
-      guild_note:get(v,'guild_note')
+      note:get(v,'note'),
+      status:get(v,'status'),
+      tag:get(v,'tag')
     }}).filter(m=>m.ign);
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
-  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
+  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
 }
 
 function buildFilters(){
@@ -940,8 +943,8 @@ function buildFilters(){
 
 let _hideAlts=true;
 let _guildCap=78;
-const isAlt=(m)=>{const n=(m.noted||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
-const isLeaveNote=(m)=>{const n=(m.noted||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
+const isAlt=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
+const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
 function noteLabel(noted){if(!noted||!noted.trim())return '';const n=noted.toLowerCase();if(n.includes('ตัวรอง')||n.includes('alt'))return 'Alt';if(n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent'))return 'Absent';return noted}
 function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
 function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked;renderStats();renderMembers()}
@@ -991,20 +994,23 @@ function renderMembers(){
   });
   if(_mSortKey){f.sort((a,b)=>{const va=a[_mSortKey]||'',vb=b[_mSortKey]||'';return _mSortAsc?String(va).localeCompare(String(vb),undefined,{numeric:true}):String(vb).localeCompare(String(va),undefined,{numeric:true})})}
   const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML=`<tr><td colspan="8" class="empty">No members found</td></tr>`;document.getElementById('m-count').textContent='';return}
+  if(!f.length){tbody.innerHTML=`<tr><td colspan="10" class="empty">No members found</td></tr>`;document.getElementById('m-count').textContent='';return}
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
   tbody.innerHTML=f.map((m,i)=>{
     const type=getType(m.class);
     const badge=`<span class="badge ${getTypeCls(type)}">${type==='Attack (DPS)'?'DPS':type}</span>`;
     const gfCode=getGfCode(m.guild_field);const gfBadge=m.guild_field?`<span class="gf">${gfCode}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${getGfLabel(m.guild_field)}</span>`:'';
-    const noteHtml=m.guild_note?`<span style="font-size:11px;color:var(--faint)">${m.guild_note}</span>`:'';
+    const noteHtml=m.note?`<span style="font-size:11px;color:var(--faint)">${m.note}</span>`:'';
+    const tagHtml=m.tag?`<span style="font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px 8px">${m.tag}</span>`:'';
     return`<tr>
       <td class="m-num">${i+1}</td>
       <td style="font-weight:600">${m.ign}</td>
-      <td>${badge} <span style="font-size:11px;color:var(--muted)">${m.class||'—'}</span></td>
+      <td style="font-size:12px;color:var(--text)">${m.class||'—'}</td>
+      <td>${badge}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
       <td>${gfBadge}</td>
       <td>${noteHtml}</td>
+      <td>${tagHtml}</td>
       <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.char_id||'—'}</td>
       <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.discord||'—'}</td>
     </tr>`;
@@ -1026,7 +1032,7 @@ function renderParty(){
     return`<div class="pc"><div class="pc-head ${isMain?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${sortedMembers.map(m=>{
       const type=getType(m.class),tb=typeBar(type);
       const sub=isAlt(m);const leave=isLeaveNote(m);
-      const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.noted)}</span>`:'';
+      const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
       const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';
       return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`;
     }).join('')}</div></div>`;
@@ -1111,7 +1117,7 @@ async function loadAttendance(){loadAttSummary();loadAttSessions()}
 async function loadAttSummary(){
   const tbody=document.getElementById('att-summary-tbody');
   const r=await gasGet('getAttSummary');
-  if(!r.ok||!r.summary.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No attendance data yet</td></tr>';return}
+  if(!r.ok||!r.summary.length){tbody.innerHTML='<tr><td colspan="10" class="empty">No attendance data yet</td></tr>';return}
   tbody.innerHTML=r.summary.map((s,i)=>{const rate=s.sessions>0?Math.round((s.present/s.sessions)*100):0;const low=rate<80;return`<tr><td style="color:var(--faint);font-size:11px">${i+1}</td><td style="font-weight:500">${s.member_name}</td><td style="color:var(--muted)">${findParty(s.member_name)}</td><td style="color:var(--muted)">${s.sessions}</td><td style="color:var(--green)">${s.present}</td><td style="${s.absent>0?'color:var(--red);font-weight:500':'color:var(--muted)'}">${s.absent}</td><td style="color:var(--blue)">${s.leave}</td><td><div class="rate-bar"><div class="rate-fill ${low?'low':''}" style="width:${rate}%"></div></div> <span style="font-size:11px;color:${low?'var(--red)':'var(--muted)'}">${rate}%</span></td></tr>`}).join('');
 }
 function findParty(name){const m=members.find(x=>x.ign===name);return m?'P'+m.party:'—'}
@@ -1138,7 +1144,7 @@ async function createAttSession(){
   const date=document.getElementById('att-new-date').value;
   const type=document.getElementById('att-new-type').value;
   if(!date){alert('Select a date');return}
-  const memberData=members.map(m=>({name:m.ign,noted:isLeaveNote(m)?m.noted:''}));
+  const memberData=members.map(m=>({name:m.ign,noted:isLeaveNote(m)?m.status:''}));
   const r=await gasPost({action:'createAttSession',date,type,members:memberData});
   if(r.ok){alert(`Session created for ${date} with ${r.added} members`);loadAttSessions();loadAttSession(date)}else alert('Failed: '+r.error);
 }
@@ -1653,7 +1659,7 @@ function renderRewardsPreview(){
 
 /* CALENDAR */
 const SLOT_MINS=15,SLOT_H=24;
-const CAL_START_HOUR=18,CAL_END_HOUR=23;
+const CAL_START_HOUR=19,CAL_END_HOUR=23;
 function computeCalTimeRange(events){}
 function getTotalSlots(){return(CAL_END_HOUR-CAL_START_HOUR)*(60/SLOT_MINS)}
 const CAL_DAYS_SHORT=['จ','อ','พ','พฤ','ศ','ส','อา'];
