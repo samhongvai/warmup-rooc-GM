@@ -1426,7 +1426,7 @@ async function renderQueueManager(){
   const curDate=_aucDistDate;
   const pendingElsewhere={};
   _aucAllRows.forEach(r=>{if(r.status==='pending'&&r.queue_date!==curDate)pendingElsewhere[r.member_name]=r.queue_date});
-  const normStatus=s=>s==='skipped'?'skip':s;
+  const normStatus=s=>(s==='skipped'||s==='skiped')?'skip':s;
   let filtered=_aucQueueRows.filter(r=>{
     if(auctionDate&&r.drawn_date!==auctionDate)return false;
     if(status&&normStatus(r.status)!==status)return false;
@@ -1435,13 +1435,13 @@ async function renderQueueManager(){
   filtered=filtered.slice().sort((a,b)=>(a.queue_date||'').localeCompare(b.queue_date||'')||(a.drawn_date||'').localeCompare(b.drawn_date||'')||a.position-b.position);
   const list=document.getElementById('qm-list');
   if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
-  list.innerHTML=`<div class="mgr-list-head"><div class="mc-num">#</div><div class="mc-name">Name</div><div class="mc-status">Status</div><div class="mc-date">Auction date</div></div>`+filtered.map(r=>{
-    const isDone=r.status==='done',isSkip=r.status==='skip'||r.status==='skipped';
+  list.innerHTML=`<div class="mgr-list-head"><div class="mc-num">#</div><div class="mc-name">Name</div><div class="mc-status">Status</div><div class="mc-date">Auction date</div></div>`+filtered.map((r,i)=>{
+    const isDone=r.status==='done',isSkip=r.status==='skip'||r.status==='skipped'||r.status==='skiped';
     const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':isSkip?'<span class="qs qs-skip">⤷ Skipped</span>':'<span class="qs qs-pend">⏳ Pending</span>';
     const dupDate=pendingElsewhere[r.member_name];
     const dupBadge=(dupDate&&!isDone)?`<span class="dup-badge" title="ซ้ำกับคิว ${dupDate}">⚠ ซ้ำ</span>`:'';
     return`<div class="mgr-row${isSkip?' row-skip':''}">
-      <div class="mc-num">${r.position}</div>
+      <div class="mc-num">${i+1}</div>
       <div class="mc-name">${r.member_name}${dupBadge}</div>
       <div class="mc-status">${statusHtml}</div>
       <div class="mc-date">${r.drawn_date||'<span style="color:var(--faint)">—</span>'}</div>
