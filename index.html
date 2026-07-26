@@ -1937,7 +1937,7 @@ async function toggleDesignatedStatus(weekStart,position,status){
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 const SLOT_MINS=15; // minutes per grid slot — 4 slots per hour
 const SLOT_H=24; // px per 15-min slot (96px/hour total)
-let getTotalSlots()=24; // computed dynamically per week from actual events (in 15-min units)
+let _calTotalSlots=24; // computed dynamically per week from actual events (in 15-min units)
 let TIME_START=18; // computed dynamically per week from actual events
 const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
 // All calendar events (including former "fixed" recurring ones like Guild League)
@@ -2016,12 +2016,12 @@ function timeToTop(timeStr){
   return Math.round(offsetMins/SLOT_MINS*SLOT_H);
 }
 
-// Compute flexible time-axis range (TIME_START/getTotalSlots()) from the actual
+// Compute flexible time-axis range (TIME_START/_calTotalSlots) from the actual
 // timed events present this week — fits the grid exactly to the schedule.
 function computeTimeRange(){
   const allTimed=[];
   _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
-  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;getTotalSlots()=(TIME_END_DEFAULT-TIME_START_DEFAULT)*(60/SLOT_MINS);return}
+  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;_calTotalSlots=(TIME_END_DEFAULT-TIME_START_DEFAULT)*(60/SLOT_MINS);return}
   const toMins=t=>{const [h,m]=t.split(':').map(Number);return h*60+(m||0)};
   let minStart=Infinity,maxEnd=-Infinity;
   allTimed.forEach(({start,end})=>{
@@ -2036,7 +2036,7 @@ function computeTimeRange(){
   let endH=Math.ceil(endMins/60);
   if(endH<=startH)endH=startH+1;
   TIME_START=startH;
-  getTotalSlots()=(endH-startH)*(60/SLOT_MINS);
+  _calTotalSlots=(endH-startH)*(60/SLOT_MINS);
 }
 
 function getWeekMondayFromDate(d){
@@ -2065,7 +2065,7 @@ function buildTimeAxis(){
   // time slots, 15-min granularity — show the hour label only on the slot
   // that lands exactly on the hour (every 4th slot), not on every quarter-hour
   const slotsPerHour=60/SLOT_MINS;
-  for(let i=0;i<getTotalSlots();i++){
+  for(let i=0;i<_calTotalSlots;i++){
     const div=document.createElement('div');
     div.className='cal-time-slot';
     const totalMins=TIME_START*60+i*SLOT_MINS;
@@ -2191,7 +2191,7 @@ function renderCalGrid(){
   const todayStr=toDateStr(new Date());
   const cols=document.getElementById('cal-day-cols');
   cols.innerHTML='';
-  const gridH=getTotalSlots()*SLOT_H;
+  const gridH=_calTotalSlots*SLOT_H;
   visibleDates.forEach(dateStr=>{
     const dt=new Date(dateStr+'T00:00:00');
     const dayIdx=(dt.getDay()+6)%7; // 0=Mon..6=Sun — used only to pick the Thai day-name label
@@ -2225,17 +2225,17 @@ function renderCalGrid(){
     // alternating hour-band backgrounds — every other hour gets a faint tint
     // so the eye can scan rows without needing to trace thin grid lines
     const slotsPerHourLine=60/SLOT_MINS;
-    const totalHours=Math.ceil(getTotalSlots()/slotsPerHourLine);
+    const totalHours=Math.ceil(_calTotalSlots/slotsPerHourLine);
     for(let hr=0;hr<totalHours;hr++){
       if(hr%2!==0)continue;
       const band=document.createElement('div');
       band.className='cal-hour-band';
       band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';
-      band.style.height=(Math.min(slotsPerHourLine,getTotalSlots()-hr*slotsPerHourLine)*SLOT_H)+'px';
+      band.style.height=(Math.min(slotsPerHourLine,_calTotalSlots-hr*slotsPerHourLine)*SLOT_H)+'px';
       grid.appendChild(band);
     }
     // grid lines — bold "hour" line every 4th slot (60min / 15min = 4)
-    for(let s=0;s<getTotalSlots();s++){
+    for(let s=0;s<_calTotalSlots;s++){
       const line=document.createElement('div');
       line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');
       line.style.top=(s*SLOT_H)+'px';
