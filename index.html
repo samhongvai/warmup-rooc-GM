@@ -971,11 +971,13 @@ function renderParty(){
   const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
   const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
+  const PRIEST_CLASSES=['High Priest','Priest'];
+  const classOrder=(m)=>{const t=getType(m.class);const base=TYPE_ORDER[t]??9;const isPriest=PRIEST_CLASSES.includes(m.class)?0:1;return base*10+isPriest};
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
     // sort each party's roster: Support -> All Rounder -> Attack(DPS), so the
     // healer/support core is always visible first regardless of sheet order
-    const sortedMembers=[...pts[p]].sort((a,b)=>TYPE_ORDER[getType(a.class)]-TYPE_ORDER[getType(b.class)]);
+    const sortedMembers=[...pts[p]].sort((a,b)=>classOrder(a)-classOrder(b));
     return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${sortedMembers.map(m=>{const type=getType(m.class),tb=typeBar(type);const sub=isAlt(m);const leave=isLeaveNote(m);const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`}).join('')}</div></div>`;
   }).join('');
   // secondary field label reflects the actual highest party number present,
@@ -1060,7 +1062,8 @@ async function searchMain(){
       <div class="srch-head">
         <div class="srch-avatar">👤</div>
         <div class="srch-meta-row">
-          <span class="srch-name">${m.ign}</span>${metaItems}
+          <span class="srch-name">${m.ign}</span>
+          <div class="srch-meta-items">${metaItems}</div>
         </div>
       </div>
       <div class="srch-section"><div class="srch-sec-lbl">Party · Teammates</div>${partyHtml}</div>
