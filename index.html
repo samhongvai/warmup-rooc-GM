@@ -1591,13 +1591,27 @@ function initLuckyDraw(){
     const r=document.getElementById('lucky-result');if(r)r.style.display='none';
     return;
   }
-  if(!_luckyOrder.length||_luckyOrder.length!==dist.n)luckyShuffle();
-  else renderLuckyMvpGrid();
+  if(!_luckyOrder.length||_luckyOrder.length!==dist.n){
+    // ensure queue rows loaded before shuffle
+    loadAllHistoryCache().then(()=>{
+      loadQueueRowsFromCache();
+      luckyShuffle();
+    });
+  } else renderLuckyMvpGrid();
 }
 
 function luckyShuffle(){
   const dist=computeDistribution();if(!dist)return;
-  const names=dist.rows.map(r=>r.name);
+  // Lucky Draw สุ่มทุกคนใน pending queue ของ draw date นั้น ไม่ใช่แค่คนที่ได้ card
+  const drawDate=document.getElementById('qm-filter-draw')?.value||'';
+  let names;
+  if(drawDate&&_aucQueueRows.length){
+    names=_aucQueueRows
+      .filter(r=>r.queue_date===drawDate&&(r.status==='pending'||r.status==='done'))
+      .sort((a,b)=>a.position-b.position)
+      .map(r=>r.member_name);
+  }
+  if(!names||!names.length)names=dist.rows.map(r=>r.name);
   for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
   _luckyOrder=names;_luckyMvpSelected=new Set();
   renderLuckyMvpGrid();
