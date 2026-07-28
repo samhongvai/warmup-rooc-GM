@@ -1561,108 +1561,157 @@ let _luckyMvpResult=[];
 let _luckyAskIdx=0;
 let _luckyFinalResult=null;
 
+function _ldDrawBtn(fn,dim){return`<button onclick="${fn}" style="padding:5px 14px;border-radius:7px;background:${dim?'transparent':'var(--orange)'};color:${dim?'var(--faint)':'#fff'};border:1px solid ${dim?'var(--border)':'var(--orange)'};font-size:12px;font-weight:700;cursor:${dim?'not-allowed':'pointer'};font-family:var(--font-pixel);opacity:${dim?'.5':'1'}" ${dim?'disabled':''}>🎲 Draw</button>`}
+
 function initLuckyDraw(){
   const dist=computeDistribution();
+  const wRemEl=document.getElementById('ld-white-rem');
+  const rRemEl=document.getElementById('ld-red-rem');
+  const mvpEl=document.getElementById('ld-mvp-count');
+  const mvpCard=document.getElementById('ld-mvp-card');
   if(!dist){
-    // ยังไม่ได้รัน Guild Auction → block
-    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
-    document.getElementById('lucky-mvp-list').innerHTML='<div class="empty" style="color:var(--red)">⚠️ ต้องรัน Guild Auction ก่อน — เลือก Event/Rank และให้มี pending queue</div>';
-    document.getElementById('lucky-step2-box').innerHTML='<span style="color:var(--faint)">รอ Guild Auction</span>';
-    document.getElementById('lucky-result').innerHTML='';
+    if(wRemEl)wRemEl.textContent='—';if(rRemEl)rRemEl.textContent='—';if(mvpEl)mvpEl.textContent='—';
+    const g=document.getElementById('lucky-mvp-grid');if(g)g.innerHTML='<div class="empty" style="color:var(--red)">⚠️ Run Guild Auction first</div>';
+    const r=document.getElementById('lucky-result');if(r)r.style.display='none';return;
+  }
+  if(wRemEl)wRemEl.textContent=dist.wRem>0?dist.wRem:0;
+  if(rRemEl)rRemEl.textContent=dist.rRem>0?dist.rRem:0;
+  const noMvp=dist.mvp===0||dist.mvp==null;
+  if(mvpCard)mvpCard.style.display=noMvp?'none':'';
+  if(mvpEl)mvpEl.textContent=dist.mvp!=null?dist.mvp:'—';
+  if(noMvp){
+    document.getElementById('ls1-num').className='step-num done';
+    const r1=document.getElementById('ls1-right');if(r1)r1.innerHTML='<span style="font-size:11px;color:var(--faint);font-style:italic">—</span>';
+    const b1=document.getElementById('ls1-body');if(b1)b1.style.display='none';
+    document.getElementById('ls2-num').className='step-num sn-active';
+    const r2=document.getElementById('ls2-right');if(r2)r2.innerHTML=_ldDrawBtn('runLuckyDrawNoMvp()',false);
+    const b2=document.getElementById('ls2-body');
+    if(b2){b2.style.display='block';const h=document.getElementById('ls2-hint');if(h)h.textContent=`White ${dist.wRem>0?dist.wRem:0} · Red/Black ${dist.rRem>0?dist.rRem:0} ให้ทุก ${dist.n} คน`;}
+    document.getElementById('ls3-num').className='step-num pending';
+    const r=document.getElementById('lucky-result');if(r)r.style.display='none';
     return;
   }
-  if(dist.mvp==null){
-    document.getElementById('lucky-step1-title').textContent='Step 1 — Mark MVP box recipients';
-    document.getElementById('lucky-mvp-list').innerHTML='<div class="empty">Event/Rank นี้ไม่มี MVP box — ใช้ได้เฉพาะ Guild League</div>';
-    document.getElementById('lucky-step2-box').innerHTML='<span style="color:var(--faint)">ไม่มี MVP box สำหรับ event/rank นี้</span>';
-    document.getElementById('lucky-result').innerHTML='';
-    return;
-  }
-  if(!_luckyOrder.length||_luckyOrder.length!==dist.n){
-    luckyShuffle();
-  } else {
-    renderLuckyMvpList();
-  }
+  if(!_luckyOrder.length||_luckyOrder.length!==dist.n)luckyShuffle();
+  else renderLuckyMvpGrid();
 }
 
 function luckyShuffle(){
-  const dist=computeDistribution();
-  if(!dist)return;
+  const dist=computeDistribution();if(!dist)return;
   const names=dist.rows.map(r=>r.name);
   for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
-  _luckyOrder=names;
-  _luckyMvpResult=[];
-  _luckyAskIdx=0;
-  _luckyFinalResult=null;
-  renderLuckyMvpList();
-  document.getElementById('lucky-result').innerHTML='';
+  _luckyOrder=names;_luckyMvpSelected=new Set();
+  renderLuckyMvpGrid();
+  const r=document.getElementById('lucky-result');if(r)r.style.display='none';
 }
 
-function renderLuckyMvpList(){
-  const dist=computeDistribution();
+function renderLuckyMvpGrid(){
+  const dist=computeDistribution();if(!dist||dist.mvp==null||dist.mvp===0)return;
   const mvpTarget=dist.mvp;
-  const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
-  const allAnswered=_luckyMvpResult.filter(x=>x!==undefined).length===_luckyOrder.length
-    || accepted>=mvpTarget;
-  document.getElementById('lucky-step1-title').textContent=
-    `Step 1 — Mark MVP box recipients (${accepted}/${mvpTarget})${allAnswered?' ✓':''}`;
-
-  const rows=_luckyOrder.map((name,i)=>{
-    const result=_luckyMvpResult[i];
-    const hasAnswer=result!==undefined;
-    let right;
-
-    if(hasAnswer){
-      // ตอบแล้ว — แสดงผล + ปุ่มแก้ไข (toggle)
-      if(result.accepted){
-        right=`<span class="qs qs-done" style="margin-right:6px">✓ Accepted</span>
-          <button class="q-btn q-btn-undo" style="font-size:10px" onclick="luckyMvpToggle(${i})">แก้ไข</button>`;
-      } else {
-        right=`<span class="qs qs-pend" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b);margin-right:6px">✗ Declined</span>
-          <button class="q-btn q-btn-undo" style="font-size:10px" onclick="luckyMvpToggle(${i})">แก้ไข</button>`;
-      }
-    } else if(accepted>=mvpTarget){
-      // MVP quota เต็มแล้ว คนที่ยังไม่ตอบ = skipped
-      right='<span style="font-size:11px;color:var(--faint)">skipped</span>';
-    } else if(i===_luckyAskIdx){
-      // ถามอยู่
-      right=`<span style="font-size:10px;color:var(--muted);margin-right:8px">asking now</span>
-        <button class="q-btn q-btn-done" onclick="luckyMvpAnswer(${i},true)">Accept</button>
-        <button class="q-btn q-btn-undo" style="color:var(--red);border-color:var(--red-b)" onclick="luckyMvpAnswer(${i},false)">Decline</button>`;
-    } else {
-      right='<span style="font-size:11px;color:var(--faint)">pending</span>';
-    }
-
-    return `<div class="mgr-row">
-      <div class="mc-num">${i+1}</div>
-      <div class="mc-name">${name}</div>
-      <div class="mc-act" style="width:auto;flex:1;text-align:right;display:flex;justify-content:flex-end;align-items:center;gap:6px">${right}</div>
-    </div>`;
+  const accepted=_luckyMvpSelected.size;
+  const allDone=accepted>=mvpTarget;
+  const pct=mvpTarget>0?Math.min(100,accepted/mvpTarget*100):0;
+  const pb=document.getElementById('ld-prog-bar');if(pb)pb.style.width=pct+'%';
+  const pt=document.getElementById('ld-prog-txt');if(pt)pt.textContent=`${accepted} / ${mvpTarget}`;
+  const grid=document.getElementById('lucky-mvp-grid');
+  if(grid)grid.innerHTML=_luckyOrder.map((name)=>{
+    const sel=_luckyMvpSelected.has(name);
+    const disabled=!sel&&accepted>=mvpTarget;
+    return`<div class="ld-card ${sel?'selected':''}" onclick="toggleLuckyMvp('${name.replace(/'/g,"\'")}')" style="${disabled?'opacity:.4;cursor:not-allowed':''}">${sel?'<span class="mvp-badge">MVP</span>':''}<div class="ld-card-name">${name}</div></div>`;
   }).join('');
-  document.getElementById('lucky-mvp-list').innerHTML=`<div class="mgr-list">${rows}</div>`;
-  renderLuckyStep2();
-}
-
-function luckyMvpAnswer(i,accepted){
-  _luckyMvpResult[i]={accepted};
-  const dist=computeDistribution();
-  const acceptedCount=_luckyMvpResult.filter(x=>x&&x.accepted).length;
-  if(acceptedCount<dist.mvp){
-    // หาคนถัดไปที่ยังไม่ตอบ
-    let next=i+1;
-    while(next<_luckyOrder.length&&_luckyMvpResult[next]!==undefined)next++;
-    _luckyAskIdx=next;
+  // Step 1 right slot
+  const n1=document.getElementById('ls1-num');if(n1)n1.className=`step-num ${allDone?'done':'sn-active'}`;
+  const r1=document.getElementById('ls1-right');
+  if(r1)r1.innerHTML=allDone
+    ?`<span style="font-size:11px;color:var(--green);font-family:var(--font-pixel);font-weight:700">${mvpTarget}/${mvpTarget} ✓</span>`
+    :`<span style="font-size:11px;color:var(--faint);font-family:var(--font-pixel)">${accepted}/${mvpTarget}</span>`;
+  // Step 2 right slot
+  const n2=document.getElementById('ls2-num');if(n2)n2.className=`step-num ${allDone?'sn-active':'pending'}`;
+  const r2=document.getElementById('ls2-right');if(r2)r2.innerHTML=_ldDrawBtn('runLuckyDraw()',!allDone);
+  const b2=document.getElementById('ls2-body');
+  if(b2){
+    b2.style.display=allDone?'block':'none';
+    if(allDone){const h=document.getElementById('ls2-hint');const rem=_luckyOrder.filter(n=>!_luckyMvpSelected.has(n)).length;if(h)h.textContent=`แจก feather ส่วนที่เหลือให้ ${rem} คน`;}
   }
-  _luckyFinalResult=null; // reset result ถ้ามีการแก้ไข
-  renderLuckyMvpList();
+  const n3=document.getElementById('ls3-num');if(n3)n3.className='step-num pending';
 }
 
-function luckyMvpToggle(i){
-  // เปิด asking again สำหรับคนนี้
-  _luckyMvpResult[i]=undefined;
-  _luckyAskIdx=i;
-  _luckyFinalResult=null;
-  renderLuckyMvpList();
+function toggleLuckyMvp(name){
+  if(_luckyMvpSelected.has(name))_luckyMvpSelected.delete(name);
+  else{
+    const dist=computeDistribution();if(!dist)return;
+    if(_luckyMvpSelected.size>=dist.mvp)return;
+    _luckyMvpSelected.add(name);
+  }
+  renderLuckyMvpGrid();
+}
+
+function luckyClearAll(){_luckyMvpSelected=new Set();renderLuckyMvpGrid();}
+
+function runLuckyDraw(){
+  const dist=computeDistribution();if(!dist)return;
+  const nonMvp=_luckyOrder.filter(n=>!_luckyMvpSelected.has(n));
+  const totalW=dist.wRem>0?dist.wRem:0;
+  const totalR=dist.rRem>0?dist.rRem:0;
+  const pW=nonMvp.length>0?Math.floor(totalW/nonMvp.length):0;
+  const pR=nonMvp.length>0?Math.floor(totalR/nonMvp.length):0;
+  const usedCards=dist.card;
+  let cardSlotIdx=usedCards;
+  const rows=nonMvp.map((name,i)=>{
+    const cardPage=Math.floor(cardSlotIdx/4)+1;
+    const cardSlot=(cardSlotIdx%4)+1;
+    const wStart=usedCards*dist.pW+i*pW;
+    const wSlots=Array.from({length:pW},(_,j)=>{const s=wStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
+    const rStart=usedCards*dist.pR+i*pR;
+    const rSlots=Array.from({length:pR},(_,j)=>{const s=rStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
+    cardSlotIdx++;
+    return{name,card:`Page${cardPage}(${cardSlot})`,white:groupSlots(wSlots),red:groupSlots(rSlots),isMvp:false};
+  });
+  const mvpRows=_luckyOrder.filter(n=>_luckyMvpSelected.has(n)).map(name=>({name,card:'—',white:'—',red:'—',isMvp:true}));
+  renderLuckyResult([...mvpRows,...rows]);
+  const n2=document.getElementById('ls2-num');if(n2)n2.className='step-num done';
+  const n3=document.getElementById('ls3-num');if(n3)n3.className='step-num done';
+}
+
+function runLuckyDrawNoMvp(){
+  const dist=computeDistribution();if(!dist)return;
+  const names=_luckyOrder.length?_luckyOrder:dist.rows.map(r=>r.name);
+  const totalW=dist.wRem>0?dist.wRem:0;
+  const totalR=dist.rRem>0?dist.rRem:0;
+  const pW=names.length>0?Math.floor(totalW/names.length):0;
+  const pR=names.length>0?Math.floor(totalR/names.length):0;
+  const usedCards=dist.card;
+  let cardSlotIdx=usedCards;
+  const rows=names.map((name,i)=>{
+    const cardPage=Math.floor(cardSlotIdx/4)+1;
+    const cardSlot=(cardSlotIdx%4)+1;
+    const wStart=usedCards*dist.pW+i*pW;
+    const wSlots=Array.from({length:pW},(_,j)=>{const s=wStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
+    const rStart=usedCards*dist.pR+i*pR;
+    const rSlots=Array.from({length:pR},(_,j)=>{const s=rStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
+    cardSlotIdx++;
+    return{name,card:`Page${cardPage}(${cardSlot})`,white:groupSlots(wSlots),red:groupSlots(rSlots),isMvp:false};
+  });
+  renderLuckyResult(rows);
+  const n2=document.getElementById('ls2-num');if(n2)n2.className='step-num done';
+  const n3=document.getElementById('ls3-num');if(n3)n3.className='step-num done';
+}
+
+function groupSlots(slots){
+  if(!slots.length)return'—';
+  return slots.join(', ');
+}
+
+function renderLuckyResult(rows){
+  const el=document.getElementById('lucky-result');if(!el)return;
+  el.style.display='block';
+  const tbody=document.getElementById('lucky-result-tbody');if(!tbody)return;
+  tbody.innerHTML=rows.map((r,i)=>`<tr>
+    <td style="color:var(--faint);font-size:11px">${i+1}</td>
+    <td style="font-weight:600">${r.name}${r.isMvp?' <span class="mvp-badge">MVP</span>':''}</td>
+    <td style="font-size:11px;color:var(--muted)">${r.card}</td>
+    <td style="font-size:11px;font-family:var(--font-pixel);color:var(--muted)">${r.white}</td>
+    <td style="font-size:11px;font-family:var(--font-pixel);color:var(--muted)">${r.red}</td>
+  </tr>`).join('');
 }
 
 function renderLuckyStep2(){
