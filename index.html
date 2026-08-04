@@ -419,6 +419,16 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pm.dragging{opacity:.35;outline:2px dashed var(--orange)}
 .pm.drag-over{border-top:3px solid var(--orange);background:var(--orange-dim)}
 .pc.drop-target{outline:2px solid var(--orange-border);outline-offset:3px;background:var(--orange-dim)}
+
+/* UNASSIGNED PANEL */
+.unassigned-panel{position:fixed;top:60px;right:0;width:200px;background:var(--card);border-left:2px solid var(--border);border-bottom:2px solid var(--border);border-radius:0 0 0 var(--radius-md);padding:0;z-index:400;box-shadow:-4px 4px 16px rgba(0,0,0,.08);display:none;max-height:calc(100vh - 80px);overflow-y:auto}
+.unassigned-panel.visible{display:block}
+.up-head{padding:10px 12px;background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:.8px;position:sticky;top:0}
+.up-item{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border);cursor:grab;font-size:12px;font-weight:600;transition:background .1s}
+.up-item:last-child{border-bottom:none}
+.up-item:hover{background:var(--orange-dim)}
+.up-item.dragging{opacity:.35}
+.up-bar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -881,15 +891,15 @@ function buildFilters(){
 
 let _hideAlts=true; // default: hide alt characters from members list + overview
 let _guildCap=78; // guild capacity (editable by admin, persisted in Settings sheet)
-const isAlt=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ตัวรอง')||n.includes('alt')};
-const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase();return n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent')};
-// map a raw Noted value to a display label: Alt / Absent / original text
-function noteLabel(noted){
-  if(!noted||!noted.trim())return '';
-  const n=noted.toLowerCase();
-  if(n.includes('ตัวรอง')||n.includes('alt'))return 'Alt';
-  if(n.includes('ลากิจ')||n.includes('แจ้งลา')||n.includes('ลา')||n.includes('absent'))return 'Absent';
-  return noted;
+// Status: ALT (exclude from auction queue) | ABSENT (show badge, still counted)
+const isAlt=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='alt'};
+const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='absent'};
+function noteLabel(s){
+  if(!s||!s.trim())return '';
+  const n=s.toLowerCase().trim();
+  if(n==='alt')return 'Alt';
+  if(n==='absent')return 'Absent';
+  return '';
 }
 function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
 function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked;renderStats();renderMembers()}
@@ -1000,6 +1010,7 @@ function renderParty(){
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
   // edit toggle button (admin only)
   const editBtn=isAdmin?`<button class="btn ${_partyEditMode?'btn-primary':'btn-ghost'}" style="font-size:11px;padding:5px 12px" onclick="togglePartyEdit()">${_partyEditMode?'✏️ กำลังแก้ไข...':'✏️ แก้ไข Party'}</button>`:'';
+  renderUnassignedPanel();
   document.getElementById('party-content').innerHTML=
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
     `<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
@@ -2483,7 +2494,7 @@ let _partyEditMode=false,_partyChanges={},_dragSrcName=null,_dragSrcParty=null;
 function togglePartyEdit(){
   if(!isAdmin)return;
   _partyEditMode=!_partyEditMode;
-  if(!_partyEditMode)_partyChanges={};
+  if(!_partyEditMode){_partyChanges={};document.getElementById('unassigned-panel').classList.remove('visible');}
   renderParty();_updatePeb();
 }
 
@@ -2492,7 +2503,7 @@ function _updatePeb(){
   const n=Object.keys(_partyChanges).length;
   const lbl=document.getElementById('peb-changes');
   if(lbl)lbl.textContent=n?`${n} คนที่เปลี่ยน`:'';
-  bar.classList.toggle('visible',_partyEditMode);
+  bar.classList.toggle('visible',_partyEditMode);renderUnassignedPanel();
   const btn=document.getElementById('peb-save-btn');
   if(btn)btn.disabled=n===0;
 }
@@ -2569,6 +2580,40 @@ function showToast(msg){
   setTimeout(()=>{t.style.display='none'},2500);
 }
 
+
+/* ─── UNASSIGNED PANEL ─── */
+function renderUnassignedPanel(){
+  const panel=document.getElementById('unassigned-panel');
+  const list=document.getElementById('up-list');
+  const countEl=document.getElementById('up-count');
+  if(!panel||!list)return;
+  const unassigned=members.filter(m=>!m.party||m.party==='');
+  countEl.textContent=unassigned.length;
+  if(!_partyEditMode||!isAdmin||!unassigned.length){panel.classList.remove('visible');return}
+  panel.classList.add('visible');
+  list.innerHTML=unassigned.map(m=>{
+    const type=getType(m.class);
+    const barCls=type==='Support'?'bs':type==='All Rounder'?'ba':'bd';
+    const barColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';
+    return`<div class="up-item" draggable="true"
+      ondragstart="onUpDragStart(event,'${m.ign.replace(/'/g,"\'")}','${m.party||''}')"
+      ondragend="onUpDragEnd(event)">
+      <div class="up-bar" style="background:${barColor}"></div>
+      <div><div style="font-size:12px;font-weight:600">${m.ign}</div><div style="font-size:10px;color:var(--faint)">${m.class||''}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function onUpDragStart(e,name,party){
+  _dragSrcName=name;_dragSrcParty=party;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.target.classList.add('dragging'),0);
+}
+function onUpDragEnd(e){
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
+}
+
 loadData();
 </script>
 
@@ -2579,6 +2624,12 @@ loadData();
   <span style="font-size:13px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l)" id="peb-changes"></span>
   <button class="btn btn-ghost" onclick="cancelPartyEdit()">ยกเลิก</button>
   <button id="peb-save-btn" class="btn btn-primary" onclick="savePartyChanges()">✓ Save Changes</button>
+</div>
+
+<!-- UNASSIGNED PANEL -->
+<div id="unassigned-panel" class="unassigned-panel">
+  <div class="up-head">ยังไม่มี Party (<span id="up-count">0</span>)</div>
+  <div id="up-list"></div>
 </div>
 </body>
 </html>
