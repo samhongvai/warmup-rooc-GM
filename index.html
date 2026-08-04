@@ -412,6 +412,13 @@ input[type=checkbox]{accent-color:var(--orange)}
 .modal input{width:100%;margin-bottom:12px}
 .modal-err{font-size:13px;color:var(--red);margin-bottom:10px;display:none;font-weight:500}
 .paste-area{width:100%;height:180px;resize:vertical;font-size:13px;line-height:1.7;margin-bottom:10px}
+
+/* PARTY DRAG & DROP */
+.party-edit-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--orange-border);padding:12px 20px;display:none;align-items:center;gap:12px;z-index:500;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.party-edit-bar.visible{display:flex}
+.pm.dragging{opacity:.35;outline:2px dashed var(--orange)}
+.pm.drag-over{border-top:3px solid var(--orange);background:var(--orange-dim)}
+.pc.drop-target{outline:2px solid var(--orange-border);outline-offset:3px;background:var(--orange-dim)}
 </style>
 </head>
 <body>
@@ -752,7 +759,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 
 <script>
 const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
-const GAS='https://script.google.com/macros/s/AKfycbwUpyRVW2IjFk-P6FXLRSVRv6YTNqPynD4g4OYFX052sAigJkzobhghSKBiuly27FXL/exec';
+const GAS='https://script.google.com/macros/s/AKfycby6m7Sb_ukJM2FfcvRWe4eDcUkYStaFm_CciWkxKGdjzkHQWJ_aZtiHq9v2NQQkhn4o/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
@@ -973,19 +980,30 @@ function renderParty(){
   const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
   const PRIEST_CLASSES=['High Priest','Priest'];
   const classOrder=(m)=>{const t=getType(m.class);const base=TYPE_ORDER[t]??9;const isPriest=PRIEST_CLASSES.includes(m.class)?0:1;return base*10+isPriest};
+  const edit=_partyEditMode&&isAdmin;
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
-    // sort each party's roster: Support -> All Rounder -> Attack(DPS), so the
-    // healer/support core is always visible first regardless of sheet order
     const sortedMembers=[...pts[p]].sort((a,b)=>classOrder(a)-classOrder(b));
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${sortedMembers.map(m=>{const type=getType(m.class),tb=typeBar(type);const sub=isAlt(m);const leave=isLeaveNote(m);const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`}).join('')}</div></div>`;
+    const pmHtml=sortedMembers.map(m=>{
+      const type=getType(m.class),tb=typeBar(type);
+      const sub=isAlt(m);const leave=isLeaveNote(m);
+      const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
+      const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';
+      const dragAttrs=edit?`draggable="true" ondragstart="onPmDragStart(event,'${m.ign.replace(/'/g,"\\'")}','${p}')" ondragend="onPmDragEnd(event)" ondragover="onPmDragOver(event,this)" ondragleave="onPmDragLeave(event,this)" ondrop="onPmDrop(event,'${m.ign.replace(/'/g,"\\'")}','${p}')"`:'' ;
+      const dragStyle=edit?'cursor:grab;':'' ;
+      return`<div class="pm" ${dragAttrs} style="${dragStyle}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`;
+    }).join('');
+    const cardDragAttrs=edit?`ondragover="onPcDragOver(event,this)" ondragleave="onPcDragLeave(event,this)" ondrop="onPcDrop(event,'${p}')"`:'' ;
+    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pmHtml}</div></div>`;
   }).join('');
-  // secondary field label reflects the actual highest party number present,
-  // e.g. "Party 9–16" instead of a hardcoded "Party 9+" — falls back to just
-  // "Party 9+" if there happen to be no secondary parties yet (nothing to show a max of)
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
-  document.getElementById('party-content').innerHTML=`<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div><div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
+  // edit toggle button (admin only)
+  const editBtn=isAdmin?`<button class="btn ${_partyEditMode?'btn-primary':'btn-ghost'}" style="font-size:11px;padding:5px 12px" onclick="togglePartyEdit()">${_partyEditMode?'✏️ กำลังแก้ไข...':'✏️ แก้ไข Party'}</button>`:'';
+  document.getElementById('party-content').innerHTML=
+    `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
+    `<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
+    `<div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
 /* SEARCH */
@@ -2458,8 +2476,109 @@ function resetZoom(){
   document.getElementById('zoom-range').value=100;
   onZoomSlider(100);
 }
+
+/* ─── PARTY DRAG & DROP (Admin only) ─── */
+let _partyEditMode=false,_partyChanges={},_dragSrcName=null,_dragSrcParty=null;
+
+function togglePartyEdit(){
+  if(!isAdmin)return;
+  _partyEditMode=!_partyEditMode;
+  if(!_partyEditMode)_partyChanges={};
+  renderParty();_updatePeb();
+}
+
+function _updatePeb(){
+  const bar=document.getElementById('party-edit-bar');if(!bar)return;
+  const n=Object.keys(_partyChanges).length;
+  const lbl=document.getElementById('peb-changes');
+  if(lbl)lbl.textContent=n?`${n} คนที่เปลี่ยน`:'';
+  bar.classList.toggle('visible',_partyEditMode);
+  const btn=document.getElementById('peb-save-btn');
+  if(btn)btn.disabled=n===0;
+}
+
+function onPmDragStart(e,name,party){
+  _dragSrcName=name;_dragSrcParty=party;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.target.classList.add('dragging'),0);
+}
+function onPmDragEnd(e){
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
+}
+function onPmDragOver(e,el){e.preventDefault();el.classList.add('drag-over')}
+function onPmDragLeave(e,el){el.classList.remove('drag-over')}
+function onPcDragOver(e,el){e.preventDefault();el.classList.add('drop-target')}
+function onPcDragLeave(e,el){el.classList.remove('drop-target')}
+
+function onPmDrop(e,tgtName,tgtParty){
+  e.preventDefault();e.stopPropagation();
+  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
+  if(!_dragSrcName||_dragSrcName===tgtName)return;
+  const src=members.find(m=>m.ign===_dragSrcName);
+  const tgt=members.find(m=>m.ign===tgtName);
+  if(!src||!tgt)return;
+  const sp=src.party,tp=tgt.party;
+  src.party=tp;tgt.party=sp;
+  _partyChanges[_dragSrcName]=tp;
+  _partyChanges[tgtName]=sp;
+  _dragSrcName=null;renderParty();_updatePeb();
+}
+
+function onPcDrop(e,targetParty){
+  e.preventDefault();
+  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
+  if(!_dragSrcName)return;
+  const src=members.find(m=>m.ign===_dragSrcName);
+  if(!src||src.party===targetParty){_dragSrcName=null;return}
+  _partyChanges[_dragSrcName]=targetParty;
+  src.party=targetParty;
+  _dragSrcName=null;renderParty();_updatePeb();
+}
+
+async function savePartyChanges(){
+  const btn=document.getElementById('peb-save-btn');if(btn)btn.disabled=true;
+  const updates=Object.entries(_partyChanges).map(([member_name,party])=>({member_name,party}));
+  const r=await gasPost({action:'batchUpdateParty',updates});
+  if(r.ok){
+    _partyChanges={};_partyEditMode=false;
+    renderParty();_updatePeb();
+    showToast(`✓ บันทึก ${r.updated} คนสำเร็จ`);
+  }else{
+    alert('Save failed: '+(r.error||'unknown'));
+    if(btn)btn.disabled=false;
+  }
+}
+
+function cancelPartyEdit(){
+  // revert members party back to original
+  Object.entries(_partyChanges).forEach(([name])=>{
+    const m=members.find(x=>x.ign===name);
+    if(m&&m._origParty!==undefined)m.party=m._origParty;
+  });
+  _partyChanges={};_partyEditMode=false;
+  renderParty();_updatePeb();
+}
+
+function showToast(msg){
+  let t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;color:var(--green);box-shadow:var(--shadow-out-sm);z-index:600';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.display='block';
+  setTimeout(()=>{t.style.display='none'},2500);
+}
+
 loadData();
 </script>
 
+
+<!-- PARTY EDIT BAR -->
+<div id="party-edit-bar" class="party-edit-bar">
+  <span style="font-size:12px;color:var(--muted);flex:1">ลาก member ระหว่าง party card เพื่อย้าย · ลากไปที่ card ว่างเพื่อเปลี่ยน party</span>
+  <span style="font-size:13px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l)" id="peb-changes"></span>
+  <button class="btn btn-ghost" onclick="cancelPartyEdit()">ยกเลิก</button>
+  <button id="peb-save-btn" class="btn btn-primary" onclick="savePartyChanges()">✓ Save Changes</button>
+</div>
 </body>
 </html>
