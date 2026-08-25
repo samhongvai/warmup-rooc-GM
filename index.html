@@ -72,6 +72,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .zoom-pct{font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);min-width:34px}
 .zoom-range{-webkit-appearance:none;appearance:none;width:70px;height:3px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--orange) 50%,rgba(var(--tint-rgb),0.25) 50%)}
 .zoom-range::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--orange);cursor:pointer}
+.mode-seg{display:flex;border-right:1px solid var(--border)}
+.mode-seg button{padding:7px 11px;cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);background:none;border:none;transition:all .15s}
+.mode-seg button.on{color:var(--orange-l);background:var(--orange-dim)}
 .topbar-admin{display:flex;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;background:none;border:none;transition:color .15s}
 .topbar-admin.on{color:var(--orange-l);background:var(--orange-dim)}
 .hamburger{display:none;position:fixed;top:8px;left:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);padding:7px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm);border:1px solid var(--border)}
@@ -439,6 +442,10 @@ input[type=checkbox]{accent-color:var(--orange)}
     <span class="zoom-pct" id="zoom-lbl">100%</span>
     <input type="range" class="zoom-range" id="zoom-range" min="60" max="150" step="10" value="100" oninput="onZoomSlider(this.value)">
   </div>
+  <div class="mode-seg" id="mode-seg">
+    <button data-mode="GL" onclick="setMode('GL')">GL</button>
+    <button data-mode="OR" onclick="setMode('OR')">OR</button>
+  </div>
   <button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
 </div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
@@ -478,7 +485,7 @@ input[type=checkbox]{accent-color:var(--orange)}
       <th id="th-class" onclick="sortM('class')">Class ↕</th>
       <th id="th-type" onclick="sortM('type')">Type ↕</th>
       <th id="th-party" onclick="sortM('party')">Party ↕</th>
-      <th id="th-gf" onclick="sortM('guild_field')">Guild Field ↕</th>
+      <th id="th-gf" onclick="sortM('field')">Field ↕</th>
       <th>Note</th>
       <th>Tag</th>
       <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
@@ -768,17 +775,33 @@ input[type=checkbox]{accent-color:var(--orange)}
 </div>
 
 <script>
-const SHEET_ID='1xyjeepFGEaD11vWWYm-PWvujjQbCWyL-Of0Ms5dD1Yg';
+const SHEET_ID='1aPSEYfUAgmg3IRMa-fjRhKb1q2bAfgbOemAtJX0DSkU'; // Warmup_Master
 const GAS='https://script.google.com/macros/s/AKfycby6m7Sb_ukJM2FfcvRWe4eDcUkYStaFm_CciWkxKGdjzkHQWJ_aZtiHq9v2NQQkhn4o/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
-const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Lord Knight':'All Rounder','Paladin':'All Rounder','Biochemist':'All Rounder','Champion':'Attack (DPS)','High Wizard':'Attack (DPS)','Professor':'Attack (DPS)','Assassin Cross':'Attack (DPS)','Stalker':'Attack (DPS)','Sniper':'Attack (DPS)','Mastersmith':'Attack (DPS)','Summoner':'Attack (DPS)'};
+// ตรงกับหัวข้อ #CLASS ในแท็บ Config ของ Warmup_Members
+const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Professor':'Support','Biochemist':'All Rounder','Summoner':'All Rounder','Lord Knight':'All Rounder','Paladin':'All Rounder','High Wizard':'Attack (DPS)','Sniper':'Attack (DPS)','Stalker':'Attack (DPS)','Mastersmith':'Attack (DPS)','Rebellion':'Attack (DPS)','Champion':'Attack (DPS)','Assassin Cross':'Attack (DPS)'};
 
-// guild_field stored in sheet as full text e.g. "Elite Party (Fixed)"
-const GF_CODE_MAP={'Elite Party (Fixed)':'EF','Elite Party (Split)':'ES','Sub Party (Fixed)':'SF','Sub Party (Split)':'SS'};
-const GF_LABEL_MAP={EF:'Elite Party (Fixed)',ES:'Elite Party (Split)',SF:'Sub Party (Fixed)',SS:'Sub Party (Split)'};
-function getGfCode(gf){if(!gf)return '';return GF_CODE_MAP[gf]||gf}
-function getGfLabel(gf){if(!gf)return '';return GF_LABEL_MAP[gf]||GF_LABEL_MAP[GF_CODE_MAP[gf]]||gf}
+/* โหมดสนาม : GL = Guild League · OR = Overrun
+   คนเดิม Party เดิม ต่างแค่คอลัมน์อาชีพและป้ายสนาม */
+let _mode=localStorage.getItem('warmup_mode')==='OR'?'OR':'GL';
+function applyMode(){
+  members.forEach(m=>{
+    m.class=(_mode==='OR'?(m.class_or||m.class_gl):m.class_gl)||'';
+    m.field=(_mode==='OR'?m.field_or:m.field_gl)||'';
+  });
+}
+function setMode(mode){
+  if(mode===_mode)return;
+  _mode=mode;
+  try{localStorage.setItem('warmup_mode',mode)}catch(e){}
+  document.querySelectorAll('.mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
+  applyMode();buildFilters();renderStats();renderMembers();renderParty();
+}
+// ป้ายสนามย่อสำหรับ badge : Elite->E · Sub-battle->S · หลัก->ห · รอง->ร
+function getFieldCode(f){if(!f)return '';const t=String(f).trim();
+  if(t==='Elite')return 'E';if(t==='Sub-battle')return 'S';return t.charAt(0)}
+function getFieldLabel(f){return f||''}
 
 function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
 function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
@@ -867,15 +890,32 @@ async function loadData(){
   gasGet('getGuildCap').then(r=>{if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap;renderStats()}}).catch(()=>{});
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
-    const mr=await fetch(mkUrl('Members')).then(r=>r.text());
+    const mr=await fetch(mkUrl('Web_Members')).then(r=>r.text());
     const mj=parse(mr);
     const cols=mj.table.cols.map(c=>(c.label||'').toLowerCase().replace(/\s+/g,'_'));
     const get=(v,k)=>{const i=cols.findIndex(c=>c===k||c.includes(k));return i>=0&&v[i]&&v[i].v!=null?String(v[i].v).trim():''};
-    // getParty: find column where header is exactly 'party' (to avoid matching 'guild_field' which contains 'party')
-    const partyColIdx=cols.findIndex(c=>c==='party');
-    const getParty=(v)=>partyColIdx>=0&&v[partyColIdx]&&v[partyColIdx].v!=null?String(v[partyColIdx].v).trim():'';
-    console.log('cols:', cols, 'partyColIdx:', partyColIdx);
-    members=mj.table.rows.map(r=>{const v=r.c||[];return{class:get(v,'class'),ign:get(v,'character_name')||get(v,'name'),char_id:get(v,'character_id'),discord:get(v,'discord_id')||get(v,'discord'),party:getParty(v),guild_field:get(v,'guild_field'),note:get(v,'note'),status:get(v,'status'),tag:get(v,'tag')}}).filter(m=>m.ign);
+    // อ่านคอลัมน์ด้วยชื่อเป๊ะ ๆ กันชนกันเอง (เช่น class_gl / class_or)
+    const idxOf=(k)=>cols.findIndex(c=>c===k);
+    const exact=(v,k)=>{const i=idxOf(k);return i>=0&&v[i]&&v[i].v!=null?String(v[i].v).trim():''};
+    members=mj.table.rows.map(r=>{const v=r.c||[];return{
+      class_gl:exact(v,'class_gl'),
+      class_or:exact(v,'class_or'),
+      class:'',
+      field_gl:exact(v,'field_gl'),
+      field_or:exact(v,'field_or'),
+      field:'',
+      ign:exact(v,'character_name'),
+      char_id:exact(v,'character_id'),
+      discord:exact(v,'discord_id'),
+      party:exact(v,'party_no'),
+      slot:exact(v,'slot'),
+      role:exact(v,'role'),
+      note:'',
+      status:exact(v,'status'),
+      tag:exact(v,'tag')
+    }}).filter(m=>m.ign);
+    applyMode();
+    document.querySelectorAll('.mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode));
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
@@ -890,7 +930,7 @@ function buildFilters(){
 }
 
 let _hideAlts=true; // default: hide alt characters from members list + overview
-let _guildCap=78; // guild capacity (editable by admin, persisted in Settings sheet)
+let _guildCap=80; // guild_cap — ค่าจริงอยู่ใน Config ของ Warmup_Members
 // Status: ALT (exclude from auction queue) | ABSENT (show badge, still counted)
 const isAlt=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='alt'};
 const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='absent'};
@@ -961,7 +1001,7 @@ function renderMembers(){
   tbody.innerHTML=f.map((m,i)=>{
     const type=getType(m.class);
     const badge=`<span class="badge ${getTypeCls(type)}">${type==='Attack (DPS)'?'DPS':type}</span>`;
-    const gfCode=getGfCode(m.guild_field);const gfBadge=m.guild_field?`<span class="gf">${gfCode}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${getGfLabel(m.guild_field)}</span>`:'';
+    const gfBadge=m.field?`<span class="gf">${getFieldCode(m.field)}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${getFieldLabel(m.field)}</span>`:'';
     const noteHtml=m.note?`<span style="font-size:11px;color:var(--faint)">${m.note}</span>`:'';
     const tagHtml=m.tag?`<span style="font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px 8px">${m.tag}</span>`:'';
     return`<tr>
@@ -990,7 +1030,7 @@ function renderParty(){
   const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
   const PRIEST_CLASSES=['High Priest','Priest'];
   const classOrder=(m)=>{const t=getType(m.class);const base=TYPE_ORDER[t]??9;const isPriest=PRIEST_CLASSES.includes(m.class)?0:1;return base*10+isPriest};
-  const edit=_partyEditMode&&isAdmin;
+  const edit=false; // ปิดชั่วคราว : GAS batchUpdateParty เขียนคอลัมน์ 'party' ที่ถูกย้ายไป Party_Master แล้ว
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
     const sortedMembers=[...pts[p]].sort((a,b)=>classOrder(a)-classOrder(b));
@@ -998,23 +1038,26 @@ function renderParty(){
       const type=getType(m.class),tb=typeBar(type);
       const sub=isAlt(m);const leave=isLeaveNote(m);
       const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
-      const gfTag=m.guild_field?`<span class="gf" style="margin-left:auto">${getGfCode(m.guild_field)}</span>`:'';
+      const isLead=(m.role||'')==='Leader';
+      const gfTag=isLead?`<span class="gf" style="margin-left:auto" title="หัวตี้">★</span>`:'';
       const dragAttrs=edit?`draggable="true" ondragstart="onPmDragStart(event,'${m.ign.replace(/'/g,"\\'")}','${p}')" ondragend="onPmDragEnd(event)" ondragover="onPmDragOver(event,this)" ondragleave="onPmDragLeave(event,this)" ondrop="onPmDrop(event,'${m.ign.replace(/'/g,"\\'")}','${p}')"`:'' ;
       const dragStyle=edit?'cursor:grab;':'' ;
       return`<div class="pm" ${dragAttrs} style="${dragStyle}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`;
     }).join('');
     const cardDragAttrs=edit?`ondragover="onPcDragOver(event,this)" ondragleave="onPcDragLeave(event,this)" ondrop="onPcDrop(event,'${p}')"`:'' ;
-    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${pts[p].length} คน</span></div><div class="pm-body">${pmHtml}</div></div>`;
+    const slot=(pts[p][0]&&pts[p][0].slot)?` · Slot ${pts[p][0].slot}`:'';
+    const fieldLbl=(pts[p][0]&&pts[p][0].field)?pts[p][0].field:'';
+    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}${slot}</span><span class="pc-count">${fieldLbl} · ${pts[p].length} คน</span></div><div class="pm-body">${pmHtml}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
   // edit toggle button (admin only)
-  const editBtn=isAdmin?`<button class="btn ${_partyEditMode?'btn-primary':'btn-ghost'}" style="font-size:11px;padding:5px 12px" onclick="togglePartyEdit()">${_partyEditMode?'✏️ กำลังแก้ไข...':'✏️ แก้ไข Party'}</button>`:'';
+  const editBtn=''; // แก้ไข Party ทำที่ชีท Party_Master แทน
   renderUnassignedPanel();
   document.getElementById('party-content').innerHTML=
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
-    `<div class="field-section"><div class="field-head"><h4>สนามหลัก</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
-    `<div class="field-section"><div class="field-head"><h4>สนามรอง</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
+    `<div class="field-section"><div class="field-head"><h4>${_mode==='OR'?'หลัก':'Elite'}</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
+    `<div class="field-section"><div class="field-head"><h4>${_mode==='OR'?'รอง':'Sub-battle'}</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
 /* SEARCH */
