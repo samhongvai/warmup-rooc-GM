@@ -66,15 +66,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 /* TOPBAR */
 .topbar-wrap{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow-out-sm);overflow:hidden;align-items:center;border:1px solid var(--border)}
-.topbar-zoom-seg{display:flex;align-items:center;gap:8px;padding:7px 12px;border-right:1px solid var(--border)}
-.zoom-reset{background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);padding:0;line-height:1;transition:color .15s}
-.zoom-reset:hover{color:var(--orange-l)}
-.zoom-pct{font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);min-width:34px}
-.zoom-range{-webkit-appearance:none;appearance:none;width:70px;height:3px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--orange) 50%,rgba(var(--tint-rgb),0.25) 50%)}
-.zoom-range::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--orange);cursor:pointer}
-.mode-seg{display:flex;border-right:1px solid var(--border)}
-.mode-seg button{padding:7px 11px;cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);background:none;border:none;transition:all .15s}
-.mode-seg button.on{color:var(--orange-l);background:var(--orange-dim)}
 .topbar-admin{display:flex;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;background:none;border:none;transition:color .15s}
 .topbar-admin.on{color:var(--orange-l);background:var(--orange-dim)}
 .hamburger{display:none;position:fixed;top:8px;left:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);padding:7px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm);border:1px solid var(--border)}
@@ -89,7 +80,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   .sidebar.open{transform:translateX(0)}
   .main{margin-left:0!important;max-width:100vw!important;padding:3.5rem 0.9rem 2rem!important}
   .hamburger{display:flex;align-items:center}
-  .topbar-zoom-seg{display:none}
 }
 
 /* MAIN */
@@ -151,7 +141,8 @@ input[type=checkbox]{accent-color:var(--orange)}
 .alt-toggle{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;margin-left:auto}
 
 /* TABLE */
-.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)}
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow-x:auto;overflow-y:hidden;box-shadow:var(--shadow-out-sm);-webkit-overflow-scrolling:touch}
+.mtbl{min-width:560px}
 .mtbl,.au-tbl,.rtbl,.sum-tbl{width:100%;border-collapse:collapse}
 .mtbl th,.au-tbl th,.rtbl th,.sum-tbl th{text-align:left;padding:9px 13px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.8px;background:var(--card2);cursor:pointer}
 .mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{padding:6px 13px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px}
@@ -173,7 +164,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .b-d{color:var(--red);border:1.5px solid var(--red-b)}
 
 /* GF BADGE */
-.gf{font-size:9px;font-weight:800;font-family:var(--font-pixel);border-radius:4px;padding:2px 6px;letter-spacing:.5px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25)}
+.gf{font-size:9px;font-weight:800;font-family:var(--font-pixel);border-radius:4px;padding:2px 6px;letter-spacing:.5px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25);white-space:nowrap}
+.gf-e{background:var(--orange-dim);color:var(--orange-l);border-color:var(--orange-border)}
+.gf-s{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-b)}
 
 /* CLASS AVATAR ICONS */
 .cls-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid}
@@ -432,21 +425,32 @@ input[type=checkbox]{accent-color:var(--orange)}
 .up-item:hover{background:var(--orange-dim)}
 .up-item.dragging{opacity:.35}
 .up-bar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
+
+/* ZOOM PILL (มุมขวาล่าง) */
+.zoom-pill{position:fixed;right:14px;bottom:14px;z-index:250;display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-out-sm);opacity:.45;transition:opacity .18s;overflow:hidden}
+.zoom-pill:hover,.zoom-pill:focus-within{opacity:1}
+.zp-btn{background:none;border:none;cursor:pointer;font-size:15px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);padding:6px 11px;line-height:1;transition:color .15s}
+.zp-btn:hover{color:var(--orange-l)}
+.zp-lbl{background:none;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);padding:6px 8px;min-width:46px;line-height:1;transition:background .15s}
+.zp-lbl:hover{background:var(--orange-dim)}
+
+/* MODE PILL (หน้า Party) */
+.mode-pill{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:3px;box-shadow:var(--shadow-out-sm);margin-bottom:10px;gap:2px}
+.mode-pill button{flex:1;padding:8px 20px;border:none;border-radius:18px;background:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);white-space:nowrap;transition:all .18s}
+.mode-pill button:hover{color:var(--text)}
+.mode-pill button.on{background:var(--orange);color:#fff;font-weight:800;box-shadow:var(--shadow-out-sm)}
+@media(max-width:600px){.mode-pill{display:flex;width:100%}.mode-pill button{padding:9px 8px;font-size:11px}}
 </style>
 </head>
 <body>
 <button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
 <div class="topbar-wrap">
-  <div class="topbar-zoom-seg">
-    <button class="zoom-reset" onclick="resetZoom()" title="Reset">↺</button>
-    <span class="zoom-pct" id="zoom-lbl">100%</span>
-    <input type="range" class="zoom-range" id="zoom-range" min="60" max="150" step="10" value="100" oninput="onZoomSlider(this.value)">
-  </div>
-  <div class="mode-seg" id="mode-seg">
-    <button data-mode="GL" onclick="setMode('GL')">GL</button>
-    <button data-mode="OR" onclick="setMode('OR')">OR</button>
-  </div>
   <button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
+</div>
+<div class="zoom-pill" id="zoom-pill">
+  <button class="zp-btn" onclick="stepZoom(-10)" title="ย่อ">−</button>
+  <button class="zp-lbl" id="zoom-lbl" onclick="resetZoom()" title="กดเพื่อรีเซ็ต">100%</button>
+  <button class="zp-btn" onclick="stepZoom(10)" title="ขยาย">+</button>
 </div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app" id="app-root">
@@ -482,16 +486,14 @@ input[type=checkbox]{accent-color:var(--orange)}
     <thead><tr>
       <th class="m-num">#</th>
       <th id="th-ign" onclick="sortM('ign')">Name ↕</th>
-      <th id="th-class" onclick="sortM('class')">Class ↕</th>
-      <th id="th-type" onclick="sortM('type')">Type ↕</th>
+      <th id="th-class" onclick="sortM('class')">Class (GL) ↕</th>
+      <th id="th-classor" onclick="sortM('class_or')">Class (OR) ↕</th>
       <th id="th-party" onclick="sortM('party')">Party ↕</th>
       <th id="th-gf" onclick="sortM('field')">Field ↕</th>
-      <th>Note</th>
-      <th>Tag</th>
       <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
       <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
     </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
   </table></div>
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
@@ -499,6 +501,10 @@ input[type=checkbox]{accent-color:var(--orange)}
 <!-- PARTY -->
 <div id="page-party" class="page">
   <div class="page-title">Party</div>
+  <div class="mode-pill" id="mode-seg">
+    <button data-mode="GL" onclick="setMode('GL')">⚔ Guild League</button>
+    <button data-mode="OR" onclick="setMode('OR')">🌐 Overrun</button>
+  </div>
   <div class="page-sub" id="party-sub"></div>
   <div id="party-content"><div class="loading">Loading...</div></div>
 </div>
@@ -719,7 +725,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 
   <!-- TAB: REWARDS PREVIEW -->
   <div id="auc-rewards" style="display:none">
-    <div id="auc-rewards-wrap"></div>id="auc-rewards" style="display:none">
+    <div id="auc-rewards-wrap"></div>
     <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)" id="rwprev-title">Rewards Preview</div>
     <div class="tbl-wrap" style="margin-bottom:16px"><table class="rtbl">
       <thead><tr id="rwprev-thead"></tr></thead>
@@ -785,18 +791,26 @@ const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support'
 /* โหมดสนาม : GL = Guild League · OR = Overrun
    คนเดิม Party เดิม ต่างแค่คอลัมน์อาชีพและป้ายสนาม */
 let _mode=localStorage.getItem('warmup_mode')==='OR'?'OR':'GL';
+/* ชีทเก็บ field_or เป็นไทย (หลัก/รอง) — เว็บใช้อังกฤษชุดเดียวทุกโหมด */
+function normField(f){const t=String(f||'').trim();
+  if(t==='หลัก')return 'Elite';
+  if(t==='รอง')return 'Sub-battle';
+  return t}
+/* m.class / m.field ยึด GL คงที่ : หน้า Members, Search, Stats จะไม่ขยับตามโหมด
+   โหมด GL/OR มีผลเฉพาะหน้า Party เท่านั้น (คำนวณตอน render) */
 function applyMode(){
   members.forEach(m=>{
-    m.class=(_mode==='OR'?(m.class_or||m.class_gl):m.class_gl)||'';
-    m.field=(_mode==='OR'?m.field_or:m.field_gl)||'';
+    m.class=m.class_gl||'';
+    m.field=normField(m.field_gl)||normField(m.field_or);
   });
 }
+function classOf(m){return(_mode==='OR'?(m.class_or||m.class_gl):m.class_gl)||''}
 function setMode(mode){
   if(mode===_mode)return;
   _mode=mode;
   try{localStorage.setItem('warmup_mode',mode)}catch(e){}
-  document.querySelectorAll('.mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
-  applyMode();buildFilters();renderStats();renderMembers();renderParty();
+  document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
+  renderParty();
 }
 // ป้ายสนามย่อสำหรับ badge : Elite->E · Sub-battle->S · หลัก->ห · รอง->ร
 function getFieldCode(f){if(!f)return '';const t=String(f).trim();
@@ -915,11 +929,11 @@ async function loadData(){
       tag:exact(v,'tag')
     }}).filter(m=>m.ign);
     applyMode();
-    document.querySelectorAll('.mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode));
+    document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode));
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
-  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
+  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
 }
 
 function buildFilters(){
@@ -991,28 +1005,29 @@ async function editGuildCap(){
 }
 
 let mSortKey='party',mSortDir=1;
-function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['ign','class','party','char_id','discord'].forEach(x=>{const el=document.getElementById('th-'+x.replace('_id','').replace('_',''));if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',party:'th-party',char_id:'th-char',discord:'th-discord'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
+function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['th-ign','th-class','th-classor','th-party','th-gf','th-char','th-discord'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',class_or:'th-classor',party:'th-party',field:'th-gf',char_id:'th-char',discord:'th-discord'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
   let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
   tbody.innerHTML=f.map((m,i)=>{
-    const type=getType(m.class);
-    const badge=`<span class="badge ${getTypeCls(type)}">${type==='Attack (DPS)'?'DPS':type}</span>`;
-    const gfBadge=m.field?`<span class="gf">${getFieldCode(m.field)}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${getFieldLabel(m.field)}</span>`:'';
-    const noteHtml=m.note?`<span style="font-size:11px;color:var(--faint)">${m.note}</span>`:'';
-    const tagHtml=m.tag?`<span style="font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px 8px">${m.tag}</span>`:'';
+    const clsGl=m.class_gl||'—';
+    const clsOr=m.class_or||'';
+    const same=!clsOr||clsOr===m.class_gl;
+    const orHtml=same
+      ?`<span style="color:var(--faint)">—</span>`
+      :`<span style="color:var(--orange-l);font-weight:600">${clsOr}</span>`;
+    const fld=m.field||'';
+    const gfBadge=fld?`<span class="gf gf-${fld==='Elite'?'e':'s'}">${fld}</span>`:'<span style="color:var(--faint)">—</span>';
     return`<tr>
       <td class="m-num">${i+1}</td>
       <td style="font-weight:600">${m.ign}</td>
-      <td style="font-size:12px;color:var(--text)">${m.class||'—'}</td>
-      <td>${badge}</td>
+      <td style="font-size:12px;color:var(--text)">${clsGl}</td>
+      <td style="font-size:12px">${orHtml}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
       <td>${gfBadge}</td>
-      <td>${noteHtml}</td>
-      <td>${tagHtml}</td>
       <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.char_id||'—'}</td>
       <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.discord||'—'}</td>
     </tr>`;
@@ -1025,29 +1040,29 @@ function renderParty(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
-  const sub=document.getElementById('party-sub');if(sub)sub.textContent=mainPts.length+' สนามหลัก · '+secPts.length+' สนามรอง';
+  const totalM=members.filter(m=>m.party).length;
+  const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.length+' ปาร์ตี้';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
   const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
   const PRIEST_CLASSES=['High Priest','Priest'];
-  const classOrder=(m)=>{const t=getType(m.class);const base=TYPE_ORDER[t]??9;const isPriest=PRIEST_CLASSES.includes(m.class)?0:1;return base*10+isPriest};
+  const classOrder=(m)=>{const c=classOf(m);const t=getType(c);const base=TYPE_ORDER[t]??9;const isPriest=PRIEST_CLASSES.includes(c)?0:1;return base*10+isPriest};
   const edit=false; // ปิดชั่วคราว : GAS batchUpdateParty เขียนคอลัมน์ 'party' ที่ถูกย้ายไป Party_Master แล้ว
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
     const sortedMembers=[...pts[p]].sort((a,b)=>classOrder(a)-classOrder(b));
     const pmHtml=sortedMembers.map(m=>{
-      const type=getType(m.class),tb=typeBar(type);
+      const cls=classOf(m);const type=getType(cls),tb=typeBar(type);
       const sub=isAlt(m);const leave=isLeaveNote(m);
       const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
       const isLead=(m.role||'')==='Leader';
       const gfTag=isLead?`<span class="gf" style="margin-left:auto" title="หัวตี้">★</span>`:'';
       const dragAttrs=edit?`draggable="true" ondragstart="onPmDragStart(event,'${m.ign.replace(/'/g,"\\'")}','${p}')" ondragend="onPmDragEnd(event)" ondragover="onPmDragOver(event,this)" ondragleave="onPmDragLeave(event,this)" ondrop="onPmDrop(event,'${m.ign.replace(/'/g,"\\'")}','${p}')"`:'' ;
       const dragStyle=edit?'cursor:grab;':'' ;
-      return`<div class="pm" ${dragAttrs} style="${dragStyle}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${m.class||''}</div></div>${gfTag}${noteTag}</div>`;
+      return`<div class="pm" ${dragAttrs} style="${dragStyle}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${gfTag}${noteTag}</div>`;
     }).join('');
     const cardDragAttrs=edit?`ondragover="onPcDragOver(event,this)" ondragleave="onPcDragLeave(event,this)" ondrop="onPcDrop(event,'${p}')"`:'' ;
-    const slot=(pts[p][0]&&pts[p][0].slot)?` · Slot ${pts[p][0].slot}`:'';
-    const fieldLbl=(pts[p][0]&&pts[p][0].field)?pts[p][0].field:'';
-    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}${slot}</span><span class="pc-count">${fieldLbl} · ${pts[p].length} คน</span></div><div class="pm-body">${pmHtml}</div></div>`;
+    const fieldLbl=isM?'Elite':'Sub-battle';
+    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${fieldLbl} · ${pts[p].length} คน</span></div><div class="pm-body">${pmHtml}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
@@ -1056,8 +1071,8 @@ function renderParty(){
   renderUnassignedPanel();
   document.getElementById('party-content').innerHTML=
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
-    `<div class="field-section"><div class="field-head"><h4>${_mode==='OR'?'หลัก':'Elite'}</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
-    `<div class="field-section"><div class="field-head"><h4>${_mode==='OR'?'รอง':'Sub-battle'}</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
+    `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
+    `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
 /* SEARCH */
@@ -2513,23 +2528,22 @@ function whChangePage(key,dir){
 
 
 let _zoomLevel=100;
+const ZOOM_MIN=60,ZOOM_MAX=150;
 function onZoomSlider(v){
-  _zoomLevel=+v;
+  _zoomLevel=Math.min(ZOOM_MAX,Math.max(ZOOM_MIN,Math.round(+v||100)));
   const scale=_zoomLevel/100;
   const app=document.getElementById('app-root');
   app.style.transform='scale('+scale+')';
   app.style.transformOrigin='top left';
   app.style.width=(100/scale)+'%';
   app.style.height=(100/scale)+'%';
-  document.getElementById('zoom-lbl').textContent=_zoomLevel+'%';
-  const pct=((_zoomLevel-60)/(150-60)*100);
-  document.getElementById('zoom-range').style.background=
-    `linear-gradient(to right,var(--orange) ${pct}%,rgba(106,87,86,0.25) ${pct}%)`;
+  const lbl=document.getElementById('zoom-lbl');
+  if(lbl)lbl.textContent=_zoomLevel+'%';
+  try{localStorage.setItem('warmup_zoom',_zoomLevel)}catch(e){}
 }
-function resetZoom(){
-  document.getElementById('zoom-range').value=100;
-  onZoomSlider(100);
-}
+function stepZoom(d){onZoomSlider(_zoomLevel+d)}
+function resetZoom(){onZoomSlider(100)}
+(function(){const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)})();
 
 /* ─── PARTY DRAG & DROP (Admin only) ─── */
 let _partyEditMode=false,_partyChanges={},_dragSrcName=null,_dragSrcParty=null;
