@@ -443,9 +443,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 </head>
 <body>
 <button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
-<div class="topbar-wrap">
-  <button class="topbar-admin" id="topbar-admin-btn" onclick="openAdminModal()">🔐 Admin</button>
-</div>
 <div class="zoom-pill" id="zoom-pill">
   <button class="zp-btn" onclick="stepZoom(-10)" title="ย่อ">−</button>
   <button class="zp-lbl" id="zoom-lbl" onclick="resetZoom()" title="กดเพื่อรีเซ็ต">100%</button>
@@ -489,10 +486,8 @@ input[type=checkbox]{accent-color:var(--orange)}
       <th id="th-classor" onclick="sortM('class_or')">Class (OR) ↕</th>
       <th id="th-party" onclick="sortM('party')">Party ↕</th>
       <th id="th-gf" onclick="sortM('field')">Field ↕</th>
-      <th id="th-char" onclick="sortM('char_id')" class="admin-col" style="display:none">Char ID</th>
-      <th id="th-discord" onclick="sortM('discord')" class="admin-col" style="display:none">Discord</th>
     </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
   </table></div>
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
@@ -521,205 +516,77 @@ input[type=checkbox]{accent-color:var(--orange)}
 <!-- AUCTION -->
 <div id="page-auction" class="page">
   <div class="page-title">Auction</div>
-  <div class="page-sub">Queue, rewards, and management</div>
-  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-    <div style="flex:1;min-width:160px">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Event type</label>
-      <select id="auc-event-type" onchange="onAucEventType()" style="width:100%"></select>
-    </div>
-    <div style="flex:1;min-width:160px">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Rank</label>
-      <select id="auc-event-rank" onchange="onAucRank()" style="width:100%"></select>
-    </div>
-  </div>
+  <div class="page-sub" id="auc-sub">คิวประมูล รางวัล และประวัติการแข่ง</div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
-    <button class="au-tab" id="auc-tab-lucky" data-tab="lucky" onclick="swAucTab('lucky')">Lucky Draw</button>
-    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated Auction</button>
-    <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Auction Queue</button>
+    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated</button>
+    <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
     <button class="au-tab" data-tab="warhistory" onclick="swAucTab('warhistory')">War History</button>
-    <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards Preview</button>
+    <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards</button>
   </div>
 
   <!-- TAB: GUILD AUCTION -->
   <div id="auc-calc">
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
-
-    <!-- ADMIN SECTION -->
-    <div class="admin-only admin-locked" id="auc-admin-block" style="background:var(--card);border:1px solid var(--orange-border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm);margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--orange-dim);border-bottom:1px solid var(--orange-border)">
-        <span style="font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);text-transform:uppercase;letter-spacing:1px;flex:1">🔐 Admin</span>
-        <span style="font-size:9px;padding:2px 8px;border-radius:20px;background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange-l);font-family:var(--font-pixel)" id="auc-save-as-label">—</span>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:150px">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Event</label>
+        <select id="auc-event-type" onchange="onAucEventType()" style="width:100%"></select>
       </div>
-      <div style="padding:14px">
-        <!-- Row 1: Multiplier + Totals + Per person -->
-        <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
-          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid var(--border2,rgba(160,140,118,.35));flex-shrink:0">
-            <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--orange-l)">Mul ×</span>
-            <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:56px;font-size:20px;font-weight:700;color:var(--orange);background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);text-align:center">
-          </div>
-          <div id="auc-reward-inputs" style="display:flex;flex:1"></div>
-          <div style="border-left:2px solid var(--border2,rgba(160,140,118,.35))"></div>
-          <div id="auc-per-person-inputs" style="display:flex"></div>
-        </div>
-        <!-- Row 2: คงเหลือ (progress bars) -->
-        <div id="auc-summary-cards" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
-        <!-- Row 3: Save -->
-        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)">
-          <div style="flex:1;min-width:150px">
-            <label style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--faint);display:block;margin-bottom:5px">Auction date</label>
-            <input type="date" id="auc-result-date" style="width:100%">
-          </div>
-          <button class="btn btn-primary" onclick="saveAuctionResult()">✓ Save result</button>
-        </div>
-        <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:6px">Select the actual auction date then press Save.</div>
-        <div id="auc-save-result-msg" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+      <div style="flex:1;min-width:150px">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Rank</label>
+        <select id="auc-event-rank" onchange="onAucRank()" style="width:100%"></select>
       </div>
     </div>
-
-    <!-- USER SECTION: what each person gets -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)">
-      <div style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <span style="font-size:13px;font-weight:700;color:var(--text)" id="auc-user-title">การแจกรางวัล</span>
-        <span style="font-size:11px;color:var(--muted)" id="auc-per-person-summary">—</span>
-      </div>
-      <table class="au-tbl">
-        <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card slot</th><th>White feather</th><th>Red/Black feather</th></tr></thead>
-        <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">No pending queue members</td></tr></tbody>
-      </table>
-    </div>
+    <div id="auc-calc-body"><div class="empty">กำลังโหลด...</div></div>
   </div>
 
-  <!-- TAB: LUCKY DRAW -->
-  <div id="auc-lucky" style="display:none">
-    <div style="font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Remaining from Auction</div>
-    <div class="ld-pool-row" id="ld-pool-row">
-      <div class="ld-pool-card"><div class="ld-pool-lbl">Feather White</div><div class="ld-pool-val" id="ld-white-rem">—</div></div>
-      <div class="ld-pool-card"><div class="ld-pool-lbl">Feather Red/Black</div><div class="ld-pool-val" id="ld-red-rem">—</div></div>
-      <div class="ld-pool-card" id="ld-mvp-card"><div class="ld-pool-lbl">MVP Box</div><div class="ld-pool-val" id="ld-mvp-count">—</div></div>
-    </div>
-    <div class="admin-only admin-locked" id="lucky-admin-wrap">
-
-      <!-- Step 1 -->
-      <div class="panel" style="margin-bottom:10px;padding:0;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card2);border-bottom:1px solid var(--border)">
-          <div class="step-num sn-active" id="ls1-num">1</div>
-          <span style="flex:1;font-size:12px;font-weight:700;font-family:var(--font-pixel)" id="lucky-step1-title">Mark MVP Box Recipients (Guild League only)</span>
-          <div id="ls1-right"></div>
-        </div>
-        <div id="ls1-body" style="padding:14px">
-          <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-            <button class="btn btn-ghost" onclick="luckyShuffle()">🎲 Shuffle</button>
-            <button class="btn btn-ghost" onclick="luckyClearAll()">Clear All</button>
-          </div>
-          <div class="ld-prog-wrap">
-            <div class="ld-prog-bar-wrap"><div class="ld-prog-bar" id="ld-prog-bar" style="width:0%"></div></div>
-            <span class="ld-prog-txt" id="ld-prog-txt">0 / 0</span>
-            <span class="ld-prog-lbl">selected</span>
-          </div>
-          <div class="ld-grid" id="lucky-mvp-grid"></div>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="panel" style="margin-bottom:10px;padding:0;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card2);border-bottom:1px solid var(--border)">
-          <div class="step-num pending" id="ls2-num">2</div>
-          <span style="flex:1;font-size:12px;font-weight:700;font-family:var(--font-pixel)">Draw Remaining Feathers</span>
-          <div id="ls2-right"></div>
-        </div>
-        <div id="ls2-body" style="display:none;padding:10px 14px">
-          <div style="font-size:12px;color:var(--muted)" id="ls2-hint"></div>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="panel" style="padding:0;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card2);border-bottom:1px solid var(--border)">
-          <div class="step-num pending" id="ls3-num">✓</div>
-          <span style="flex:1;font-size:12px;font-weight:700;font-family:var(--font-pixel)">Lucky Draw Result</span>
-        </div>
-        <div id="lucky-result" style="display:none">
-          <table class="au-tbl">
-            <thead><tr><th style="width:28px">#</th><th>Name</th><th>Item</th><th>Card Slot</th></tr></thead>
-            <tbody id="lucky-result-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- TAB: DESIGNATED AUCTION -->
+  <!-- TAB: DESIGNATED -->
   <div id="auc-designated" style="display:none">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Special rewards for guild helpers · Tuesday (Queue 1–5) · Thursday (Queue 6–10)</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">Week</label>
-      <input type="date" id="da-week-input" style="width:150px" onchange="loadDesignatedWeek()">
-      <button class="btn btn-ghost" onclick="setDesignatedThisWeek()">This Week</button>
-      <span style="font-size:10px;color:var(--faint);font-family:var(--font-pixel)" id="da-week-label"></span>
-    </div>
-    <div style="font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Reward per Person</div>
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;box-shadow:var(--shadow-out-sm)">
-        <div style="font-size:20px;font-weight:700;font-family:var(--font-pixel)" id="da-reward-card">5</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--font-pixel)">Card</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--font-pixel)">Continues from MVP Box</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:170px">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">สัปดาห์</label>
+        <select id="da-week" onchange="renderDesignated()" style="width:100%"></select>
       </div>
-      <div style="flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;box-shadow:var(--shadow-out-sm)">
-        <div style="font-size:20px;font-weight:700;font-family:var(--font-pixel)" id="da-reward-white">15</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--font-pixel)">White</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--font-pixel)">Continues from Guild Auction</div>
-      </div>
-      <div style="flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;box-shadow:var(--shadow-out-sm)">
-        <div style="font-size:20px;font-weight:700;font-family:var(--font-pixel)" id="da-reward-red">15</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--font-pixel)">Red/Black</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--font-pixel)">Continues from Guild Auction</div>
-      </div>
+      <div style="font-size:11px;color:var(--muted);padding-bottom:9px" id="da-count">—</div>
     </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">📅 Tuesday — Queue 1–5</div>
-    <div id="da-tuesday-list" class="mgr-list" style="margin-bottom:14px"><div class="empty">Select a week first</div></div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">📅 Thursday — Queue 6–10</div>
-    <div id="da-thursday-list" class="mgr-list" style="margin-bottom:14px"><div class="empty">Select a week first</div></div>
-    <div class="sep" style="margin:14px 0"></div>
-    <div style="font-size:11px;color:var(--muted);padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      💡 To assign helpers: Admin enters <b>character_id</b> directly in the <b>Helper_Log</b> sheet (slots 1–4 and 6–9). Names and classes are pulled from Members automatically. Slots 5 and 10 are always <b>Ficelle</b>.
-    </div>
+    <div class="tbl-wrap"><table class="rtbl">
+      <thead><tr><th style="width:44px">#</th><th>ชื่อ</th><th style="width:100px">สถานะ</th><th style="width:110px">วันที่ประมูล</th></tr></thead>
+      <tbody id="da-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
+    </table></div>
   </div>
 
-  <!-- TAB: AUCTION QUEUE -->
+  <!-- TAB: QUEUE -->
   <div id="auc-manage" style="display:none">
-    <div style="font-size:10px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Filter (sorted by Draw date → Auction date → Status)</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="qm-filter-draw" onchange="renderQueueManager()" style="flex:1;min-width:130px"><option value="">Draw date: All</option></select>
-      <select id="qm-filter-auction" onchange="renderQueueManager()" style="flex:1;min-width:130px"><option value="">Auction date: All</option></select>
-      <select id="qm-filter-status" onchange="renderQueueManager()" style="flex:1;min-width:110px">
-        <option value="">Status: All</option><option value="done">Done</option><option value="pending">Pending</option><option value="skip">Skipped</option>
-      </select>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">Queue</div>
-    <div id="qm-list" class="mgr-list"><div class="empty">Loading...</div></div>
-    <div class="sep" style="margin:14px 0"></div>
-    <div class="admin-only admin-locked" id="qm-draw-wrap">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">Draw New Queue (Admin only)</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-        <input type="password" id="qm-admin-pass" placeholder="Admin password" style="flex:1;min-width:140px">
-        <button class="btn btn-primary" onclick="drawNewQueue()">🎰 Draw Queue</button>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:170px">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">รอบคิว</label>
+        <select id="qm-round" onchange="renderQueueManager()" style="width:100%"></select>
       </div>
-      <div id="qm-draw-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
+      <div style="flex:1;min-width:130px">
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">สถานะ</label>
+        <select id="qm-filter-status" onchange="renderQueueManager()" style="width:100%">
+          <option value="">ทั้งหมด</option><option value="pending">Pending</option><option value="done">Done</option><option value="skipped">Skipped</option>
+        </select>
+      </div>
     </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="qm-count">—</div>
+    <div class="tbl-wrap"><table class="rtbl">
+      <thead><tr><th style="width:44px">#</th><th>ชื่อ</th><th style="width:100px">สถานะ</th><th style="width:110px">วันที่ประมูล</th></tr></thead>
+      <tbody id="qm-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
+    </table></div>
   </div>
 
   <!-- TAB: WAR HISTORY -->
   <div id="auc-warhistory" style="display:none">
-    <div style="display:flex;gap:14px;flex-wrap:wrap" id="wh-container">
-      <div style="flex:1;min-width:280px">
-        <div class="wh-section" id="wh-overrun"></div>
-      </div>
-      <div style="flex:1;min-width:280px">
-        <div class="wh-section" id="wh-league"></div>
-      </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="wh-filter-type" onchange="renderWarHistory()" style="flex:1;min-width:150px">
+        <option value="">ทุกประเภท</option><option value="Guild League">Guild League</option><option value="Overrun">Overrun</option>
+      </select>
     </div>
+    <div class="tbl-wrap"><table class="rtbl">
+      <thead><tr><th style="width:96px">วันที่</th><th style="width:120px">ประเภท</th><th>อันดับ / Tier</th><th style="width:76px">ผล</th><th style="width:150px">รางวัล</th></tr></thead>
+      <tbody id="wh-tbody"><tr><td colspan="5" class="empty">กำลังโหลด...</td></tr></tbody>
+    </table></div>
   </div>
 
   <!-- TAB: REWARDS PREVIEW -->
@@ -738,7 +605,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </div>
   </div>
 </div>
-
 <!-- CALENDAR -->
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar</div>
@@ -766,22 +632,8 @@ input[type=checkbox]{accent-color:var(--orange)}
 </main>
 
 <!-- ADMIN MODAL -->
-<div id="admin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:var(--radius-md);padding:28px 24px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.18)">
-    <div style="font-size:15px;font-weight:700;margin-bottom:4px;font-family:var(--font-pixel)">Admin Login</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Enter admin password to unlock features</div>
-    <input type="password" id="admin-pass" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdmin()" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);font-size:14px;margin-bottom:8px">
-    <div id="admin-err" style="display:none;font-size:11px;color:var(--red);margin-bottom:8px">รหัสผ่านไม่ถูกต้อง</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="closeAdminModal()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:13px;cursor:pointer">Cancel</button>
-      <button onclick="submitAdmin()" class="btn btn-primary" style="padding:8px 18px">Login</button>
-    </div>
-  </div>
-</div>
-
 <script>
 const SHEET_ID='1aPSEYfUAgmg3IRMa-fjRhKb1q2bAfgbOemAtJX0DSkU'; // Warmup_Master
-const GAS='https://script.google.com/macros/s/AKfycby6m7Sb_ukJM2FfcvRWe4eDcUkYStaFm_CciWkxKGdjzkHQWJ_aZtiHq9v2NQQkhn4o/exec';
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 // ตรงกับหัวข้อ #CLASS ในแท็บ Config ของ Warmup_Members
@@ -821,10 +673,8 @@ function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
 function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
-let members=[],isAdmin=false;
-let _botConfig=[]; // bot config rows from getBotConfig
+let members=[];
 let _aucQueueRows=[]; // rows for currently-viewed queue date
-let _pendingNav='';
 
 /* HAMBURGER */
 function toggleSidebar(){
@@ -838,40 +688,8 @@ function closeSidebar(){
 }
 /* toggleDesktopRail removed — desktop sidebar always expanded */
 
-/* ADMIN */
-function openAdminModal(){if(isAdmin){if(confirm('Logout from Admin?')){isAdmin=false;const tb=document.getElementById('topbar-admin-btn');if(tb){tb.textContent='🔐 Admin';tb.classList.remove('on')}document.querySelectorAll('.admin-only').forEach(el=>{el.classList.add('admin-locked');el.disabled=true});document.querySelectorAll('.admin-col').forEach(el=>el.style.display='none');document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='');renderStats();renderMembers();renderQueueManager();}}else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pass').focus(),50)}}
-function closeAdminModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pass').value='';document.getElementById('admin-err').style.display='none'}
-async function submitAdmin(){
-  const pw=document.getElementById('admin-pass').value;
-  if(!pw)return;
-  const btn=document.querySelector('#admin-modal .btn-primary');
-  btn.textContent='Verifying...';btn.disabled=true;
-  const r=await gasPost({action:'verifyAdmin',password:pw});
-  btn.textContent='Login';btn.disabled=false;
-  if(r.ok){
-    isAdmin=true;
-    closeAdminModal();
-    const tb=document.getElementById('topbar-admin-btn');
-    if(tb){tb.textContent='🔓 Admin (on)';tb.classList.add('on')}
-    document.querySelectorAll('.admin-col').forEach(el=>el.style.display='');
-    document.querySelectorAll('.admin-only').forEach(el=>{el.classList.remove('admin-locked');el.disabled=false});
-    document.querySelectorAll('.nav-lock').forEach(el=>el.style.display='none');
-    renderStats();
-    renderMembers();
-    renderQueueManager();
-    if(_pendingNav){sw(_pendingNav);_pendingNav='';}
-  } else {
-    document.getElementById('admin-err').style.display='block';
-    document.getElementById('admin-pass').value='';
-  }
-}
-
 /* NAV */
-function swAdmin(t){
-  if(isAdmin){sw(t);return}
-  _pendingNav=t;
-  openAdminModal();
-}
+function swAdmin(t){sw(t)} // เว็บ read-only แล้ว ไม่มี admin gate
 function sw(t){
   _currentPage=t;
   document.querySelectorAll('.nav-item').forEach(el=>{
@@ -896,11 +714,8 @@ async function loadData(){
     document.getElementById('dot').style.background=clr;
     document.getElementById('sdot').style.background=clr;
   };
-  // GAS preloads run independently in background — must NOT block or break Members load
-  loadAllHistoryCache().catch(()=>{});
-  if(!_botConfig.length) gasGet('getBotConfig').then(r=>{if(r.ok)_botConfig=r.rows}).catch(()=>{});
-  gasGet('getAuctionHistory&limit=10').then(r=>{if(r.ok){renderAuctionHistory(r.rows);_aucHistoryLoaded=true;}}).catch(()=>{});
-  gasGet('getGuildCap').then(r=>{if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap;renderStats()}}).catch(()=>{});
+  // โหลดข้อมูล Auction ไว้เบื้องหลัง ไม่บล็อกการโหลด Members
+  loadAuctionData().catch(()=>{});
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
     const mr=await fetch(mkUrl('Web_Members')).then(r=>r.text());
@@ -932,7 +747,7 @@ async function loadData(){
     setS(true,`Loaded · ${members.length} members`);
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
-  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
+  }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
 }
 
 function buildFilters(){
@@ -988,20 +803,8 @@ function renderStats(){
     <div class="cap-bar-wrap"><div class="cap-bar" style="width:${Math.min(100,pct(total))}%"></div></div>`;
 }
 
-async function loadGuildCap(){
-  try{const r=await gasGet('getGuildCap');if(r.ok&&typeof r.cap==='number'){_guildCap=r.cap}}catch(e){}
-  renderStats();
-}
-async function editGuildCap(){
-  if(!isAdmin){alert('Admin only');return}
-  const v=prompt('จำนวนที่กิลด์รับได้เต็ม (คน):',_guildCap);
-  if(v===null)return;
-  const n=Math.max(0,Math.floor(+v||0));
-  if(!n){alert('กรอกตัวเลขที่ถูกต้อง');return}
-  _guildCap=n;renderStats();
-  const r=await gasPost({action:'setGuildCap',cap:n});
-  if(!r.ok){alert('บันทึกไม่สำเร็จ: '+(r.error||''))}
-}
+/* guild_cap แก้ที่ Config ของ Warmup_Members — เว็บ read-only */
+function loadGuildCap(){renderStats()}
 
 let mSortKey='party',mSortDir=1;
 function sortM(k){if(mSortKey===k)mSortDir*=-1;else{mSortKey=k;mSortDir=1};['th-ign','th-class','th-classor','th-party','th-gf','th-char','th-discord'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('asc','desc')}});const thMap={ign:'th-ign',class:'th-class',class_or:'th-classor',party:'th-party',field:'th-gf',char_id:'th-char',discord:'th-discord'};if(thMap[k]){const el=document.getElementById(thMap[k]);if(el)el.classList.add(mSortDir===1?'asc':'desc')};renderMembers()}
@@ -1010,7 +813,7 @@ function renderMembers(){
   let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
   tbody.innerHTML=f.map((m,i)=>{
     const clsGl=m.class_gl||'—';
     const clsOr=m.class_or||'';
@@ -1027,8 +830,6 @@ function renderMembers(){
       <td style="font-size:12px">${orHtml}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
       <td>${gfBadge}</td>
-      <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.char_id||'—'}</td>
-      <td class="admin-col" style="display:${isAdmin?'table-cell':'none'};font-size:11px;color:var(--faint)">${m.discord||'—'}</td>
     </tr>`;
   }).join('');
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
@@ -1054,7 +855,6 @@ function renderParty(){
     if(t==='All Rounder')return 1;
     return 0;
   };
-  const edit=false; // ปิดชั่วคราว : GAS batchUpdateParty เขียนคอลัมน์ 'party' ที่ถูกย้ายไป Party_Master แล้ว
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
     const sortedMembers=[...pts[p]].sort((a,b)=>classOrder(a)-classOrder(b));
@@ -1064,18 +864,15 @@ function renderParty(){
       const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
       const isLead=(m.role||'')==='Leader';
       const gfTag=isLead?`<span class="gf" style="margin-left:auto" title="หัวตี้">★</span>`:'';
-      const dragAttrs=edit?`draggable="true" ondragstart="onPmDragStart(event,'${m.ign.replace(/'/g,"\\'")}','${p}')" ondragend="onPmDragEnd(event)" ondragover="onPmDragOver(event,this)" ondragleave="onPmDragLeave(event,this)" ondrop="onPmDrop(event,'${m.ign.replace(/'/g,"\\'")}','${p}')"`:'' ;
-      const dragStyle=edit?'cursor:grab;':'' ;
-      return`<div class="pm" ${dragAttrs} style="${dragStyle}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${gfTag}${noteTag}</div>`;
+      return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${gfTag}${noteTag}</div>`;
     }).join('');
-    const cardDragAttrs=edit?`ondragover="onPcDragOver(event,this)" ondragleave="onPcDragLeave(event,this)" ondrop="onPcDrop(event,'${p}')"`:'' ;
-    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span></div><div class="pm-body">${pmHtml}</div></div>`;
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span></div><div class="pm-body">${pmHtml}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
   // edit toggle button (admin only)
   const editBtn=''; // แก้ไข Party ทำที่ชีท Party_Master แทน
-  renderUnassignedPanel();
+  // (unassigned panel ถูกตัดออกแล้ว - เว็บ read-only)
   document.getElementById('party-content').innerHTML=
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
     `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
@@ -1084,24 +881,6 @@ function renderParty(){
 
 /* SEARCH */
 let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
-
-async function preloadSearchCache(){
-  if(_searchCacheLoaded)return;
-  // reuse _aucAllRows if already loaded, else fetch once
-  if(!_aucCacheLoaded) await loadAllHistoryCache();
-  const rows=_aucAllRows;
-  _searchHistMap={};
-  rows.forEach(r=>{
-    const key=r.member_name;
-    if(!_searchHistMap[key])_searchHistMap[key]=[];
-    const exists=_searchHistMap[key].some(x=>x.queue_date===r.queue_date&&x.position===r.position);
-    if(!exists)_searchHistMap[key].push(r);
-  });
-  const allDates=[...new Set(rows.map(r=>r.queue_date))].sort().reverse();
-  _searchLatestDate=allDates.length?allDates[0]:'';
-  _searchQueueRows=_searchLatestDate?rows.filter(r=>r.queue_date===_searchLatestDate):[];
-  _searchCacheLoaded=true;
-}
 const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
 const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
 const ID_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`;
@@ -1201,904 +980,299 @@ async function searchMain(){
 
 
 /* GAS */
-async function gasGet(action){try{const r=await fetch(GAS+'?action='+action);return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
-async function gasPost(body){try{const r=await fetch(GAS,{method:'POST',body:JSON.stringify(body)});return await r.json()}catch(e){return{ok:false,error:e.toString()}}}
+/* ═══════════════════════════════════════════════════════════
+   AUCTION — อ่านจาก Warmup_Auction ผ่าน gviz ทั้งหมด (read-only)
+   ไม่มี GAS ไม่มีการเขียนกลับ
+   ═══════════════════════════════════════════════════════════ */
+const AUCTION_SHEET_ID='1VyPC6qgt76HbY8wqQNZ6i85D9BrmRkyV2y2qoG8YQto';
+const mkUrlA=s=>`https://docs.google.com/spreadsheets/d/${AUCTION_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 
-let _aucPendingAll=[]; // all pending rows across all queue_dates, sorted queue_date→position
-let _aucDistDate=''; // currently displayed distribution date
-const EVENT_ORDER=['Guild Overrun','Major League','Intra-server League'];
+/* แปลง gviz response -> array ของ object โดยใช้ชื่อคอลัมน์แถวหัว */
+function parseGviz(text){
+  const s=text.indexOf('{'),e=text.lastIndexOf('}');
+  const j=JSON.parse(text.slice(s,e+1));
+  const cols=(j.table.cols||[]).map(c=>String(c.label||'').trim());
+  return (j.table.rows||[]).map(r=>{
+    const o={};
+    (r.c||[]).forEach((cell,i)=>{
+      const key=cols[i]; if(!key)return;
+      o[key]=cell? (cell.f!=null?cell.f:cell.v) : '';
+      if(o[key]==null)o[key]='';
+    });
+    return o;
+  }).filter(o=>Object.values(o).some(v=>String(v).trim()!==''));
+}
 
-let _aucCacheLoaded=false;
-let _aucAllRows=[];
-let _aucDates=[];
-let _historyFetchPromise=null; // dedup: reuse in-flight promise
-let _aucHistoryLoaded=false;
+/* gviz คืนวันที่เป็น Date(2026,7,27) — normalize เป็น yyyy-MM-dd */
+function normDate(v){
+  if(v==null||v==='')return '';
+  const s=String(v).trim();
+  const m=s.match(/^Date\((\d+),(\d+),(\d+)/);
+  if(m){const y=+m[1],mo=+m[2]+1,d=+m[3];return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+  if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);
+  const slash=s.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+  if(slash)return `${slash[1]}-${String(+slash[2]).padStart(2,'0')}-${String(+slash[3]).padStart(2,'0')}`;
+  const d=new Date(s);
+  return isNaN(d)?s:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+const fmtShort=ds=>{const p=String(ds||'').split('-');return p.length===3?`${p[2]}/${p[1]}`:(ds||'—')};
 
-async function loadAllHistoryCache(){
-  if(_aucCacheLoaded)return;
-  if(_historyFetchPromise)return _historyFetchPromise; // reuse — ไม่ยิง GAS ซ้ำ
-  _historyFetchPromise=(async()=>{
-    try{
-      const r=await gasGet('getAllHistory');
-      if(r.ok){
-        _aucAllRows=r.rows;
-        _aucDates=[...new Set(r.rows.filter(x=>x.queue_date).map(x=>x.queue_date))].sort().reverse();
-        _aucCacheLoaded=true;
-      }
-    }catch(e){/* leave cache empty, will retry next call */}
-    _historyFetchPromise=null;
+/* ---------- cache ---------- */
+let _aucLoaded=false,_aucLoadPromise=null;
+let _aucQueue=[],_aucResult=[],_aucHelpers=[],_aucRewardsRef=[],_glTrack=[],_orTrack=[];
+
+async function loadAuctionData(){
+  if(_aucLoaded)return;
+  if(_aucLoadPromise)return _aucLoadPromise;
+  _aucLoadPromise=(async()=>{
+    const get=async(tab)=>{
+      try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
+      catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
+    };
+    const [q,res,hl,rw,gl,or]=await Promise.all([
+      get('Auction_Queue'),get('Auction_Result'),get('Helper_Log'),
+      get('Rewards_Ref'),get('GL_Rank_Track'),get('OR_Rank_Track')
+    ]);
+    _aucQueue=q.map(r=>({...r,queue_date:normDate(r.queue_date),drawn_date:normDate(r.drawn_date)}));
+    _aucResult=res.map(r=>({...r,auction_date:normDate(r.auction_date),gl_week:normDate(r.gl_week)}));
+    _aucHelpers=hl.map(r=>({...r,week_start:normDate(r.week_start),auction_done_date:normDate(r.auction_done_date)}));
+    _aucRewardsRef=rw;
+    _glTrack=gl.map(r=>({...r,gl_date:normDate(r.gl_date)}));
+    _orTrack=or.map(r=>({...r,or_date:normDate(r.or_date)}));
+    _aucLoaded=true;_aucLoadPromise=null;
   })();
-  return _historyFetchPromise;
+  return _aucLoadPromise;
 }
 
 async function initAuctionPage(){
-  document.querySelectorAll('.admin-only').forEach(el=>{
-    if(isAdmin){el.classList.remove('admin-locked');el.disabled=false;}
-    else{el.classList.add('admin-locked');el.disabled=true;}
-  });
-  // await in-flight promise (ถ้ากำลังโหลดอยู่แล้ว จะ reuse ไม่ยิงซ้ำ)
-  if(!_aucCacheLoaded) await loadAllHistoryCache();
-  if(!_botConfig.length){const r=await gasGet('getBotConfig');if(r.ok)_botConfig=r.rows;}
+  await loadAuctionData();
   populateAucEventTypes();
-  buildPendingFromCache();
-  populateQueueManagerDates();
-  if(!_aucHistoryLoaded) await loadAuctionHistory();
-  swAucTab('calc');
+  populateQueueRounds();
+  populateDesignatedWeeks();
+  renderRewardsPreview();
+  renderWarHistory();
 }
 
-function buildPendingFromCache(){
-  // rebuild _aucPendingAll from cache — sorted queue_date ASC → position ASC
-  const pending=_aucAllRows
-    .filter(r=>r.status==='pending')
-    .sort((a,b)=>a.queue_date.localeCompare(b.queue_date)||a.position-b.position);
-  _aucPendingAll=pending;
-  renderDistribution();
-}
-
-async function loadAllPending(){
-  // force refresh cache then rebuild
-  await loadAllHistoryCache();
-  buildPendingFromCache();
-}
-
+/* ═══════════ TAB 1 : GUILD AUCTION ═══════════ */
 function populateAucEventTypes(){
   const sel=document.getElementById('auc-event-type');
-  if(sel.options.length)return;
-  const types=[...new Set(_botConfig.map(r=>r.event_name))].sort((a,b)=>EVENT_ORDER.indexOf(a)-EVENT_ORDER.indexOf(b));
+  if(!sel)return;
+  const types=[...new Set(_aucRewardsRef.map(r=>r.event_type).filter(Boolean))];
   sel.innerHTML=types.map(t=>`<option value="${t}">${t}</option>`).join('');
   onAucEventType();
 }
 
 function onAucEventType(){
-  const type=document.getElementById('auc-event-type').value;
-  const rankSel=document.getElementById('auc-event-rank');
-  const ranks=_botConfig.filter(r=>r.event_name===type);
-  rankSel.innerHTML=ranks.map(r=>`<option value="${r.rank}">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</option>`).join('');
+  const evt=document.getElementById('auc-event-type').value;
+  const sel=document.getElementById('auc-event-rank');
+  const ranks=_aucRewardsRef.filter(r=>r.event_type===evt);
+  sel.innerHTML=ranks.map(r=>{
+    const label=r.cross_server==='Y'?`${r.rank} (ข้ามเซิร์ฟ)`:`${r.rank} (ในเซิร์ฟ)`;
+    return `<option value="${r.rank}|${r.cross_server}">${label}</option>`;
+  }).join('');
   onAucRank();
 }
 
 function getCurrentReward(){
-  const type=document.getElementById('auc-event-type').value;
-  const rank=document.getElementById('auc-event-rank').value;
-  return _botConfig.find(r=>r.event_name===type&&r.rank===rank);
+  const evt=document.getElementById('auc-event-type').value;
+  const raw=document.getElementById('auc-event-rank').value||'';
+  const [rank,cross]=raw.split('|');
+  return _aucRewardsRef.find(r=>r.event_type===evt&&String(r.rank)===rank&&r.cross_server===cross)||null;
 }
 
 function onAucRank(){
-  onAucRankReset();
-  renderRewardInputs();
-  renderDistribution();
-  updateAucSaveAsLabel();
-}
+  const rw=getCurrentReward();
+  const box=document.getElementById('auc-calc-body');
+  if(!rw){box.innerHTML='<div class="empty">ไม่พบข้อมูลรางวัล</div>';return}
 
-function updateAucSaveAsLabel(){
-  const rw=getRewardValues();
-  const label=document.getElementById('auc-save-as-label');
-  if(!label)return;
-  if(!rw){label.textContent='บันทึกเป็น —';return}
-  const rankLabel=/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank;
-  label.innerHTML=`บันทึกเป็น <span style="color:var(--gold-l);font-weight:500">${rw.event_name} — ${rankLabel}</span>`;
-}
+  const nPeople=getLatestQueueCount();
+  const card=+rw.card||0, white=+rw.feather_white||0, red=+rw.feather_red_black||0;
+  const per=(n)=>nPeople?Math.floor(n/nPeople):0;
 
-/* ─── REWARD CALCULATOR ─── */
-let _aucGlobalMul=1; // single global multiplier for all fields
-let _aucFieldOverrides={}; // per-field manual overrides — null/missing means "use base × multiplier" as before
-let _aucPerPersonOverrides={}; // per-person overrides: {white: number|null, red: number|null}
-
-function onGlobalMul(){
-  _aucGlobalMul=+document.getElementById('auc-global-mul').value||1;
-  renderRewardInputs();
-  renderDistribution();
-}
-
-function onAucRankReset(){
-  _aucGlobalMul=1;
-  _aucFieldOverrides={};
-  _aucPerPersonOverrides={};
-  const mulEl=document.getElementById('auc-global-mul');
-  if(mulEl)mulEl.value=1;
-}
-
-function onPerPersonEdit(key,inputEl){
-  const v=inputEl.value.trim();
-  if(v===''){delete _aucPerPersonOverrides[key]}
-  else{_aucPerPersonOverrides[key]=Math.max(0,Math.round(+v)||0)}
-  renderDistribution();
-}
-
-// Called when the admin (or anyone testing numbers) edits a field's value
-// directly. An empty input clears the override and falls back to the
-// multiplier-calculated value, so the two methods (multiplier vs direct edit)
-// can be freely combined — e.g. multiply everything ×1.1, then hand-correct
-// just the one field that was pulled wrong.
-function onRewardFieldEdit(key,inputEl){
-  const v=inputEl.value.trim();
-  if(v===''){delete _aucFieldOverrides[key]}
-  else{_aucFieldOverrides[key]=Math.max(0,Math.round(+v)||0)}
-  renderRewardInputs(); // re-render per-person auto values when total changes
-  renderDistribution();
-}
-
-function renderRewardInputs(){
-  const base=getCurrentReward();
-  const wrap=document.getElementById('auc-reward-inputs');
-  const title=document.getElementById('auc-calc-title');
-  if(!base){wrap.innerHTML='';title.textContent='Distribution result';return}
-  const evLabel=/^\d+$/.test(base.rank)?'Rank '+base.rank:base.rank;
-  title.textContent=`Distribution result — ${base.event_name} — ${evLabel}`;
-
-  const mul=_aucGlobalMul;
-  const fields=[
-    {k:'card',label:'Card (= members)',base:base.card,accent:false},
-    {k:'feather_white',label:'Feather white',base:base.feather_white,accent:false},
-    {k:'feather_red_black',label:'Feather white & black',base:base.feather_red_black,accent:false}
-  ];
-  if(base.mvp_box!=null) fields.push({k:'mvp_box',label:'MVP box count',base:base.mvp_box,accent:true});
-
-  wrap.innerHTML=fields.map(f=>{
-    const calcVal=Math.round(f.base*mul);
-    const hasOverride=_aucFieldOverrides[f.k]!=null;
-    const displayVal=hasOverride?_aucFieldOverrides[f.k]:calcVal;
-    return `<div style="flex:1;min-width:140px;background:var(--card);border:0.5px solid ${hasOverride?'var(--orange-border)':(f.accent?'var(--amber-b)':'var(--border)')};border-radius:8px;padding:10px 12px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}${hasOverride?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-      <input type="number" min="0" value="${displayVal}" oninput="onRewardFieldEdit('${f.k}',this)" style="width:100%;font-size:22px;font-weight:700;${f.accent?'color:var(--amber)':''}background:transparent;border:none;outline:none;padding:0;font-family:inherit">
-      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base} ${mul!==1?`× ${mul} = ${calcVal}`:''}${hasOverride?` · เคลียร์ช่องนี้เพื่อกลับไปใช้ค่าคำนวณ`:''}</div>
+  const cell=(label,total,unit)=>`
+    <div style="flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-out-sm)">
+      <div style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel);margin-bottom:6px">${label}</div>
+      <div style="font-size:22px;font-weight:800;color:var(--orange);font-family:var(--font-pixel)">${total}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">ต่อคน ${per(total)} ${unit}</div>
     </div>`;
-  }).join('');
-  // --- Per-person override row (rendered after total fields) ---
-  const ppWrap=document.getElementById('auc-per-person-inputs');
-  if(ppWrap){
-    const rw=getRewardValues();
-    if(rw){
-      const n=rw.card||1; // card = number of members this round
-      const autoW=Math.floor(rw.white/n);
-      const autoR=Math.floor(rw.red/n);
-      const hasW=_aucPerPersonOverrides.white!=null;
-      const hasR=_aucPerPersonOverrides.red!=null;
-      const ppW=hasW?_aucPerPersonOverrides.white:autoW;
-      const ppR=hasR?_aucPerPersonOverrides.red:autoR;
-      ppWrap.innerHTML=`
-        <div style="flex:1;min-width:140px;background:var(--card2);border:0.5px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">White / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-          <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--blue)">
-          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${rw.white}÷${n}⌋=${autoW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
-        </div>
-        <div style="flex:1;min-width:140px;background:var(--card2);border:0.5px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Red/Black / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-          <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
-          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto: ⌊${rw.red}÷${n}⌋=${autoR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
-        </div>`;
-    }else{ppWrap.innerHTML='';}
-  }
-}
 
-function getRewardValues(){
-  const base=getCurrentReward();
-  if(!base)return null;
-  const m=_aucGlobalMul||1;
-  const ov=_aucFieldOverrides;
-  return {
-    card:ov.card!=null?ov.card:Math.round(base.card*m),
-    white:ov.feather_white!=null?ov.feather_white:Math.round(base.feather_white*m),
-    red:ov.feather_red_black!=null?ov.feather_red_black:Math.round(base.feather_red_black*m),
-    mvp:ov.mvp_box!=null?ov.mvp_box:(base.mvp_box!=null?Math.round(base.mvp_box*m):null),
-    event_name:base.event_name,
-    rank:base.rank
-  };
-}
-
-/* ─── DISTRIBUTION TABLE ─── */
-const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
-const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
-const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
-function fmtSlots(start,count){
-  if(count<=0)return '-';
-  const slots=_slotRange(start,count);
-  const grp=_grpByPage(slots);
-  return grp.map(([pg,boxes])=>{
-    const ranges=[];
-    let s=boxes[0],p=boxes[0];
-    for(let i=1;i<=boxes.length;i++){
-      const b=boxes[i];
-      if(b===p+1){p=b;continue}
-      ranges.push(s===p?`${s}`:`${s}-${p}`);
-      s=b;p=b;
-    }
-    return `Page${pg}(${ranges.join(',')})`;
-  }).join(', ');
-}
-
-function computeDistribution(){
-  const rw=getRewardValues();
-  if(!rw)return null;
-  const n=Math.min(rw.card,_aucPendingAll.length);
-  if(!n)return null;
-  const memberNames=_aucPendingAll.slice(0,n).map(r=>r.member_name);
-  const white=rw.white,red=rw.red;
-  // per-person: use override if set, otherwise floor(total/n)
-  const pW=_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n);
-  const pR=_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n);
-  const wUsedTotal=n*pW,rUsedTotal=n*pR;
-  const wRem=white-wUsedTotal,rRem=red-rUsedTotal;
-  let wPos=1,rPos=white+1;
-  const rows=memberNames.map((name,i)=>{
-    const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
-    wPos+=pW;rPos+=pR;
-    return row;
-  });
-  return {rows,card:n,cardTarget:rw.card,white,red,mvp:rw.mvp,wRem,rRem,n,event_name:rw.event_name,rank:rw.rank,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0};
-}
-
-function renderDistribution(){
-  const dist=computeDistribution();
-  const tbody=document.getElementById('auc-dist-tbody');
-  const sumWrap=document.getElementById('auc-summary-cards');
-  if(!dist){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">No pending queue members</td></tr>';
-    sumWrap.innerHTML='';
-    return;
-  }
-  const wUsed=dist.n*dist.pW;
-  const rUsed=dist.n*dist.pR;
-  const cardLeft=dist.cardTarget-dist.card;
-  const wBorder=dist.wOverflow?'var(--red-b)':'var(--border)';
-  const rBorder=dist.rOverflow?'var(--red-b)':'var(--border)';
-  const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`${dist.wRem} left`;
-  const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`${dist.rRem} left`;
-  sumWrap.innerHTML=`
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
-      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.cardTarget}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (${cardLeft} left)</div>
+  box.innerHTML=`
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      ${cell('Card',card,'ใบ')}
+      ${cell('ขนนกขาว',white,'อัน')}
+      ${cell('ขนนกดำ/แดง',red,'อัน')}
     </div>
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${wBorder};border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
-      <div style="font-size:18px;font-weight:700;${dist.wOverflow?'color:var(--red)':''}">${wUsed}/${dist.white}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">White (${wRemLbl})</div>
-    </div>
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${rBorder};border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-soft)">
-      <div style="font-size:18px;font-weight:700;${dist.rOverflow?'color:var(--red)':''}">${rUsed}/${dist.red}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">Red/Black (${rRemLbl})</div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;font-size:12px;color:var(--muted)">
+      คิวล่าสุด <b style="color:var(--text)">${nPeople}</b> คน · หารแล้วปัดลง เศษที่เหลือเก็บไว้ในคลังกิลด์
     </div>`;
-  tbody.innerHTML=dist.rows.map((r,i)=>{
-    const card=_toPageBox(r.cardSlot);
-    return `<tr>
-      <td style="color:var(--faint);font-size:11px">${i+1}</td>
-      <td style="font-weight:500">${r.name}</td>
-      <td>Page${card.page}(${card.box})</td>
-      <td>${fmtSlots(r.wStart,r.white)}</td>
-      <td>${fmtSlots(r.rStart,r.red)}</td>
-    </tr>`;
-  }).join('');
 }
 
-/* ─── TABS ─── */
-function swAucTab(t){
-  document.querySelectorAll('#page-auction .au-tab').forEach(b=>{
-    b.classList.toggle('active',b.dataset.tab===t);
-  });
-  ['calc','lucky','designated','manage','rewards'].forEach(id=>{
-    const el=document.getElementById('auc-'+id);
-    if(el)el.style.display=id===t?'block':'none';
-  });
-
-  if(t==='designated')initDesignatedTab();
-  if(t==='manage')renderQueueManager();
-  if(t==='rewards')renderRewardsPreview();
+function getLatestQueueCount(){
+  const dates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort();
+  if(!dates.length)return 0;
+  const latest=dates[dates.length-1];
+  return _aucQueue.filter(r=>r.queue_date===latest).length;
 }
 
-/* ─── QUEUE MANAGER ─── */
-function populateQueueManagerDates(){
-  if(!_aucDates.length)return;
-  const drawSel=document.getElementById('qm-filter-draw');
-  drawSel.innerHTML='<option value="">Draw date: All</option>'+_aucDates.map(d=>`<option value="${d}">${d}</option>`).join('');
-  loadQueueRowsFromCache(_aucDates[0]);
+/* ═══════════ TAB 2 : DESIGNATED (Helper_Log) ═══════════ */
+function populateDesignatedWeeks(){
+  const sel=document.getElementById('da-week');
+  if(!sel)return;
+  const weeks=[...new Set(_aucHelpers.map(r=>r.week_start).filter(Boolean))].sort().reverse();
+  sel.innerHTML=weeks.length?weeks.map(w=>`<option value="${w}">${w}</option>`).join(''):'<option value="">ยังไม่มีข้อมูล</option>';
+  renderDesignated();
 }
 
-async function loadQueueManagerDates(){
-  // used when explicitly refreshing (e.g. after draw new queue)
-  await loadAllHistoryCache();
-  populateQueueManagerDates();
-}
-
-function loadQueueRowsFromCache(date){
-  if(!date)return;
-  const rows=_aucAllRows.filter(r=>r.queue_date===date);
-  _aucQueueRows=rows;
-  _aucDistDate=date;
-  renderDistribution();
-  const auSel=document.getElementById('qm-filter-auction');
-  const drawnDates=[...new Set(rows.filter(x=>x.drawn_date).map(x=>x.drawn_date))].sort().reverse();
-  auSel.innerHTML='<option value="">Auction date: All</option>'+drawnDates.map(d=>`<option value="${d}">${d}</option>`).join('');
-}
-
-async function loadQueueRows(date){
-  if(!date)return;
-  // try cache first
-  const cached=_aucAllRows.filter(r=>r.queue_date===date);
-  if(cached.length){
-    loadQueueRowsFromCache(date);return;
-  }
-  // fallback: fetch from GAS
-  const r=await gasGet('getLog&date='+date);
-  if(!r.ok)return;
-  // merge into cache
-  r.rows.forEach(row=>{
-    if(!_aucAllRows.find(x=>x.queue_date===row.queue_date&&x.position===row.position))
-      _aucAllRows.push(row);
-  });
-  loadQueueRowsFromCache(date);
-}
-
-async function renderQueueManager(){
-  const drawDate=document.getElementById('qm-filter-draw').value;
-  const auctionDate=document.getElementById('qm-filter-auction').value;
-  const status=document.getElementById('qm-filter-status').value;
-  if(drawDate&&drawDate!==_aucDistDate){
-    loadQueueRowsFromCache(drawDate);
-  }
-  // build set of names that appear pending in OTHER queue_dates (duplicate detection)
-  const curDate=_aucDistDate;
-  const pendingElsewhere={};
-  _aucAllRows.forEach(r=>{
-    if(r.status==='pending'&&r.queue_date!==curDate){
-      pendingElsewhere[r.member_name]=r.queue_date;
-    }
-  });
-  const normStatus=s=>(s==='skipped'||s==='skiped')?'skip':s;
-  let filtered=_aucQueueRows.filter(r=>{
-    if(auctionDate&&r.drawn_date!==auctionDate)return false;
-    if(status&&normStatus(r.status)!==status)return false;
-    return true;
-  });
-  filtered=filtered.slice().sort((a,b)=>a.position-b.position);
-  const list=document.getElementById('qm-list');
-  if(!filtered.length){list.innerHTML='<div class="empty">No queue entries match this filter</div>';return}
-  list.innerHTML=`<div class="mgr-list-head">
-      <div class="mc-num">#</div>
-      <div class="mc-name">Name</div>
-      <div class="mc-status">Status</div>
-      <div class="mc-date">Auction date</div>
-      <div class="mc-act"></div>
-    </div>`+filtered.map((r,i)=>{
-    const isDone=r.status==='done';
-    const isSkip=r.status==='skip'||r.status==='skipped'||r.status==='skiped';
-    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':isSkip?'<span class="qs qs-skip">⤷ Skipped</span>':'<span class="qs qs-pend">⏳ Pending</span>';
-    const lockedClass=isAdmin?'':'admin-only admin-locked';
-    // duplicate badge: this person is also pending/skip in another queue date
-    const dupDate=pendingElsewhere[r.member_name];
-    const dupBadge=(dupDate&&!isDone)?`<span class="dup-badge" title="ชื่อซ้ำกับคิว ${dupDate}">⚠ ซ้ำ</span>`:'';
-    let actBtns='';
-    if(isAdmin){
-      if(isDone){
-        actBtns=`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo</button>`;
-      }else if(isSkip){
-        actBtns=`<button class="q-btn q-btn-undo" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'pending')">↺ Undo skip</button>`;
-      }else{
-        // pending → can mark done or skip
-        actBtns=`<button class="q-btn q-btn-skip" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'skip')">⤷ Skip</button>`
-          +`<button class="q-btn q-btn-done" onclick="toggleQueueStatus('${r.queue_date}',${r.position},'done')">✓ Mark drawn</button>`;
-      }
-    }
-    return `<div class="mgr-row${isSkip?' row-skip':''}">
-      <div class="mc-num">${r.position}</div>
-      <div class="mc-name">${r.member_name}${dupBadge}</div>
-      <div class="mc-status">${statusHtml}</div>
-      <div class="mc-date">${r.drawn_date||'<span style="color:var(--faint)">—</span>'}</div>
-      <div class="mc-act">${actBtns}</div>
-    </div>`;
-  }).join('');
-}
-
-async function toggleQueueStatus(date,position,status){
-  const doneDate=status==='done'?toDateStr(new Date()):'';
-  const r=await gasPost({action:'updateStatus',date,position,status,doneDate});
-  if(r.ok){
-    _searchCacheLoaded=false;
-    _aucCacheLoaded=false; // invalidate cache
-    await loadAllHistoryCache(); // refresh from GAS
-    buildPendingFromCache();
-    loadQueueRowsFromCache(date);
-    renderQueueManager();
-  }else alert('Update failed: '+r.error);
-}
-
-async function drawNewQueue(){
-  const date=toDateStr(new Date());
-  const pass=document.getElementById('qm-admin-pass').value;
-  const statusEl=document.getElementById('qm-draw-status');
-  if(!pass){alert('Enter admin password');return}
-  statusEl.textContent='Verifying...';
-  const vr=await gasPost({action:'verifyAdmin',password:pass});
-  if(!vr.ok){statusEl.textContent='';alert('Invalid admin password');return}
-  const pool=members.filter(m=>!isAlt(m));
-  const names=pool.map(m=>m.ign);
-  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
-  statusEl.textContent='Saving...';
-  const r=await gasPost({action:'appendQueue',date,members:names});
-  if(r.ok){
-    statusEl.textContent=`Saved ${r.added} members for ${date}`;
-    _searchCacheLoaded=false;
-    _aucCacheLoaded=false;
-    document.getElementById('qm-admin-pass').value='';
-    await loadQueueManagerDates();
-    document.getElementById('qm-filter-draw').value=date;
-    loadQueueRowsFromCache(date);
-    buildPendingFromCache();
-    renderQueueManager();
-  }else{
-    statusEl.textContent='';
-    alert('Save failed: '+r.error);
-  }
-}
-
-/* ─── LUCKY DRAW ─── */
-let _luckyOrder=[];
-let _luckyMvpResult=[];
-let _luckyAskIdx=0;
-let _luckyFinalResult=null;
-
-function _ldDrawBtn(fn,dim){return`<button onclick="${fn}" style="padding:5px 14px;border-radius:7px;background:${dim?'transparent':'var(--orange)'};color:${dim?'var(--faint)':'#fff'};border:1px solid ${dim?'var(--border)':'var(--orange)'};font-size:12px;font-weight:700;cursor:${dim?'not-allowed':'pointer'};font-family:var(--font-pixel);opacity:${dim?'.5':'1'}" ${dim?'disabled':''}>🎲 Draw</button>`}
-
-function initLuckyDraw(){
-  const dist=computeDistribution();
-  const wRemEl=document.getElementById('ld-white-rem');
-  const rRemEl=document.getElementById('ld-red-rem');
-  const mvpEl=document.getElementById('ld-mvp-count');
-  const mvpCard=document.getElementById('ld-mvp-card');
-  if(!dist){
-    if(wRemEl)wRemEl.textContent='—';if(rRemEl)rRemEl.textContent='—';if(mvpEl)mvpEl.textContent='—';
-    const g=document.getElementById('lucky-mvp-grid');if(g)g.innerHTML='<div class="empty" style="color:var(--red)">⚠️ Run Guild Auction first</div>';
-    const r=document.getElementById('lucky-result');if(r)r.style.display='none';return;
-  }
-  if(wRemEl)wRemEl.textContent=dist.wRem>0?dist.wRem:0;
-  if(rRemEl)rRemEl.textContent=dist.rRem>0?dist.rRem:0;
-  const noMvp=dist.mvp===0||dist.mvp==null;
-  if(mvpCard)mvpCard.style.display=noMvp?'none':'';
-  if(mvpEl)mvpEl.textContent=dist.mvp!=null?dist.mvp:'—';
-  if(noMvp){
-    document.getElementById('ls1-num').className='step-num done';
-    const r1=document.getElementById('ls1-right');if(r1)r1.innerHTML='<span style="font-size:11px;color:var(--faint);font-style:italic">—</span>';
-    const b1=document.getElementById('ls1-body');if(b1)b1.style.display='none';
-    document.getElementById('ls2-num').className='step-num sn-active';
-    const r2=document.getElementById('ls2-right');if(r2)r2.innerHTML=_ldDrawBtn('runLuckyDrawNoMvp()',false);
-    const b2=document.getElementById('ls2-body');
-    if(b2){b2.style.display='block';const h=document.getElementById('ls2-hint');if(h)h.textContent=`White ${dist.wRem>0?dist.wRem:0} · Red/Black ${dist.rRem>0?dist.rRem:0} ให้ทุก ${dist.n} คน`;}
-    document.getElementById('ls3-num').className='step-num pending';
-    const r=document.getElementById('lucky-result');if(r)r.style.display='none';
-    return;
-  }
-  if(!_luckyOrder.length||_luckyOrder.length!==dist.n){
-    // ensure queue rows loaded before shuffle
-    loadAllHistoryCache().then(()=>{
-      loadQueueRowsFromCache();
-      luckyShuffle();
-    });
-  } else renderLuckyMvpGrid();
-}
-
-function luckyShuffle(){
-  const dist=computeDistribution();if(!dist)return;
-  // Lucky Draw สุ่มทุกคนใน pending queue ของ draw date นั้น ไม่ใช่แค่คนที่ได้ card
-  const drawDate=document.getElementById('qm-filter-draw')?.value||'';
-  let names;
-  if(drawDate&&_aucQueueRows.length){
-    names=_aucQueueRows
-      .filter(r=>r.queue_date===drawDate&&(r.status==='pending'||r.status==='done'))
-      .sort((a,b)=>a.position-b.position)
-      .map(r=>r.member_name);
-  }
-  if(!names||!names.length)names=dist.rows.map(r=>r.name);
-  for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
-  _luckyOrder=names;_luckyMvpSelected=new Set();
-  renderLuckyMvpGrid();
-  const r=document.getElementById('lucky-result');if(r)r.style.display='none';
-}
-
-function renderLuckyMvpGrid(){
-  const dist=computeDistribution();if(!dist||dist.mvp==null||dist.mvp===0)return;
-  const mvpTarget=dist.mvp;
-  const accepted=_luckyMvpSelected.size;
-  const allDone=accepted>=mvpTarget;
-  const pct=mvpTarget>0?Math.min(100,accepted/mvpTarget*100):0;
-  const pb=document.getElementById('ld-prog-bar');if(pb)pb.style.width=pct+'%';
-  const pt=document.getElementById('ld-prog-txt');if(pt)pt.textContent=`${accepted} / ${mvpTarget}`;
-  const grid=document.getElementById('lucky-mvp-grid');
-  if(grid)grid.innerHTML=_luckyOrder.map((name)=>{
-    const sel=_luckyMvpSelected.has(name);
-    const disabled=!sel&&accepted>=mvpTarget;
-    return`<div class="ld-card ${sel?'selected':''}" onclick="toggleLuckyMvp('${name.replace(/'/g,"\'")}')" style="${disabled?'opacity:.4;cursor:not-allowed':''}">${sel?'<span class="mvp-badge">MVP</span>':''}<div class="ld-card-name">${name}</div></div>`;
-  }).join('');
-  // Step 1 right slot
-  const n1=document.getElementById('ls1-num');if(n1)n1.className=`step-num ${allDone?'done':'sn-active'}`;
-  const r1=document.getElementById('ls1-right');
-  if(r1)r1.innerHTML=allDone
-    ?`<span style="font-size:11px;color:var(--green);font-family:var(--font-pixel);font-weight:700">${mvpTarget}/${mvpTarget} ✓</span>`
-    :`<span style="font-size:11px;color:var(--faint);font-family:var(--font-pixel)">${accepted}/${mvpTarget}</span>`;
-  // Step 2 right slot
-  const n2=document.getElementById('ls2-num');if(n2)n2.className=`step-num ${allDone?'sn-active':'pending'}`;
-  const r2=document.getElementById('ls2-right');if(r2)r2.innerHTML=_ldDrawBtn('runLuckyDraw()',!allDone);
-  const b2=document.getElementById('ls2-body');
-  if(b2){
-    b2.style.display=allDone?'block':'none';
-    if(allDone){const h=document.getElementById('ls2-hint');const rem=_luckyOrder.filter(n=>!_luckyMvpSelected.has(n)).length;if(h)h.textContent=`แจก feather ส่วนที่เหลือให้ ${rem} คน`;}
-  }
-  const n3=document.getElementById('ls3-num');if(n3)n3.className='step-num pending';
-}
-
-function toggleLuckyMvp(name){
-  if(_luckyMvpSelected.has(name))_luckyMvpSelected.delete(name);
-  else{
-    const dist=computeDistribution();if(!dist)return;
-    if(_luckyMvpSelected.size>=dist.mvp)return;
-    _luckyMvpSelected.add(name);
-  }
-  renderLuckyMvpGrid();
-}
-
-function luckyClearAll(){_luckyMvpSelected=new Set();renderLuckyMvpGrid();}
-
-function runLuckyDraw(){
-  const dist=computeDistribution();if(!dist)return;
-  const nonMvp=_luckyOrder.filter(n=>!_luckyMvpSelected.has(n));
-  const totalW=dist.wRem>0?dist.wRem:0;
-  const totalR=dist.rRem>0?dist.rRem:0;
-  const pW=nonMvp.length>0?Math.floor(totalW/nonMvp.length):0;
-  const pR=nonMvp.length>0?Math.floor(totalR/nonMvp.length):0;
-  const usedCards=dist.card;
-  let cardSlotIdx=usedCards;
-  const rows=nonMvp.map((name,i)=>{
-    const cardPage=Math.floor(cardSlotIdx/4)+1;
-    const cardSlot=(cardSlotIdx%4)+1;
-    const wStart=usedCards*dist.pW+i*pW;
-    const wSlots=Array.from({length:pW},(_,j)=>{const s=wStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
-    const rStart=usedCards*dist.pR+i*pR;
-    const rSlots=Array.from({length:pR},(_,j)=>{const s=rStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
-    cardSlotIdx++;
-    return{name,card:`Page${cardPage}(${cardSlot})`,white:groupSlots(wSlots),red:groupSlots(rSlots),isMvp:false};
-  });
-  const mvpRows=_luckyOrder.filter(n=>_luckyMvpSelected.has(n)).map(name=>({name,card:'—',white:'—',red:'—',isMvp:true}));
-  renderLuckyResult([...mvpRows,...rows]);
-  const n2=document.getElementById('ls2-num');if(n2)n2.className='step-num done';
-  const n3=document.getElementById('ls3-num');if(n3)n3.className='step-num done';
-}
-
-function runLuckyDrawNoMvp(){
-  const dist=computeDistribution();if(!dist)return;
-  const names=_luckyOrder.length?_luckyOrder:dist.rows.map(r=>r.name);
-  const totalW=dist.wRem>0?dist.wRem:0;
-  const totalR=dist.rRem>0?dist.rRem:0;
-  const pW=names.length>0?Math.floor(totalW/names.length):0;
-  const pR=names.length>0?Math.floor(totalR/names.length):0;
-  const usedCards=dist.card;
-  let cardSlotIdx=usedCards;
-  const rows=names.map((name,i)=>{
-    const cardPage=Math.floor(cardSlotIdx/4)+1;
-    const cardSlot=(cardSlotIdx%4)+1;
-    const wStart=usedCards*dist.pW+i*pW;
-    const wSlots=Array.from({length:pW},(_,j)=>{const s=wStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
-    const rStart=usedCards*dist.pR+i*pR;
-    const rSlots=Array.from({length:pR},(_,j)=>{const s=rStart+j;return`Page${Math.floor(s/4)+1}(${(s%4)+1})`});
-    cardSlotIdx++;
-    return{name,card:`Page${cardPage}(${cardSlot})`,white:groupSlots(wSlots),red:groupSlots(rSlots),isMvp:false};
-  });
-  renderLuckyResult(rows);
-  const n2=document.getElementById('ls2-num');if(n2)n2.className='step-num done';
-  const n3=document.getElementById('ls3-num');if(n3)n3.className='step-num done';
-}
-
-function groupSlots(slots){
-  if(!slots.length)return'—';
-  return slots.join(', ');
-}
-
-function renderLuckyResult(rows){
-  const el=document.getElementById('lucky-result');if(!el)return;
-  el.style.display='block';
-  const tbody=document.getElementById('lucky-result-tbody');if(!tbody)return;
-  tbody.innerHTML=rows.map((r,i)=>`<tr>
-    <td style="color:var(--faint);font-size:11px">${i+1}</td>
-    <td style="font-weight:600">${r.name}${r.isMvp?' <span class="mvp-badge">MVP</span>':''}</td>
-    <td style="font-size:11px;color:var(--muted)">${r.card}</td>
-    <td style="font-size:11px;font-family:var(--font-pixel);color:var(--muted)">${r.white}</td>
-    <td style="font-size:11px;font-family:var(--font-pixel);color:var(--muted)">${r.red}</td>
+function renderDesignated(){
+  const wk=document.getElementById('da-week').value;
+  const rows=_aucHelpers.filter(r=>r.week_start===wk)
+    .sort((a,b)=>(+a.position||0)-(+b.position||0));
+  const tb=document.getElementById('da-tbody');
+  const done=rows.filter(r=>String(r.auction_status).toLowerCase()==='done').length;
+  document.getElementById('da-count').textContent=rows.length?`${rows.length} คิว · done ${done}`:'—';
+  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</td></tr>';return}
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td class="m-num">${r.position||'—'}</td>
+    <td style="font-weight:600">${r.member_name||'—'}</td>
+    <td>${statusBadge(r.auction_status)}</td>
+    <td style="font-size:11px;color:var(--muted)">${fmtShort(r.auction_done_date)}</td>
   </tr>`).join('');
 }
 
-function renderLuckyStep2(){
-  const dist=computeDistribution();
-  const accepted=_luckyMvpResult.filter(x=>x&&x.accepted).length;
-  const box=document.getElementById('lucky-step2-box');
-  document.getElementById('lucky-step2-title').textContent='Step 2 — Draw remaining feathers';
-
-  // check all answered (accepted target reached OR all answered)
-  const allDone=accepted>=dist.mvp||
-    _luckyMvpResult.filter(x=>x!==undefined).length===_luckyOrder.length;
-
-  if(!allDone){
-    box.innerHTML=`Locked — finish marking MVP box recipients first (${accepted}/${dist.mvp})`;
-    box.style.color='var(--faint)';
-    return;
-  }
-  if(_luckyFinalResult){
-    box.innerHTML=`<span style="color:var(--green)">✓ Draw complete</span>
-      <button class="btn btn-ghost" style="font-size:11px;margin-left:10px" onclick="_luckyFinalResult=null;luckyDrawRemainder()">🔄 Re-draw</button>`;
-    box.style.color='';
-    return;
-  }
-  box.style.color='';
-  box.innerHTML=`<button class="btn btn-primary" onclick="luckyDrawRemainder()">🍀 Draw remaining (White ${dist.wRem}, Red/Black ${dist.rRem})</button>`;
+function statusBadge(s){
+  const v=String(s||'').toLowerCase().trim();
+  if(v==='done')   return '<span class="gf" style="background:var(--green-dim);color:var(--green);border-color:var(--green-b)">✅ done</span>';
+  if(v==='skipped'||v==='skip') return '<span class="gf">⏭ skipped</span>';
+  if(v==='pending')return '<span class="gf" style="background:var(--amber-dim);color:var(--amber);border-color:var(--amber-b)">⏳ pending</span>';
+  return `<span style="color:var(--faint)">—</span>`;
 }
 
-function luckyDrawRemainder(){
-  const dist=computeDistribution();
-  const mvpRecipients=_luckyOrder.filter((_,i)=>_luckyMvpResult[i]&&_luckyMvpResult[i].accepted);
-  const pool=_luckyOrder.filter(n=>!mvpRecipients.includes(n));
-  const items=[...Array(dist.wRem).fill('white'),...Array(dist.rRem).fill('red')];
-  const resultMap={};
-  _luckyOrder.forEach(n=>resultMap[n]={mvp:mvpRecipients.includes(n),extra_white:0,extra_red:0});
-  let remaining=[...items];
-  let candidates=pool.length?pool:_luckyOrder.slice();
-  while(remaining.length>0){
-    let order=candidates.slice();
-    for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
-    for(const name of order){
-      if(!remaining.length)break;
-      const item=remaining.shift();
-      if(item==='white')resultMap[name].extra_white++;
-      else resultMap[name].extra_red++;
-    }
-    candidates=_luckyOrder.slice();
-  }
-  // slot positions ต่อเนื่องจาก Guild Auction:
-  // Card slots: 1..n → MVP ต่อจาก card → slot n+1
-  // White slots: 1..white → extra white ต่อจาก wEnd → slot wEnd+1
-  // Red/Black slots: white+1..white+red → extra red ต่อจาก rEnd → slot rEnd+1
-  const cardEndSlot=dist.n;
-  const wEndSlot=dist.n*Math.floor(dist.white/dist.n);
-  const rEndSlot=dist.white+dist.n*Math.floor(dist.red/dist.n);
-  let mvpPos=cardEndSlot+1,wPos=wEndSlot+1,rPos=rEndSlot+1;
-  _luckyFinalResult=_luckyOrder.map(name=>{
-    const r=resultMap[name];
-    const out={name,mvp_box:r.mvp,extra_white:r.extra_white,extra_red:r.extra_red,mvpLoc:'',wLoc:'',rLoc:''};
-    if(r.mvp){out.mvpLoc=fmtSlots(mvpPos,1);mvpPos+=1}
-    if(r.extra_white>0){out.wLoc=fmtSlots(wPos,r.extra_white);wPos+=r.extra_white}
-    if(r.extra_red>0){out.rLoc=fmtSlots(rPos,r.extra_red);rPos+=r.extra_red}
-    return out;
+/* ═══════════ TAB 3 : QUEUE (Auction_Queue) ═══════════ */
+function populateQueueRounds(){
+  const sel=document.getElementById('qm-round');
+  if(!sel)return;
+  const dates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort().reverse();
+  sel.innerHTML=dates.length?dates.map(d=>`<option value="${d}">${d}</option>`).join(''):'<option value="">ยังไม่มีคิว</option>';
+  renderQueueManager();
+}
+
+function renderQueueManager(){
+  const round=document.getElementById('qm-round').value;
+  const fs=document.getElementById('qm-filter-status').value;
+  let rows=_aucQueue.filter(r=>r.queue_date===round);
+  const total=rows.length;
+  const pending=rows.filter(r=>String(r.status).toLowerCase()==='pending').length;
+  if(fs)rows=rows.filter(r=>String(r.status).toLowerCase()===fs);
+  rows.sort((a,b)=>(+a.position||0)-(+b.position||0));
+
+  document.getElementById('qm-count').textContent=total?`${total} คน · pending ${pending}`:'—';
+  const tb=document.getElementById('qm-tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty">ไม่พบข้อมูล</td></tr>';return}
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td class="m-num">${r.position||'—'}</td>
+    <td style="font-weight:600">${r.member_name||'—'}</td>
+    <td>${statusBadge(r.status)}</td>
+    <td style="font-size:11px;color:var(--muted)">${fmtShort(r.drawn_date)}</td>
+  </tr>`).join('');
+}
+
+/* ═══════════ TAB 4 : WAR HISTORY ═══════════ */
+function renderWarHistory(){
+  const ft=document.getElementById('wh-filter-type').value;
+
+  // ผลแพ้ชนะรายวันจาก GL_Rank_Track -> map ตามวันที่
+  const glStatus={};
+  _glTrack.forEach(r=>{if(r.gl_date)glStatus[r.gl_date]=r.status||''});
+
+  // OR_Rank_Track เสริมอันดับที่อาจยังไม่ได้บันทึกใน Auction_Result
+  const orRank={};
+  _orTrack.forEach(r=>{if(r.or_date)orRank[r.or_date]=r.rank||''});
+
+  let rows=_aucResult.map(r=>({
+    date:r.auction_date,
+    type:r.event_type||'',
+    rank:r.rank||orRank[r.auction_date]||'',
+    status:r.event_type==='Guild League'?(glStatus[r.auction_date]||r.result||''):'',
+    card:+r.card||0, white:+r.feather_white||0, red:+r.feather_red_black||0
+  }));
+
+  // แถวใน GL/OR_Rank_Track ที่ยังไม่มีใน Auction_Result
+  const seen=new Set(rows.map(r=>r.date+'|'+r.type));
+  _glTrack.forEach(r=>{
+    if(r.gl_date&&!seen.has(r.gl_date+'|Guild League'))
+      rows.push({date:r.gl_date,type:'Guild League',rank:r.rank_tier||'',status:r.status||'',card:0,white:0,red:0});
   });
-  renderLuckyResult();
-  renderLuckyStep2();
-  saveLuckyDrawResult();
-}
+  _orTrack.forEach(r=>{
+    if(r.or_date&&!seen.has(r.or_date+'|Overrun'))
+      rows.push({date:r.or_date,type:'Overrun',rank:r.rank||'',status:'',card:0,white:0,red:0});
+  });
 
-function renderLuckyResult(){
-  document.getElementById('lucky-result-title').style.display='';
-  const dist=computeDistribution();
-  // แสดงทุกคน — ถ้าไม่ได้อะไรก็แสดง — ทั้งหมด
-  const rows=_luckyFinalResult.map((r,i)=>{
-    const hasExtra=r.mvp_box||r.extra_white>0||r.extra_red>0;
-    return `<tr style="${!hasExtra?'opacity:0.45':''}">
-      <td style="color:var(--faint);font-size:11px">${i+1}</td>
-      <td style="font-weight:500">${r.name}</td>
-      <td>${r.mvpLoc?`<span style="color:var(--amber)">${r.mvpLoc}</span>`:'-'}</td>
-      <td>${r.wLoc||'-'}</td>
-      <td>${r.rLoc||'-'}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('lucky-result').innerHTML=`<table class="au-tbl">
-    <thead><tr>
-      <th style="width:30px">#</th>
-      <th>Name</th>
-      <th>MVP box (ต่อจาก Card)</th>
-      <th>Extra white</th>
-      <th>Extra red/black</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div style="font-size:10px;color:var(--faint);font-style:italic;margin-top:8px">
-    slot ต่อเนื่องจาก Guild Auction — MVP box ต่อจาก Card slot ${dist.n} · White extra ต่อจาก slot ${dist.n*Math.floor(dist.white/dist.n)} · Red/Black extra ต่อจาก slot ${dist.white+dist.n*Math.floor(dist.red/dist.n)}
-  </div>`;
-}
+  if(ft)rows=rows.filter(r=>r.type===ft);
+  rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
 
-async function saveLuckyDrawResult(){
-  if(!_luckyFinalResult||!_aucDistDate)return;
-  const dist=computeDistribution();
-  const results=_luckyFinalResult.map(r=>({member_name:r.name,mvp_box:r.mvp_box,extra_white:r.extra_white,extra_red:r.extra_red}));
-  await gasPost({action:'saveLuckyDraw',drawDate:_aucDistDate,eventType:dist.event_name,rank:dist.rank,results});
-}
-
-/* ─── REWARDS PREVIEW ─── */
-function renderRewardsPreview(){
-  const wrap=document.getElementById('auc-rewards-wrap');
-  if(!wrap||!_botConfig.length)return;
-  const EVENT_GROUPS=['Guild Overrun','Major League','Intra-server League'];
-  const allTypes=[...new Set(_botConfig.map(r=>r.event_name))];
-  const orderedTypes=EVENT_GROUPS.filter(t=>allTypes.includes(t)).concat(allTypes.filter(t=>!EVENT_GROUPS.includes(t)));
-  wrap.innerHTML=orderedTypes.map(type=>{
-    const rows=_botConfig.filter(r=>r.event_name===type);
-    if(!rows.length)return'';
-    const hasMvp=rows.some(r=>r.mvp_box!=null);
-    return`<div style="margin-bottom:18px">
-      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)">${type}</div>
-      <div class="tbl-wrap"><table class="rtbl">
-        <thead><tr><th>Rank</th><th>Card</th><th>White</th><th>Red/Black</th>${hasMvp?'<th>MVP Box</th>':''}</tr></thead>
-        <tbody>${rows.map(r=>`<tr>
-          <td style="font-weight:700;font-family:var(--font-pixel);color:var(--orange-l)">${/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank}</td>
-          <td>${r.card}</td><td>${r.feather_white}</td><td>${r.feather_red_black}</td>
-          ${hasMvp?`<td>${r.mvp_box!=null?r.mvp_box:'—'}</td>`:''}
-        </tr>`).join('')}</tbody>
-      </table></div>
-    </div>`;
-  }).join('');
-}
-
-/* ─── AUCTION HISTORY ─── */
-async function loadAuctionHistory(){
-  const r=await gasGet('getAuctionHistory&limit=10');
-  if(!r.ok)return;
-  _aucHistoryLoaded=true;
-  renderAuctionHistory(r.rows);
-}
-
-function renderAuctionHistory(rows){
-  const tbody=document.getElementById('auc-history-tbody');
-  if(!rows||!rows.length){tbody.innerHTML='<tr><td colspan="3" class="empty">No history yet</td></tr>';return}
-  tbody.innerHTML=rows.map(r=>{
-    const rankLabel=/^\d+$/.test(r.rank)?'Rank '+r.rank:r.rank;
+  const tb=document.getElementById('wh-tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีข้อมูล</td></tr>';return}
+  tb.innerHTML=rows.map(r=>{
+    const st=String(r.status||'').toLowerCase();
+    const stHtml=st==='win'?'<span class="gf gf-e">Win</span>'
+      :st==='lose'?'<span class="gf" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">Lose</span>'
+      :'<span style="color:var(--faint)">—</span>';
+    const rewards=(r.card||r.white||r.red)
+      ?`<span style="font-size:11px;color:var(--muted)">🃏${r.card} · ⚪${r.white} · 🔴${r.red}</span>`
+      :'<span style="color:var(--faint)">—</span>';
     return `<tr>
-      <td style="font-weight:500">${r.auction_date}</td>
-      <td style="color:var(--muted)">${r.event_type}</td>
-      <td style="color:var(--gold-l)">${rankLabel}</td>
+      <td style="font-size:11px;font-family:var(--font-pixel);color:var(--orange-l)">${r.date||'—'}</td>
+      <td style="font-size:12px">${r.type||'—'}</td>
+      <td style="font-weight:600;font-size:12px">${r.rank||'—'}</td>
+      <td>${stHtml}</td>
+      <td>${rewards}</td>
     </tr>`;
   }).join('');
 }
 
-async function saveAuctionResult(){
-  const dateInp=document.getElementById('auc-result-date');
-  const date=dateInp.value;
-  const msg=document.getElementById('auc-save-result-msg');
-  const rw=getRewardValues();
-  if(!date){msg.textContent='เลือกวันที่ก่อน';msg.style.color='var(--red)';return}
-  if(!rw){msg.textContent='เลือก Event/Rank ก่อน';msg.style.color='var(--red)';return}
-  msg.textContent='Saving...';msg.style.color='var(--muted)';
-  const r=await gasPost({action:'saveAuctionResult',auctionDate:date,eventType:rw.event_name,rank:rw.rank});
-  if(r.ok){
-    msg.textContent=`บันทึกแล้ว: ${date} → ${rw.event_name} ${/^\d+$/.test(rw.rank)?'Rank '+rw.rank:rw.rank}`;
-    msg.style.color='var(--green)';
-    await loadAuctionHistory();
-  }else{
-    msg.textContent='Save failed: '+r.error;
-    msg.style.color='var(--red)';
-  }
-}
-/* ─── LUCKY DRAW TAB (public + admin) ─── */
-/* ─── DESIGNATED AUCTION ─── */
-const DA_REWARD={card:5,white:15,red:15};
-let _daWeekStart='';
-let _daHelpers=[];
-
-function getWeekMonday(date){
-  const d=new Date(date||Date.now());
-  const day=d.getDay();
-  const diff=d.getDate()-(day===0?6:day-1);
-  d.setDate(diff);
-  return toDateStr(d);
+/* ═══════════ TAB 5 : REWARDS PREVIEW ═══════════ */
+function renderRewardsPreview(){
+  const thead=document.getElementById('rwprev-thead');
+  const tbody=document.getElementById('rwprev-tbody');
+  if(!thead||!tbody)return;
+  thead.innerHTML='<th style="width:110px">Event</th><th style="width:80px">เซิร์ฟ</th><th>Rank / Tier</th><th style="width:64px">Card</th><th style="width:64px">ขาว</th><th style="width:78px">ดำ/แดง</th>';
+  if(!_aucRewardsRef.length){tbody.innerHTML='<tr><td colspan="6" class="empty">ไม่พบข้อมูล</td></tr>';return}
+  tbody.innerHTML=_aucRewardsRef.map(r=>`<tr>
+    <td style="font-size:12px">${r.event_type||''}</td>
+    <td style="font-size:11px;color:var(--muted)">${r.cross_server==='Y'?'ข้ามเซิร์ฟ':'ในเซิร์ฟ'}</td>
+    <td style="font-weight:600;font-size:12px">${r.rank||''}</td>
+    <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${r.card||0}</td>
+    <td style="font-family:var(--font-pixel);font-size:11px">${r.feather_white||0}</td>
+    <td style="font-family:var(--font-pixel);font-size:11px">${r.feather_red_black||0}</td>
+  </tr>`).join('');
 }
 
-function setDesignatedThisWeek(){
-  const monday=getWeekMonday();
-  document.getElementById('da-week-input').value=monday;
-  loadDesignatedWeek();
+/* ═══════════ TAB SWITCH ═══════════ */
+function swAucTab(t){
+  document.querySelectorAll('.au-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  ['calc','designated','manage','warhistory','rewards'].forEach(k=>{
+    const el=document.getElementById('auc-'+k);
+    if(el)el.style.display=(k===t)?'':'none';
+  });
 }
 
-async function loadDesignatedWeek(){
-  const dateVal=document.getElementById('da-week-input').value;
-  if(!dateVal)return;
-  _daWeekStart=getWeekMonday(dateVal);
-  document.getElementById('da-week-input').value=_daWeekStart;
-  // compute tuesday/thursday dates
-  const mon=new Date(_daWeekStart);
-  const tue=new Date(mon);tue.setDate(mon.getDate()+1);
-  const thu=new Date(mon);thu.setDate(mon.getDate()+3);
-  const tueFmt=tue.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
-  const thuFmt=thu.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('da-week-label').textContent=`สัปดาห์ ${_daWeekStart} (อ. ${tueFmt} / พฤ. ${thuFmt})`;
-  const r=await gasGet('getDesignatedQueue&weekStart='+_daWeekStart);
-  if(r.ok&&r.rows.length){
-    _daHelpers=r.rows;
-    renderDesignatedQueues(r.rows);
-  } else {
-    _daHelpers=[];
-    renderDesignatedQueues([]);
-  }
+/* ═══════════ SEARCH : ประวัติการประมูลรายคน ═══════════ */
+async function preloadSearchCache(){
+  if(_searchCacheLoaded)return;
+  await loadAuctionData();
+  _searchHistMap={};
+  _aucQueue.forEach(r=>{
+    const key=r.member_name;
+    if(!key)return;
+    if(!_searchHistMap[key])_searchHistMap[key]=[];
+    _searchHistMap[key].push(r);
+  });
+  const allDates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort().reverse();
+  _searchLatestDate=allDates.length?allDates[0]:'';
+  _searchQueueRows=_searchLatestDate?_aucQueue.filter(r=>r.queue_date===_searchLatestDate):[];
+  _searchCacheLoaded=true;
 }
 
-function initDesignatedTab(){
-  if(!_daWeekStart) setDesignatedThisWeek();
-  else loadDesignatedWeek();
-}
-
-function renderDesignatedQueues(rows){
-  const tues=rows.filter(r=>r.position<=5);
-  const thurs=rows.filter(r=>r.position>=6);
-  // Designated reward (fixed): White 15, Red/Black 15 per day, 5 people → 3 each (1-3-3)
-  const DA_WHITE=15, DA_RED=15;
-  // compute distribution per day (same logic as Guild Auction: card slot, white/red slots continue per person)
-  const computeDay=(list)=>{
-    const n=list.length;
-    if(!n)return [];
-    const pW=Math.floor(DA_WHITE/n), pR=Math.floor(DA_RED/n);
-    let wPos=1, rPos=DA_WHITE+1; // red slots continue after all white slots (same as Guild Auction)
-    return list.map((r,i)=>{
-      const row={...r, cardSlot:i+1, white:pW, red:pR, wStart:wPos, rStart:rPos};
-      wPos+=pW; rPos+=pR;
-      return row;
-    });
-  };
-  const mkRow=(r)=>{
-    const isDone=r.auction_status==='done';
-    const statusHtml=isDone?'<span class="qs qs-done">✓ Done</span>':'<span class="qs qs-pend">⏳ Pending</span>';
-    const isFicelle=r.member_name==='Ficelle';
-    const cls=isFicelle?'':getHelperClass(r.member_name,r.class);
-    const clsColor=cls==='support'?'var(--green)':cls==='ar'?'var(--amber)':cls==='dps'?'var(--red)':'var(--text)';
-    const actHtml=isAdmin&&!isFicelle
-      ?(isDone
-        ?`<button class="q-btn q-btn-undo admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'pending')">↺ Undo</button>`
-        :`<button class="q-btn q-btn-done admin-only" onclick="toggleDesignatedStatus('${_daWeekStart}',${r.position},'done')">✓ Mark drawn</button>`)
-      :'';
-    const hasName=!!r.member_name;
-    const card=_toPageBox(r.cardSlot);
-    return `<div class="da-row">
-      <div class="da-num">${r.position}</div>
-      <div class="da-name" style="${cls&&cls!=='unknown'?`color:${clsColor}`:''}">${r.member_name||'<span style="color:var(--faint)">—</span>'}${isFicelle?` <span style="font-size:10px;color:var(--amber)">★</span>`:''}</div>
-      <div class="da-card">${hasName?`Page${card.page}(${card.box})`:'—'}</div>
-      <div class="da-white">${hasName?fmtSlots(r.wStart,r.white):'—'}</div>
-      <div class="da-red">${hasName?fmtSlots(r.rStart,r.red):'—'}</div>
-      <div class="da-status">${hasName?statusHtml:'—'}</div>
-      <div class="da-act">${actHtml}</div>
-    </div>`;
-  };
-  const head=`<div class="da-row da-head">
-    <div class="da-num">คิว</div>
-    <div class="da-name">ชื่อ</div>
-    <div class="da-card">Card</div>
-    <div class="da-white">White</div>
-    <div class="da-red">Red/Black</div>
-    <div class="da-status">Status</div>
-    <div class="da-act"></div>
-  </div>`;
-  const tEl=document.getElementById('da-tuesday-list');
-  const thEl=document.getElementById('da-thursday-list');
-  const tuesD=computeDay(tues), thursD=computeDay(thurs);
-  tEl.innerHTML=tues.length?head+tuesD.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
-  thEl.innerHTML=thurs.length?head+thursD.map(mkRow).join(''):'<div class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</div>';
-}
-
-async function toggleDesignatedStatus(weekStart,position,status){
-  const doneDate=status==='done'?toDateStr(new Date()):'';
-  const r=await gasPost({action:'saveDesignatedLog',weekStart,position,status,doneDate});
-  if(r.ok) await loadDesignatedWeek();
-  else alert('Update failed: '+r.error);
-}
-
-/* ═══════════ CALENDAR ═══════════ */
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 const SLOT_MINS=15; // minutes per grid slot — 4 slots per hour
 const SLOT_H=24; // px per 15-min slot (96px/hour total)
@@ -2256,6 +1430,60 @@ async function calRefresh(){
   if(btn){btn.textContent='🔄';btn.disabled=false}
 }
 
+/* ---------- Events : อ่านจาก Master ผ่าน gviz แล้ว expand เอง ---------- */
+let _calEventsRaw=[],_calEventsLoaded=false,_calEventsPromise=null;
+const TAG_COLOR={GUILDWAR:'#B23410',AUCTION:'#7A5010',HELPER:'#2A7A48',PERSONAL:'#5A6B8C',SPECIAL:'#9A2020'};
+function colorForTag(tag){return TAG_COLOR[String(tag||'').trim().toUpperCase()]||'#6A5756'}
+
+async function loadCalEvents(){
+  if(_calEventsLoaded)return;
+  if(_calEventsPromise)return _calEventsPromise;
+  _calEventsPromise=(async()=>{
+    try{ _calEventsRaw=parseGviz(await fetch(mkUrl('Events')).then(r=>r.text())) }
+    catch(e){ console.warn('โหลด Events ไม่สำเร็จ',e); _calEventsRaw=[] }
+    _calEventsLoaded=true;_calEventsPromise=null;
+  })();
+  return _calEventsPromise;
+}
+
+/* gviz คืนเวลาเป็น Date(1899,11,30,19,50,0) หรือ 'allday' — ดึงเป็น HH:mm */
+function normTime(v){
+  if(v==null||v==='')return '';
+  const s=String(v).trim();
+  if(/allday/i.test(s))return 'allday';
+  const m=s.match(/Date\(\d+,\d+,\d+,(\d+),(\d+)/);
+  if(m)return `${String(m[1]).padStart(2,'0')}:${String(m[2]).padStart(2,'0')}`;
+  const hm=s.match(/(\d{1,2}):(\d{2})/);
+  if(hm)return `${String(hm[1]).padStart(2,'0')}:${hm[2]}`;
+  return s;
+}
+
+/* 1 แถวใน Events อาจมี day_of_week = "2,4" -> แตกเป็นหลาย event ของสัปดาห์นั้น */
+function expandEventsForWeek(weekStart){
+  const out=[];
+  const monday=new Date(weekStart+'T00:00:00');
+  _calEventsRaw.forEach(ev=>{
+    const days=String(ev.day_of_week||'').split(',').map(d=>parseInt(String(d).trim(),10)).filter(d=>d>=1&&d<=7);
+    if(!days.length)return;
+    const anchor=normDate(ev.anchor_date);
+    days.forEach(dow=>{
+      const d=new Date(monday); d.setDate(monday.getDate()+(dow-1));
+      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if(anchor&&dateStr<anchor)return;   // ยังไม่ถึงวันเริ่มกิจกรรม
+      out.push({
+        event_id:ev.event_id||'',
+        day_of_week:dow,
+        title:ev.title||'',
+        time:normTime(ev.time),
+        end_time:normTime(ev.end_time),
+        tag:ev.tag||'',
+        color:colorForTag(ev.tag)
+      });
+    });
+  });
+  return out;
+}
+
 async function loadCalendarWeek(){
   const visibleDates=getCalVisibleDates();
   const helperWeekStart=mondayOfDate(visibleDates[0]);
@@ -2265,13 +1493,13 @@ async function loadCalendarWeek(){
   const weeksMissing=weeksNeeded.filter(ws=>!_calCache[ws]);
   const helperMissing=!_calHelperCache[helperWeekStart];
 
-  // fetch only what's missing — parallel
-  const fetches=[];
-  if(helperMissing) fetches.push(gasGet('getHelpers&weekStart='+helperWeekStart).then(r=>{if(r.ok)_calHelperCache[helperWeekStart]=r.rows}));
-  weeksMissing.forEach(ws=>fetches.push(
-    gasGet('getCalendarEvents&weekStart='+ws).then(r=>{if(r.ok)_calCache[ws]=r.rows})
-  ));
-  if(fetches.length) await Promise.all(fetches);
+  // โหลดจาก gviz : Events อยู่ใน Master · Helper_Log อยู่ใน Warmup_Auction
+  await Promise.all([
+    loadCalEvents(),
+    helperMissing?loadAuctionData():Promise.resolve()
+  ]);
+  if(helperMissing) _calHelperCache[helperWeekStart]=_aucHelpers.filter(r=>r.week_start===helperWeekStart);
+  weeksMissing.forEach(ws=>{ _calCache[ws]=expandEventsForWeek(ws) });
 
   // render from cache
   renderHelperStrip(_calHelperCache[helperWeekStart]||[]);
@@ -2493,46 +1721,6 @@ function calGoToday(){
   loadCalendarWeek();
 }
 
-/* WAR HISTORY */
-let _whHistoryRows=[],_whHistoryLoaded=false;
-let _whOverrunPage=0,_whLeaguePage=0;
-const WH_PER_PAGE=10;
-
-async function renderWarHistory(){
-  const overrunEl=document.getElementById('wh-overrun');
-  const leagueEl=document.getElementById('wh-league');
-  if(!_whHistoryLoaded){
-    if(overrunEl)overrunEl.innerHTML='<div class="empty">Loading...</div>';
-    if(leagueEl)leagueEl.innerHTML='<div class="empty">Loading...</div>';
-    const r=await gasGet('getAuctionHistory&limit=200');
-    if(r.ok){_whHistoryRows=r.rows;_whHistoryLoaded=true;}
-    else{if(overrunEl)overrunEl.innerHTML='<div class="empty">Load failed</div>';if(leagueEl)leagueEl.innerHTML='';return;}
-  }
-  const overrunRows=_whHistoryRows.filter(r=>r.event_type&&r.event_type.toLowerCase().includes('overrun'));
-  const leagueRows=_whHistoryRows.filter(r=>r.event_type&&!r.event_type.toLowerCase().includes('overrun'));
-  if(overrunEl)overrunEl.innerHTML=renderWhSection('Guild Overrun',overrunRows,_whOverrunPage,'overrun');
-  if(leagueEl)leagueEl.innerHTML=renderWhSection('Guild League',leagueRows,_whLeaguePage,'league');
-}
-
-function renderWhSection(title,rows,page,key){
-  const total=rows.length;
-  const start=page*WH_PER_PAGE;
-  const pageItems=rows.slice(start,start+WH_PER_PAGE);
-  const totalPages=Math.ceil(total/WH_PER_PAGE);
-  const rowsHtml=pageItems.length?pageItems.map(g=>{
-    const rankLabel=/^\d+$/.test(g.rank)?'Rank '+g.rank:g.rank||'—';
-    return`<div class="wh-row"><div class="wh-vbar" style="background:var(--orange)"></div><div class="wh-date">${g.auction_date||g.date||'—'}</div><span class="wh-rank">${rankLabel}</span></div>`;
-  }).join(''):'<div class="empty">No history yet</div>';
-  const pagerHtml=total>WH_PER_PAGE?`<div class="wh-pager"><span class="pager-info">${start+1}–${Math.min(start+WH_PER_PAGE,total)} of ${total}</span><div class="pager-btns"><button class="pager-btn ${page===0?'disabled':''}" onclick="whChangePage('${key}',-1)">◀</button><button class="pager-btn cur">${page+1}</button><button class="pager-btn ${page>=totalPages-1?'disabled':''}" onclick="whChangePage('${key}',1)">▶</button></div></div>`:'';
-  return`<div class="wh-head"><span class="wh-title">${title}</span><span class="wh-badge" style="background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)">${total} events</span></div><div class="wh-body">${rowsHtml}${pagerHtml}</div>`;
-}
-
-function whChangePage(key,dir){
-  if(key==='overrun')_whOverrunPage=Math.max(0,_whOverrunPage+dir);
-  else _whLeaguePage=Math.max(0,_whLeaguePage+dir);
-  renderWarHistory();
-}
-
 
 let _zoomLevel=100;
 const ZOOM_MIN=60,ZOOM_MAX=150;
@@ -2552,148 +1740,9 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
 function resetZoom(){onZoomSlider(100)}
 (function(){const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)})();
 
-/* ─── PARTY DRAG & DROP (Admin only) ─── */
-let _partyEditMode=false,_partyChanges={},_dragSrcName=null,_dragSrcParty=null;
-
-function togglePartyEdit(){
-  if(!isAdmin)return;
-  _partyEditMode=!_partyEditMode;
-  if(!_partyEditMode){_partyChanges={};document.getElementById('unassigned-panel').classList.remove('visible');}
-  renderParty();_updatePeb();
-}
-
-function _updatePeb(){
-  const bar=document.getElementById('party-edit-bar');if(!bar)return;
-  const n=Object.keys(_partyChanges).length;
-  const lbl=document.getElementById('peb-changes');
-  if(lbl)lbl.textContent=n?`${n} คนที่เปลี่ยน`:'';
-  bar.classList.toggle('visible',_partyEditMode);renderUnassignedPanel();
-  const btn=document.getElementById('peb-save-btn');
-  if(btn)btn.disabled=n===0;
-}
-
-function onPmDragStart(e,name,party){
-  _dragSrcName=name;_dragSrcParty=party;
-  e.dataTransfer.effectAllowed='move';
-  setTimeout(()=>e.target.classList.add('dragging'),0);
-}
-function onPmDragEnd(e){
-  e.target.classList.remove('dragging');
-  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
-}
-function onPmDragOver(e,el){e.preventDefault();el.classList.add('drag-over')}
-function onPmDragLeave(e,el){el.classList.remove('drag-over')}
-function onPcDragOver(e,el){e.preventDefault();el.classList.add('drop-target')}
-function onPcDragLeave(e,el){el.classList.remove('drop-target')}
-
-function onPmDrop(e,tgtName,tgtParty){
-  e.preventDefault();e.stopPropagation();
-  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
-  if(!_dragSrcName||_dragSrcName===tgtName)return;
-  const src=members.find(m=>m.ign===_dragSrcName);
-  const tgt=members.find(m=>m.ign===tgtName);
-  if(!src||!tgt)return;
-  const sp=src.party,tp=tgt.party;
-  src.party=tp;tgt.party=sp;
-  _partyChanges[_dragSrcName]=tp;
-  _partyChanges[tgtName]=sp;
-  _dragSrcName=null;renderParty();_updatePeb();
-}
-
-function onPcDrop(e,targetParty){
-  e.preventDefault();
-  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
-  if(!_dragSrcName)return;
-  const src=members.find(m=>m.ign===_dragSrcName);
-  if(!src||src.party===targetParty){_dragSrcName=null;return}
-  _partyChanges[_dragSrcName]=targetParty;
-  src.party=targetParty;
-  _dragSrcName=null;renderParty();_updatePeb();
-}
-
-async function savePartyChanges(){
-  const btn=document.getElementById('peb-save-btn');if(btn)btn.disabled=true;
-  const updates=Object.entries(_partyChanges).map(([member_name,party])=>({member_name,party}));
-  const r=await gasPost({action:'batchUpdateParty',updates});
-  if(r.ok){
-    _partyChanges={};_partyEditMode=false;
-    renderParty();_updatePeb();
-    showToast(`✓ บันทึก ${r.updated} คนสำเร็จ`);
-  }else{
-    alert('Save failed: '+(r.error||'unknown'));
-    if(btn)btn.disabled=false;
-  }
-}
-
-function cancelPartyEdit(){
-  // revert members party back to original
-  Object.entries(_partyChanges).forEach(([name])=>{
-    const m=members.find(x=>x.ign===name);
-    if(m&&m._origParty!==undefined)m.party=m._origParty;
-  });
-  _partyChanges={};_partyEditMode=false;
-  renderParty();_updatePeb();
-}
-
-function showToast(msg){
-  let t=document.getElementById('_toast');
-  if(!t){t=document.createElement('div');t.id='_toast';
-    t.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;color:var(--green);box-shadow:var(--shadow-out-sm);z-index:600';
-    document.body.appendChild(t);}
-  t.textContent=msg;t.style.display='block';
-  setTimeout(()=>{t.style.display='none'},2500);
-}
-
-
-/* ─── UNASSIGNED PANEL ─── */
-function renderUnassignedPanel(){
-  const panel=document.getElementById('unassigned-panel');
-  const list=document.getElementById('up-list');
-  const countEl=document.getElementById('up-count');
-  if(!panel||!list)return;
-  const unassigned=members.filter(m=>!m.party||m.party==='');
-  countEl.textContent=unassigned.length;
-  if(!_partyEditMode||!isAdmin||!unassigned.length){panel.classList.remove('visible');return}
-  panel.classList.add('visible');
-  list.innerHTML=unassigned.map(m=>{
-    const type=getType(m.class);
-    const barCls=type==='Support'?'bs':type==='All Rounder'?'ba':'bd';
-    const barColor=type==='Support'?'var(--green)':type==='All Rounder'?'var(--amber)':'var(--red)';
-    return`<div class="up-item" draggable="true"
-      ondragstart="onUpDragStart(event,'${m.ign.replace(/'/g,"\'")}','${m.party||''}')"
-      ondragend="onUpDragEnd(event)">
-      <div class="up-bar" style="background:${barColor}"></div>
-      <div><div style="font-size:12px;font-weight:600">${m.ign}</div><div style="font-size:10px;color:var(--faint)">${m.class||''}</div></div>
-    </div>`;
-  }).join('');
-}
-
-function onUpDragStart(e,name,party){
-  _dragSrcName=name;_dragSrcParty=party;
-  e.dataTransfer.effectAllowed='move';
-  setTimeout(()=>e.target.classList.add('dragging'),0);
-}
-function onUpDragEnd(e){
-  e.target.classList.remove('dragging');
-  document.querySelectorAll('.drag-over,.drop-target').forEach(el=>el.classList.remove('drag-over','drop-target'));
-}
-
 loadData();
 </script>
 
 
-<!-- PARTY EDIT BAR -->
-<div id="party-edit-bar" class="party-edit-bar">
-  <span style="font-size:12px;color:var(--muted);flex:1">ลาก member ระหว่าง party card เพื่อย้าย · ลากไปที่ card ว่างเพื่อเปลี่ยน party</span>
-  <span style="font-size:13px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l)" id="peb-changes"></span>
-  <button class="btn btn-ghost" onclick="cancelPartyEdit()">ยกเลิก</button>
-  <button id="peb-save-btn" class="btn btn-primary" onclick="savePartyChanges()">✓ Save Changes</button>
-</div>
-
-<!-- UNASSIGNED PANEL -->
-<div id="unassigned-panel" class="unassigned-panel">
-  <div class="up-head">ยังไม่มี Party (<span id="up-count">0</span>)</div>
-  <div id="up-list"></div>
-</div>
 </body>
 </html>
