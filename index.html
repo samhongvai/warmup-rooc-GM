@@ -189,7 +189,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .ph-sec{border-bottom-color:#5A7A6A}
 .ph-main .pn{color:var(--orange-l);font-size:13px;font-weight:800;font-family:var(--font-pixel)}
 .ph-sec .pn{color:#3A5A4A;font-size:13px;font-weight:800;font-family:var(--font-pixel)}
-.pc-count{font-size:10px;color:var(--faint);font-weight:600;font-family:var(--font-pixel)}
 .pm-body{padding:4px 0}
 .pm{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border)}
 .pm:last-child{border-bottom:none}
@@ -786,7 +785,7 @@ const GAS='https://script.google.com/macros/s/AKfycby6m7Sb_ukJM2FfcvRWe4eDcUkYSt
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
 // ตรงกับหัวข้อ #CLASS ในแท็บ Config ของ Warmup_Members
-const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Professor':'Support','Biochemist':'All Rounder','Summoner':'All Rounder','Lord Knight':'All Rounder','Paladin':'All Rounder','High Wizard':'Attack (DPS)','Sniper':'Attack (DPS)','Stalker':'Attack (DPS)','Mastersmith':'Attack (DPS)','Rebellion':'Attack (DPS)','Champion':'Attack (DPS)','Assassin Cross':'Attack (DPS)'};
+const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Biochemist':'All Rounder','Summoner':'All Rounder','Lord Knight':'All Rounder','Paladin':'All Rounder','Mastersmith':'All Rounder','Professor':'Attack (DPS)','High Wizard':'Attack (DPS)','Sniper':'Attack (DPS)','Stalker':'Attack (DPS)','Rebellion':'Attack (DPS)','Champion':'Attack (DPS)','Assassin Cross':'Attack (DPS)'};
 
 /* โหมดสนาม : GL = Guild League · OR = Overrun
    คนเดิม Party เดิม ต่างแค่คอลัมน์อาชีพและป้ายสนาม */
@@ -1043,9 +1042,18 @@ function renderParty(){
   const totalM=members.filter(m=>m.party).length;
   const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.length+' ปาร์ตี้';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
-  const TYPE_ORDER={'Support':0,'All Rounder':1,'Attack (DPS)':2};
+  /* ลำดับในการ์ด (บน -> ล่าง) : DPS · All Rounder · Support อื่น · Minstrel/Gypsy · Priest
+     อ่านจากล่างขึ้นบนจะได้ Priest > Minstrel/Gypsy > All Rounder > DPS */
   const PRIEST_CLASSES=['High Priest','Priest'];
-  const classOrder=(m)=>{const c=classOf(m);const t=getType(c);const base=TYPE_ORDER[t]??9;const isPriest=PRIEST_CLASSES.includes(c)?0:1;return base*10+isPriest};
+  const BARD_CLASSES=['Minstrel','Gypsy'];
+  const classOrder=(m)=>{
+    const c=classOf(m),t=getType(c);
+    if(PRIEST_CLASSES.includes(c))return 4;
+    if(BARD_CLASSES.includes(c))return 3;
+    if(t==='Support')return 2;
+    if(t==='All Rounder')return 1;
+    return 0;
+  };
   const edit=false; // ปิดชั่วคราว : GAS batchUpdateParty เขียนคอลัมน์ 'party' ที่ถูกย้ายไป Party_Master แล้ว
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
@@ -1061,8 +1069,7 @@ function renderParty(){
       return`<div class="pm" ${dragAttrs} style="${dragStyle}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${gfTag}${noteTag}</div>`;
     }).join('');
     const cardDragAttrs=edit?`ondragover="onPcDragOver(event,this)" ondragleave="onPcDragLeave(event,this)" ondrop="onPcDrop(event,'${p}')"`:'' ;
-    const fieldLbl=isM?'Elite':'Sub-battle';
-    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-count">${fieldLbl} · ${pts[p].length} คน</span></div><div class="pm-body">${pmHtml}</div></div>`;
+    return`<div class="pc" ${cardDragAttrs}><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span></div><div class="pm-body">${pmHtml}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
