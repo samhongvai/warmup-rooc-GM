@@ -527,7 +527,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 
   <!-- TAB: GUILD AUCTION -->
   <div id="auc-calc">
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:150px">
         <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Event</label>
         <select id="auc-event-type" onchange="onAucEventType()" style="width:100%"></select>
@@ -537,7 +537,39 @@ input[type=checkbox]{accent-color:var(--orange)}
         <select id="auc-event-rank" onchange="onAucRank()" style="width:100%"></select>
       </div>
     </div>
-    <div id="auc-calc-body"><div class="empty">กำลังโหลด...</div></div>
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
+
+    <!-- ตัวคำนวณรางวัล : ปรับตัวเลขดูได้ ไม่บันทึกกลับชีท -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm);margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--card2);border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:1">🧮 ตัวคำนวณ</span>
+        <span style="font-size:10px;color:var(--faint)">ปรับดูได้ ไม่บันทึกลงชีท</span>
+      </div>
+      <div style="padding:14px">
+        <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-wrap:wrap">
+          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid rgba(160,140,118,.35);flex-shrink:0">
+            <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--orange-l)">Mul ×</span>
+            <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:56px;font-size:20px;font-weight:700;color:var(--orange);background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);text-align:center">
+          </div>
+          <div id="auc-reward-inputs" style="display:flex;flex:1;flex-wrap:wrap"></div>
+          <div style="border-left:2px solid rgba(160,140,118,.35)"></div>
+          <div id="auc-per-person-inputs" style="display:flex;flex-wrap:wrap"></div>
+        </div>
+        <div id="auc-summary-cards" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
+    <!-- ตารางแจกของ : ใครได้ slot ไหน -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)">
+      <div style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:var(--text)" id="auc-user-title">การแจกรางวัล</span>
+        <span style="font-size:11px;color:var(--muted)" id="auc-per-person-summary">—</span>
+      </div>
+      <div class="tbl-wrap" style="border:none;border-radius:0;box-shadow:none"><table class="au-tbl">
+        <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card slot</th><th>White feather</th><th>Red/Black feather</th></tr></thead>
+        <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล</td></tr></tbody>
+      </table></div>
+    </div>
   </div>
 
   <!-- TAB: DESIGNATED -->
@@ -1081,37 +1113,185 @@ function getCurrentReward(){
 }
 
 function onAucRank(){
-  const rw=getCurrentReward();
-  const box=document.getElementById('auc-calc-body');
-  if(!rw){box.innerHTML='<div class="empty">ไม่พบข้อมูลรางวัล</div>';return}
-
-  const nPeople=getLatestQueueCount();
-  const card=+rw.card||0, white=+rw.feather_white||0, red=+rw.feather_red_black||0;
-  const per=(n)=>nPeople?Math.floor(n/nPeople):0;
-
-  const cell=(label,total,unit)=>`
-    <div style="flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-out-sm)">
-      <div style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel);margin-bottom:6px">${label}</div>
-      <div style="font-size:22px;font-weight:800;color:var(--orange);font-family:var(--font-pixel)">${total}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">ต่อคน ${per(total)} ${unit}</div>
-    </div>`;
-
-  box.innerHTML=`
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-      ${cell('Card',card,'ใบ')}
-      ${cell('ขนนกขาว',white,'อัน')}
-      ${cell('ขนนกดำ/แดง',red,'อัน')}
-    </div>
-    <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;font-size:12px;color:var(--muted)">
-      คิวล่าสุด <b style="color:var(--text)">${nPeople}</b> คน · หารแล้วปัดลง เศษที่เหลือเก็บไว้ในคลังกิลด์
-    </div>`;
+  _aucFieldOverrides={};_aucPerPersonOverrides={};
+  const mulEl=document.getElementById('auc-global-mul');
+  if(mulEl){mulEl.value=_aucGlobalMul;}
+  renderRewardInputs();
+  renderDistribution();
 }
 
-function getLatestQueueCount(){
-  const dates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort();
-  if(!dates.length)return 0;
-  const latest=dates[dates.length-1];
-  return _aucQueue.filter(r=>r.queue_date===latest).length;
+/* ---------- ตัวคูณ + ช่องแก้ตัวเลข (คำนวณอย่างเดียว ไม่บันทึกกลับชีท) ---------- */
+let _aucGlobalMul=1;
+let _aucFieldOverrides={};
+let _aucPerPersonOverrides={};
+
+function onGlobalMul(){
+  const v=parseFloat(document.getElementById('auc-global-mul').value);
+  _aucGlobalMul=(isNaN(v)||v<=0)?1:v;
+  _aucFieldOverrides={};_aucPerPersonOverrides={};
+  renderRewardInputs();renderDistribution();
+}
+function onRewardFieldEdit(key,inputEl){
+  const raw=inputEl.value.trim();
+  if(raw===''){delete _aucFieldOverrides[key]}
+  else{const n=parseInt(raw,10);if(isNaN(n)||n<0)return;_aucFieldOverrides[key]=n}
+  renderRewardInputs();renderDistribution();
+}
+function onPerPersonEdit(key,inputEl){
+  const raw=inputEl.value.trim();
+  if(raw===''){delete _aucPerPersonOverrides[key]}
+  else{const n=parseInt(raw,10);if(isNaN(n)||n<0)return;_aucPerPersonOverrides[key]=n}
+  renderRewardInputs();renderDistribution();
+}
+
+function getRewardValues(){
+  const base=getCurrentReward();
+  if(!base)return null;
+  const m=_aucGlobalMul||1;
+  const ov=_aucFieldOverrides;
+  return {
+    card:  ov.card!=null              ? ov.card              : Math.round((+base.card||0)*m),
+    white: ov.feather_white!=null     ? ov.feather_white     : Math.round((+base.feather_white||0)*m),
+    red:   ov.feather_red_black!=null ? ov.feather_red_black : Math.round((+base.feather_red_black||0)*m),
+    event_name:base.event_type,
+    rank:base.rank
+  };
+}
+
+function renderRewardInputs(){
+  const base=getCurrentReward();
+  const wrap=document.getElementById('auc-reward-inputs');
+  const title=document.getElementById('auc-calc-title');
+  if(!base){if(wrap)wrap.innerHTML='';if(title)title.textContent='Distribution result';return}
+  const evLabel=/^\d+$/.test(String(base.rank))?'Rank '+base.rank:base.rank;
+  title.textContent=`Distribution result — ${base.event_type} — ${evLabel}`;
+
+  const mul=_aucGlobalMul;
+  const fields=[
+    {k:'card',label:'Card (= คน)',base:+base.card||0},
+    {k:'feather_white',label:'ขนนกขาว',base:+base.feather_white||0},
+    {k:'feather_red_black',label:'ขนนกดำ/แดง',base:+base.feather_red_black||0}
+  ];
+  wrap.innerHTML=fields.map(f=>{
+    const calcVal=Math.round(f.base*mul);
+    const hasOverride=_aucFieldOverrides[f.k]!=null;
+    const displayVal=hasOverride?_aucFieldOverrides[f.k]:calcVal;
+    return `<div style="flex:1;min-width:130px;background:var(--card);border:0.5px solid ${hasOverride?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}${hasOverride?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+      <input type="number" min="0" value="${displayVal}" oninput="onRewardFieldEdit('${f.k}',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit">
+      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base}${mul!==1?` × ${mul} = ${calcVal}`:''}${hasOverride?' · เคลียร์ช่องเพื่อกลับค่าคำนวณ':''}</div>
+    </div>`;
+  }).join('');
+
+  const ppWrap=document.getElementById('auc-per-person-inputs');
+  if(ppWrap){
+    const rw=getRewardValues();
+    if(rw){
+      const n=rw.card||1;
+      const autoW=Math.floor(rw.white/n), autoR=Math.floor(rw.red/n);
+      const hasW=_aucPerPersonOverrides.white!=null, hasR=_aucPerPersonOverrides.red!=null;
+      const ppW=hasW?_aucPerPersonOverrides.white:autoW;
+      const ppR=hasR?_aucPerPersonOverrides.red:autoR;
+      ppWrap.innerHTML=`
+        <div style="flex:1;min-width:130px;background:var(--card2);border:0.5px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ขาว / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+          <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--blue)">
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.white}÷${n}⌋=${autoW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
+        </div>
+        <div style="flex:1;min-width:130px;background:var(--card2);border:0.5px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ดำ/แดง / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
+          <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.red}÷${n}⌋=${autoR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
+        </div>`;
+    }else{ppWrap.innerHTML=''}
+  }
+}
+
+/* ---------- ตารางแจกของ : Page/Box slot ---------- */
+const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
+const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
+const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
+function fmtSlots(start,count){
+  if(count<=0)return '-';
+  const grp=_grpByPage(_slotRange(start,count));
+  return grp.map(([pg,boxes])=>{
+    const ranges=[];let s=boxes[0],p=boxes[0];
+    for(let i=1;i<=boxes.length;i++){
+      const b=boxes[i];
+      if(b===p+1){p=b;continue}
+      ranges.push(s===p?`${s}`:`${s}-${p}`);
+      s=b;p=b;
+    }
+    return `Page${pg}(${ranges.join(',')})`;
+  }).join(', ');
+}
+
+/* คิวที่รอประมูล : เรียงตาม queue_date -> position (เหมือนเดิม) */
+function getPendingQueue(){
+  return _aucQueue
+    .filter(r=>String(r.status||'').toLowerCase()==='pending')
+    .sort((a,b)=>String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0)));
+}
+
+function computeDistribution(){
+  const rw=getRewardValues();
+  if(!rw)return null;
+  const pend=getPendingQueue();
+  const n=Math.min(rw.card,pend.length);
+  if(!n)return null;
+  const names=pend.slice(0,n).map(r=>r.member_name);
+  const white=rw.white,red=rw.red;
+  const pW=_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n);
+  const pR=_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n);
+  const wRem=white-n*pW, rRem=red-n*pR;
+  let wPos=1,rPos=white+1;
+  const rows=names.map((name,i)=>{
+    const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
+    wPos+=pW;rPos+=pR;return row;
+  });
+  return {rows,card:n,cardTarget:rw.card,white,red,wRem,rRem,n,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0};
+}
+
+function renderDistribution(){
+  const dist=computeDistribution();
+  const tbody=document.getElementById('auc-dist-tbody');
+  const sumWrap=document.getElementById('auc-summary-cards');
+  const perSum=document.getElementById('auc-per-person-summary');
+  if(!tbody)return;
+  if(!dist){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
+    if(sumWrap)sumWrap.innerHTML='';
+    if(perSum)perSum.textContent='—';
+    return;
+  }
+  const wUsed=dist.n*dist.pW, rUsed=dist.n*dist.pR;
+  const cardLeft=dist.cardTarget-dist.card;
+  const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`เหลือ ${dist.wRem}`;
+  const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`เหลือ ${dist.rRem}`;
+  if(sumWrap)sumWrap.innerHTML=`
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.cardTarget}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (เหลือ ${cardLeft})</div>
+    </div>
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${dist.wOverflow?'var(--red-b)':'var(--border)'};border-radius:var(--radius-sm);padding:14px;text-align:center">
+      <div style="font-size:18px;font-weight:700;${dist.wOverflow?'color:var(--red)':''}">${wUsed}/${dist.white}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">ขาว (${wRemLbl})</div>
+    </div>
+    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${dist.rOverflow?'var(--red-b)':'var(--border)'};border-radius:var(--radius-sm);padding:14px;text-align:center">
+      <div style="font-size:18px;font-weight:700;${dist.rOverflow?'color:var(--red)':''}">${rUsed}/${dist.red}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">ดำ/แดง (${rRemLbl})</div>
+    </div>`;
+  if(perSum)perSum.textContent=`${dist.n} คน · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
+  tbody.innerHTML=dist.rows.map((r,i)=>{
+    const card=_toPageBox(r.cardSlot);
+    return `<tr>
+      <td style="color:var(--faint);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td>Page${card.page}(${card.box})</td>
+      <td>${fmtSlots(r.wStart,r.white)}</td>
+      <td>${fmtSlots(r.rStart,r.red)}</td>
+    </tr>`;
+  }).join('');
 }
 
 /* ═══════════ TAB 2 : DESIGNATED (Helper_Log) ═══════════ */
