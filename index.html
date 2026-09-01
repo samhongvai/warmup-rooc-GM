@@ -746,8 +746,8 @@ async function loadData(){
     document.getElementById('dot').style.background=clr;
     document.getElementById('sdot').style.background=clr;
   };
-  // โหลดข้อมูล Auction ไว้เบื้องหลัง ไม่บล็อกการโหลด Members
-  loadAuctionData().catch(()=>{});
+  // Auction เป็น lazy load แล้ว — โหลดเมื่อเข้าหน้า Auction / Calendar / พิมพ์ค้นหา
+  // (initAuctionPage · loadCalendarWeek · preloadSearchCache ต่างก็ await loadAuctionData เอง)
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
     const mr=await fetch(mkUrl('Web_Members')).then(r=>r.text());
