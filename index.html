@@ -9,12 +9,10 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* === Warm Cream Theme A === */
   --bg:#EDE8E0;
   --card:#F5F2EC;--card2:#E6E0D6;
   --orange:#B23410;--orange-l:#8A2A0D;--orange-dim:rgba(178,52,16,.1);--orange-border:rgba(178,52,16,.28);
   --tint-rgb:160,140,118;
-  
   --border:rgba(160,140,118,.22);--border2:rgba(160,140,118,.35);
   --text:#2A2420;--muted:#7A6E64;--faint:#A89E94;
   --green:#2A7A48;--green-dim:rgba(42,122,72,.1);--green-b:rgba(42,122,72,.28);
@@ -26,13 +24,9 @@
   --radius-lg:14px;--radius-md:10px;--radius-sm:8px;
   --shadow-out:3px 3px 10px rgba(160,140,118,.2),-1px -1px 6px rgba(255,252,248,.8);
   --shadow-out-sm:2px 2px 7px rgba(160,140,118,.16),-1px -1px 4px rgba(255,252,248,.7);
-  
-  
   }
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
 .app{display:flex;min-height:100vh}
-
-/* SIDEBAR */
 .sidebar{width:200px;flex-shrink:0;background:var(--card);padding:0;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;transition:transform 0.25s ease;border-right:1px solid var(--border);overflow:hidden}
 .sidebar.rail{width:52px}
 .sidebar.rail .nav-label{opacity:0;width:0;overflow:hidden;display:inline-block}
@@ -63,16 +57,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .nav-footer{padding:0.8rem 1.2rem;font-size:11px;color:var(--muted);line-height:1.7;font-family:var(--font-pixel);white-space:nowrap;overflow:hidden;border-top:1px solid var(--border)}
 .nav-footer-text{transition:opacity 0.22s,width 0.22s;white-space:nowrap;overflow:hidden}
 .sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;box-shadow:0 0 5px var(--green)}
-
-/* TOPBAR */
 .topbar-wrap{display:flex;position:fixed;top:8px;right:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow-out-sm);overflow:hidden;align-items:center;border:1px solid var(--border)}
 .topbar-admin{display:flex;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);align-items:center;gap:6px;background:none;border:none;transition:color .15s}
 .topbar-admin.on{color:var(--orange-l);background:var(--orange-dim)}
 .hamburger{display:none;position:fixed;top:8px;left:11px;z-index:300;background:var(--card);border-radius:var(--radius-sm);padding:7px 11px;cursor:pointer;font-size:17px;color:var(--text);box-shadow:var(--shadow-out-sm);border:1px solid var(--border)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150}
 .sidebar-overlay.show{display:block}
-
-/* RESPONSIVE */
 .main{margin-left:200px;flex:1;padding:2rem 2.2rem;min-width:0;max-width:calc(100vw - 200px);transition:margin-left 0.22s}
 .main.rail-offset{margin-left:52px;max-width:calc(100vw - 52px)}
 @media(max-width:1024px){
@@ -81,13 +71,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   .main{margin-left:0!important;max-width:100vw!important;padding:3.5rem 0.9rem 2rem!important}
   .hamburger{display:flex;align-items:center}
 }
-
-/* MAIN */
 .page{display:none}.page.active{display:block}
 .page-title{font-family:var(--font-pixel);font-size:26px;font-weight:400;color:var(--muted);margin-bottom:4px;letter-spacing:1px}
 .page-sub{font-size:12px;color:var(--faint);margin-bottom:1.2rem}
-
-/* COMMON */
 input,select,textarea{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-size:13px;outline:none;font-family:var(--font)}
 input::placeholder,textarea::placeholder{color:var(--faint)}
 input:focus,select:focus,textarea:focus{border-color:var(--border2)}
@@ -107,13 +93,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .section-h:first-child{margin-top:0}
 .empty{text-align:center;color:var(--muted);font-size:13px;padding:2.8rem}
 .loading{text-align:center;color:var(--muted);font-size:13px;padding:2.2rem;opacity:0.75}
-
-/* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1.2rem}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 12px;text-align:center;box-shadow:var(--shadow-out-sm)}
 .sc .n{font-family:var(--font-pixel);font-size:30px;font-weight:400;color:var(--orange-l);line-height:1}.sc .l{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
-
-/* OVERVIEW BOX */
 .overview-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;box-shadow:var(--shadow-out-sm)}
 .ov-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .ov-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-pixel)}
@@ -135,12 +117,8 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cap-box .cl{font-size:11px;color:var(--muted);margin-top:4px}
 .cap-bar-wrap{height:5px;background:rgba(160,140,118,.12);border-radius:4px;overflow:hidden;margin-top:12px}
 .cap-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--amber))}
-
-/* FILTER ROW */
 .filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .alt-toggle{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;margin-left:auto}
-
-/* TABLE */
 .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow-x:auto;overflow-y:hidden;box-shadow:var(--shadow-out-sm);-webkit-overflow-scrolling:touch}
 .mtbl{min-width:560px}
 .mtbl,.au-tbl,.rtbl,.sum-tbl{width:100%;border-collapse:collapse}
@@ -150,32 +128,22 @@ input[type=checkbox]{accent-color:var(--orange)}
 .mtbl tr:hover td,.au-tbl tr:hover td{background:rgba(160,140,118,.04)}
 .m-num{color:var(--faint);font-size:10px;font-family:var(--font-pixel);width:28px}
 .admin-col{display:none}
-
-/* STATUS BADGES */
 .qs{font-size:10px;font-weight:700;font-family:var(--font-pixel);padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
 .qs-done{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
 .qs-pend{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
 .qs-skip{background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
-
-/* CLASS BADGES */
 .badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:transparent;white-space:nowrap}
 .b-s{color:var(--green);border:1.5px solid var(--green-b)}
 .b-a{color:var(--amber);border:1.5px solid var(--amber-b)}
 .b-d{color:var(--red);border:1.5px solid var(--red-b)}
-
-/* GF BADGE */
 .gf{font-size:9px;font-weight:800;font-family:var(--font-pixel);border-radius:4px;padding:2px 6px;letter-spacing:.5px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25);white-space:nowrap}
 .gf-e{background:var(--orange-dim);color:var(--orange-l);border-color:var(--orange-border)}
 .gf-s{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-b)}
-
-/* CLASS AVATAR ICONS */
 .cls-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid}
 .av-s{background:var(--green);border-color:var(--green-b);color:#fff}
 .av-a{background:var(--amber);border-color:var(--amber-b);color:#fff}
 .av-d{background:var(--red);border-color:var(--red-b);color:#fff}
 .av-ico{width:20px;height:20px}
-
-/* PARTY */
 .field-section{margin-bottom:2rem}
 .field-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .field-head h4{font-size:14px;font-weight:700;color:var(--text);font-family:var(--font-pixel)}
@@ -199,8 +167,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pm-cls-label{font-size:10px;color:var(--muted);margin-top:1px;font-weight:500}
 .pm-note{font-size:10px;color:var(--muted);font-weight:600}
 .pm-note-leave{font-size:10px;color:var(--muted);font-weight:600}
-
-/* SEARCH */
 .nf{text-align:center;color:var(--muted);font-size:13px;padding:2rem}
 .srch-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow-out)}
 .srch-head{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--card2)}
@@ -233,8 +199,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .srch-hist tr:last-child td{border-bottom:none}
 .srch-pos{font-size:10px;font-family:var(--font-pixel);padding:2px 6px;border-radius:4px;background:var(--card2);border:1px solid var(--border)}
 .si{width:14px;height:14px;color:var(--faint);flex-shrink:0}
-
-/* CALENDAR */
 .cal-wrap{display:flex;border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-out-sm)}
 .cal-time-axis{width:44px;flex-shrink:0;background:var(--card2);border-right:1px solid var(--border)}
 .cal-time-head{height:44px;border-bottom:1px solid var(--border)}
@@ -254,7 +218,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cal-grid-line{position:absolute;left:0;right:0;height:1px;background:rgba(160,140,118,.1)}
 .cal-grid-line.hour{height:1px;background:rgba(160,140,118,.22)}
 .cal-hour-band{position:absolute;left:0;right:0;background:rgba(160,140,118,.04);pointer-events:none}
-/* calendar event style E: dot + title + time */
 .cal-evt-block{position:absolute;border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;line-height:1.4;background:var(--card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:5px}
 .cal-evt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:2px}
 .cal-evt-body{min-width:0;flex:1}
@@ -273,13 +236,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cal-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 .cal-leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:500}
 .cal-leg-dot{width:8px;height:8px;border-radius:50%}
-
-/* AUCTION */
 .au-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.2rem;overflow-x:auto}
 .au-tab{padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--font);white-space:nowrap}
 .au-tab.active{color:var(--orange-l);border-bottom-color:var(--orange)}
-
-/* REWARD CARDS — style B monochrome */
 .rb-cards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .rb-card{flex:1;min-width:140px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)}
 .rb-label{font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:12px 14px 0}
@@ -296,8 +255,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .rb-pp{display:flex;justify-content:space-between;align-items:center}
 .rb-pp-lbl{font-size:11px;color:var(--muted);font-weight:600}
 .rb-pp-val{font-size:18px;font-weight:800;font-family:var(--font-pixel);color:var(--text)}
-
-/* QUEUE MANAGER */
 .mgr-list{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)}
 .mgr-list-head,.mgr-row{display:flex;align-items:center;padding:0 6px}
 .mgr-list-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700;height:36px}
@@ -315,8 +272,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .q-btn-skip{background:var(--amber-dim);border-color:var(--amber-b);color:var(--amber);margin-right:4px}
 .dup-badge{display:inline-block;margin-left:7px;font-size:10px;padding:2px 7px;border-radius:20px;background:var(--red-dim);border:1px solid var(--red-b);color:var(--red);white-space:nowrap;font-weight:600}
 .row-skip{opacity:.6}
-
-/* DESIGNATED AUCTION */
 .da-row{display:flex;align-items:center;padding:6px 6px;border-bottom:1px solid var(--border);font-size:12px;min-height:0;background:var(--card)}
 .da-row:last-child{border-bottom:none}
 .da-row:hover{background:rgba(160,140,118,.04)}
@@ -329,8 +284,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .da-status{width:90px;min-width:90px;padding:0 4px;flex-shrink:0;white-space:nowrap}
 .da-act{width:120px;min-width:120px;padding:0 6px;text-align:right;flex-shrink:0}
 @media(max-width:760px){.da-white,.da-red{width:90px;min-width:90px}.da-act{width:90px;min-width:90px}}
-
-/* FEATHER BAR */
 .fbar-cell{text-align:center}
 .fbar{position:relative;height:22px;width:92px;border-radius:7px;overflow:hidden;display:inline-block}
 .fbar .fbar-track{position:absolute;inset:0;background:rgba(160,140,118,.08)}
@@ -338,8 +291,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .fbar .fbar-fill.fok{background:rgba(42,122,72,.5)}
 .fbar .fbar-fill.fmiss{background:rgba(122,80,16,.5)}
 .fbar .fbar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;z-index:1;color:var(--text)}
-
-/* FEATHER INPUTS */
 .feather-inputs{margin:12px 0 14px}
 .feather-inputs .fi-title{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
 .feather-inputs .fi-hint{font-size:12px;color:var(--muted);background:var(--amber-dim);border:1px solid var(--amber-b);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.6}
@@ -348,8 +299,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .fi-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:500}
 .fi-field input{width:100%;text-align:center;font-size:20px;font-weight:700;padding:9px 8px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text)}
 .fi-field .fi-max{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* LUCKY DRAW */
 .ld-pool-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .ld-pool-card{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-out-sm)}
 .ld-pool-lbl{font-size:10px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
@@ -373,8 +322,6 @@ input[type=checkbox]{accent-color:var(--orange)}
 .step2-hint{font-size:12px;color:var(--orange-l);font-weight:600;margin-bottom:12px}
 .step2-disabled{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;color:var(--faint);font-size:12px;margin-bottom:12px}
 .mvp-badge{font-size:10px;font-weight:700;font-family:var(--font-pixel);padding:2px 7px;border-radius:20px;background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
-
-/* WAR HISTORY */
 .wh-section{margin-bottom:18px}
 .wh-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md) var(--radius-md) 0 0;border-bottom:none}
 .wh-title{font-size:12px;font-weight:800;font-family:var(--font-pixel);flex:1;color:var(--text)}
@@ -392,30 +339,22 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pager-btn{font-size:11px;font-weight:700;font-family:var(--font-pixel);padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer}
 .pager-btn.disabled{opacity:.4;cursor:default;pointer-events:none}
 .pager-btn.cur{background:var(--orange);color:#fff;border-color:var(--orange)}
-
-/* REWARDS PREVIEW */
 .evts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:10px;margin-bottom:14px}
 .evt{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-out-sm)}
 .evt .et{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;font-weight:600;font-family:var(--font-pixel)}
 .evt .en{font-size:14px;font-weight:700;margin-bottom:3px;color:var(--text)}
 .evt .ed{font-size:12px;color:var(--orange-l);font-family:var(--font-pixel);font-weight:600}
-
-/* MODAL */
 .modal-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.8rem;width:360px;max-width:90vw;box-shadow:var(--shadow-out)}
 .modal h3{font-size:17px;font-weight:700;color:var(--muted);margin-bottom:1.2rem;font-family:var(--font-pixel)}
 .modal input{width:100%;margin-bottom:12px}
 .modal-err{font-size:13px;color:var(--red);margin-bottom:10px;display:none;font-weight:500}
 .paste-area{width:100%;height:180px;resize:vertical;font-size:13px;line-height:1.7;margin-bottom:10px}
-
-/* PARTY DRAG & DROP */
 .party-edit-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--orange-border);padding:12px 20px;display:none;align-items:center;gap:12px;z-index:500;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
 .party-edit-bar.visible{display:flex}
 .pm.dragging{opacity:.35;outline:2px dashed var(--orange)}
 .pm.drag-over{border-top:3px solid var(--orange);background:var(--orange-dim)}
 .pc.drop-target{outline:2px solid var(--orange-border);outline-offset:3px;background:var(--orange-dim)}
-
-/* UNASSIGNED PANEL */
 .unassigned-panel{position:fixed;top:60px;right:0;width:200px;background:var(--card);border-left:2px solid var(--border);border-bottom:2px solid var(--border);border-radius:0 0 0 var(--radius-md);padding:0;z-index:400;box-shadow:-4px 4px 16px rgba(0,0,0,.08);display:none;max-height:calc(100vh - 80px);overflow-y:auto}
 .unassigned-panel.visible{display:block}
 .up-head{padding:10px 12px;background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:.8px;position:sticky;top:0}
@@ -424,16 +363,12 @@ input[type=checkbox]{accent-color:var(--orange)}
 .up-item:hover{background:var(--orange-dim)}
 .up-item.dragging{opacity:.35}
 .up-bar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
-
-/* ZOOM PILL (มุมขวาล่าง) */
 .zoom-pill{position:fixed;right:14px;bottom:14px;z-index:250;display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-out-sm);opacity:.45;transition:opacity .18s;overflow:hidden}
 .zoom-pill:hover,.zoom-pill:focus-within{opacity:1}
 .zp-btn{background:none;border:none;cursor:pointer;font-size:15px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);padding:6px 11px;line-height:1;transition:color .15s}
 .zp-btn:hover{color:var(--orange-l)}
 .zp-lbl{background:none;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--orange-l);padding:6px 8px;min-width:46px;line-height:1;transition:background .15s}
 .zp-lbl:hover{background:var(--orange-dim)}
-
-/* MODE PILL (หน้า Party) */
 .mode-pill{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:3px;box-shadow:var(--shadow-out-sm);margin-bottom:10px;gap:2px}
 .mode-pill button{flex:1;padding:8px 20px;border:none;border-radius:18px;background:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);white-space:nowrap;transition:all .18s}
 .mode-pill button:hover{color:var(--text)}
@@ -460,13 +395,11 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
-
   <div class="nav-spacer"></div>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
 </nav>
 <main class="main" id="main-wrap">
 
-<!-- MEMBERS -->
 <div id="page-members" class="page">
   <div class="page-title">Members</div>
   <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
@@ -492,7 +425,6 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
 
-<!-- PARTY -->
 <div id="page-party" class="page">
   <div class="page-title">Party</div>
   <div class="mode-pill" id="mode-seg">
@@ -503,7 +435,6 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div id="party-content"><div class="loading">Loading...</div></div>
 </div>
 
-<!-- SEARCH -->
 <div id="page-search" class="page active">
   <div class="page-title">Search</div>
   <div class="page-sub">Search by character name or ID</div>
@@ -513,7 +444,6 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div id="search-result"></div>
 </div>
 
-<!-- AUCTION -->
 <div id="page-auction" class="page">
   <div class="page-title">Auction</div>
   <div class="page-sub" id="auc-sub">คิวประมูล รางวัล และประวัติการแข่ง</div>
@@ -525,7 +455,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards</button>
   </div>
 
-  <!-- TAB: GUILD AUCTION -->
   <div id="auc-calc">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:150px">
@@ -539,7 +468,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </div>
     <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
 
-    <!-- ตัวคำนวณรางวัล : ปรับตัวเลขดูได้ ไม่บันทึกกลับชีท -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm);margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--card2);border-bottom:1px solid var(--border)">
         <span style="font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:1">🧮 ตัวคำนวณ</span>
@@ -559,7 +487,6 @@ input[type=checkbox]{accent-color:var(--orange)}
       </div>
     </div>
 
-    <!-- ตารางแจกของ : ใครได้ slot ไหน -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)">
       <div style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <span style="font-size:13px;font-weight:700;color:var(--text)" id="auc-user-title">การแจกรางวัล</span>
@@ -572,7 +499,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </div>
   </div>
 
-  <!-- TAB: DESIGNATED -->
   <div id="auc-designated" style="display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:170px">
@@ -587,7 +513,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </table></div>
   </div>
 
-  <!-- TAB: QUEUE -->
   <div id="auc-manage" style="display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:170px">
@@ -608,7 +533,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </table></div>
   </div>
 
-  <!-- TAB: WAR HISTORY -->
   <div id="auc-warhistory" style="display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <select id="wh-filter-type" onchange="renderWarHistory()" style="flex:1;min-width:150px">
@@ -621,7 +545,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </table></div>
   </div>
 
-  <!-- TAB: REWARDS PREVIEW -->
   <div id="auc-rewards" style="display:none">
     <div id="auc-rewards-wrap"></div>
     <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)" id="rwprev-title">Rewards Preview</div>
@@ -637,7 +560,6 @@ input[type=checkbox]{accent-color:var(--orange)}
     </div>
   </div>
 </div>
-<!-- CALENDAR -->
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar</div>
   <div style="margin-bottom:14px">
@@ -660,27 +582,24 @@ input[type=checkbox]{accent-color:var(--orange)}
   </div>
 </div>
 
-
 </main>
 
-<!-- ADMIN MODAL -->
 <script>
-const SHEET_ID='1aPSEYfUAgmg3IRMa-fjRhKb1q2bAfgbOemAtJX0DSkU'; // Warmup_Master
+/* ═══════════════════════════════════════════════════════════
+   แก้เมื่อ 2026-09 : ย้ายจาก Warmup_Master (เก่า) + Warmup_Auction (เก่า)
+   มาเป็นไฟล์เดียว Warmup_WebMaster ที่รวม IMPORTRANGE จาก
+   Warmup_Members + Warmup_Auction ปัจจุบัน
+   ═══════════════════════════════════════════════════════════ */
+const SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup_WebMaster
 const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(s)}`;
 const CFG={max_card:1,max_white:4,max_red:7};
-// ตรงกับหัวข้อ #CLASS ในแท็บ Config ของ Warmup_Members
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Biochemist':'All Rounder','Summoner':'All Rounder','Lord Knight':'All Rounder','Paladin':'All Rounder','Mastersmith':'All Rounder','Professor':'Attack (DPS)','High Wizard':'Attack (DPS)','Sniper':'Attack (DPS)','Stalker':'Attack (DPS)','Rebellion':'Attack (DPS)','Champion':'Attack (DPS)','Assassin Cross':'Attack (DPS)'};
 
-/* โหมดสนาม : GL = Guild League · OR = Overrun
-   คนเดิม Party เดิม ต่างแค่คอลัมน์อาชีพและป้ายสนาม */
 let _mode=localStorage.getItem('warmup_mode')==='OR'?'OR':'GL';
-/* ชีทเก็บ field_or เป็นไทย (หลัก/รอง) — เว็บใช้อังกฤษชุดเดียวทุกโหมด */
 function normField(f){const t=String(f||'').trim();
   if(t==='หลัก')return 'Elite';
   if(t==='รอง')return 'Sub-battle';
   return t}
-/* m.class / m.field ยึด GL คงที่ : หน้า Members, Search, Stats จะไม่ขยับตามโหมด
-   โหมด GL/OR มีผลเฉพาะหน้า Party เท่านั้น (คำนวณตอน render) */
 function applyMode(){
   members.forEach(m=>{
     m.class=m.class_gl||'';
@@ -695,22 +614,18 @@ function setMode(mode){
   document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
   renderParty();
 }
-// ป้ายสนามย่อสำหรับ badge : Elite->E · Sub-battle->S · หลัก->ห · รอง->ร
 function getFieldCode(f){if(!f)return '';const t=String(f).trim();
   if(t==='Elite')return 'E';if(t==='Sub-battle')return 'S';return t.charAt(0)}
 function getFieldLabel(f){return f||''}
-
 function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
 function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
 function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
 
 let members=[];
-let _aucQueueRows=[]; // rows for currently-viewed queue date
+let _aucQueueRows=[];
 
-/* HAMBURGER */
 function toggleSidebar(){
-  // mobile: overlay mode
   const s=document.getElementById('sidebar-el'),o=document.getElementById('sov');
   s.classList.toggle('open');o.classList.toggle('show');
 }
@@ -718,10 +633,8 @@ function closeSidebar(){
   document.getElementById('sidebar-el').classList.remove('open');
   document.getElementById('sov').classList.remove('show');
 }
-/* toggleDesktopRail removed — desktop sidebar always expanded */
 
-/* NAV */
-function swAdmin(t){sw(t)} // เว็บ read-only แล้ว ไม่มี admin gate
+function swAdmin(t){sw(t)}
 function sw(t){
   _currentPage=t;
   document.querySelectorAll('.nav-item').forEach(el=>{
@@ -738,7 +651,6 @@ function sw(t){
 }
 let _currentPage='';
 
-/* DATA LOAD */
 async function loadData(){
   const setS=(ok,msg,clr='var(--green)')=>{
     document.getElementById('stxt').textContent=msg;
@@ -746,15 +658,11 @@ async function loadData(){
     document.getElementById('dot').style.background=clr;
     document.getElementById('sdot').style.background=clr;
   };
-  // ไม่โหลด Auction ตอนเปิดหน้าแรก — โหลดตอนกดเข้าหน้า Auction เท่านั้น
-  // (Auction_Queue มีเกือบพันแถว ถ้าโหลดทุกครั้งจะช้ามาก)
   try{
     const parse=t=>{const s=t.indexOf('{'),e=t.lastIndexOf('}');return JSON.parse(t.slice(s,e+1))};
     const mr=await fetch(mkUrl('Web_Members')).then(r=>r.text());
     const mj=parse(mr);
     const cols=mj.table.cols.map(c=>(c.label||'').toLowerCase().replace(/\s+/g,'_'));
-    const get=(v,k)=>{const i=cols.findIndex(c=>c===k||c.includes(k));return i>=0&&v[i]&&v[i].v!=null?String(v[i].v).trim():''};
-    // อ่านคอลัมน์ด้วยชื่อเป๊ะ ๆ กันชนกันเอง (เช่น class_gl / class_or)
     const idxOf=(k)=>cols.findIndex(c=>c===k);
     const exact=(v,k)=>{const i=idxOf(k);return i>=0&&v[i]&&v[i].v!=null?String(v[i].v).trim():''};
     members=mj.table.rows.map(r=>{const v=r.c||[];return{
@@ -789,9 +697,8 @@ function buildFilters(){
   document.getElementById('fp').innerHTML='<option value="">All party</option>'+pts.map(p=>`<option value="${p}">Party ${p}</option>`).join('');
 }
 
-let _hideAlts=true; // default: hide alt characters from members list + overview
-let _guildCap=80; // guild_cap — ค่าจริงอยู่ใน Config ของ Warmup_Members
-// Status: ALT (exclude from auction queue) | ABSENT (show badge, still counted)
+let _hideAlts=true;
+let _guildCap=80;
 const isAlt=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='alt'};
 const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='absent'};
 function noteLabel(s){
@@ -835,7 +742,6 @@ function renderStats(){
     <div class="cap-bar-wrap"><div class="cap-bar" style="width:${Math.min(100,pct(total))}%"></div></div>`;
 }
 
-/* guild_cap แก้ที่ Config ของ Warmup_Members — เว็บ read-only */
 function loadGuildCap(){renderStats()}
 
 let mSortKey='party',mSortDir=1;
@@ -867,7 +773,6 @@ function renderMembers(){
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
 }
 
-/* PARTY */
 function renderParty(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
@@ -875,8 +780,6 @@ function renderParty(){
   const totalM=members.filter(m=>m.party).length;
   const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.length+' ปาร์ตี้';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
-  /* ลำดับในการ์ด (บน -> ล่าง) : DPS · All Rounder · Support อื่น · Minstrel/Gypsy · Priest
-     อ่านจากล่างขึ้นบนจะได้ Priest > Minstrel/Gypsy > All Rounder > DPS */
   const PRIEST_CLASSES=['High Priest','Priest'];
   const BARD_CLASSES=['Minstrel','Gypsy'];
   const classOrder=(m)=>{
@@ -902,16 +805,13 @@ function renderParty(){
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
-  // edit toggle button (admin only)
-  const editBtn=''; // แก้ไข Party ทำที่ชีท Party_Master แทน
-  // (unassigned panel ถูกตัดออกแล้ว - เว็บ read-only)
+  const editBtn='';
   document.getElementById('party-content').innerHTML=
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
     `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
     `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
 }
 
-/* SEARCH */
 let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
 const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
 const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
@@ -928,7 +828,6 @@ async function searchMain(){
   );
   if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
 
-  // render party section ทันทีก่อน — ไม่รอ GAS
   const renderCard=(m,qRow,hist)=>{
     const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
     const metaItems=[
@@ -977,29 +876,24 @@ async function searchMain(){
     </div>`;
   };
 
-  // แสดงผลทันที (history = null = loading)
   el.innerHTML=found.map(m=>{
     const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
     return renderCard(m,qRow,_searchCacheLoaded?(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null);
   }).join('');
 
-  // ถ้ายังไม่มี cache ให้โหลดแบบ background แล้วอัพเดท history
   if(!_searchCacheLoaded){
     await preloadSearchCache();
-    // อัพเดท history section เฉพาะคนที่ค้นหา
     found.forEach(m=>{
       const histEl=document.getElementById('hist-'+m.ign.replace(/[^a-zA-Z0-9]/g,'_'));
       if(!histEl)return;
       const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
       const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
       histEl.innerHTML=`<div class="srch-sec-lbl">Auction History</div>`+renderCard(m,qRow,hist).match(/id="hist-[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*$/)?.[1]||'';
-      // แทนที่ทั้ง section
       const fullCard=renderCard(m,qRow,hist);
       const tmpDiv=document.createElement('div');tmpDiv.innerHTML=fullCard;
       const newHistSection=tmpDiv.querySelector('[id^="hist-"]');
       if(newHistSection)histEl.replaceWith(newHistSection);
     });
-    // อัพเดท queue ด้วยถ้าเปลี่ยน
     found.forEach(m=>{
       const card=el.querySelector('.srch-card');
       if(card){
@@ -1010,23 +904,18 @@ async function searchMain(){
   }
 }
 
-
-/* GAS */
 /* ═══════════════════════════════════════════════════════════
-   AUCTION — อ่านจาก Warmup_Auction ผ่าน gviz ทั้งหมด (read-only)
-   ไม่มี GAS ไม่มีการเขียนกลับ
+   AUCTION — อ่านจาก Warmup_WebMaster ผ่าน gviz ทั้งหมด (read-only)
+   War_Log แทนที่ Auction_Result / GL_Rank_Track / OR_Rank_Track เดิม
    ═══════════════════════════════════════════════════════════ */
-const AUCTION_SHEET_ID='1VyPC6qgt76HbY8wqQNZ6i85D9BrmRkyV2y2qoG8YQto';
+const AUCTION_SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup_WebMaster (ไฟล์เดียวกับ SHEET_ID)
 const mkUrlA=s=>`https://docs.google.com/spreadsheets/d/${AUCTION_SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(s)}`;
 
-/* แปลง gviz response -> array ของ object โดยใช้ชื่อคอลัมน์แถวหัว */
 function parseGviz(text){
   const s=text.indexOf('{'),e=text.lastIndexOf('}');
   const j=JSON.parse(text.slice(s,e+1));
   let cols=(j.table.cols||[]).map(c=>String(c.label||'').trim());
   let rows=j.table.rows||[];
-  // ถ้า gviz ไม่ยอมตีความแถวแรกเป็น header (เกิดกับคอลัมน์ที่มีข้อความปนตัวเลข)
-  // ให้ดึงแถวแรกมาเป็นชื่อคอลัมน์เอง
   if(cols.filter(Boolean).length===0 && rows.length){
     cols=(rows[0].c||[]).map(c=>c?String(c.v==null?'':c.v).trim():'');
     rows=rows.slice(1);
@@ -1042,7 +931,6 @@ function parseGviz(text){
   }).filter(o=>Object.values(o).some(v=>String(v).trim()!==''));
 }
 
-/* gviz คืนวันที่เป็น Date(2026,7,27) — normalize เป็น yyyy-MM-dd */
 function normDate(v){
   if(v==null||v==='')return '';
   const s=String(v).trim();
@@ -1056,9 +944,8 @@ function normDate(v){
 }
 const fmtShort=ds=>{const p=String(ds||'').split('-');return p.length===3?`${p[2]}/${p[1]}`:(ds||'—')};
 
-/* ---------- cache ---------- */
 let _aucLoaded=false,_aucLoadPromise=null;
-let _aucQueue=[],_aucResult=[],_aucHelpers=[],_aucRewardsRef=[],_glTrack=[],_orTrack=[];
+let _aucQueue=[],_aucHelpers=[],_aucRewardsRef=[],_warLog=[];
 
 async function loadAuctionData(){
   if(_aucLoaded)return;
@@ -1068,16 +955,13 @@ async function loadAuctionData(){
       try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
       catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
     };
-    const [q,res,hl,rw,gl,or]=await Promise.all([
-      get('Auction_Queue'),get('Auction_Result'),get('Helper_Log'),
-      get('Rewards_Ref'),get('GL_Rank_Track'),get('OR_Rank_Track')
+    const [q,hl,rw,wl]=await Promise.all([
+      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log')
     ]);
     _aucQueue=q.map(r=>({...r,queue_date:normDate(r.queue_date),drawn_date:normDate(r.drawn_date)}));
-    _aucResult=res.map(r=>({...r,auction_date:normDate(r.auction_date),gl_week:normDate(r.gl_week)}));
     _aucHelpers=hl.map(r=>({...r,week_start:normDate(r.week_start),auction_done_date:normDate(r.auction_done_date)}));
     _aucRewardsRef=rw;
-    _glTrack=gl.map(r=>({...r,gl_date:normDate(r.gl_date)}));
-    _orTrack=or.map(r=>({...r,or_date:normDate(r.or_date)}));
+    _warLog=wl.map(r=>({...r,date:normDate(r.date)})).filter(r=>r.date);
     _aucLoaded=true;_aucLoadPromise=null;
   })();
   return _aucLoadPromise;
@@ -1092,7 +976,6 @@ async function initAuctionPage(){
   renderWarHistory();
 }
 
-/* ═══════════ TAB 1 : GUILD AUCTION ═══════════ */
 function populateAucEventTypes(){
   const sel=document.getElementById('auc-event-type');
   if(!sel)return;
@@ -1106,8 +989,9 @@ function onAucEventType(){
   const sel=document.getElementById('auc-event-rank');
   const ranks=_aucRewardsRef.filter(r=>r.event_type===evt);
   sel.innerHTML=ranks.map(r=>{
-    const label=r.cross_server==='Y'?`${r.rank} (ข้ามเซิร์ฟ)`:`${r.rank} (ในเซิร์ฟ)`;
-    return `<option value="${r.rank}|${r.cross_server}">${label}</option>`;
+    const grp=r.group?`${r.group} · `:'';
+    const label=r.cross_server==='Y'?`${grp}${r.rank} (ข้ามเซิร์ฟ)`:`${grp}${r.rank} (ในเซิร์ฟ)`;
+    return `<option value="${r.rank}|${r.cross_server}|${r.group||''}">${label}</option>`;
   }).join('');
   onAucRank();
 }
@@ -1115,8 +999,8 @@ function onAucEventType(){
 function getCurrentReward(){
   const evt=document.getElementById('auc-event-type').value;
   const raw=document.getElementById('auc-event-rank').value||'';
-  const [rank,cross]=raw.split('|');
-  return _aucRewardsRef.find(r=>r.event_type===evt&&String(r.rank)===rank&&r.cross_server===cross)||null;
+  const [rank,cross,grp]=raw.split('|');
+  return _aucRewardsRef.find(r=>r.event_type===evt&&String(r.rank)===rank&&r.cross_server===cross&&(r.group||'')===(grp||''))||null;
 }
 
 function onAucRank(){
@@ -1127,7 +1011,6 @@ function onAucRank(){
   renderDistribution();
 }
 
-/* ---------- ตัวคูณ + ช่องแก้ตัวเลข (คำนวณอย่างเดียว ไม่บันทึกกลับชีท) ---------- */
 let _aucGlobalMul=1;
 let _aucFieldOverrides={};
 let _aucPerPersonOverrides={};
@@ -1171,7 +1054,8 @@ function renderRewardInputs(){
   const title=document.getElementById('auc-calc-title');
   if(!base){if(wrap)wrap.innerHTML='';if(title)title.textContent='Distribution result';return}
   const evLabel=/^\d+$/.test(String(base.rank))?'Rank '+base.rank:base.rank;
-  title.textContent=`Distribution result — ${base.event_type} — ${evLabel}`;
+  const grpLabel=base.group?` — ${base.group}`:'';
+  title.textContent=`Distribution result — ${base.event_type}${grpLabel} — ${evLabel}`;
 
   const mul=_aucGlobalMul;
   const fields=[
@@ -1214,7 +1098,6 @@ function renderRewardInputs(){
   }
 }
 
-/* ---------- ตารางแจกของ : Page/Box slot ---------- */
 const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
 const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
 const _grpByPage=(slots)=>{const m={};slots.forEach(s=>{if(!m[s.page])m[s.page]=[];m[s.page].push(s.box)});return Object.entries(m);};
@@ -1233,7 +1116,6 @@ function fmtSlots(start,count){
   }).join(', ');
 }
 
-/* คิวที่รอประมูล : เรียงตาม queue_date -> position (เหมือนเดิม) */
 function getPendingQueue(){
   return _aucQueue
     .filter(r=>String(r.status||'').toLowerCase()==='pending')
@@ -1301,7 +1183,6 @@ function renderDistribution(){
   }).join('');
 }
 
-/* ═══════════ TAB 2 : DESIGNATED (Helper_Log) ═══════════ */
 function populateDesignatedWeeks(){
   const sel=document.getElementById('da-week');
   if(!sel)return;
@@ -1334,7 +1215,6 @@ function statusBadge(s){
   return `<span style="color:var(--faint)">—</span>`;
 }
 
-/* ═══════════ TAB 3 : QUEUE (Auction_Queue) ═══════════ */
 function populateQueueRounds(){
   const sel=document.getElementById('qm-round');
   if(!sel)return;
@@ -1363,36 +1243,16 @@ function renderQueueManager(){
   </tr>`).join('');
 }
 
-/* ═══════════ TAB 4 : WAR HISTORY ═══════════ */
 function renderWarHistory(){
   const ft=document.getElementById('wh-filter-type').value;
 
-  // ผลแพ้ชนะรายวันจาก GL_Rank_Track -> map ตามวันที่
-  const glStatus={};
-  _glTrack.forEach(r=>{if(r.gl_date)glStatus[r.gl_date]=r.status||''});
-
-  // OR_Rank_Track เสริมอันดับที่อาจยังไม่ได้บันทึกใน Auction_Result
-  const orRank={};
-  _orTrack.forEach(r=>{if(r.or_date)orRank[r.or_date]=r.rank||''});
-
-  let rows=_aucResult.map(r=>({
-    date:r.auction_date,
+  let rows=_warLog.map(r=>({
+    date:r.date,
     type:r.event_type||'',
-    rank:r.rank||orRank[r.auction_date]||'',
-    status:r.event_type==='Guild League'?(glStatus[r.auction_date]||r.result||''):'',
+    rank:(r.event_type==='Overrun'&&r.group)?`${r.group} ${r.rank||''}`.trim():(r.rank||''),
+    status:r.status||'',
     card:+r.card||0, white:+r.feather_white||0, red:+r.feather_red_black||0
   }));
-
-  // แถวใน GL/OR_Rank_Track ที่ยังไม่มีใน Auction_Result
-  const seen=new Set(rows.map(r=>r.date+'|'+r.type));
-  _glTrack.forEach(r=>{
-    if(r.gl_date&&!seen.has(r.gl_date+'|Guild League'))
-      rows.push({date:r.gl_date,type:'Guild League',rank:r.rank_tier||'',status:r.status||'',card:0,white:0,red:0});
-  });
-  _orTrack.forEach(r=>{
-    if(r.or_date&&!seen.has(r.or_date+'|Overrun'))
-      rows.push({date:r.or_date,type:'Overrun',rank:r.rank||'',status:'',card:0,white:0,red:0});
-  });
 
   if(ft)rows=rows.filter(r=>r.type===ft);
   rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
@@ -1417,7 +1277,6 @@ function renderWarHistory(){
   }).join('');
 }
 
-/* ═══════════ TAB 5 : REWARDS PREVIEW ═══════════ */
 function renderRewardsPreview(){
   const thead=document.getElementById('rwprev-thead');
   const tbody=document.getElementById('rwprev-tbody');
@@ -1425,7 +1284,7 @@ function renderRewardsPreview(){
   thead.innerHTML='<th style="width:110px">Event</th><th style="width:80px">เซิร์ฟ</th><th>Rank / Tier</th><th style="width:64px">Card</th><th style="width:64px">ขาว</th><th style="width:78px">ดำ/แดง</th>';
   if(!_aucRewardsRef.length){tbody.innerHTML='<tr><td colspan="6" class="empty">ไม่พบข้อมูล</td></tr>';return}
   tbody.innerHTML=_aucRewardsRef.map(r=>`<tr>
-    <td style="font-size:12px">${r.event_type||''}</td>
+    <td style="font-size:12px">${r.event_type||''}${r.group?` (${r.group})`:''}</td>
     <td style="font-size:11px;color:var(--muted)">${r.cross_server==='Y'?'ข้ามเซิร์ฟ':'ในเซิร์ฟ'}</td>
     <td style="font-weight:600;font-size:12px">${r.rank||''}</td>
     <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${r.card||0}</td>
@@ -1434,7 +1293,6 @@ function renderRewardsPreview(){
   </tr>`).join('');
 }
 
-/* ═══════════ TAB SWITCH ═══════════ */
 function swAucTab(t){
   document.querySelectorAll('.au-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   ['calc','designated','manage','warhistory','rewards'].forEach(k=>{
@@ -1443,7 +1301,6 @@ function swAucTab(t){
   });
 }
 
-/* ═══════════ SEARCH : ประวัติการประมูลรายคน ═══════════ */
 async function preloadSearchCache(){
   if(_searchCacheLoaded)return;
   await loadAuctionData();
@@ -1461,27 +1318,18 @@ async function preloadSearchCache(){
 }
 
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
-const SLOT_MINS=15; // minutes per grid slot — 4 slots per hour
-const SLOT_H=24; // px per 15-min slot (96px/hour total)
-let _calTotalSlots=24; // computed dynamically per week from actual events (in 15-min units)
-let TIME_START=18; // computed dynamically per week from actual events
-const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21; // fallback when no timed events exist
-// All calendar events (including former "fixed" recurring ones like Guild League)
-// now live entirely in the Calendar_Events sheet, identified by their `recurrence`
-// field (once/daily/weekly/biweekly/monthly). Admins edit everything via Google Sheet
-// or the on-page edit modal — nothing is hardcoded here anymore.
-let _calWeekStart=''; // Monday of the week being viewed (week mode), or the Monday of
-                       // whichever week _calAnchorDate falls in (3-day mode, for data loading)
-let _calAnchorDate=''; // the centered/reference date — only meaningful in 3-day mode
-let _calLastMobileState=null; // tracks mobile/desktop mode to detect breakpoint crossings on resize
+const SLOT_MINS=15;
+const SLOT_H=24;
+let _calTotalSlots=24;
+let TIME_START=18;
+const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21;
+let _calWeekStart='';
+let _calAnchorDate='';
+let _calLastMobileState=null;
 let _calSpecialEvents=[];
-const CAL_MOBILE_BREAKPOINT=760; // px — matches the layout's existing mobile breakpoints
+const CAL_MOBILE_BREAKPOINT=760;
 function isCalMobileView(){return window.innerWidth<=CAL_MOBILE_BREAKPOINT}
 
-// Returns the array of date strings (YYYY-MM-DD) currently being displayed —
-// 7 days starting Monday in week mode, or 3 days (yesterday/today/tomorrow
-// relative to _calAnchorDate) in mobile 3-day mode. Both rendering and data
-// loading use this so they always agree on exactly which dates are in view.
 function getCalVisibleDates(){
   if(isCalMobileView()){
     const anchor=new Date(_calAnchorDate+'T00:00:00');
@@ -1492,9 +1340,6 @@ function getCalVisibleDates(){
     }
     return dates;
   }
-  // defensively re-normalize to the actual Monday of whatever week _calWeekStart
-  // falls in — guards against drift if it was ever set to a non-Monday date by
-  // any code path (e.g. stale state carried over from a mode switch).
   _calWeekStart=mondayOfDate(_calWeekStart);
   const mon=new Date(_calWeekStart+'T00:00:00');
   const dates=[];
@@ -1505,20 +1350,13 @@ function getCalVisibleDates(){
   return dates;
 }
 
-// Given a Monday-of-week date, returns it normalized to YYYY-MM-DD.
 function mondayOfDate(dateStr){
   const d=new Date(dateStr+'T00:00:00');
-  const dow=(d.getDay()+6)%7; // 0=Mon..6=Sun
+  const dow=(d.getDay()+6)%7;
   d.setDate(d.getDate()-dow);
   return toDateStr(d);
 }
 
-// Format a Date object as 'YYYY-MM-DD' using its LOCAL date components —
-// never use d.toISOString().slice(0,10) for this, because toISOString()
-// converts to UTC first. For a user in Thailand (UTC+7), any local time
-// before 07:00 falls on the *previous* UTC day, so toISOString() would
-// silently return yesterday's date — this was the cause of the calendar
-// starting on the wrong day for users opening the page in the early morning.
 function toDateStr(d){
   const y=d.getFullYear();
   const m=String(d.getMonth()+1).padStart(2,'0');
@@ -1526,24 +1364,19 @@ function toDateStr(d){
   return `${y}-${m}-${day}`;
 }
 
-// Convert a tag's hex color into the tinted background/border/text style used
-// by event blocks — mirrors the look of the old fixed .ev-war/.ev-personal/.ev-special
-// CSS classes, but works for any arbitrary color from the Calendar_Tags sheet.
 function hexToEventStyle(hex){
   const h=(hex||'#6B6661').replace('#','');
   return `background:#${h};color:#fff`;
 }
 
 function timeToTop(timeStr){
-  if(!timeStr||timeStr==='allday')return null; // allday handled separately
+  if(!timeStr||timeStr==='allday')return null;
   const [h,m]=(timeStr).split(':').map(Number);
   const offsetMins=(h*60+m)-(TIME_START*60);
   if(offsetMins<0)return null;
   return Math.round(offsetMins/SLOT_MINS*SLOT_H);
 }
 
-// Compute flexible time-axis range (TIME_START/_calTotalSlots) from the actual
-// timed events present this week — fits the grid exactly to the schedule.
 function computeTimeRange(){
   const allTimed=[];
   _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
@@ -1554,11 +1387,10 @@ function computeTimeRange(){
     const s=toMins(start),e=toMins(end);
     if(s<minStart)minStart=s;
     if(e>maxEnd)maxEnd=e;
-    if(s>maxEnd)maxEnd=s; // safety: end shouldn't be before start, but guard anyway
+    if(s>maxEnd)maxEnd=s;
   });
-  // round start down to the hour, end up to the next 15-min slot, add small padding
   let startH=Math.floor(minStart/60);
-  let endMins=Math.ceil(maxEnd/SLOT_MINS)*SLOT_MINS+30; // pad 30 min after the last event ends
+  let endMins=Math.ceil(maxEnd/SLOT_MINS)*SLOT_MINS+30;
   let endH=Math.ceil(endMins/60);
   if(endH<=startH)endH=startH+1;
   TIME_START=startH;
@@ -1574,7 +1406,7 @@ function getWeekMondayFromDate(d){
 
 async function initCalendarPage(){
   if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
-  if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date()); // always start on today, mobile or desktop
+  if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date());
   _calLastMobileState=isCalMobileView();
   buildTimeAxis();
   await loadCalendarWeek();
@@ -1583,13 +1415,10 @@ async function initCalendarPage(){
 function buildTimeAxis(){
   const axis=document.getElementById('cal-time-axis');
   while(axis.children.length>1)axis.removeChild(axis.lastChild);
-  // allday row
   const adRow=document.createElement('div');
   adRow.style.cssText='height:28px;display:flex;align-items:center;padding:0 3px;border-bottom:0.5px solid rgba(var(--tint-rgb),0.1);font-size:8px;color:rgba(90,95,101,0.5)';
   adRow.textContent='ทั้งวัน';
   axis.appendChild(adRow);
-  // time slots, 15-min granularity — show the hour label only on the slot
-  // that lands exactly on the hour (every 4th slot), not on every quarter-hour
   const slotsPerHour=60/SLOT_MINS;
   for(let i=0;i<_calTotalSlots;i++){
     const div=document.createElement('div');
@@ -1602,13 +1431,11 @@ function buildTimeAxis(){
   }
 }
 
-// ── Calendar cache ──
-const _calCache={}; // key: weekStart → {events: rows[], ts: timestamp}
-const _calHelperCache={}; // key: helperWeekStart → rows[]
-const CAL_CACHE_TTL=0; // no auto-expiry — manual refresh only
+const _calCache={};
+const _calHelperCache={};
+const CAL_CACHE_TTL=0;
 
 async function calRefresh(){
-  // clear all cache and reload current week
   Object.keys(_calCache).forEach(k=>delete _calCache[k]);
   Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
   const btn=document.getElementById('cal-refresh-btn');
@@ -1617,7 +1444,6 @@ async function calRefresh(){
   if(btn){btn.textContent='🔄';btn.disabled=false}
 }
 
-/* ---------- Events : อ่านจาก Master ผ่าน gviz แล้ว expand เอง ---------- */
 let _calEventsRaw=[],_calEventsLoaded=false,_calEventsPromise=null;
 const TAG_COLOR={GUILDWAR:'#B23410',AUCTION:'#7A5010',HELPER:'#2A7A48',PERSONAL:'#5A6B8C',SPECIAL:'#9A2020'};
 function colorForTag(tag){return TAG_COLOR[String(tag||'').trim().toUpperCase()]||'#6A5756'}
@@ -1633,7 +1459,6 @@ async function loadCalEvents(){
   return _calEventsPromise;
 }
 
-/* gviz คืนเวลาเป็น Date(1899,11,30,19,50,0) หรือ 'allday' — ดึงเป็น HH:mm */
 function normTime(v){
   if(v==null||v==='')return '';
   const s=String(v).trim();
@@ -1645,7 +1470,6 @@ function normTime(v){
   return s;
 }
 
-/* 1 แถวใน Events อาจมี day_of_week = "2,4" -> แตกเป็นหลาย event ของสัปดาห์นั้น */
 function expandEventsForWeek(weekStart){
   const out=[];
   const monday=new Date(weekStart+'T00:00:00');
@@ -1656,7 +1480,7 @@ function expandEventsForWeek(weekStart){
     days.forEach(dow=>{
       const d=new Date(monday); d.setDate(monday.getDate()+(dow-1));
       const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      if(anchor&&dateStr<anchor)return;   // ยังไม่ถึงวันเริ่มกิจกรรม
+      if(anchor&&dateStr<anchor)return;
       out.push({
         event_id:ev.event_id||'',
         day_of_week:dow,
@@ -1676,11 +1500,9 @@ async function loadCalendarWeek(){
   const helperWeekStart=mondayOfDate(visibleDates[0]);
   const weeksNeeded=Array.from(new Set(visibleDates.map(mondayOfDate)));
 
-  // figure out which weeks need fetching vs can be served from cache
   const weeksMissing=weeksNeeded.filter(ws=>!_calCache[ws]);
   const helperMissing=!_calHelperCache[helperWeekStart];
 
-  // โหลดจาก gviz : Events อยู่ใน Master · Helper_Log อยู่ใน Warmup_Auction
   await Promise.all([
     loadCalEvents(),
     helperMissing?loadAuctionData():Promise.resolve()
@@ -1688,7 +1510,6 @@ async function loadCalendarWeek(){
   if(helperMissing) _calHelperCache[helperWeekStart]=_aucHelpers.filter(r=>r.week_start===helperWeekStart);
   weeksMissing.forEach(ws=>{ _calCache[ws]=expandEventsForWeek(ws) });
 
-  // render from cache
   renderHelperStrip(_calHelperCache[helperWeekStart]||[]);
   const merged=[];
   const seen=new Set();
@@ -1713,7 +1534,6 @@ async function loadCalendarWeek(){
 }
 
 function classToTier(className){
-  // map a class name string → support/ar/dps
   if(!className)return 'unknown';
   const t=getType(className);
   if(t==='Support')return 'support';
@@ -1722,7 +1542,6 @@ function classToTier(className){
 }
 
 function getHelperClass(name,sheetClass){
-  // prefer class from sheet (Helper_Log), fallback to members lookup by name
   if(sheetClass) return classToTier(sheetClass);
   const norm=s=>String(s||'').trim().toLowerCase();
   const target=norm(name);
@@ -1741,14 +1560,10 @@ function renderHelperStrip(rows){
   }).join('');
 }
 
-// Build the legend dynamically from whichever tags are actually present in
-// the currently-loaded week's events — no more hardcoded "Guild War/Personal/
-// Special" list. Each tag's color comes from the server (already resolved via
-// GAS colorForTag), so the dot here always matches what's drawn on the grid.
 function renderCalLegend(){
   const el=document.getElementById('cal-legend');
   if(!el)return;
-  const seen=new Map(); // tag(lowercase) -> {label, color} — preserves first-seen order
+  const seen=new Map();
   _calSpecialEvents.forEach(e=>{
     const tag=(e.tag||'').trim();
     if(!tag)return;
@@ -1774,7 +1589,7 @@ function renderCalGrid(){
   const gridH=_calTotalSlots*SLOT_H;
   visibleDates.forEach(dateStr=>{
     const dt=new Date(dateStr+'T00:00:00');
-    const dayIdx=(dt.getDay()+6)%7; // 0=Mon..6=Sun — used only to pick the Thai day-name label
+    const dayIdx=(dt.getDay()+6)%7;
     const isToday=dateStr===todayStr;
     const dayEvts=_calSpecialEvents.filter(e=>e.date===dateStr);
     const allEvts=dayEvts;
@@ -1782,12 +1597,10 @@ function renderCalGrid(){
     const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
     const col=document.createElement('div');
     col.className='cal-dcol'+(isToday?' today-day':'');
-    // header
     col.innerHTML=`<div class="cal-dhead">
       <div class="cal-dname">${CAL_DAYS_SHORT[dayIdx]}</div>
       <div class="cal-dnum">${dt.getDate()}</div>
     </div>`;
-    // allday strip
     const adStrip=document.createElement('div');
     adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(var(--tint-rgb),0.1);display:flex;flex-direction:column;gap:2px;background:rgba(var(--tint-rgb),0.04)';
     alldayEvts.forEach(e=>{
@@ -1798,12 +1611,9 @@ function renderCalGrid(){
       adStrip.appendChild(pill);
     });
     col.appendChild(adStrip);
-    // timed grid
     const grid=document.createElement('div');
     grid.className='cal-dgrid';
     grid.style.height=gridH+'px';
-    // alternating hour-band backgrounds — every other hour gets a faint tint
-    // so the eye can scan rows without needing to trace thin grid lines
     const slotsPerHourLine=60/SLOT_MINS;
     const totalHours=Math.ceil(_calTotalSlots/slotsPerHourLine);
     for(let hr=0;hr<totalHours;hr++){
@@ -1814,25 +1624,18 @@ function renderCalGrid(){
       band.style.height=(Math.min(slotsPerHourLine,_calTotalSlots-hr*slotsPerHourLine)*SLOT_H)+'px';
       grid.appendChild(band);
     }
-    // grid lines — bold "hour" line every 4th slot (60min / 15min = 4)
     for(let s=0;s<_calTotalSlots;s++){
       const line=document.createElement('div');
       line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');
       line.style.top=(s*SLOT_H)+'px';
       grid.appendChild(line);
     }
-    // timed events — two-pass overlap layout:
-    //  pass 1: compute each event's top/height/column index
-    //  pass 2: for each event, find the actual final size of its overlap group
-    //          (every event whose time range intersects it, not just ones placed
-    //          earlier in iteration order — fixes the first event in a clash
-    //          never finding out a later one will overlap it)
     const placed=[];
     timedEvts.forEach(e=>{
       const top=timeToTop(e.time);
       if(top===null)return;
       const endTime=e.end&&e.end!=='allday'?e.end:(e.end_time&&e.end_time!=='allday'?e.end_time:null);
-      let h=SLOT_H; // fallback: 1 slot tall if no end time set
+      let h=SLOT_H;
       if(endTime){
         const [sh,sm]=e.time.split(':').map(Number);
         const [eh,em]=endTime.split(':').map(Number);
@@ -1845,8 +1648,6 @@ function renderCalGrid(){
     });
     placed.forEach(item=>{
       const {top,h,col:col_idx,e,endTime}=item;
-      // true overlap-group size: count every placed item (regardless of order)
-      // whose time range intersects this one's
       const totalCols=Math.max(1,placed.filter(p=>top<p.top+p.h&&top+h>p.top).length);
       const colWidth=totalCols>1?`calc(${100/totalCols}% - 8px)`:'calc(100% - 8px)';
       const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 4px)`:'4px';
@@ -1855,10 +1656,6 @@ function renderCalGrid(){
       block.style.cssText=`top:${top}px;height:calc(${h}px - 2px);left:${leftPct};width:${colWidth};background:var(--card);border:1px solid ${e.color?e.color+'55':'var(--border)'}`;
       const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
       block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
-      // when columns are narrow (overlapping events), put the time on its own
-      // line so each piece can truncate independently with ellipsis instead of
-      // one long "Title (HH:MM - HH:MM)" string getting cut off mid-word
-      // V3 Style E: dot + body(title+time)
       const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.background=e.color||'var(--muted)';
       const body=document.createElement('div');body.className='cal-evt-body';
       const titleEl=document.createElement('span');titleEl.className='cal-evt-title';titleEl.textContent=e.title;
@@ -1870,13 +1667,8 @@ function renderCalGrid(){
     col.appendChild(grid);
     cols.appendChild(col);
   });
-  // no need to scroll — 18:00 is already the start
 }
 
-// Re-render the calendar if the viewport crosses the mobile breakpoint while
-// the user is on the Calendar page (e.g. rotating a phone, resizing a window) —
-// debounced so rapid resize events don't spam reloads, and only acts when the
-// 7-day/3-day mode actually needs to change.
 let _calResizeTimer=null;
 window.addEventListener('resize',()=>{
   if(_currentPage!=='calendar')return;
@@ -1908,7 +1700,6 @@ function calGoToday(){
   loadCalendarWeek();
 }
 
-
 let _zoomLevel=100;
 const ZOOM_MIN=60,ZOOM_MAX=150;
 function onZoomSlider(v){
@@ -1929,7 +1720,6 @@ function resetZoom(){onZoomSlider(100)}
 
 loadData();
 </script>
-
 
 </body>
 </html>
