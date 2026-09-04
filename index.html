@@ -946,6 +946,7 @@ const fmtShort=ds=>{const p=String(ds||'').split('-');return p.length===3?`${p[2
 
 let _aucLoaded=false,_aucLoadPromise=null;
 let _aucQueue=[],_aucHelpers=[],_aucRewardsRef=[],_warLog=[];
+let _aucQueueArchive=[],_aucArchiveLoaded=false,_aucArchiveLoadPromise=null;
 
 async function loadAuctionData(){
   if(_aucLoaded)return;
@@ -965,6 +966,26 @@ async function loadAuctionData(){
     _aucLoaded=true;_aucLoadPromise=null;
   })();
   return _aucLoadPromise;
+}
+
+/** โหลด Queue_Archive แบบ lazy — เรียกเฉพาะตอนเปิดแท็บ Queue เท่านั้น
+ *  ไม่โหลดพ่วงตอนเปิดหน้า Auction ปกติ เพราะแท็บนี้มีข้อมูลเยอะที่สุด */
+async function loadQueueArchive(){
+  if(_aucArchiveLoaded)return;
+  if(_aucArchiveLoadPromise)return _aucArchiveLoadPromise;
+  _aucArchiveLoadPromise=(async()=>{
+    try{
+      const rows=parseGviz(await fetch(mkUrlA('Queue_Archive')).then(r=>r.text()));
+      _aucQueueArchive=rows.map(r=>({...r,queue_date:normDate(r.queue_date),drawn_date:normDate(r.drawn_date)}));
+    }catch(e){console.warn('โหลด Queue_Archive ไม่สำเร็จ',e);_aucQueueArchive=[]}
+    _aucArchiveLoaded=true;_aucArchiveLoadPromise=null;
+  })();
+  return _aucArchiveLoadPromise;
+}
+
+/** รวมคิวปัจจุบัน + ประวัติ (ถ้าโหลดแล้ว) — ใช้เฉพาะแท็บ Queue */
+function allQueueRows_(){
+  return _aucArchiveLoaded ? _aucQueue.concat(_aucQueueArchive) : _aucQueue;
 }
 
 async function initAuctionPage(){
@@ -1226,15 +1247,18 @@ function statusBadge(s){
 function populateQueueRounds(){
   const sel=document.getElementById('qm-round');
   if(!sel)return;
-  const dates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort().reverse();
+  const prev=sel.value;
+  const dates=[...new Set(allQueueRows_().map(r=>r.queue_date).filter(Boolean))].sort().reverse();
   sel.innerHTML=dates.length?dates.map(d=>`<option value="${d}">${d}</option>`).join(''):'<option value="">ยังไม่มีคิว</option>';
+  /* คงวันที่เดิมไว้ถ้ายังมีอยู่ในลิสต์ใหม่ (กันกระโดดกลับไปรอบล่าสุดตอนโหลดประวัติเสร็จ) */
+  if(prev && dates.includes(prev)) sel.value=prev;
   renderQueueManager();
 }
 
 function renderQueueManager(){
   const round=document.getElementById('qm-round').value;
   const fs=document.getElementById('qm-filter-status').value;
-  let rows=_aucQueue.filter(r=>r.queue_date===round);
+  let rows=allQueueRows_().filter(r=>r.queue_date===round);
   const total=rows.length;
   const pending=rows.filter(r=>String(r.status).toLowerCase()==='pending').length;
   if(fs)rows=rows.filter(r=>String(r.status).toLowerCase()===fs);
@@ -1307,6 +1331,11 @@ function swAucTab(t){
     const el=document.getElementById('auc-'+k);
     if(el)el.style.display=(k===t)?'':'none';
   });
+  if(t==='manage' && !_aucArchiveLoaded){
+    const cnt=document.getElementById('qm-count');
+    if(cnt)cnt.textContent='กำลังโหลดประวัติ...';
+    loadQueueArchive().then(populateQueueRounds);
+  }
 }
 
 async function preloadSearchCache(){
