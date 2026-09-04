@@ -645,7 +645,7 @@ function sw(t){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
-  if(t==='search')preloadSearchCache();
+  /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
   if(t==='calendar')initCalendarPage();
 }
@@ -841,12 +841,19 @@ async function searchMain(){
         <div class="party-v3-div"></div>
         <div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div>
       </div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
+    const remain=remainingQueueRank_(qRow);
+    const remainHtml=remain
+      ? (remain.rank===1
+          ? '<div class="srch-q-total" style="color:var(--green);font-weight:700">🔥 คิวถัดไปคือคุณ!</div>'
+          : `<div class="srch-q-total">อีก ${remain.rank-1} คนก่อนถึงคิวคุณ  ·  (เหลือทั้งหมด ${remain.total} คิว)</div>`)
+      : '';
     const queueHtml=qRow?`
       <div class="srch-queue">
         <div class="srch-q-pos">${String(qRow.position).padStart(2,'0')}</div>
         <div class="srch-q-info">
           <div class="srch-q-date">Queue date: ${_searchLatestDate}</div>
           <div class="srch-q-total">Position ${qRow.position} of ${_searchQueueRows.length}</div>
+          ${remainHtml}
         </div>
         <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'}">${qRow.status==='done'?'✓ Drawn':'⏳ Pending'}</span>
       </div>`
@@ -876,31 +883,21 @@ async function searchMain(){
     </div>`;
   };
 
-  el.innerHTML=found.map(m=>{
-    const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
-    return renderCard(m,qRow,_searchCacheLoaded?(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null);
-  }).join('');
+  const keyOf=m=>String(m.char_id||'').trim()||String(m.ign||'').trim();
+  const draw=()=>{
+    el.innerHTML=found.map(m=>{
+      const k=keyOf(m);
+      const qRow=_searchQueueRows.find(r=>(String(r.character_id||'').trim()||String(r.member_name||'').trim())===k);
+      const hist=_searchCacheLoaded?(_searchHistMap[k]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null;
+      return renderCard(m,qRow,hist);
+    }).join('');
+  };
+
+  draw();   // แสดงผลทันทีด้วยข้อมูลที่มี (ประวัติจะขึ้น "Loading..." ถ้ายังไม่เคยโหลด)
 
   if(!_searchCacheLoaded){
-    await preloadSearchCache();
-    found.forEach(m=>{
-      const histEl=document.getElementById('hist-'+m.ign.replace(/[^a-zA-Z0-9]/g,'_'));
-      if(!histEl)return;
-      const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
-      const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
-      histEl.innerHTML=`<div class="srch-sec-lbl">Auction History</div>`+renderCard(m,qRow,hist).match(/id="hist-[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*$/)?.[1]||'';
-      const fullCard=renderCard(m,qRow,hist);
-      const tmpDiv=document.createElement('div');tmpDiv.innerHTML=fullCard;
-      const newHistSection=tmpDiv.querySelector('[id^="hist-"]');
-      if(newHistSection)histEl.replaceWith(newHistSection);
-    });
-    found.forEach(m=>{
-      const card=el.querySelector('.srch-card');
-      if(card){
-        const qRow=_searchQueueRows.find(r=>r.member_name===m.ign);
-        const hist=(_searchHistMap[m.ign]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date));
-      }
-    });
+    await preloadSearchCache();   // โหลดคิวปัจจุบัน + ประวัติทั้งหมดจาก Queue_Archive
+    draw();                       // วาดใหม่ทั้งการ์ด ให้ทั้งอันดับคิวและประวัติเป็นข้อมูลสดพร้อมกัน
   }
 }
 
@@ -1341,17 +1338,37 @@ function swAucTab(t){
 async function preloadSearchCache(){
   if(_searchCacheLoaded)return;
   await loadAuctionData();
+  await loadQueueArchive();          // ประวัติทั้งหมด — โหลดครั้งแรกตอนค้นหาจริงเท่านั้น (ไม่ใช่ตอนเปิดแท็บ)
+
   _searchHistMap={};
-  _aucQueue.forEach(r=>{
-    const key=r.member_name;
+  allQueueRows_().forEach(r=>{
+    /* จับคู่ด้วย character_id เป็นหลัก — เสถียรแม้เปลี่ยนชื่อตัวละคร
+       ถ้าแถวนั้นไม่มี id (เช่นคนที่ออกกิลด์ไปแล้ว หา alias ไม่เจอ) ค่อย fallback ไปใช้ชื่อ */
+    const id  = String(r.character_id||'').trim();
+    const key = id || String(r.member_name||'').trim();
     if(!key)return;
     if(!_searchHistMap[key])_searchHistMap[key]=[];
     _searchHistMap[key].push(r);
   });
+
+  /* คิวปัจจุบัน (รอบล่าสุด) — ใช้ _aucQueue อย่างเดียว ไม่ปนกับประวัติเก่า */
   const allDates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort().reverse();
   _searchLatestDate=allDates.length?allDates[0]:'';
   _searchQueueRows=_searchLatestDate?_aucQueue.filter(r=>r.queue_date===_searchLatestDate):[];
   _searchCacheLoaded=true;
+}
+
+/** อันดับในคิวที่ "เหลือ" ของรอบปัจจุบัน — นับเฉพาะคนที่ยัง pending อยู่
+ *  ไม่รวมคนที่ถูก skip (เช่นออกกิลด์แล้ว) เพราะไม่มีทางถูกเรียกจริง
+ *  คืนค่า null ถ้าตัวเองไม่ได้ pending (ประมูลไปแล้ว/ถูก skip/ไม่มีคิว) */
+function remainingQueueRank_(qRow){
+  if(!qRow || String(qRow.status).toLowerCase()!=='pending') return null;
+  const pending=_searchQueueRows
+    .filter(r=>String(r.status).toLowerCase()==='pending')
+    .sort((a,b)=>(+a.position||0)-(+b.position||0));
+  const idx=pending.findIndex(r=>+r.position===+qRow.position);   // position ไม่ซ้ำกันในรอบเดียว พอใช้ระบุแถวได้แม่นกว่าชื่อ
+  if(idx===-1) return null;
+  return { rank: idx+1, total: pending.length };
 }
 
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
