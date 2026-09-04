@@ -1043,10 +1043,15 @@ function getRewardValues(){
     card:  ov.card!=null              ? ov.card              : Math.round((+base.card||0)*m),
     white: ov.feather_white!=null     ? ov.feather_white     : Math.round((+base.feather_white||0)*m),
     red:   ov.feather_red_black!=null ? ov.feather_red_black : Math.round((+base.feather_red_black||0)*m),
+    limWhite: +base.lim_light_dark || 0,
+    limRed:   +base.lim_time_space || 0,
     event_name:base.event_type,
     rank:base.rank
   };
 }
+
+/** จำกัดค่าไม่ให้เกินเพดาน — เพดาน 0 หรือไม่มีข้อมูล = ไม่จำกัด */
+function capPerPerson_(v, lim){ return lim > 0 ? Math.min(v, lim) : v; }
 
 function renderRewardInputs(){
   const base=getCurrentReward();
@@ -1079,20 +1084,23 @@ function renderRewardInputs(){
     const rw=getRewardValues();
     if(rw){
       const n=rw.card||1;
-      const autoW=Math.floor(rw.white/n), autoR=Math.floor(rw.red/n);
+      const rawAutoW=Math.floor(rw.white/n), rawAutoR=Math.floor(rw.red/n);
+      const autoW=capPerPerson_(rawAutoW,rw.limWhite), autoR=capPerPerson_(rawAutoR,rw.limRed);
       const hasW=_aucPerPersonOverrides.white!=null, hasR=_aucPerPersonOverrides.red!=null;
-      const ppW=hasW?_aucPerPersonOverrides.white:autoW;
-      const ppR=hasR?_aucPerPersonOverrides.red:autoR;
+      const ppW=capPerPerson_(hasW?_aucPerPersonOverrides.white:autoW, rw.limWhite);
+      const ppR=capPerPerson_(hasR?_aucPerPersonOverrides.red:autoR, rw.limRed);
+      const capNoteW=rw.limWhite>0?` · เพดาน ${rw.limWhite}/คน${rawAutoW>rw.limWhite?' (หารได้ '+rawAutoW+' ตัดเหลือเพดาน)':''}`:'';
+      const capNoteR=rw.limRed>0?` · เพดาน ${rw.limRed}/คน${rawAutoR>rw.limRed?' (หารได้ '+rawAutoR+' ตัดเหลือเพดาน)':''}`:'';
       ppWrap.innerHTML=`
         <div style="flex:1;min-width:130px;background:var(--card2);border:0.5px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ขาว / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
           <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--blue)">
-          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.white}÷${n}⌋=${autoW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.white}÷${n}⌋=${rawAutoW}${capNoteW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
         </div>
         <div style="flex:1;min-width:130px;background:var(--card2);border:0.5px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ดำ/แดง / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
           <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
-          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.red}÷${n}⌋=${autoR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
+          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.red}÷${n}⌋=${rawAutoR}${capNoteR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
         </div>`;
     }else{ppWrap.innerHTML=''}
   }
@@ -1130,8 +1138,8 @@ function computeDistribution(){
   if(!n)return null;
   const names=pend.slice(0,n).map(r=>r.member_name);
   const white=rw.white,red=rw.red;
-  const pW=_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n);
-  const pR=_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n);
+  const pW=capPerPerson_(_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n), rw.limWhite);
+  const pR=capPerPerson_(_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n), rw.limRed);
   const wRem=white-n*pW, rRem=red-n*pR;
   let wPos=1,rPos=white+1;
   const rows=names.map((name,i)=>{
