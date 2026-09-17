@@ -1515,6 +1515,8 @@ const _calHelperCache={};
 const CAL_CACHE_TTL=0;
 
 async function calRefresh(){
+  _bust=String(Date.now());
+  _calEventsLoaded=false;
   Object.keys(_calCache).forEach(k=>delete _calCache[k]);
   Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
   const btn=document.getElementById('cal-refresh-btn');
