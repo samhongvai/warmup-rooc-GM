@@ -1818,6 +1818,7 @@ async function forceRefresh(){
     await loadData();
     if(_currentPage==='auction')await initAuctionPage();
     else if(_currentPage==='calendar')await initCalendarPage();
+    if(_currentPage==='search'&&(document.getElementById('si-main')||{}).value)searchMain();
     else if(_currentPage==='party')renderParty();
   }catch(e){
     console.warn('ดึงข้อมูลใหม่ไม่สำเร็จ',e);
