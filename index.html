@@ -398,7 +398,7 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
   <div class="nav-spacer"></div>
-  <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
+  <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span><button id="refresh-btn" onclick="forceRefresh()" title="ดึงข้อมูลล่าสุดจากชีท" style="margin-left:auto;background:transparent;border:none;cursor:pointer;font-size:13px;line-height:1;padding:2px 4px">🔄</button></div>
 </nav>
 <main class="main" id="main-wrap">
 
@@ -593,7 +593,12 @@ input[type=checkbox]{accent-color:var(--orange)}
    Warmup_Members + Warmup_Auction ปัจจุบัน
    ═══════════════════════════════════════════════════════════ */
 const SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup_WebMaster
-const mkUrl=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(s)}`;
+/* ปุ่มดึงข้อมูลล่าสุดจะตั้ง _bust เป็นเวลาปัจจุบัน ทำให้ URL ไม่ซ้ำเดิม
+   เบราว์เซอร์กับ CDN ของ Google จึงไม่คืนของเก่าที่แคชไว้ */
+let _bust='';
+const bust=u=>_bust?u+'&nocache='+_bust:u;
+const mkUrl=s=>bust(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(s)}`);
+/* ค่าเริ่มต้นของเพดานรางวัล — ถ้าอ่านแท็บ Config จากชีทได้ จะถูกทับด้วยค่าจากชีท */
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Biochemist':'All Rounder','Summoner':'All Rounder','Lord Knight':'All Rounder','Paladin':'All Rounder','Mastersmith':'All Rounder','Professor':'Attack (DPS)','High Wizard':'Attack (DPS)','Sniper':'Attack (DPS)','Stalker':'Attack (DPS)','Rebellion':'Attack (DPS)','Champion':'Attack (DPS)','Assassin Cross':'Attack (DPS)'};
 
@@ -908,24 +913,35 @@ async function searchMain(){
    War_Log แทนที่ Auction_Result / GL_Rank_Track / OR_Rank_Track เดิม
    ═══════════════════════════════════════════════════════════ */
 const AUCTION_SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup_WebMaster (ไฟล์เดียวกับ SHEET_ID)
-const mkUrlA=s=>`https://docs.google.com/spreadsheets/d/${AUCTION_SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(s)}`;
+/* ดึงเป็น CSV ไม่ใช่ JSON — gviz JSON เดาชนิดคอลัมน์จากค่าแรกที่ไม่ว่าง
+   คอลัมน์ที่ปนข้อความกับตัวเลข (เช่น rank ใน Rewards_Ref) จะถูกทิ้งเป็น null เงียบๆ */
+const mkUrlA=s=>bust(`https://docs.google.com/spreadsheets/d/${AUCTION_SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(s)}`);
+
+/* แกะ CSV เอง เพราะ field อาจมี comma อยู่ในเครื่องหมายคำพูด เช่น "3,000" ที่มีจริงใน GL_Log */
+function parseCsvRows(text){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){
+      if(ch==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; }
+      else f+=ch;
+    }
+    else if(ch==='"')q=true;
+    else if(ch===','){row.push(f);f='';}
+    else if(ch==='\n'){row.push(f);f='';rows.push(row);row=[];}
+    else if(ch!=='\r')f+=ch;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
 
 function parseGviz(text){
-  const s=text.indexOf('{'),e=text.lastIndexOf('}');
-  const j=JSON.parse(text.slice(s,e+1));
-  let cols=(j.table.cols||[]).map(c=>String(c.label||'').trim());
-  let rows=j.table.rows||[];
-  if(cols.filter(Boolean).length===0 && rows.length){
-    cols=(rows[0].c||[]).map(c=>c?String(c.v==null?'':c.v).trim():'');
-    rows=rows.slice(1);
-  }
-  return rows.map(r=>{
+  const rows=parseCsvRows(text);
+  if(!rows.length)return [];
+  const cols=rows[0].map(c=>String(c||'').trim());
+  return rows.slice(1).map(r=>{
     const o={};
-    (r.c||[]).forEach((cell,i)=>{
-      const key=cols[i]; if(!key)return;
-      o[key]=cell? (cell.f!=null?cell.f:cell.v) : '';
-      if(o[key]==null)o[key]='';
-    });
+    r.forEach((cell,i)=>{ const key=cols[i]; if(!key)return; o[key]=cell==null?'':cell; });
     return o;
   }).filter(o=>Object.values(o).some(v=>String(v).trim()!==''));
 }
@@ -955,9 +971,16 @@ async function loadAuctionData(){
       try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
       catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
     };
-    const [q,hl,rw,wl]=await Promise.all([
-      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log')
+    const [q,hl,rw,wl,cf]=await Promise.all([
+      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log'),get('Config')
     ]);
+
+    /* เพดานรางวัลอ่านจากแท็บ Config ในชีท ถ้าอ่านไม่ได้ใช้ค่าเริ่มต้นเดิม */
+    cf.forEach(r=>{
+      const k=String(r.setting||'').trim();
+      const n=Number(String(r.value||'').replace(/,/g,''));
+      if(Object.prototype.hasOwnProperty.call(CFG,k)&&isFinite(n)&&n>0)CFG[k]=n;
+    });
     _aucQueue=q.map(r=>({...r,queue_date:normDate(r.queue_date),drawn_date:normDate(r.drawn_date)}));
     _aucHelpers=hl.map(r=>({...r,week_start:normDate(r.week_start),auction_status:r.status,auction_done_date:normDate(r.done_date)}));
     _aucRewardsRef=rw;
@@ -1508,7 +1531,7 @@ async function loadCalEvents(){
   if(_calEventsLoaded)return;
   if(_calEventsPromise)return _calEventsPromise;
   _calEventsPromise=(async()=>{
-    try{ _calEventsRaw=parseGviz(await fetch(mkUrl('Events')).then(r=>r.text())) }
+    try{ _calEventsRaw=parseGviz(await fetch(mkUrlA('Events')).then(r=>r.text())) }
     catch(e){ console.warn('โหลด Events ไม่สำเร็จ',e); _calEventsRaw=[] }
     _calEventsLoaded=true;_calEventsPromise=null;
   })();
@@ -1773,6 +1796,34 @@ function onZoomSlider(v){
 function stepZoom(d){onZoomSlider(_zoomLevel+d)}
 function resetZoom(){onZoomSlider(100)}
 (function(){const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)})();
+
+/* ═══ ปุ่มดึงข้อมูลล่าสุด ═══
+   ล้างแคชในหน้าทั้งหมด ตั้ง nocache แล้วโหลดใหม่ตั้งแต่ต้น
+   จบแล้ววาดหน้าที่กำลังเปิดอยู่ซ้ำ */
+async function forceRefresh(){
+  const btn=document.getElementById('refresh-btn');
+  if(btn){btn.textContent='⏳';btn.disabled=true}
+  _bust=String(Date.now());
+
+  _aucLoaded=false;_aucLoadPromise=null;
+  _aucQueue=[];_aucHelpers=[];_aucRewardsRef=[];_warLog=[];
+  _aucQueueArchive=[];_aucArchiveLoaded=false;_aucArchiveLoadPromise=null;
+  _aucQueueRows=[];
+  _searchHistMap={};_searchQueueRows=[];_searchLatestDate='';_searchCacheLoaded=false;
+  _calEventsRaw=[];_calEventsLoaded=false;_calEventsPromise=null;
+  Object.keys(_calCache).forEach(k=>delete _calCache[k]);
+  Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
+
+  try{
+    await loadData();
+    if(_currentPage==='auction')await initAuctionPage();
+    else if(_currentPage==='calendar')await initCalendarPage();
+    else if(_currentPage==='party')renderParty();
+  }catch(e){
+    console.warn('ดึงข้อมูลใหม่ไม่สำเร็จ',e);
+  }
+  if(btn){btn.textContent='🔄';btn.disabled=false}
+}
 
 loadData();
 </script>
