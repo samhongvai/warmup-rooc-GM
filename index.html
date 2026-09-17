@@ -959,7 +959,7 @@ async function loadAuctionData(){
       get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log')
     ]);
     _aucQueue=q.map(r=>({...r,queue_date:normDate(r.queue_date),drawn_date:normDate(r.drawn_date)}));
-    _aucHelpers=hl.map(r=>({...r,week_start:normDate(r.week_start),auction_done_date:normDate(r.auction_done_date)}));
+    _aucHelpers=hl.map(r=>({...r,week_start:normDate(r.week_start),auction_status:r.status,auction_done_date:normDate(r.done_date)}));
     _aucRewardsRef=rw;
     _warLog=wl.map(r=>({...r,date:normDate(r.date)})).filter(r=>r.date);
     _aucLoaded=true;_aucLoadPromise=null;
