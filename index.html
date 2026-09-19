@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th" data-theme="dark">
 <head>
+<!-- Warmup build 2026-09-19 17:08 UTC -->
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Warmup Guild Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400..700&family=Noto+Sans+Thai:wght@400..800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -13,7 +16,7 @@
   --card:#F5F2EC;--card2:#E6E0D6;
   --orange:#B23410;--orange-l:#8A2A0D;--orange-dim:rgba(178,52,16,.1);--orange-border:rgba(178,52,16,.28);
   --tint-rgb:160,140,118;
-  --border:rgba(160,140,118,.22);--border2:rgba(160,140,118,.35);
+  --border:rgba(120,135,150,.22);--border2:rgba(120,135,150,.35);
   --text:#2A2420;--muted:#7A6E64;--faint:#A89E94;
   --green:#2A7A48;--green-dim:rgba(42,122,72,.1);--green-b:rgba(42,122,72,.28);
   --red:#9A2020;--red-dim:rgba(154,32,32,.1);--red-b:rgba(154,32,32,.26);
@@ -22,8 +25,8 @@
   --font:'Inter','Segoe UI',system-ui,sans-serif;
   --font-pixel:'JetBrains Mono',monospace;
   --radius-lg:14px;--radius-md:10px;--radius-sm:8px;
-  --shadow-out:3px 3px 10px rgba(160,140,118,.2),-1px -1px 6px rgba(255,252,248,.8);
-  --shadow-out-sm:2px 2px 7px rgba(160,140,118,.16),-1px -1px 4px rgba(255,252,248,.7);
+  --shadow-out:0 2px 10px rgba(0,0,0,.28);
+  --shadow-out-sm:0 1px 5px rgba(0,0,0,.2);
   }
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
 .app{display:flex;min-height:100vh}
@@ -45,7 +48,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .logo-text h1{font-family:var(--font-pixel);font-size:16px;font-weight:800;color:var(--text);letter-spacing:1px}
 .logo-text p{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:1px;font-weight:600;font-family:var(--font-pixel);text-transform:uppercase}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:2px 8px;font-size:12px;font-weight:600;font-family:var(--font-pixel);color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:var(--radius-sm);position:relative;white-space:nowrap;overflow:hidden}
-.nav-item:hover{color:var(--text);background:rgba(160,140,118,.1)}
+.nav-item:hover{color:var(--text);background:var(--soft)}
 .nav-item.active{color:#fff;background:var(--orange);font-weight:800}
 .nav-item .ni{font-size:15px;width:18px;text-align:center;flex-shrink:0}
 .nav-label{transition:opacity 0.22s,width 0.22s;overflow:hidden;white-space:nowrap}
@@ -103,9 +106,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .ov-type-head{display:flex;justify-content:space-between;align-items:baseline}
 .ov-type-name{font-size:13px;font-weight:600}
 .ov-type-count{font-size:12px;font-weight:700;font-family:var(--font-pixel)}
-.ov-bar-wrap{height:5px;border-radius:4px;background:rgba(160,140,118,.12);overflow:hidden;margin:6px 0 8px}
+.ov-bar-wrap{height:5px;border-radius:4px;background:var(--soft);overflow:hidden;margin:6px 0 8px}
 .ov-bar{height:100%;border-radius:4px}
-.ov-chips{display:flex;flex-wrap:nowrap;gap:5px;margin-bottom:14px;overflow:hidden}
+.ov-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
 .ov-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;border:1px solid;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;flex-shrink:0}
 @media(max-width:600px){.ov-chips{flex-wrap:wrap;overflow:visible}.ov-chip{font-size:10px}}
 .ov-chip .cn{font-weight:600}.ov-chip .cc{font-weight:800;font-family:var(--font-pixel)}
@@ -115,7 +118,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cap-box{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center}
 .cap-box .cn{font-family:var(--font-pixel);font-size:24px;font-weight:700;color:var(--text);line-height:1}
 .cap-box .cl{font-size:11px;color:var(--muted);margin-top:4px}
-.cap-bar-wrap{height:5px;background:rgba(160,140,118,.12);border-radius:4px;overflow:hidden;margin-top:12px}
+.cap-bar-wrap{height:5px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:12px}
 .cap-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--amber))}
 .filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .alt-toggle{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;margin-left:auto}
@@ -125,7 +128,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .mtbl th,.au-tbl th,.rtbl th,.sum-tbl th{text-align:left;padding:9px 13px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.8px;background:var(--card2);cursor:pointer}
 .mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{padding:6px 13px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px}
 .mtbl tr:last-child td,.au-tbl tr:last-child td,.rtbl tr:last-child td,.sum-tbl tr:last-child td{border-bottom:none}
-.mtbl tr:hover td,.au-tbl tr:hover td{background:rgba(160,140,118,.04)}
+.mtbl tr:hover td,.au-tbl tr:hover td{background:var(--soft)}
 .m-num{color:var(--faint);font-size:10px;font-family:var(--font-pixel);width:28px}
 .admin-col{display:none}
 .qs{font-size:10px;font-weight:700;font-family:var(--font-pixel);padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
@@ -136,7 +139,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .b-s{color:var(--green);border:1.5px solid var(--green-b)}
 .b-a{color:var(--amber);border:1.5px solid var(--amber-b)}
 .b-d{color:var(--red);border:1.5px solid var(--red-b)}
-.gf{font-size:9px;font-weight:800;font-family:var(--font-pixel);border-radius:4px;padding:2px 6px;letter-spacing:.5px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25);white-space:nowrap}
+.gf{font-size:9px;font-weight:800;font-family:var(--font-pixel);border-radius:4px;padding:2px 6px;letter-spacing:.5px;background:var(--soft);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
 .gf-e{background:var(--orange-dim);color:var(--orange-l);border-color:var(--orange-border)}
 .gf-s{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-b)}
 .cls-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid}
@@ -149,7 +152,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .field-head h4{font-size:14px;font-weight:700;color:var(--text);font-family:var(--font-pixel)}
 .field-tag{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;font-family:var(--font-pixel)}
 .ft-main{background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)}
-.ft-sec{background:rgba(160,140,118,.1);color:var(--muted);border:1px solid var(--border2)}
+.ft-sec{background:var(--soft);color:var(--muted);border:1px solid var(--border2)}
 .party-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
 @media(max-width:1500px){.party-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:700px){.party-grid{grid-template-columns:repeat(2,1fr)}}
@@ -177,7 +180,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .srch-name{font-size:16px;font-weight:700;color:var(--text)}
 .srch-gf-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .srch-gf-lbl{font-size:11px;color:var(--muted);font-family:var(--font-pixel);font-weight:600}
-.srch-gf-badge{font-size:11px;font-weight:700;font-family:var(--font-pixel);border-radius:5px;padding:3px 9px;letter-spacing:.2px;background:#E8E2D6;color:#5A5048;border:1px solid rgba(160,140,118,.25)}
+.srch-gf-badge{font-size:11px;font-weight:700;font-family:var(--font-pixel);border-radius:5px;padding:3px 9px;letter-spacing:.2px;background:var(--soft);color:var(--muted);border:1px solid var(--border)}
 .srch-meta-items{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
 .srch-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
 .srch-sep{width:1px;height:12px;background:var(--border2)}
@@ -204,11 +207,11 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cal-wrap{display:flex;border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-out-sm)}
 .cal-time-axis{width:44px;flex-shrink:0;background:var(--card2);border-right:1px solid var(--border)}
 .cal-time-head{height:44px;border-bottom:1px solid var(--border)}
-.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 4px 0;border-bottom:1px solid rgba(160,140,118,.1)}
+.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 4px 0;border-bottom:1px solid var(--soft)}
 .cal-time-slot span{font-size:9px;color:var(--faint);line-height:1;white-space:nowrap;font-family:var(--font-pixel)}
 .cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
 @media(max-width:760px){.cal-day-cols{grid-template-columns:repeat(3,1fr)}}
-.cal-dcol{border-right:1px solid rgba(160,140,118,.12);display:flex;flex-direction:column}
+.cal-dcol{border-right:1px solid var(--soft);display:flex;flex-direction:column}
 .cal-dcol:last-child{border-right:none}
 .cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid var(--border);background:var(--card2);position:sticky;top:0;z-index:1}
 .cal-dname{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-weight:600}
@@ -217,9 +220,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cal-dcol.today-day .cal-dname{color:var(--orange-l)}
 .cal-dcol.today-day .cal-dnum{color:var(--orange)}
 .cal-dgrid{position:relative;height:1728px}
-.cal-grid-line{position:absolute;left:0;right:0;height:1px;background:rgba(160,140,118,.1)}
-.cal-grid-line.hour{height:1px;background:rgba(160,140,118,.22)}
-.cal-hour-band{position:absolute;left:0;right:0;background:rgba(160,140,118,.04);pointer-events:none}
+.cal-grid-line{position:absolute;left:0;right:0;height:1px;background:var(--soft)}
+.cal-grid-line.hour{height:1px;background:var(--border)}
+.cal-hour-band{position:absolute;left:0;right:0;background:var(--soft);pointer-events:none}
 .cal-evt-block{position:absolute;border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;line-height:1.4;background:var(--card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:5px}
 .cal-evt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:2px}
 .cal-evt-body{min-width:0;flex:1}
@@ -262,7 +265,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .mgr-list-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700;height:36px}
 .mgr-row{border-bottom:1px solid var(--border);font-size:12px;min-height:0;padding:6px 0;transition:background 0.1s;background:var(--card)}
 .mgr-row:last-child{border-bottom:none}
-.mgr-row:hover{background:rgba(160,140,118,.04)}
+.mgr-row:hover{background:var(--soft)}
 .mc-num{width:40px;min-width:40px;text-align:center;color:var(--faint);font-size:11px;padding:0 4px;flex-shrink:0;font-family:var(--font-pixel)}
 .mc-name{flex:1;min-width:80px;padding:0 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mc-status{width:110px;min-width:110px;padding:0 8px}
@@ -276,7 +279,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .row-skip{opacity:.6}
 .da-row{display:flex;align-items:center;padding:6px 6px;border-bottom:1px solid var(--border);font-size:12px;min-height:0;background:var(--card)}
 .da-row:last-child{border-bottom:none}
-.da-row:hover{background:rgba(160,140,118,.04)}
+.da-row:hover{background:var(--soft)}
 .da-head{background:var(--card2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;height:36px}
 .da-num{width:34px;min-width:34px;text-align:center;color:var(--faint);font-size:11px;flex-shrink:0;font-family:var(--font-pixel)}
 .da-name{flex:1;min-width:70px;padding:0 6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -288,7 +291,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 @media(max-width:760px){.da-white,.da-red{width:90px;min-width:90px}.da-act{width:90px;min-width:90px}}
 .fbar-cell{text-align:center}
 .fbar{position:relative;height:22px;width:92px;border-radius:7px;overflow:hidden;display:inline-block}
-.fbar .fbar-track{position:absolute;inset:0;background:rgba(160,140,118,.08)}
+.fbar .fbar-track{position:absolute;inset:0;background:var(--soft)}
 .fbar .fbar-fill{position:absolute;left:0;top:0;height:100%}
 .fbar .fbar-fill.fok{background:rgba(42,122,72,.5)}
 .fbar .fbar-fill.fmiss{background:rgba(122,80,16,.5)}
@@ -331,7 +334,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .wh-body{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)}
 .wh-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)}
 .wh-row:last-child{border-bottom:none}
-.wh-row:hover{background:rgba(160,140,118,.04)}
+.wh-row:hover{background:var(--soft)}
 .wh-vbar{width:3px;height:22px;border-radius:2px;flex-shrink:0}
 .wh-date{font-size:11px;font-family:var(--font-pixel);color:var(--muted);flex:1}
 .wh-rank{font-size:10px;font-family:var(--font-pixel);color:var(--faint);padding:2px 7px;border-radius:20px;background:var(--card2);border:1px solid var(--border)}
@@ -376,29 +379,344 @@ input[type=checkbox]{accent-color:var(--orange)}
 .mode-pill button:hover{color:var(--text)}
 .mode-pill button.on{background:var(--orange);color:#fff;font-weight:800;box-shadow:var(--shadow-out-sm)}
 @media(max-width:600px){.mode-pill{display:flex;width:100%}.mode-pill button{padding:9px 8px;font-size:11px}}
+/* --- Party Board additions --- */
+.pm-mark{margin-left:auto;display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;min-width:34px;font-style:normal;flex:0 0 auto}
+.pm-mark i{font-style:normal;font-size:12px;line-height:1}
+.mk-lead{color:var(--orange-l)}
+.mk-abs{filter:saturate(.85)}
+.pm-absent .pm-name{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.pm-absent .pm-cls-label{opacity:.55}
+.abs-panel{margin-top:18px;border:1px solid var(--line,var(--border));border-radius:10px;background:var(--card2);overflow:hidden}
+.abs-head{display:flex;align-items:center;gap:8px;padding:10px 13px;border-bottom:1px solid var(--line,var(--border))}
+.abs-ic{font-size:14px}
+.abs-title{font-weight:800;font-size:13px;font-family:var(--font-pixel)}
+.abs-count{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+.abs-rows{padding:6px 13px 12px}
+.abs-row{display:flex;gap:10px;align-items:baseline;padding:5px 0}
+.abs-p{font-family:var(--font-pixel);font-size:11px;font-weight:800;color:var(--orange-l);min-width:34px}
+.abs-names{font-size:13px;color:var(--text)}
+.abs-empty{padding:12px 13px;font-size:13px;color:var(--muted)}
+</style>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   Warmup · design system 2026-09  (ทับธีมเดิมด้วย token ล้วน)
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --bg:#171B21; --shell:#1D222A; --card:#232932; --card2:#2A313B; --soft:#2A313B;
+  --text:#E9EEF3; --muted:#A3AEB8; --faint:#76828D;
+  --border:#2E353F; --border2:#3A424D; --line:#2E353F; --line2:#3A424D;
+  --tint-rgb:120,135,150;
+
+  --orange:#F0883E; --orange-l:#FFB15C;
+  --orange-dim:rgba(240,136,62,.14); --orange-border:rgba(240,136,62,.34);
+  --green:#5BC9A8; --green-dim:rgba(91,201,168,.14); --green-b:rgba(91,201,168,.34);
+  --red:#EE879F;   --red-dim:rgba(238,135,159,.14); --red-b:rgba(238,135,159,.34);
+  --amber:#E3B27C; --amber-dim:rgba(227,178,124,.14); --amber-b:rgba(227,178,124,.34);
+  --blue:#93B4FF;  --blue-dim:rgba(147,180,255,.12); --blue-b:rgba(147,180,255,.3);
+
+  --sup:#3EA98E; --all:#DF9F45; --dps:#DD6C89;
+  --ok:#3EA98E; --leave:#DF9F45; --miss:#DD6C89; --gold:#DFAC3A; --teal:#2FB3A0;
+
+  --t-mint:#1B3A36; --t-mint-i:#84DCCB;
+  --t-peach:#392E21; --t-peach-i:#E3B27C;
+  --t-pink:#382430; --t-pink-i:#EFA6C6;
+
+  --font:'Google Sans','Noto Sans Thai',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --font-pixel:'Google Sans Code',ui-monospace,SFMono-Regular,monospace;
+  --radius-lg:20px; --radius-md:15px; --radius-sm:11px;
+  --shadow-out:0 2px 10px rgba(0,0,0,.28);
+  --shadow-out-sm:0 1px 5px rgba(0,0,0,.2);
+  --ls:.96;
+}
+:root[data-theme="light"]{
+  --bg:#E8EFED; --shell:#F7FAF9; --card:#FFFFFF; --card2:#F2F6F7; --soft:#F2F6F7;
+  --text:#1B2730; --muted:#5C6872; --faint:#8D99A3;
+  --border:#E9EDF0; --border2:#DBE1E6; --line:#E9EDF0; --line2:#DBE1E6;
+  --orange:#D9722B; --orange-l:#B85F1E;
+  --orange-dim:rgba(217,114,43,.1); --orange-border:rgba(217,114,43,.28);
+  --green:#2F8F54; --green-dim:rgba(47,143,84,.1); --green-b:rgba(47,143,84,.28);
+  --red:#C0392B;   --red-dim:rgba(192,57,43,.1);  --red-b:rgba(192,57,43,.26);
+  --amber:#9A6B1E; --amber-dim:rgba(154,107,30,.1); --amber-b:rgba(154,107,30,.26);
+  --blue:#1A4A7A;  --blue-dim:rgba(26,74,122,.08); --blue-b:rgba(26,74,122,.22);
+  --t-mint:#E2F3EF; --t-mint-i:#0B6F64;
+  --t-peach:#FBEEE0; --t-peach-i:#96602A;
+  --t-pink:#FBE7F0; --t-pink-i:#9E4271;
+  --shadow-out:0 2px 12px rgba(120,135,150,.16);
+  --shadow-out-sm:0 1px 5px rgba(120,135,150,.13);
+}
+
+/* ── ตัวอักษร: ไทยไม่บาง · ละตินกับตัวเลขย่อ 96% ── */
+body{font-family:var(--font);font-weight:500;font-size:14.5px;line-height:1.7;
+     background:var(--bg);color:var(--text)}
+.en,.num,.mono,.font-pixel{font-weight:400;font-size:calc(1em * var(--ls))}
+.page-title,.logo-text h1,.nav-item,.sc .n,.cap-box .cn,.ov-total,.ov-type-count,
+.m-num,.gf,.qs,.au-tab,.badge{font-size:inherit}
+
+/* ── เปลือก ── */
+.app{background:var(--bg)}
+.sidebar{background:var(--shell);border-right:1px solid var(--border);box-shadow:none}
+.nav-item{border-radius:12px;font-family:var(--font);font-weight:600;font-size:13px;
+          letter-spacing:0;color:var(--muted)}
+.nav-item .ni{font-size:16px}
+.nav-item:hover{background:var(--card2);color:var(--text)}
+.nav-item.active{background:var(--orange);color:#fff;font-weight:700}
+.logo-area{border-bottom:1px solid var(--border)}
+.logo-img{background:var(--orange)!important;color:#fff!important}
+.logo-text h1{font-family:var(--font-pixel);letter-spacing:1px}
+.nav-footer{border-top:1px solid var(--border);font-family:var(--font);font-size:11.5px}
+.sdot{box-shadow:0 0 6px var(--green)}
+.hamburger,.topbar-wrap{background:var(--card);border:1px solid var(--border2);
+  border-radius:12px;box-shadow:var(--shadow-out-sm)}
+
+.main{padding:1.9rem 2.1rem}
+.page-title{font-family:var(--font);font-size:22px;font-weight:800;color:var(--text);
+            letter-spacing:0;margin-bottom:3px}
+.page-sub{font-size:12.5px;color:var(--muted);margin-bottom:1.15rem}
+
+/* ── อินพุต ปุ่ม การ์ด ── */
+input,select,textarea{background:var(--card);border:1px solid var(--border2);
+  border-radius:12px;padding:9px 13px;font-size:13px;color:var(--text)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+input[type=checkbox]{accent-color:var(--teal)}
+.btn{border-radius:12px;font-weight:600;border-width:1px}
+.btn-primary{background:var(--orange);border-color:var(--orange)}
+.panel,.overview-box,.tbl-wrap,.sc,.au-card,.cal-card{box-shadow:none;
+  border-color:var(--border);border-radius:var(--radius-md)}
+.overview-box,.panel{border-radius:var(--radius-lg)}
+.sc .n{font-family:var(--font);font-weight:800;color:var(--text);font-size:27px}
+.cap-box{background:var(--soft);border:0;border-radius:13px}
+.cap-box .cn{font-family:var(--font);font-weight:700}
+.ov-title,.cap-label{font-family:var(--font);font-size:11px;letter-spacing:.35px;
+  text-transform:none;font-weight:700;color:var(--muted)}
+.ov-bar-wrap,.cap-bar-wrap{background:var(--soft);height:7px;border-radius:99px}
+.ov-bar,.cap-bar{border-radius:99px}
+.cap-bar{background:var(--ok)}
+.ov-chip{border-radius:8px;border:0;background:var(--soft);color:var(--muted);
+  font-size:11px;padding:3px 9px}
+.ov-chip .cc{font-family:var(--font);font-weight:700}
+
+/* ── ตาราง ── */
+.mtbl th,.au-tbl th,.rtbl th,.sum-tbl th{background:var(--soft);color:var(--muted);
+  font-size:11px;letter-spacing:.3px;text-transform:none;font-weight:700;
+  font-family:var(--font);padding:10px 14px;border-bottom:1px solid var(--border)}
+.mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{font-size:13px;padding:8px 14px}
+.mtbl tr:hover td,.au-tbl tr:hover td{background:var(--soft)}
+.m-num{font-family:var(--font);color:var(--faint);font-size:11px}
+.gf{background:var(--soft);color:var(--muted);border:0;border-radius:8px;
+  font-family:var(--font);font-weight:700;font-size:10.5px;padding:3px 8px}
+.gf-e{background:var(--t-mint);color:var(--t-mint-i)}
+.gf-s{background:var(--t-peach);color:var(--t-peach-i)}
+.badge{border-radius:8px;font-size:11px;padding:3px 9px;font-weight:600}
+.b-s{color:var(--sup);border:1px solid var(--green-b)}
+.b-a{color:var(--all);border:1px solid var(--amber-b)}
+.b-d{color:var(--dps);border:1px solid var(--red-b)}
+.qs{border-radius:8px;font-family:var(--font);font-weight:700;font-size:11px;padding:3px 10px}
+.qs-done{background:var(--t-mint);color:var(--t-mint-i);border:0}
+.qs-pend{background:var(--t-peach);color:var(--t-peach-i);border:0}
+.qs-skip{background:var(--t-pink);color:var(--t-pink-i);border:0}
+.loading,.empty{color:var(--muted)}
+
+/* ── แผงตั้งค่ามุมขวาล่าง (แทน zoom pill เดิม) ── */
+.setwrap{position:fixed;right:16px;bottom:16px;z-index:260;display:flex;
+  flex-direction:column;align-items:flex-end;gap:9px}
+.setbtn{width:40px;height:40px;border-radius:14px;background:var(--card);
+  border:1px solid var(--border2);box-shadow:var(--shadow-out);display:grid;
+  place-items:center;cursor:pointer;color:var(--muted)}
+.setbtn:hover,.setbtn.on{color:var(--orange-l);border-color:var(--orange-border)}
+.setbtn svg{width:19px;height:19px}
+.setpanel{display:none;width:238px;background:var(--card);border:1px solid var(--border);
+  border-radius:18px;box-shadow:var(--shadow-out);padding:14px 15px}
+.setpanel.open{display:block}
+.setpanel .lb{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;
+  margin-bottom:7px}
+.setpanel .lb+.lb,.setpanel .row+.lb,.setpanel .segbar+.lb{margin-top:15px}
+.segbar{display:flex;background:var(--soft);border-radius:12px;padding:3px;gap:3px}
+.segbar button{flex:1;border:0;background:none;color:var(--muted);font:inherit;
+  font-size:12px;font-weight:600;padding:6px 0;border-radius:9px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:5px}
+.segbar button svg{width:13px;height:13px}
+.segbar button.on{background:var(--card);color:var(--text);box-shadow:var(--shadow-out-sm)}
+.setrow{display:flex;align-items:center;gap:8px}
+.setrow button{width:30px;height:30px;border-radius:10px;border:1px solid var(--border2);
+  background:var(--card);color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.setrow button:hover:not(:disabled){color:var(--text);border-color:var(--teal)}
+.setrow button:disabled{opacity:.35;cursor:default}
+.setrow button svg{width:11px;height:11px}
+.setrow b{flex:1;text-align:center;font-size:13px;font-weight:700;font-family:var(--font)}
+
+/* ── ป้ายสถานะการมาวอ ── */
+.pm-mark{margin-left:auto;display:inline-flex;align-items:center;justify-content:flex-end;
+  gap:2px;min-width:34px;flex:0 0 auto}
+.pm-mark i{font-style:normal;font-size:12px;line-height:1}
+.mk-lead{color:var(--gold)}
+.pm-absent .pm-name{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.pm-absent .pm-cls-label{opacity:.55}
+.abs-panel{margin-top:18px;border:1px solid var(--border);border-radius:var(--radius-lg);
+  background:var(--card);overflow:hidden}
+.abs-head{display:flex;align-items:center;gap:9px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.abs-ic{font-size:14px}
+.abs-title{font-weight:800;font-size:13.5px}
+.abs-count{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--muted)}
+.abs-rows{padding:5px 16px 13px}
+.abs-row{display:flex;gap:12px;align-items:baseline;padding:6px 0}
+.abs-p{font-size:12px;font-weight:800;color:var(--orange-l);min-width:56px}
+.abs-names{font-size:13px;color:var(--text)}
+.abs-empty{padding:14px 16px;font-size:13px;color:var(--muted)}
+
+.pm-mark i.ms{width:15px;text-align:center;display:inline-block;font-style:normal}
+/* ---- Search profile card ---- */
+.pf{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow:hidden;margin-bottom:14px;max-width:880px}
+.pf-top{display:flex;align-items:center;gap:14px;padding:17px 19px 15px}
+.pf-av{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;flex:0 0 auto}
+.pf-av svg{width:28px;height:28px;color:#fff}
+.pf-av.ldr{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--gold)}
+.pf-id{flex:1;min-width:0}
+.pf-name{font-size:20px;font-weight:700;line-height:1.2}
+.pf-meta{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:3px;
+  font-size:12.5px;color:var(--muted)}
+.pf-meta i.dot{width:3px;height:3px;border-radius:99px;background:var(--border2);display:block}
+.pf-st{font-size:12px;font-weight:700;padding:6px 13px;border-radius:10px;flex:0 0 auto}
+.pf-st.ok{background:var(--t-mint);color:var(--t-mint-i)}
+.pf-st.lv{background:var(--t-peach);color:var(--t-peach-i)}
+.pf-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 19px 17px}
+.pf-tile{background:var(--soft);border-radius:14px;padding:12px 13px}
+.pf-tile .k{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px}
+.pf-tile .v{font-size:24px;font-weight:700;line-height:1.15;margin-top:2px}
+.pf-tile .h{font-size:11.5px;color:var(--muted);margin-top:1px}
+.pf-tile.good .v{color:var(--ok)}
+.pf-tile.warn .v{color:var(--leave)}
+.pf-sec{padding:16px 19px;border-top:1px solid var(--border)}
+.pf-lbl{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.35px;margin-bottom:11px}
+.pf-mr{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px}
+.pf-mr.me{background:var(--soft);outline:1px solid var(--border2)}
+.pf-mr.me .pf-nm{font-weight:700}
+.pf-mr.gone .pf-nm{color:var(--muted);text-decoration:line-through}
+.pf-cb{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:0 0 auto}
+.pf-cb svg{width:15px;height:15px;color:#fff}
+.pf-nm{font-size:13.5px}
+.pf-cl{margin-left:auto;font-size:11.5px;color:var(--muted)}
+.pf-empty{font-size:12.5px;color:var(--faint)}
+.qz{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.qz i{width:13px;height:13px;border-radius:5px;background:var(--soft);display:block}
+.qz i.past{background:var(--border2)}
+.qz i.me{width:19px;height:19px;border-radius:7px;background:var(--teal);
+  box-shadow:0 0 0 3px rgba(47,179,160,.24)}
+.qz i.me.done{background:var(--ok)}
+.qrow{display:flex;align-items:center;gap:13px}
+.qrow .big{font-size:26px;font-weight:700;line-height:1}
+.qrow .txt{flex:1;min-width:0;font-size:12.5px;color:var(--muted)}
+.qrow .txt b{display:block;font-size:14px;color:var(--text);font-weight:700}
+.hist{width:100%;border-collapse:collapse;font-size:13px}
+.hist th{text-align:left;font-size:11px;font-weight:700;color:var(--muted);padding:0 0 8px}
+.hist td{padding:8px 0;border-top:1px solid var(--border)}
+.hist .pos{display:inline-block;min-width:26px;text-align:center;font-weight:700;font-size:12px;
+  padding:2px 7px;border-radius:7px;background:var(--soft)}
+@media(max-width:620px){.pf-tiles{grid-template-columns:1fr 1fr}}
+.nav-item .ni{display:inline-flex;align-items:center;justify-content:center;width:18px}
+.nav-item .ni svg{width:16px;height:16px}
+.logo-img{display:grid;place-items:center}
+#refresh-btn{display:inline-flex;align-items:center;color:var(--muted)}
+#refresh-btn:hover{color:var(--orange-l)}
+.st-att{font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;white-space:nowrap}
+.st-att.ok{background:var(--t-mint);color:var(--t-mint-i)}
+.st-att.lv{background:var(--t-peach);color:var(--t-peach-i)}
+.pc-cnt{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;
+  background:var(--t-peach);color:var(--t-peach-i)}
+.pc-cnt.full{background:var(--t-mint);color:var(--t-mint-i)}
+.pc-head{gap:8px}
+@media(max-width:1024px){
+  .main{padding:3.4rem 0.9rem 2rem!important}
+  .setwrap{right:11px;bottom:11px}
+}
+
 </style>
 </head>
 <body>
 <button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
-<div class="zoom-pill" id="zoom-pill">
-  <button class="zp-btn" onclick="stepZoom(-10)" title="ย่อ">−</button>
-  <button class="zp-lbl" id="zoom-lbl" onclick="resetZoom()" title="กดเพื่อรีเซ็ต">100%</button>
-  <button class="zp-btn" onclick="stepZoom(10)" title="ขยาย">+</button>
+<svg width="0" height="0" style="position:absolute"><defs>
+<!-- 14 คลาส -->
+<symbol id="c-priest" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="4" y="1" width="8" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="4" y="3" width="8" height="1"/><rect x="6" y="5" width="4" height="10"/><rect x="2" y="8" width="12" height="3"/></g><g fill="rgba(0,0,0,.18)"><rect x="9" y="5" width="1" height="10"/><rect x="2" y="10" width="12" height="1"/></g></g></symbol>
+<symbol id="c-gypsy" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="1" y="11" width="4" height="4"/><rect x="5" y="10" width="2" height="2"/><rect x="7" y="8" width="2" height="2"/><rect x="9" y="6" width="2" height="2"/><rect x="11" y="4" width="2" height="2"/><rect x="12" y="2" width="2" height="2"/><rect x="10" y="1" width="2" height="1"/></g><g fill="rgba(0,0,0,.18)"><rect x="1" y="14" width="4" height="1"/></g></g></symbol>
+<symbol id="c-minstrel" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="11" y="1" width="3" height="1"/><rect x="10" y="2" width="1" height="6"/><rect x="4" y="8" width="8" height="7"/><rect x="3" y="9" width="1" height="5"/><rect x="12" y="9" width="1" height="5"/></g><g fill="rgba(0,0,0,.2)"><rect x="7" y="9" width="1" height="5"/><rect x="4" y="14" width="8" height="1"/></g></g></symbol>
+<symbol id="c-prof" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="1" y="3" width="6" height="10"/><rect x="9" y="3" width="6" height="10"/><rect x="7" y="4" width="2" height="10"/></g><g fill="rgba(0,0,0,.18)"><rect x="2" y="5" width="4" height="1"/><rect x="2" y="7" width="4" height="1"/><rect x="10" y="5" width="4" height="1"/><rect x="10" y="7" width="4" height="1"/><rect x="1" y="12" width="14" height="1"/></g></g></symbol>
+<symbol id="c-summoner" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="0" y="3" width="3" height="4"/><rect x="4" y="1" width="3" height="4"/><rect x="9" y="1" width="3" height="4"/><rect x="13" y="3" width="3" height="4"/><rect x="2" y="7" width="12" height="8"/></g><g fill="rgba(0,0,0,.18)"><rect x="5" y="10" width="6" height="3"/><rect x="2" y="14" width="12" height="1"/></g></g></symbol>
+<symbol id="c-bio" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="5" y="1" width="6" height="1"/><rect x="6" y="2" width="4" height="4"/><rect x="4" y="6" width="8" height="1"/><rect x="3" y="7" width="10" height="8"/></g><g fill="rgba(0,0,0,.2)"><rect x="3" y="10" width="10" height="5"/><rect x="4" y="11" width="2" height="2" fill="rgba(255,255,255,.5)"/></g></g></symbol>
+<symbol id="c-lk" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="6" y="0" width="4" height="10"/><rect x="5" y="2" width="1" height="8"/><rect x="10" y="2" width="1" height="8"/><rect x="2" y="10" width="12" height="2"/><rect x="6" y="12" width="4" height="4"/></g><g fill="rgba(0,0,0,.18)"><rect x="9" y="1" width="1" height="9"/><rect x="2" y="11" width="12" height="1"/></g></g></symbol>
+<symbol id="c-pala" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="2" y="1" width="12" height="7"/><rect x="3" y="8" width="10" height="4"/><rect x="5" y="12" width="6" height="2"/><rect x="7" y="14" width="2" height="1"/></g><g fill="rgba(0,0,0,.2)"><rect x="7" y="3" width="2" height="9"/><rect x="4" y="5" width="8" height="2"/></g></g></symbol>
+<symbol id="c-hw" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="5" y="0" width="6" height="1"/><rect x="4" y="1" width="8" height="5"/><rect x="5" y="6" width="6" height="1"/><rect x="7" y="7" width="2" height="9"/></g><g fill="rgba(0,0,0,.2)"><rect x="8" y="2" width="3" height="3"/></g></g></symbol>
+<symbol id="c-sniper" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="3" y="0" width="2" height="1"/><rect x="2" y="1" width="1" height="14"/><rect x="3" y="15" width="2" height="1"/><rect x="4" y="7" width="11" height="2"/><rect x="11" y="5" width="1" height="2"/><rect x="11" y="9" width="1" height="2"/></g><g fill="rgba(0,0,0,.2)"><rect x="4" y="9" width="11" height="1"/></g></g></symbol>
+<symbol id="c-stalker" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="11" y="0" width="3" height="2"/><rect x="9" y="2" width="3" height="2"/><rect x="7" y="4" width="3" height="2"/><rect x="5" y="6" width="3" height="2"/><rect x="4" y="8" width="3" height="1"/><rect x="2" y="9" width="7" height="2"/><rect x="1" y="11" width="4" height="4"/></g><g fill="rgba(0,0,0,.2)"><rect x="1" y="14" width="4" height="1"/></g></g></symbol>
+<symbol id="c-sinx" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="0" y="0" width="3" height="3"/><rect x="3" y="3" width="2" height="2"/><rect x="13" y="0" width="3" height="3"/><rect x="11" y="3" width="2" height="2"/><rect x="5" y="5" width="6" height="6"/><rect x="3" y="11" width="2" height="2"/><rect x="0" y="13" width="3" height="3"/><rect x="11" y="11" width="2" height="2"/><rect x="13" y="13" width="3" height="3"/></g><g fill="rgba(0,0,0,.2)"><rect x="5" y="8" width="6" height="3"/></g></g></symbol>
+<symbol id="c-ms" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="1" y="2" width="11" height="6"/><rect x="2" y="1" width="9" height="1"/><rect x="2" y="8" width="9" height="1"/><rect x="8" y="9" width="3" height="7"/></g><g fill="rgba(0,0,0,.2)"><rect x="1" y="6" width="11" height="2"/></g></g></symbol>
+<symbol id="c-rebel" viewBox="0 0 16 16"><g class="px"><g fill="#fff"><rect x="0" y="4" width="13" height="4"/><rect x="13" y="5" width="3" height="2"/><rect x="1" y="8" width="5" height="7"/></g><g fill="rgba(0,0,0,.2)"><rect x="0" y="7" width="13" height="1"/><rect x="1" y="13" width="5" height="2"/></g></g></symbol>
+<!-- ui -->
+<symbol id="i-crown" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="3" width="2" height="7"/><rect x="13" y="3" width="2" height="7"/><rect x="7" y="4" width="2" height="6"/><rect x="3" y="7" width="2" height="3"/><rect x="11" y="7" width="2" height="3"/><rect x="1" y="10" width="14" height="3"/></g></symbol>
+<symbol id="i-sun" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="7" y="0" width="2" height="3"/><rect x="7" y="13" width="2" height="3"/><rect x="0" y="7" width="3" height="2"/><rect x="13" y="7" width="3" height="2"/><rect x="2" y="2" width="2" height="2"/><rect x="12" y="2" width="2" height="2"/><rect x="2" y="12" width="2" height="2"/><rect x="12" y="12" width="2" height="2"/><rect x="6" y="4" width="4" height="8"/><rect x="4" y="6" width="8" height="4"/><rect x="5" y="5" width="6" height="6"/></g></symbol>
+<symbol id="i-minus" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="3" y="7" width="10" height="2"/></g></symbol>
+<symbol id="i-plus2" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="7" y="3" width="2" height="10"/><rect x="3" y="7" width="10" height="2"/></g></symbol>
+<symbol id="i-moon" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="6" y="1" width="6" height="1"/><rect x="4" y="2" width="4" height="1"/><rect x="2" y="3" width="4" height="2"/><rect x="1" y="5" width="4" height="6"/><rect x="2" y="11" width="4" height="2"/><rect x="4" y="13" width="4" height="1"/><rect x="6" y="14" width="6" height="1"/></g></symbol>
+<symbol id="i-search" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="3" y="1" width="7" height="1"/><rect x="2" y="2" width="1" height="6"/><rect x="10" y="2" width="1" height="6"/><rect x="3" y="8" width="7" height="1"/><rect x="10" y="9" width="2" height="1"/><rect x="11" y="10" width="2" height="1"/><rect x="12" y="11" width="3" height="3"/></g></symbol>
+<symbol id="i-cal" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="3" y="1" width="2" height="3"/><rect x="11" y="1" width="2" height="3"/><rect x="1" y="3" width="14" height="12"/><rect x="3" y="7" width="10" height="6" fill="var(--shell)"/></g></symbol>
+<symbol id="i-party" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="3" width="4" height="4"/><rect x="11" y="3" width="4" height="4"/><rect x="6" y="1" width="4" height="4"/><rect x="0" y="8" width="6" height="6"/><rect x="10" y="8" width="6" height="6"/><rect x="5" y="6" width="6" height="8"/></g></symbol>
+<symbol id="i-member" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="1" width="6" height="6"/><rect x="2" y="8" width="12" height="7"/></g></symbol>
+<symbol id="i-hammer" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="2" width="10" height="4"/><rect x="2" y="1" width="8" height="1"/><rect x="8" y="6" width="3" height="2"/><rect x="10" y="8" width="3" height="7"/></g></symbol>
+<symbol id="i-check" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="11" width="2" height="2"/><rect x="3" y="9" width="2" height="2"/><rect x="7" y="9" width="2" height="2"/><rect x="9" y="7" width="2" height="2"/><rect x="11" y="5" width="2" height="2"/><rect x="13" y="3" width="2" height="2"/></g></symbol>
+<symbol id="i-refresh" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="4" y="2" width="8" height="2"/><rect x="2" y="4" width="2" height="2"/><rect x="12" y="4" width="2" height="2"/><rect x="1" y="6" width="2" height="4"/><rect x="13" y="6" width="2" height="4"/><rect x="2" y="10" width="2" height="2"/><rect x="12" y="10" width="2" height="2"/><rect x="4" y="12" width="8" height="2"/><rect x="10" y="0" width="2" height="4"/></g></symbol>
+<symbol id="i-gear" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="6" y="0" width="4" height="3"/><rect x="6" y="13" width="4" height="3"/><rect x="0" y="6" width="3" height="4"/><rect x="13" y="6" width="3" height="4"/><rect x="3" y="3" width="10" height="10"/><rect x="6" y="6" width="4" height="4" fill="var(--shell)"/></g></symbol>
+<symbol id="m-sun" viewBox="0 0 16 16"><g class="px">
+  <rect x="7" y="0" width="2" height="2" fill="#F5C33F"/><rect x="7" y="14" width="2" height="2" fill="#F5C33F"/>
+  <rect x="0" y="7" width="2" height="2" fill="#F5C33F"/><rect x="14" y="7" width="2" height="2" fill="#F5C33F"/>
+  <rect x="2" y="2" width="2" height="2" fill="#F5C33F"/><rect x="12" y="2" width="2" height="2" fill="#F5C33F"/>
+  <rect x="2" y="12" width="2" height="2" fill="#F5C33F"/><rect x="12" y="12" width="2" height="2" fill="#F5C33F"/>
+  <rect x="5" y="3" width="6" height="10" fill="#FFF"/><rect x="3" y="5" width="10" height="6" fill="#FFF"/>
+  <rect x="4" y="4" width="8" height="8" fill="#FFF"/>
+  <rect x="5" y="7" width="2" height="2" fill="#0E9384"/><rect x="9" y="7" width="2" height="2" fill="#0E9384"/>
+</g></symbol>
+<symbol id="m-sleep" viewBox="0 0 16 16"><g class="px">
+  <rect x="5" y="3" width="6" height="10" fill="#D9E2E5"/><rect x="3" y="5" width="10" height="6" fill="#D9E2E5"/>
+  <rect x="4" y="4" width="8" height="8" fill="#D9E2E5"/>
+  <rect x="4" y="7" width="3" height="1" fill="#7E8C95"/><rect x="9" y="7" width="3" height="1" fill="#7E8C95"/>
+  <rect x="13" y="1" width="3" height="1" fill="#A8B4BC"/><rect x="14" y="2" width="1" height="1" fill="#A8B4BC"/><rect x="13" y="3" width="3" height="1" fill="#A8B4BC"/>
+</g></symbol>
+</defs></svg>
+<div class="zoom-pill" id="zoom-pill" hidden><button class="zp-lbl" id="zoom-lbl">100%</button></div>
+<div class="setwrap">
+  <div class="setpanel" id="setp">
+    <div class="lb en">Theme</div>
+    <div class="segbar" id="themeseg">
+      <button data-th="light"><svg><use href="#i-sun"/></svg><span class="en">Light</span></button>
+      <button data-th="dark" class="on"><svg><use href="#i-moon"/></svg><span class="en">Dark</span></button>
+    </div>
+    <div class="lb en">Zoom</div>
+    <div class="setrow">
+      <button id="zo" title="-"><svg><use href="#i-minus"/></svg></button>
+      <b class="num" id="zlab">100%</b>
+      <button id="zi" title="+"><svg><use href="#i-plus2"/></svg></button>
+    </div>
+    <div class="lb en">Latin size</div>
+    <div class="setrow">
+      <button id="lo" title="-"><svg><use href="#i-minus"/></svg></button>
+      <b class="num" id="llab">96%</b>
+      <button id="li" title="+"><svg><use href="#i-plus2"/></svg></button>
+    </div>
+  </div>
+  <div class="setbtn" id="gear" title="Settings"><svg><use href="#i-gear"/></svg></div>
 </div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app" id="app-root">
 <nav class="sidebar" id="sidebar-el">
   <div class="logo-area">
-    <div class="logo-img-wrap"><div class="logo-img">⚔</div></div>
+    <div class="logo-img-wrap"><div class="logo-img"><svg style="width:20px;height:20px"><use href="#m-sun"/></svg></div></div>
     <div class="logo-text"><h1>WARMUP</h1><p>GUILD MANAGER</p></div>
   </div>
-  <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni">🔍</span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
-  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni">📅</span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
-  <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni">🛡</span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
-  <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni">👥</span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
-  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni">🏆</span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
+  <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni"><svg><use href="#i-search"/></svg></span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
+  <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni"><svg><use href="#i-cal"/></svg></span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
+  <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
+  <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
+  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
   <div class="nav-spacer"></div>
-  <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span><button id="refresh-btn" onclick="forceRefresh()" title="ดึงข้อมูลล่าสุดจากชีท" style="margin-left:auto;background:transparent;border:none;cursor:pointer;font-size:13px;line-height:1;padding:2px 4px">🔄</button></div>
+  <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span><button id="refresh-btn" onclick="forceRefresh()" title="ดึงข้อมูลล่าสุดจากชีท" style="margin-left:auto;background:transparent;border:none;cursor:pointer;font-size:13px;line-height:1;padding:2px 4px"><svg style="width:14px;height:14px"><use href="#i-refresh"/></svg></button></div>
 </nav>
 <main class="main" id="main-wrap">
 
@@ -407,11 +725,11 @@ input[type=checkbox]{accent-color:var(--orange)}
   <div class="page-sub"><span class="sdot" id="dot" style="background:var(--amber)"></span><span id="stxt">Loading...</span></div>
   <div class="overview-box" id="class-overview" style="margin-bottom:14px"></div>
   <div class="filter-row">
-    <input type="text" id="search-m" placeholder="Search name / ID..." oninput="debouncedRenderMembers()" style="flex:2;min-width:160px">
+    <input type="text" id="search-m" placeholder="Search character" oninput="debouncedRenderMembers()" style="flex:2;min-width:160px">
     <select id="fc" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All classes</option></select>
     <select id="ft" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
     <select id="fp" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All party</option></select>
-    <label class="alt-toggle"><input type="checkbox" id="hide-alts" checked onchange="toggleHideAlts()"> Hide Alts</label>
+    <label class="alt-toggle"><input type="checkbox" id="hide-alts" checked onchange="toggleHideAlts()"> <span class="en">Hide Alts</span></label>
   </div>
   <div class="tbl-wrap"><table class="mtbl">
     <thead><tr>
@@ -421,8 +739,9 @@ input[type=checkbox]{accent-color:var(--orange)}
       <th id="th-classor" onclick="sortM('class_or')">Class (OR) ↕</th>
       <th id="th-party" onclick="sortM('party')">Party ↕</th>
       <th id="th-gf" onclick="sortM('field')">Field ↕</th>
+      <th class="en">Today</th>
     </tr></thead>
-    <tbody id="m-tbody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+    <tbody id="m-tbody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
   </table></div>
   <div style="font-size:11px;color:var(--muted);margin-top:6px" id="m-count"></div>
 </div>
@@ -439,9 +758,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 
 <div id="page-search" class="page active">
   <div class="page-title">Search</div>
-  <div class="page-sub">Search by character name or ID</div>
+  <div class="page-sub">พิมพ์ชื่อตัวละครหรือไอดี</div>
   <div style="display:flex;gap:8px;margin-bottom:16px">
-    <input type="text" id="si-main" placeholder="Character name / ID..." style="flex:1;font-size:14px;padding:10px 14px" oninput="searchMain()">
+    <input type="text" id="si-main" placeholder="Search character" style="flex:1;font-size:14px;padding:10px 14px" oninput="searchMain()">
   </div>
   <div id="search-result"></div>
 </div>
@@ -477,12 +796,12 @@ input[type=checkbox]{accent-color:var(--orange)}
       </div>
       <div style="padding:14px">
         <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-wrap:wrap">
-          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid rgba(160,140,118,.35);flex-shrink:0">
+          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid var(--border2);flex-shrink:0">
             <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--orange-l)">Mul ×</span>
             <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:56px;font-size:20px;font-weight:700;color:var(--orange);background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);text-align:center">
           </div>
           <div id="auc-reward-inputs" style="display:flex;flex:1;flex-wrap:wrap"></div>
-          <div style="border-left:2px solid rgba(160,140,118,.35)"></div>
+          <div style="border-left:2px solid var(--border2)"></div>
           <div id="auc-per-person-inputs" style="display:flex;flex-wrap:wrap"></div>
         </div>
         <div id="auc-summary-cards" style="display:flex;gap:8px;flex-wrap:wrap"></div>
@@ -687,7 +1006,9 @@ async function loadData(){
       role:exact(v,'role'),
       note:'',
       status:exact(v,'status'),
-      tag:exact(v,'tag')
+      tag:exact(v,'tag'),
+      attend:exact(v,'attend'),
+      pfixed:exact(v,'party_fixed')
     }}).filter(m=>m.ign);
     applyMode();
     document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode));
@@ -707,7 +1028,7 @@ function buildFilters(){
 let _hideAlts=true;
 let _guildCap=80;
 const isAlt=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='alt'};
-const isLeaveNote=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='absent'};
+const isLeaveNote=(m)=>{const a=(m.attend||'').toLowerCase().trim();if(a)return a==='absent';const n=(m.status||'').toLowerCase().trim();return n==='absent'};
 function noteLabel(s){
   if(!s||!s.trim())return '';
   const n=s.toLowerCase().trim();
@@ -758,13 +1079,13 @@ function renderMembers(){
   let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
-  if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
+  if(!f.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
   tbody.innerHTML=f.map((m,i)=>{
     const clsGl=m.class_gl||'—';
     const clsOr=m.class_or||'';
     const same=!clsOr||clsOr===m.class_gl;
     const orHtml=same
-      ?`<span style="color:var(--faint)">—</span>`
+      ?`<span style="color:var(--muted)">${clsGl}</span>`
       :`<span style="color:var(--orange-l);font-weight:600">${clsOr}</span>`;
     const fld=m.field||'';
     const gfBadge=fld?`<span class="gf gf-${fld==='Elite'?'e':'s'}">${fld}</span>`:'<span style="color:var(--faint)">—</span>';
@@ -775,6 +1096,7 @@ function renderMembers(){
       <td style="font-size:12px">${orHtml}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
       <td>${gfBadge}</td>
+      <td><span class="st-att ${isLeaveNote(m)?'lv':'ok'} en">${isLeaveNote(m)?'ABSENT':'ACTIVE'}</span></td>
     </tr>`;
   }).join('');
   document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
@@ -805,18 +1127,24 @@ function renderParty(){
       const sub=isAlt(m);const leave=isLeaveNote(m);
       const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
       const isLead=(m.role||'')==='Leader';
-      const gfTag=isLead?`<span class="gf" style="margin-left:auto" title="หัวตี้">★</span>`:'';
-      return`<div class="pm"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${gfTag}${noteTag}</div>`;
+      const mark=`<span class="pm-mark"><i class="ms mk-lead" title="Leader">${isLead?'★':''}</i><i class="ms mk-abs" title="Absent">${leave?'🌙':''}</i></span>`;
+      return`<div class="pm${leave?' pm-absent':''}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}${noteTag}</div>`;
     }).join('');
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span></div><div class="pm-body">${pmHtml}</div></div>`;
+    const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-cnt num ${here===5?'full':''}">${here}/5</span></div><div class="pm-body">${pmHtml}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
   const editBtn='';
+  const absList=sorted.map(p=>({p,names:pts[p].filter(isLeaveNote).map(x=>x.ign)})).filter(x=>x.names.length);
+  const absTotal=absList.reduce((a,x)=>a+x.names.length,0);
+  const absPanel=`<div class="abs-panel"><div class="abs-head"><span class="abs-ic">🌙</span><span class="abs-title">ลาวันนี้</span><span class="abs-count">${absTotal} คน</span></div>`+
+    (absTotal?`<div class="abs-rows">${absList.map(x=>`<div class="abs-row"><span class="abs-p">P${x.p}</span><span class="abs-names">${x.names.join(' · ')}</span></div>`).join('')}</div>`
+             :`<div class="abs-empty">ไม่มีใครลา</div>`)+`</div>`;
   document.getElementById('party-content').innerHTML=
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
     `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
-    `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`;
+    `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`+absPanel;
 }
 
 let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
@@ -835,58 +1163,82 @@ async function searchMain(){
   );
   if(!found.length){el.innerHTML='<div class="nf">No members found</div>';return}
 
+  const CICON={'High Priest':['sup','c-priest'],'Gypsy':['sup','c-gypsy'],'Minstrel':['sup','c-minstrel'],
+    'Professor':['sup','c-prof'],'Summoner':['all','c-summoner'],'Biochemist':['all','c-bio'],
+    'Lord Knight':['all','c-lk'],'Paladin':['all','c-pala'],'High Wizard':['dps','c-hw'],
+    'Sniper':['dps','c-sniper'],'Stalker':['dps','c-stalker'],'Assassin Cross':['dps','c-sinx'],
+    'Mastersmith':['dps','c-ms'],'Rebellion':['dps','c-rebel']};
+  const GRPC={sup:'var(--sup)',all:'var(--all)',dps:'var(--dps)'};
   const renderCard=(m,qRow,hist)=>{
-    const mates=members.filter(x=>x.party===m.party&&x.ign!==m.ign);
-    const metaItems=[
-      `<div class="srch-item"><span class="si">${CLASS_SVG}</span><span class="sv">${m.class||'—'}</span></div>`,
-      m.char_id?`<div class="srch-sep"></div><div class="srch-item"><span class="si">${ID_SVG}</span><span class="sv">${m.char_id}</span></div>`:'',
-      m.discord?`<div class="srch-sep"></div><div class="srch-item srch-discord"><span class="si">${DISCORD_SVG}</span><span class="sv">${m.discord}</span></div>`:''
-    ].join('');
-    const partyHtml=m.party?`
-      <div class="party-v3">
-        <div class="party-v3-box"><span class="party-v3-num">${m.party}</span></div>
-        <div class="party-v3-div"></div>
-        <div class="party-v3-chips">${mates.length?mates.map(x=>`<span class="party-v3-chip">${x.ign}</span>`).join(''):'<span style="font-size:12px;color:var(--faint)">—</span>'}</div>
-      </div>`:'<span style="font-size:12px;color:var(--faint)">No party assigned</span>';
+    const cls=classOf(m);
+    const ic=CICON[cls]||['all','c-summoner'];
+    const lead=(m.role||'')==='Leader';
+    const absent=isLeaveNote(m);
+    const mates=members.filter(x=>x.party&&x.party===m.party)
+      .sort((a,b)=>((a.role==='Leader')?0:1)-((b.role==='Leader')?0:1));
     const remain=remainingQueueRank_(qRow);
-    const remainHtml=remain
-      ? (remain.rank===1
-          ? '<div class="srch-q-total" style="color:var(--green);font-weight:700">🔥 คิวถัดไปคือคุณ!</div>'
-          : `<div class="srch-q-total">อีก ${remain.rank-1} คนก่อนถึงคิวคุณ  ·  (เหลือทั้งหมด ${remain.total} คิว)</div>`)
-      : '';
-    const queueHtml=qRow?`
-      <div class="srch-queue">
-        <div class="srch-q-pos">${String(qRow.position).padStart(2,'0')}</div>
-        <div class="srch-q-info">
-          <div class="srch-q-date">Queue date: ${_searchLatestDate}</div>
-          <div class="srch-q-total">Position ${qRow.position} of ${_searchQueueRows.length}</div>
-          ${remainHtml}
-        </div>
-        <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'}">${qRow.status==='done'?'✓ Drawn':'⏳ Pending'}</span>
-      </div>`
-      :'<span style="font-size:12px;color:var(--faint);font-style:italic">No active queue for this member</span>';
-    const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading history...</div>':
-      hist.length?`<table class="srch-hist">
-        <thead><tr><th>Queue date</th><th style="width:80px">Position</th><th>Auction</th></tr></thead>
+
+    const tiles=`<div class="pf-tiles">
+      <div class="pf-tile"><div class="k en">Party</div>
+        <div class="v num">${m.party||'\u2014'}</div>
+        <div class="h en">${m.field||'No Party'}</div></div>
+      <div class="pf-tile${qRow&&remain&&remain.rank===1?' good':''}"><div class="k en">Queue</div>
+        <div class="v num">${qRow?'#'+qRow.position:'\u2014'}</div>
+        <div class="h">${qRow?(qRow.status==='done'?'จับฉลากแล้ว':(remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คน'):'รอจับฉลาก')):'ยังไม่มีคิว'}</div></div>
+      <div class="pf-tile${absent?' warn':''}"><div class="k en">Today</div>
+        <div class="v en" style="font-size:19px">${absent?'ABSENT':'ACTIVE'}</div>
+        <div class="h">${absent?'แจ้งลารอบนี้':'พร้อมลงวอ'}</div></div>
+    </div>`;
+
+    const mateHtml=mates.length?mates.map(x=>{
+      const xc=classOf(x), xi=CICON[xc]||['all','c-summoner'];
+      const xl=(x.role||'')==='Leader', xa=isLeaveNote(x), me=x.ign===m.ign;
+      return `<div class="pf-mr${me?' me':''}${xa?' gone':''}">
+        <span class="pf-cb" style="background:${GRPC[xi[0]]}"><svg><use href="#${xi[1]}"/></svg></span>
+        <span class="pf-nm">${x.ign}</span>
+        <span class="pf-cl en">${xc||''}</span>
+        <span class="pm-mark"><i class="ms mk-lead">${xl?'\u2605':''}</i><i class="ms mk-abs">${xa?'\uD83C\uDF19':''}</i></span>
+      </div>`}).join(''):'<div class="pf-empty en">No teammates</div>';
+
+    let queueHtml;
+    if(qRow){
+      const tot=_searchQueueRows.length||1;
+      let dots='';
+      for(let k=1;k<=tot;k++)
+        dots+=`<i class="${k===+qRow.position?('me'+(qRow.status==='done'?' done':'')):(k<+qRow.position?'past':'')}"></i>`;
+      queueHtml=`<div class="qz">${dots}</div>
+        <div class="qrow"><div class="big num">${String(qRow.position).padStart(2,'0')}</div>
+          <div class="txt"><b>${qRow.status==='done'?'จับฉลากไปแล้ว':(remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คนก่อนถึงคิว'):'รอจับฉลาก')}</b>
+            <span>รอบคิววันที่ ${_searchLatestDate||'\u2014'} \u00b7 ทั้งหมด ${tot} คิว</span></div>
+          <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'} en">${qRow.status==='done'?'Drawn':'Pending'}</span></div>`;
+    } else queueHtml='<div class="pf-empty en">No active queue</div>';
+
+    const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading...</div>':
+      hist.length?`<table class="hist">
+        <thead><tr><th class="en">Queue date</th><th class="en" style="width:76px">Position</th><th class="en">Result</th></tr></thead>
         <tbody>${hist.map(r=>`<tr>
           <td style="color:var(--muted)">${r.queue_date}</td>
-          <td><span class="srch-pos">${String(r.position).padStart(2,'0')}</span></td>
-          <td>${r.status==='done'
-            ?`<span style="color:var(--green);font-size:11px">✓ ${r.drawn_date?String(r.drawn_date).slice(0,10):''}</span>`
-            :`<span style="color:var(--amber);font-size:11px">⏳ Pending</span>`}</td>
-        </tr>`).join('')}</tbody>
-      </table>`:'<span style="font-size:12px;color:var(--faint);font-style:italic">No auction history</span>';
-    return`<div class="srch-card">
-      <div class="srch-head">
-        <div class="srch-avatar">👤</div>
-        <div class="srch-meta-row">
-          <span class="srch-name">${m.ign}</span>
-          <div class="srch-meta-items">${metaItems}</div>
-        </div>
+          <td><span class="pos num">${String(r.position).padStart(2,'0')}</span></td>
+          <td><span class="qs ${r.status==='done'?'qs-done':'qs-pend'} en">${r.status==='done'?'Drawn':'Pending'}</span></td>
+        </tr>`).join('')}</tbody></table>`
+      :'<div class="pf-empty en">No auction history</div>';
+
+    const meta=[cls?`<span class="en">${cls}</span>`:'',
+      m.char_id?`<i class="dot"></i><span class="num">${m.char_id}</span>`:'',
+      m.discord?`<i class="dot"></i><span class="en">${m.discord}</span>`:'',
+      `<i class="dot"></i><span class="en">${lead?'Leader':'Member'}</span>`].join('');
+
+    return`<div class="pf">
+      <div class="pf-top">
+        <div class="pf-av${lead?' ldr':''}" style="background:${GRPC[ic[0]]}"><svg><use href="#${ic[1]}"/></svg></div>
+        <div class="pf-id"><div class="pf-name">${m.ign}</div><div class="pf-meta">${meta}</div></div>
+        <span class="pf-st ${absent?'lv':'ok'} en">${absent?'ABSENT':'ACTIVE'}</span>
       </div>
-      <div class="srch-section"><div class="srch-sec-lbl">Party · Teammates</div>${partyHtml}</div>
-      <div class="srch-section"><div class="srch-sec-lbl">Current Queue</div>${queueHtml}</div>
-      <div class="srch-section" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="srch-sec-lbl">Auction History</div>${histHtml}</div>
+      ${tiles}
+      <div class="pf-sec"><div class="pf-lbl en">Party &amp; Teammates</div>${mateHtml}</div>
+      <div class="pf-sec"><div class="pf-lbl en">Current Queue</div>${queueHtml}</div>
+      <div class="pf-sec" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}">
+        <div class="pf-lbl en">Auction History</div>${histHtml}</div>
     </div>`;
   };
 
@@ -1796,6 +2148,46 @@ function onZoomSlider(v){
   try{localStorage.setItem('warmup_zoom',_zoomLevel)}catch(e){}
 }
 function stepZoom(d){onZoomSlider(_zoomLevel+d)}
+/* ═══ แผงตั้งค่า — ธีม / ซูม / ขนาดตัวอังกฤษ ═══ */
+(function(){
+  var gear=document.getElementById('gear'), panel=document.getElementById('setp');
+  gear.onclick=function(e){e.stopPropagation();panel.classList.toggle('open');gear.classList.toggle('on')};
+  document.addEventListener('click',function(e){
+    if(!panel.contains(e.target)&&e.target!==gear){panel.classList.remove('open');gear.classList.remove('on')}});
+
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme',t);
+    document.querySelectorAll('#themeseg button').forEach(function(b){b.classList.toggle('on',b.dataset.th===t)});
+    try{localStorage.setItem('warmup_theme',t)}catch(e){}
+  }
+  document.querySelectorAll('#themeseg button').forEach(function(b){b.onclick=function(){setTheme(b.dataset.th)}});
+  try{var t=localStorage.getItem('warmup_theme');if(t==='light'||t==='dark')setTheme(t)}catch(e){}
+
+  var ZS=[80,90,100,110,125,150], zi=2;
+  function zpaint(){
+    onZoomSlider(ZS[zi]);
+    document.getElementById('zlab').textContent=ZS[zi]+'%';
+    document.getElementById('zo').disabled=(zi===0);
+    document.getElementById('zi').disabled=(zi===ZS.length-1);
+  }
+  document.getElementById('zo').onclick=function(){if(zi>0){zi--;zpaint()}};
+  document.getElementById('zi').onclick=function(){if(zi<ZS.length-1){zi++;zpaint()}};
+  try{var z=parseInt(localStorage.getItem('warmup_zoom'),10);var k=ZS.indexOf(z);if(k>=0)zi=k}catch(e){}
+  zpaint();
+
+  var LS=[90,93,96,98,100], li=2;
+  function lpaint(){
+    document.documentElement.style.setProperty('--ls',LS[li]/100);
+    document.getElementById('llab').textContent=LS[li]+'%';
+    document.getElementById('lo').disabled=(li===0);
+    document.getElementById('li').disabled=(li===LS.length-1);
+    try{localStorage.setItem('warmup_ls',LS[li])}catch(e){}
+  }
+  document.getElementById('lo').onclick=function(){if(li>0){li--;lpaint()}};
+  document.getElementById('li').onclick=function(){if(li<LS.length-1){li++;lpaint()}};
+  try{var l=parseInt(localStorage.getItem('warmup_ls'),10);var k2=LS.indexOf(l);if(k2>=0)li=k2}catch(e){}
+  lpaint();
+})();
 function resetZoom(){onZoomSlider(100)}
 (function(){const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)})();
 
