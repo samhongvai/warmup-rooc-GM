@@ -383,6 +383,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pm-mark{margin-left:auto;display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;min-width:34px;font-style:normal;flex:0 0 auto}
 .pm-mark i{font-style:normal;font-size:12px;line-height:1}
 .mk-lead{color:var(--orange-l)}
+.mk-alt{color:var(--faint)}
+.pm-key{display:inline-flex;align-items:center;gap:4px;margin-left:14px;font-size:11.5px;color:var(--faint);white-space:nowrap}
+.pm-key b{font-style:normal;font-weight:400;font-size:12px}
 .mk-abs{filter:saturate(.85)}
 .pm-absent .pm-name{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
 .pm-absent .pm-cls-label{opacity:.55}
@@ -1252,7 +1255,12 @@ function renderParty(){
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
   const totalM=members.filter(m=>m.party).length;
-  const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.length+' ปาร์ตี้';
+  const nAlt=members.filter(m=>m.party&&isAlt(m)).length;
+  const sub=document.getElementById('party-sub');
+  if(sub)sub.innerHTML=totalM+' คน · '+sorted.length+' ปาร์ตี้'+
+    '<span class="pm-key"><b class="mk-lead">★</b> หัวตี้</span>'+
+    (nAlt?'<span class="pm-key"><b class="mk-alt">⧉</b> ตัวรอง</span>':'')+
+    '<span class="pm-key"><b>🌙</b> ลาวันนี้</span>';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
   const PRIEST_CLASSES=['High Priest','Priest'];
   const BARD_CLASSES=['Minstrel','Gypsy'];
@@ -1270,10 +1278,10 @@ function renderParty(){
     const pmHtml=sortedMembers.map(m=>{
       const cls=classOf(m);const type=getType(cls),tb=typeBar(type);
       const sub=isAlt(m);const leave=isLeaveNote(m);
-      const noteTag=sub?'<span class="pm-note">Alt</span>':leave?`<span class="pm-note-leave">${noteLabel(m.status)}</span>`:'';
       const isLead=(m.role||'')==='Leader';
-      const mark=`<span class="pm-mark"><i class="ms mk-lead" title="Leader">${isLead?'★':''}</i><i class="ms mk-abs" title="Absent">${leave?'🌙':''}</i></span>`;
-      return`<div class="pm${leave?' pm-absent':''}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}${noteTag}</div>`;
+      /* ไอคอนล้วน ไม่มีข้อความต่อท้าย — คำอธิบายไอคอนอยู่ที่หัวหน้าหน้า */
+      const mark=`<span class="pm-mark"><i class="ms mk-lead" title="หัวตี้">${isLead?'★':''}</i><i class="ms mk-alt" title="ตัวรอง">${sub?'⧉':''}</i><i class="ms mk-abs" title="ลาวันนี้">${leave?'🌙':''}</i></span>`;
+      return`<div class="pm${leave?' pm-absent':''}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}</div>`;
     }).join('');
     const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
     return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-cnt num ${here===5?'full':''}">${here}/5</span></div><div class="pm-body">${pmHtml}</div></div>`;
