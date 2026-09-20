@@ -1044,12 +1044,18 @@ input[type=checkbox]{accent-color:var(--teal)}
 </main>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   แก้เมื่อ 2026-09 : ย้ายจาก Warmup_Master (เก่า) + Warmup_Auction (เก่า)
-   มาเป็นไฟล์เดียว Warmup_WebMaster ที่รวม IMPORTRANGE จาก
-   Warmup_Members + Warmup_Auction ปัจจุบัน
-   ═══════════════════════════════════════════════════════════ */
-const SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup_WebMaster
+/* ═════════════════════════════════════════════════════════
+   แก้เมื่อ 2026-09-20 : เว็บดึงตรงจากไฟล์ต้นทาง ไม่ผ่าน IMPORTRANGE อีกแล้ว
+     Warmup Auction (Link)  -> Auction_Queue, Queue_Archive, Helper_Log, Config
+     Warmup Event (Link)    -> War_Log, Rewards_Ref, Events, GL_Score
+     Warmup Bridge (Link)   -> Web_Members เท่านั้น (กัน Warmup Members ไว้ไม่ต้องแชร์ public)
+   ═════════════════════════════════════════════════════════ */
+const SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup Bridge (Link)
+const SRC_AUCTION='1OQcwEoOjzMZ09jqTdh8aNex9EeMC-DnEH6Jc31u8dYM'; // Warmup Auction (Link)
+const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Event (Link)
+/* แท็บไหนอยู่ไฟล์ไหน — ที่ไม่มีในนี้จะไปดึงจาก Bridge */
+const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
+               War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT};
 /* ปุ่มดึงข้อมูลล่าสุดจะตั้ง _bust เป็นเวลาปัจจุบัน ทำให้ URL ไม่ซ้ำเดิม
    เบราว์เซอร์กับ CDN ของ Google จึงไม่คืนของเก่าที่แคชไว้ */
 let _bust='';
@@ -1413,10 +1419,10 @@ async function searchMain(){
    AUCTION — อ่านจาก Warmup_WebMaster ผ่าน gviz ทั้งหมด (read-only)
    War_Log แทนที่ Auction_Result / GL_Rank_Track / OR_Rank_Track เดิม
    ═══════════════════════════════════════════════════════════ */
-const AUCTION_SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup_WebMaster (ไฟล์เดียวกับ SHEET_ID)
+/* เลิกใช้ AUCTION_SHEET_ID — แต่ละแท็บดูไฟล์ต้นทางจาก TAB_SRC ข้างบน */
 /* ดึงเป็น CSV ไม่ใช่ JSON — gviz JSON เดาชนิดคอลัมน์จากค่าแรกที่ไม่ว่าง
    คอลัมน์ที่ปนข้อความกับตัวเลข (เช่น rank ใน Rewards_Ref) จะถูกทิ้งเป็น null เงียบๆ */
-const mkUrlA=s=>bust(`https://docs.google.com/spreadsheets/d/${AUCTION_SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(s)}`);
+const mkUrlA=s=>bust(`https://docs.google.com/spreadsheets/d/${TAB_SRC[s]||SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(s)}`);
 
 /* แกะ CSV เอง เพราะ field อาจมี comma อยู่ในเครื่องหมายคำพูด เช่น "3,000" ที่มีจริงใน GL_Log */
 function parseCsvRows(text){
@@ -2685,6 +2691,29 @@ async function forceRefresh(){
   if(btn)btn.classList.remove('busy');
   stampUpdated();
 }
+
+/* ══ near-realtime ══
+   รีเฟรชเองทุก 60 วินาที เฉพาะตอนที่แท็บเปิดอยู่จริง
+   และรีเฟรชทันทีเมื่อกลับมาที่แท็บหลังหายไปเกิน 30 วิ
+   ถ้ากำลังพิมพ์อยู่ในช่องกรอก จะข้ามรอบนั้นไป ไม่โดนล้างกลางคัน */
+const AUTO_MS=60000;
+let _lastAuto=Date.now(), _autoBusy=false;
+function autoSkip_(){
+  if(_autoBusy||document.hidden)return true;
+  const a=document.activeElement;
+  if(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))return true;
+  return false;
+}
+async function autoRefresh_(){
+  if(autoSkip_())return;
+  _autoBusy=true;
+  try{ await forceRefresh() }catch(e){ console.warn('auto refresh',e) }
+  _lastAuto=Date.now(); _autoBusy=false;
+}
+setInterval(function(){ if(Date.now()-_lastAuto>=AUTO_MS)autoRefresh_() },15000);
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&Date.now()-_lastAuto>30000)autoRefresh_();
+});
 
 loadData();
 </script>
