@@ -695,6 +695,32 @@ input[type=checkbox]{accent-color:var(--teal)}
   .au-tbl{min-width:520px}
   .au-tbl th,.au-tbl td{white-space:nowrap}
 }
+
+/* ── Auction v3 · states + forecast ── */
+.au-rib{display:flex;align-items:center;gap:9px;background:var(--soft);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;margin:0 0 13px;font-size:12.5px;color:var(--muted)}
+.au-rib b{color:var(--text);font-weight:700}
+.au-rib .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex-shrink:0}
+.au-rib.wait{background:var(--orange-dim);border-color:transparent;color:var(--orange)}
+.au-rib.wait b{color:inherit}
+.au-rib.wait .dot{background:var(--orange)}
+.au-sec.ro .au-fld input,.au-sec.ro .au-mini input{pointer-events:none;color:var(--muted)}
+.au-empty2{text-align:center;color:var(--faint);font-size:12.5px;padding:24px 10px}
+.au-fc{border:1px dashed var(--border2);border-radius:14px;overflow:hidden;margin-top:13px}
+.au-fc-h{display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px dashed var(--border2)}
+.au-fc-h b{font-size:12px;font-weight:700;font-family:var(--font-pixel);letter-spacing:.3px}
+.au-fc-h .sp{flex:1}
+.au-fc-tag{font-size:10px;font-weight:700;letter-spacing:.7px;border:1px solid var(--border2);
+  color:var(--faint);border-radius:999px;padding:3px 9px}
+.au-fc-b{padding:13px}
+.au-fc-when{font-size:12.5px;color:var(--muted);margin-bottom:11px}
+.au-fc-when b{color:var(--text);font-weight:700}
+.au-fc-g{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.au-fc-box{border:1px dashed var(--border2);border-radius:12px;padding:12px 13px;text-align:center;min-width:0}
+.au-fc-box b{display:block;font-size:20px;font-weight:700;color:var(--muted);line-height:1.2;font-family:var(--font-pixel)}
+.au-fc-box span{font-size:11px;color:var(--faint)}
+.au-fc-foot{font-size:11.5px;color:var(--faint);margin-top:10px;line-height:1.7}
+@media(max-width:700px){.au-fc-g{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -850,10 +876,12 @@ input[type=checkbox]{accent-color:var(--teal)}
         <b id="auc-calc-title">Guild League Reward</b><div class="sp"></div>
       </div>
       <div class="au-sec-b">
+        <div class="au-rib" id="auc-rib" style="display:none"><span class="dot"></span><span id="auc-rib-t"></span></div>
         <div class="au-war" id="auc-war"></div>
         <div class="au-mwarn" id="auc-mwarn" style="display:none"></div>
+        <div id="auc-fc"></div>
 
-        <div class="au-bx">
+        <div class="au-bx" id="auc-cfgbx">
           <div class="au-bx-h"><b>Configuration</b><div class="sp"></div></div>
           <div class="au-bx-b">
             <div class="au-g3" id="auc-reward-inputs"></div>
@@ -1577,64 +1605,193 @@ function computeDistribution(){
 
 function augTog(id){const e=document.getElementById(id);if(e)e.classList.toggle('closed')}
 
-/* นัดล่าสุดที่ข้อมูลครบ — ใช้ตั้งค่าตัวคูณและแรงก์ให้อัตโนมัติ */
-let _aucAutoWar=null, _aucMulManual=false;
-function latestWar_(){
-  const rows=_warLog.filter(r=>r.date&&String(r.status||'').trim()&&String(r.rank||'').trim()&&String(r.event_type||'').trim());
-  rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-  return rows[0]||null;
-}
-function applyAutoWar(){
-  _aucAutoWar=latestWar_();
-  if(!_aucAutoWar)return false;
-  const w=_aucAutoWar;
-  const tSel=document.getElementById('auc-event-type');
-  const rSel=document.getElementById('auc-event-rank');
-  if(!tSel||!rSel)return false;
-  if([...tSel.options].some(o=>o.value===w.event_type)){
-    tSel.value=w.event_type;
-    const ranks=_aucRewardsRef.filter(r=>r.event_type===w.event_type);
-    rSel.innerHTML=ranks.map(r=>{
-      const grp=r.group?`${r.group} · `:'';
-      const label=r.cross_server==='Y'?`${grp}${r.rank} (ข้ามเซิร์ฟ)`:`${grp}${r.rank} (ในเซิร์ฟ)`;
-      return `<option value="${r.rank}|${r.cross_server}|${r.group||''}">${label}</option>`;
-    }).join('');
-    const want=`${w.rank}|${w.cross_server||''}|${w.group||''}`;
-    if([...rSel.options].some(o=>o.value===want))rSel.value=want;
-  }
-  const m=parseFloat(w.mul);
-  _aucGlobalMul=(isFinite(m)&&m>0)?m:1;
-  _aucMulManual=false;
-  return true;
-}
+var _aucAutoWar=null;
 function aucResetAuto(){
   _aucFieldOverrides={};_aucPerPersonOverrides={};
   applyAutoWar();
   renderRewardInputs();renderDistribution();
 }
+/* ── วันวอ · สถานะหน้าประมูล · คาดการณ์รอบถัดไป ───────────── */
+var AU_DOW=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+var AU_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function auISO_(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(x<10?'0':'')+x}
+function auThai_(iso){var d=new Date(iso+'T00:00:00');return AU_DOW[d.getDay()]+' '+d.getDate()+' '+AU_MON[d.getMonth()]}
+
+/* วันในสัปดาห์ที่มีวอ อ่านจาก Events ถ้าโหลดแล้ว ไม่งั้นใช้ อังคาร/พฤหัส/อาทิตย์ */
+function auWarDays_(){
+  var set={};
+  try{
+    (_events||[]).forEach(function(e){
+      if(String(e.tag||'').toUpperCase()!=='GUILDWAR')return;
+      String(e.day_of_week||'').split(',').forEach(function(s){
+        var n=parseInt(String(s).trim(),10);           /* 1=จันทร์ … 7=อาทิตย์ */
+        if(n>=1&&n<=7)set[n===7?0:n]=1;
+      });
+    });
+  }catch(e){}
+  if(!Object.keys(set).length){set[2]=1;set[4]=1;set[0]=1}
+  return set;
+}
+function auIsWarDay_(iso){return !!auWarDays_()[new Date(iso+'T00:00:00').getDay()]}
+function auNextWarDay_(fromIso,inclusive){
+  var wd=auWarDays_(), d=new Date(fromIso+'T00:00:00');
+  if(!inclusive)d.setDate(d.getDate()+1);
+  for(var i=0;i<14;i++){ if(wd[d.getDay()])return auISO_(d); d.setDate(d.getDate()+1) }
+  return null;
+}
+
+/* แถวสมบูรณ์พอจะคำนวณได้หรือยัง — Overrun ไม่มีแพ้ชนะ ไม่ต้องมี status */
+function auRowReady_(r){
+  if(!r)return false;
+  var ev=String(r.event_type||'').trim();
+  if(!ev||!String(r.rank||'').trim())return false;
+  if(ev==='Guild League')return !!String(r.status||'').trim();
+  return true;
+}
+
+var _aucMode='live', _aucFc=null;
+
+function applyAutoWar(){
+  var today=auISO_(new Date());
+  var rows=_warLog.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))});
+  var todayRow=null;
+  for(var i=0;i<rows.length;i++){ if(rows[i].date===today){todayRow=rows[i];break} }
+
+  var pick=null;
+  if(todayRow&&auRowReady_(todayRow)){ _aucMode='live'; pick=todayRow; }
+  else if(todayRow||auIsWarDay_(today)){ _aucMode='wait'; pick=null; }
+  else{
+    _aucMode='closed';
+    for(var j=0;j<rows.length;j++){ if(auRowReady_(rows[j])){pick=rows[j];break} }
+    if(!pick)_aucMode='wait';
+  }
+
+  _aucFc=auBuildForecast_(today,rows);
+  _aucAutoWar=pick;
+  if(!pick)return false;
+
+  var w=pick;
+  var tSel=document.getElementById('auc-event-type'), rSel=document.getElementById('auc-event-rank');
+  if(tSel&&rSel&&[].slice.call(tSel.options).some(function(o){return o.value===w.event_type})){
+    tSel.value=w.event_type;
+    var ranks=_aucRewardsRef.filter(function(r){return r.event_type===w.event_type});
+    rSel.innerHTML=ranks.map(function(r){
+      var grp=r.group?r.group+' · ':'';
+      var label=r.cross_server==='Y'?(grp+r.rank+' (ข้ามเซิร์ฟ)'):(grp+r.rank+' (ในเซิร์ฟ)');
+      return '<option value="'+r.rank+'|'+r.cross_server+'|'+(r.group||'')+'">'+label+'</option>';
+    }).join('');
+    var want=w.rank+'|'+(w.cross_server||'')+'|'+(w.group||'');
+    if([].slice.call(rSel.options).some(function(o){return o.value===want}))rSel.value=want;
+  }
+  var m=parseFloat(w.mul);
+  _aucGlobalMul=(isFinite(m)&&m>0)?m:1;
+  return true;
+}
+
+/* กล่องคาดการณ์ — ใช้แรงก์ที่ใส่ล่วงหน้าในชีตก่อน ถ้าไม่มีค่อยเดาจากรอบก่อน */
+function auBuildForecast_(today,rows){
+  var target=auNextWarDay_(today,_aucMode!=='live');
+  if(!target)return null;
+  var pre=null;
+  for(var i=0;i<rows.length;i++){ if(rows[i].date===target){pre=rows[i];break} }
+  if(pre&&auRowReady_(pre)&&target===today)return null;
+
+  var ev,grp,rank,cross,src;
+  if(pre&&String(pre.rank||'').trim()){
+    ev=pre.event_type; grp=pre.group||''; rank=pre.rank; cross=pre.cross_server||'Y';
+    src='อิงแรงก์ที่ใส่ล่วงหน้าไว้ในชีต';
+  }else{
+    var isSun=new Date(target+'T00:00:00').getDay()===0;
+    ev=isSun?'Overrun':'Guild League';
+    var last=null;
+    for(var k=0;k<rows.length;k++){ if(rows[k].event_type===ev&&String(rows[k].rank||'').trim()){last=rows[k];break} }
+    if(!last)return null;
+    cross=last.cross_server||'Y';
+    if(ev==='Overrun'){ grp=last.group||''; rank='1';
+      src='ยังไม่ได้ใส่อันดับล่วงหน้าในชีต — ใช้อันดับ 1 ของกลุ่ม '+(grp||'-')+' เป็นเพดาน'; }
+    else{ grp=''; rank=last.rank;
+      src='ยังไม่ได้ใส่แรงก์ล่วงหน้าในชีต — ใช้แรงก์จากนัดล่าสุด'; }
+  }
+  var base=null;
+  for(var n=0;n<_aucRewardsRef.length;n++){
+    var r=_aucRewardsRef[n];
+    if(r.event_type===ev&&String(r.rank)===String(rank)&&r.cross_server===cross&&(r.group||'')===(grp||'')){base=r;break}
+  }
+  if(!base)return null;
+  var mul=(ev==='Guild League')?2:1;
+  return {date:target,ev:ev,sub:(grp?grp+' · ':'')+(ev==='Overrun'?'อันดับ '+rank:rank),
+    card:Math.ceil((+base.card||0)*mul), white:Math.ceil((+base.feather_white||0)*mul),
+    red:Math.ceil((+base.feather_red_black||0)*mul), src:src,
+    why:(ev==='Guild League')?'เพดานคือชนะ ×2':'Overrun ไม่มีตัวคูณ'};
+}
+
+function renderForecast(){
+  var w=document.getElementById('auc-fc'); if(!w)return;
+  var f=_aucFc;
+  if(!f){w.innerHTML='';return}
+  w.innerHTML='<div class="au-fc"><div class="au-fc-h"><b>Next Auction</b><div class="sp"></div>'+
+    '<span class="au-fc-tag">คาดการณ์</span></div><div class="au-fc-b">'+
+    '<div class="au-fc-when"><b>'+auThai_(f.date)+'</b> · '+f.ev+' · '+f.sub+'</div>'+
+    '<div class="au-fc-g">'+
+      '<div class="au-fc-box"><b>('+f.card+')</b><span>Card Slot</span></div>'+
+      '<div class="au-fc-box"><b>('+f.white+')</b><span>White Feather</span></div>'+
+      '<div class="au-fc-box"><b>('+f.red+')</b><span>Red / Black</span></div>'+
+    '</div>'+
+    '<div class="au-fc-foot">'+f.src+'</div>'+
+    '<div class="au-fc-foot">'+f.why+' · ตัวเลขในวงเล็บคือเพดานที่เป็นไปได้ ยังไม่ใช่ของจริง</div>'+
+    '</div></div>';
+}
+
+
 function renderWarLine(){
-  const box=document.getElementById('auc-war');
-  const title=document.getElementById('auc-calc-title');
-  const warn=document.getElementById('auc-mwarn');
+  var box=document.getElementById('auc-war');
+  var title=document.getElementById('auc-calc-title');
+  var warn=document.getElementById('auc-mwarn');
+  var rib=document.getElementById('auc-rib');
+  var sec=document.getElementById('au-s1');
+  var cfg=document.getElementById('auc-cfgbx');
   if(!box)return;
-  const w=_aucAutoWar;
-  if(!w){box.innerHTML='<span class="au-wm">ยังไม่มีนัดที่ข้อมูลครบใน War Log</span>';if(warn)warn.style.display='none';return}
+  renderForecast();
+
+  var w=_aucAutoWar, today=auISO_(new Date());
+  if(sec)sec.classList.toggle('ro',_aucMode==='closed');
+  if(cfg)cfg.style.display=(_aucMode==='wait')?'none':'';
+
+  if(_aucMode==='wait'){
+    box.innerHTML='';
+    if(warn)warn.style.display='none';
+    var evName=auIsWarDay_(today)?(new Date(today+'T00:00:00').getDay()===0?'Overrun':'Guild League'):'';
+    if(rib){
+      rib.style.display='flex'; rib.className='au-rib wait';
+      document.getElementById('auc-rib-t').innerHTML=
+        'ยังไม่ได้กรอกผล <b>'+(evName||'วอ')+'</b> ของวัน <b>'+auThai_(today)+'</b> — กรอกในชีตแล้วหน้านี้จะคำนวณให้เอง';
+    }
+    if(title)title.textContent=(evName||'Guild League')+' Reward';
+    return;
+  }
+  if(!w){ box.innerHTML=''; if(rib)rib.style.display='none'; return }
+
+  if(rib){
+    if(_aucMode==='closed'){
+      rib.style.display='flex'; rib.className='au-rib';
+      document.getElementById('auc-rib-t').innerHTML='รอบที่ปิดไปแล้ว · <b>'+auThai_(w.date)+'</b> — อ่านอย่างเดียว';
+    }else rib.style.display='none';
+  }
   if(title)title.textContent=(w.event_type||'Guild League')+' Reward';
-  const st=String(w.status||'').toLowerCase();
-  const diff=Math.abs(Number(String(w.diff||'').replace(/,/g,''))||0);
-  const grp=w.group?` · ${w.group}`:'';
-  const autoMul=parseFloat(w.mul)||1;
-  const cur=_aucGlobalMul||1;
-  const man=Math.abs(cur-autoMul)>1e-9;
-  box.innerHTML=
-    `<span class="au-wd">${w.date}</span>`+
-    `<span class="au-wm">${w.event_type||''}${grp} · ${w.rank||''}</span>`+
-    `<span class="au-chip ${st==='win'?'win':'lose'}">${w.status}${diff?' '+diff.toLocaleString():''}</span>`+
-    `<span class="au-mul"><small>×</small><span>${cur.toFixed(1)}</span></span>`+
-    `<span class="au-tag${man?'':' on'}">${man?'manual':'auto'}</span>`;
+
+  var st=String(w.status||'').toLowerCase();
+  var diff=Math.abs(Number(String(w.diff||'').replace(/,/g,''))||0);
+  var grp=w.group?' · '+w.group:'';
+  var autoMul=parseFloat(w.mul)||1, cur=_aucGlobalMul||1;
+  var man=Math.abs(cur-autoMul)>1e-9;
+  var chip=st?('<span class="au-chip '+(st==='win'?'win':'lose')+'">'+w.status+(diff?' '+diff.toLocaleString():'')+'</span>'):'';
+  box.innerHTML='<span class="au-wd">'+w.date+'</span>'+
+    '<span class="au-wm">'+(w.event_type||'')+grp+' · '+(w.rank||'')+'</span>'+chip+
+    '<span class="au-mul"><small>×</small><span>'+cur.toFixed(1)+'</span></span>'+
+    (_aucMode==='closed'?'':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>');
   if(warn){
-    warn.style.display=man?'block':'none';
-    if(man)warn.innerHTML=`ตัวคูณไม่ตรงกับผลวอ (${autoMul}) &nbsp;<a href="#" onclick="aucResetAuto();return false">กลับค่าอัตโนมัติ</a>`;
+    warn.style.display=(man&&_aucMode!=='closed')?'block':'none';
+    if(man)warn.innerHTML='ตัวคูณไม่ตรงกับผลวอ ('+autoMul+') &nbsp;<a href="#" onclick="aucResetAuto();return false">กลับค่าอัตโนมัติ</a>';
   }
 }
 
@@ -1695,7 +1852,7 @@ function renderDistribution(){
   const perSum=document.getElementById('auc-per-person-summary');
   if(!tbody)return;
   if(!dist){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
+    tbody.innerHTML='<tr><td colspan="5" class="'+(_aucMode==='wait'?'au-empty2':'empty')+'">'+(_aucMode==='wait'?'รอกรอกผลวอก่อน':'ยังไม่มีคิวที่รอประมูล (status = pending)')+'</td></tr>';
     if(sumWrap)sumWrap.innerHTML='';
     if(perSum)perSum.textContent='—';
     renderLeftover();
@@ -1742,6 +1899,7 @@ function renderLeftover(){
   const cN=Math.max(0,+(document.getElementById('lo-c')||{}).value||0);
   const wN=Math.max(0,+(document.getElementById('lo-w')||{}).value||0);
   const rN=Math.max(0,+(document.getElementById('lo-r')||{}).value||0);
+  if(_aucMode==='wait'){body.innerHTML='<tr><td colspan="4" class="au-empty2">รอกรอกผลวอก่อน</td></tr>';return}
   if(!cN&&!wN&&!rN){body.innerHTML='<tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr>';return}
   const rw=getRewardValues();
   const capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
