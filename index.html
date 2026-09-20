@@ -402,9 +402,9 @@ input[type=checkbox]{accent-color:var(--orange)}
    Warmup · design system 2026-09  (ทับธีมเดิมด้วย token ล้วน)
    ═══════════════════════════════════════════════════════════ */
 :root{
-  --bg:#171B21; --shell:#1D222A; --card:#232932; --card2:#2A313B; --soft:#2A313B;
-  --text:#E9EEF3; --muted:#A3AEB8; --faint:#76828D;
-  --border:#2E353F; --border2:#3A424D; --line:#2E353F; --line2:#3A424D;
+  --bg:#1B2028; --shell:#222833; --card:#262D38; --card2:#2F3743; --soft:#2F3743;
+  --text:#EDF1F6; --muted:#AFBAC5; --faint:#8A96A2;
+  --border:#343C48; --border2:#404956; --line:#343C48; --line2:#404956;
   --tint-rgb:120,135,150;
 
   --orange:#F0883E; --orange-l:#FFB15C;
@@ -519,9 +519,10 @@ input[type=checkbox]{accent-color:var(--teal)}
 /* ── แผงตั้งค่ามุมขวาล่าง (แทน zoom pill เดิม) ── */
 .setwrap{position:fixed;right:16px;bottom:16px;z-index:260;display:flex;
   flex-direction:column;align-items:flex-end;gap:9px}
-.setbtn{width:40px;height:40px;border-radius:14px;background:var(--card);
-  border:1px solid var(--border2);box-shadow:var(--shadow-out);display:grid;
-  place-items:center;cursor:pointer;color:var(--muted)}
+.setbtn{height:40px;padding:0 13px;border-radius:14px;background:var(--card);
+  border:1px solid var(--border2);box-shadow:var(--shadow-out);display:flex;gap:7px;
+  align-items:center;cursor:pointer;color:var(--muted)}
+.setbtn b{font-size:12.5px;font-weight:700;color:var(--text)}
 .setbtn:hover,.setbtn.on{color:var(--orange-l);border-color:var(--orange-border)}
 .setbtn svg{width:19px;height:19px}
 .setpanel{display:none;width:238px;background:var(--card);border:1px solid var(--border);
@@ -701,7 +702,7 @@ input[type=checkbox]{accent-color:var(--teal)}
       <button id="li" title="+"><svg><use href="#i-plus2"/></svg></button>
     </div>
   </div>
-  <div class="setbtn" id="gear" title="Settings"><svg><use href="#i-gear"/></svg></div>
+  <div class="setbtn" id="gear" title="Settings"><svg><use href="#i-gear"/></svg><b class="num" id="gearz">100%</b></div>
 </div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app" id="app-root">
@@ -2167,6 +2168,7 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
   function zpaint(){
     onZoomSlider(ZS[zi]);
     document.getElementById('zlab').textContent=ZS[zi]+'%';
+    document.getElementById('gearz').textContent=ZS[zi]+'%';
     document.getElementById('zo').disabled=(zi===0);
     document.getElementById('zi').disabled=(zi===ZS.length-1);
   }
