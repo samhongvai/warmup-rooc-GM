@@ -383,9 +383,11 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pm-mark{margin-left:auto;display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;min-width:34px;font-style:normal;flex:0 0 auto}
 .pm-mark i{font-style:normal;font-size:12px;line-height:1}
 .mk-lead{color:var(--orange-l)}
-.mk-alt{color:var(--faint)}
-.pm-key{display:inline-flex;align-items:center;gap:4px;margin-left:14px;font-size:11.5px;color:var(--faint);white-space:nowrap}
-.pm-key b{font-style:normal;font-weight:400;font-size:12px}
+.pm-tag{margin-left:auto;flex:0 0 auto;font-size:9.5px;font-weight:700;letter-spacing:.6px;
+  padding:2px 7px;border-radius:999px;white-space:nowrap;line-height:1.5;text-transform:uppercase}
+.pm-tag.lead{color:var(--orange);background:var(--orange-dim)}
+.pm-tag.abs{color:var(--muted);background:var(--soft);border:1px solid var(--border)}
+.pm-tag.alt{color:var(--faint);background:var(--soft);border:1px solid var(--border)}
 .mk-abs{filter:saturate(.85)}
 .pm-absent .pm-name{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
 .pm-absent .pm-cls-label{opacity:.55}
@@ -743,10 +745,9 @@ input[type=checkbox]{accent-color:var(--teal)}
 .au-qt td.ct{text-align:right;width:150px}
 .au-cut{font-size:10.5px;font-weight:700;color:var(--orange);background:var(--orange-dim);border-radius:999px;padding:3px 9px;white-space:nowrap}
 .au-qh2{margin:16px 0 8px;font-size:12px;font-weight:700;color:var(--muted);font-family:var(--font-pixel)}
-.au-dup{list-style:none;margin:0;padding:0}
-.au-dup li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding:6px 11px;background:var(--soft);border:1px solid var(--border);border-radius:9px;margin-bottom:6px}
-.au-dup b{font-size:12.5px;font-weight:700}
-.au-dup span{font-size:11.5px;color:var(--faint)}
+.au-dup{display:flex;flex-wrap:wrap;gap:6px}
+.au-dupc{font-size:11.5px;color:var(--muted);background:var(--soft);border:1px solid var(--border);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.au-dupn{font-weight:400;color:var(--faint);font-size:11px;font-family:var(--font);letter-spacing:0}
 @media(max-width:700px){.au-qt td.src{display:none}.au-qt td.ct{width:auto}}
 </style>
 </head>
@@ -1255,12 +1256,7 @@ function renderParty(){
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
   const totalM=members.filter(m=>m.party).length;
-  const nAlt=members.filter(m=>m.party&&isAlt(m)).length;
-  const sub=document.getElementById('party-sub');
-  if(sub)sub.innerHTML=totalM+' คน · '+sorted.length+' ปาร์ตี้'+
-    '<span class="pm-key"><b class="mk-lead">★</b> หัวตี้</span>'+
-    (nAlt?'<span class="pm-key"><b class="mk-alt">⧉</b> ตัวรอง</span>':'')+
-    '<span class="pm-key"><b>🌙</b> ลาวันนี้</span>';
+  const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.length+' ปาร์ตี้';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
   const PRIEST_CLASSES=['High Priest','Priest'];
   const BARD_CLASSES=['Minstrel','Gypsy'];
@@ -1279,8 +1275,10 @@ function renderParty(){
       const cls=classOf(m);const type=getType(cls),tb=typeBar(type);
       const sub=isAlt(m);const leave=isLeaveNote(m);
       const isLead=(m.role||'')==='Leader';
-      /* ไอคอนล้วน ไม่มีข้อความต่อท้าย — คำอธิบายไอคอนอยู่ที่หัวหน้าหน้า */
-      const mark=`<span class="pm-mark"><i class="ms mk-lead" title="หัวตี้">${isLead?'★':''}</i><i class="ms mk-alt" title="ตัวรอง">${sub?'⧉':''}</i><i class="ms mk-abs" title="ลาวันนี้">${leave?'🌙':''}</i></span>`;
+      /* ป้ายเดียวต่อแถว — ลามาก่อน เพราะวันนี้หัวตี้ไม่ได้ลง */
+      const mark=leave?'<span class="pm-tag abs en">Absent</span>'
+        :sub?'<span class="pm-tag alt en">Alt</span>'
+        :isLead?'<span class="pm-tag lead en">Leader</span>':'';
       return`<div class="pm${leave?' pm-absent':''}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}</div>`;
     }).join('');
     const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
@@ -1353,7 +1351,7 @@ async function searchMain(){
         <span class="pf-cb" style="background:${GRPC[xi[0]]}"><svg><use href="#${xi[1]}"/></svg></span>
         <span class="pf-nm">${x.ign}</span>
         <span class="pf-cl en">${xc||''}</span>
-        <span class="pm-mark"><i class="ms mk-lead">${xl?'\u2605':''}</i><i class="ms mk-abs">${xa?'\uD83C\uDF19':''}</i></span>
+        ${xa?'<span class="pm-tag abs en">Absent</span>':xl?'<span class="pm-tag lead en">Leader</span>':''}
       </div>`}).join(''):'<div class="pf-empty en">No teammates</div>';
 
     let queueHtml;
@@ -1733,7 +1731,8 @@ function applyAutoWar(){
   else if(todayRow||auIsWarDay_(today)){ _aucMode='wait'; pick=null; }
   else{
     _aucMode='closed';
-    for(var j=0;j<rows.length;j++){ if(auRowReady_(rows[j])){pick=rows[j];break} }
+    /* ห้ามหยิบแถวของวันข้างหน้ามาแสดง — นัดที่ยังไม่ถึงต้องรอกรอกผลก่อน */
+    for(var j=0;j<rows.length;j++){ if(rows[j].date<=today&&auRowReady_(rows[j])){pick=rows[j];break} }
     if(!pick)_aucMode='wait';
   }
 
@@ -1823,10 +1822,10 @@ function auForecastQueue_(f){
   var dup=auDuplicateQueue_();
   var dupHtml='';
   if(dup.length){
-    dupHtml='<div class="au-qh2">ซ้ำรอบเก่า — ข้ามให้อัตโนมัติ เลื่อนไปประมูลรอบถัดไป</div>'
-      +'<ul class="au-dup">'+dup.map(function(r){
-        return '<li><b>'+(r.member_name||'')+'</b><span>รอบ '+(r.queue_date||'')+' คิว '+(r.position||'')+'</span></li>';
-      }).join('')+'</ul>';
+    dupHtml='<div class="au-qh2">ข้ามอัตโนมัติ — ซ้ำคิวรอบเก่า <span class="au-dupn">'+dup.length+' คน · เลื่อนไปรอบถัดไป</span></div>'
+      +'<div class="au-dup">'+dup.map(function(r){
+        return '<span class="au-dupc" title="รอบ '+(r.queue_date||'')+' คิว '+(r.position||'')+'">'+(r.member_name||'')+'</span>';
+      }).join('')+'</div>';
   }
   return '<div class="au-qh"><b>คิวประมูลคาดการณ์</b>'+chips+'</div>'
     +'<div class="au-tblx"><table class="au-qt"><tbody>'+rows+'</tbody></table></div>'+dupHtml;
