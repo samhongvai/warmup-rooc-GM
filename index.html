@@ -652,6 +652,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 .au-bx-b{padding:13px}
 .au-lbl{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--faint);margin:14px 0 8px 2px;font-family:var(--font-pixel)}
 .au-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.au-g2{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
 .au-g3.gm{margin-top:11px}
 .au-fld{background:var(--card2);border:1px solid transparent;border-radius:12px;padding:12px 13px;min-width:0}
 .au-fld.ov{border-color:var(--orange-border)}
@@ -687,7 +688,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 .au-tblx{width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:1000px){.au-fld input{font-size:19px}.au-fld .k,.au-mini .k{font-size:10.5px}}
 @media(max-width:700px){
-  .au-g3{grid-template-columns:1fr}
+  .au-g3,.au-g2{grid-template-columns:1fr}
   .au-sec-b{padding:12px}
   .au-bx-b{padding:11px}
   .au-war{gap:8px;padding:0 2px 11px}
@@ -891,8 +892,6 @@ input[type=checkbox]{accent-color:var(--teal)}
               <label class="au-mini"><span class="k">Rank</span><select id="auc-event-rank" onchange="onAucRank()"></select></label>
               <button class="au-mini au-reset" id="auc-reset" onclick="aucResetAuto()"><span class="k">Reset</span><b>auto</b></button>
             </div>
-            <div class="au-lbl">Allocated / Remaining</div>
-            <div class="au-g3" id="auc-summary-cards"></div>
           </div>
         </div>
       </div>
@@ -915,14 +914,13 @@ input[type=checkbox]{accent-color:var(--teal)}
         <b>Leftover</b><div class="sp"></div>
       </div>
       <div class="au-sec-b">
-        <div class="au-g3">
-          <label class="au-mini"><span class="k">Card Slot</span><input id="lo-c" type="number" min="0" value="0" oninput="renderLeftover()"></label>
+        <div class="au-g2">
           <label class="au-mini"><span class="k">White</span><input id="lo-w" type="number" min="0" value="0" oninput="renderLeftover()"></label>
           <label class="au-mini"><span class="k">Red / Black</span><input id="lo-r" type="number" min="0" value="0" oninput="renderLeftover()"></label>
         </div>
         <div class="au-tblx" style="margin-top:14px"><table class="au-tbl">
-          <thead><tr><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th></tr></thead>
-          <tbody id="lo-body"><tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr></tbody>
+          <thead><tr><th>Name</th><th>White</th><th>Red / Black</th></tr></thead>
+          <tbody id="lo-body"><tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -1651,6 +1649,19 @@ function auRowReady_(r){
 
 var _aucMode='live', _aucFc=null;
 
+/* วันนี้ดึงคิวไปแล้วกี่คน — ใช้ดูว่าประมูลรอบนี้ครบหรือยัง */
+function auDrawnToday_(){
+  var today=auISO_(new Date());
+  return (_aucQueue||[]).filter(function(r){
+    return String(r.status||'').toLowerCase()==='done'&&String(r.drawn_date||'')===today;
+  }).length;
+}
+/* คิวที่รอประมูลรอบถัดไป เรียงตามรอบแล้วตามเลขคิว */
+function auUpcomingQueue_(){
+  return (_aucQueue||[]).filter(function(r){return String(r.status||'').toLowerCase()==='pending'})
+    .sort(function(a,b){return String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0))});
+}
+
 function applyAutoWar(){
   var today=auISO_(new Date());
   var rows=_warLog.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))});
@@ -1666,7 +1677,11 @@ function applyAutoWar(){
     if(!pick)_aucMode='wait';
   }
 
-  _aucFc=auBuildForecast_(today,rows);
+  if(_aucMode==='live'&&pick){
+    var slots=Number(String(pick.card||'').replace(/,/g,''))||0;
+    if(slots>0&&auDrawnToday_()>=slots)_aucMode='done';
+  }
+  _aucFc=(_aucMode==='live')?null:auBuildForecast_(today,rows);
   _aucAutoWar=pick;
   if(!pick)return false;
 
@@ -1690,7 +1705,7 @@ function applyAutoWar(){
 
 /* กล่องคาดการณ์ — ใช้แรงก์ที่ใส่ล่วงหน้าในชีตก่อน ถ้าไม่มีค่อยเดาจากรอบก่อน */
 function auBuildForecast_(today,rows){
-  var target=auNextWarDay_(today,_aucMode!=='live');
+  var target=auNextWarDay_(today,_aucMode==='wait');
   if(!target)return null;
   var pre=null;
   for(var i=0;i<rows.length;i++){ if(rows[i].date===target){pre=rows[i];break} }
@@ -1754,8 +1769,8 @@ function renderWarLine(){
   renderForecast();
 
   var w=_aucAutoWar, today=auISO_(new Date());
-  if(sec)sec.classList.toggle('ro',_aucMode==='closed');
-  if(cfg)cfg.style.display=(_aucMode==='wait')?'none':'';
+  if(sec)sec.classList.toggle('ro',_aucMode==='closed'||_aucMode==='done');
+  if(cfg)cfg.style.display=(_aucMode==='wait'||_aucMode==='done')?'none':'';
 
   if(_aucMode==='wait'){
     box.innerHTML='';
@@ -1775,6 +1790,9 @@ function renderWarLine(){
     if(_aucMode==='closed'){
       rib.style.display='flex'; rib.className='au-rib';
       document.getElementById('auc-rib-t').innerHTML='รอบที่ปิดไปแล้ว · <b>'+auThai_(w.date)+'</b> — อ่านอย่างเดียว';
+    }else if(_aucMode==='done'){
+      rib.style.display='flex'; rib.className='au-rib';
+      document.getElementById('auc-rib-t').innerHTML='ประมูลของ <b>'+auThai_(w.date)+'</b> ครบแล้ว — ด้านล่างคือคิวของรอบถัดไป';
     }else rib.style.display='none';
   }
   if(title)title.textContent=(w.event_type||'Guild League')+' Reward';
@@ -1788,7 +1806,7 @@ function renderWarLine(){
   box.innerHTML='<span class="au-wd">'+w.date+'</span>'+
     '<span class="au-wm">'+(w.event_type||'')+grp+' · '+(w.rank||'')+'</span>'+chip+
     '<span class="au-mul"><small>×</small><span>'+cur.toFixed(1)+'</span></span>'+
-    (_aucMode==='closed'?'':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>');
+    (_aucMode==='closed'||_aucMode==='done'?'':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>');
   if(warn){
     warn.style.display=(man&&_aucMode!=='closed')?'block':'none';
     if(man)warn.innerHTML='ตัวคูณไม่ตรงกับผลวอ ('+autoMul+') &nbsp;<a href="#" onclick="aucResetAuto();return false">กลับค่าอัตโนมัติ</a>';
@@ -1846,23 +1864,26 @@ function auKbox_(lb,a,b,rem,over){
 }
 
 function renderDistribution(){
-  const dist=computeDistribution();
+  const dist=(_aucMode==='wait'||_aucMode==='done')?null:computeDistribution();
   const tbody=document.getElementById('auc-dist-tbody');
-  const sumWrap=document.getElementById('auc-summary-cards');
   const perSum=document.getElementById('auc-per-person-summary');
   if(!tbody)return;
   if(!dist){
-    tbody.innerHTML='<tr><td colspan="5" class="'+(_aucMode==='wait'?'au-empty2':'empty')+'">'+(_aucMode==='wait'?'รอกรอกผลวอก่อน':'ยังไม่มีคิวที่รอประมูล (status = pending)')+'</td></tr>';
-    if(sumWrap)sumWrap.innerHTML='';
-    if(perSum)perSum.textContent='—';
+    if(_aucMode==='wait'||_aucMode==='done'){
+      var q=auUpcomingQueue_();
+      if(perSum)perSum.textContent=q.length?('คิวรอบถัดไป · '+q.length+' คน'):'—';
+      tbody.innerHTML=q.length
+        ? q.map(function(r,i){return '<tr><td style="color:var(--faint);font-size:11px">'+(i+1)+'</td>'
+            +'<td style="font-weight:500">'+(r.member_name||'')+'</td>'
+            +'<td colspan="3" style="color:var(--faint);font-size:11px">'+(r.queue_date||'')+' · คิวที่ '+(r.position||'')+'</td></tr>'}).join('')
+        : '<tr><td colspan="5" class="au-empty2">ยังไม่มีคิวที่รอประมูล</td></tr>';
+    }else{
+      if(perSum)perSum.textContent='—';
+      tbody.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
+    }
     renderLeftover();
     return;
   }
-  const wUsed=dist.n*dist.pW, rUsed=dist.n*dist.pR, cardLeft=dist.cardTarget-dist.card;
-  if(sumWrap)sumWrap.innerHTML=
-    auKbox_('Card',dist.card,dist.cardTarget,cardLeft,false)+
-    auKbox_('ขาว',wUsed,dist.white,dist.wRem,dist.wOverflow)+
-    auKbox_('ดำแดง',rUsed,dist.red,dist.rRem,dist.rOverflow);
   if(perSum)perSum.textContent=`${dist.n} คน · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
   tbody.innerHTML=dist.rows.map((r,i)=>{
     const card=_toPageBox(r.cardSlot);
@@ -1874,8 +1895,7 @@ function renderDistribution(){
       <td>${fmtSlots(r.rStart,r.red)}</td>
     </tr>`;
   }).join('');
-  const c=document.getElementById('lo-c'), w=document.getElementById('lo-w'), rr=document.getElementById('lo-r');
-  if(c)c.value=Math.max(0,cardLeft);
+  const w=document.getElementById('lo-w'), rr=document.getElementById('lo-r');
   if(w)w.value=Math.max(0,dist.wRem);
   if(rr)rr.value=Math.max(0,dist.rRem);
   renderLeftover();
@@ -1893,33 +1913,31 @@ function spreadN_(total,count,cap){
 }
 
 function renderLeftover(){
-  const body=document.getElementById('lo-body');
+  var body=document.getElementById('lo-body');
   if(!body)return;
-  const dist=computeDistribution();
-  const cN=Math.max(0,+(document.getElementById('lo-c')||{}).value||0);
-  const wN=Math.max(0,+(document.getElementById('lo-w')||{}).value||0);
-  const rN=Math.max(0,+(document.getElementById('lo-r')||{}).value||0);
-  if(_aucMode==='wait'){body.innerHTML='<tr><td colspan="4" class="au-empty2">รอกรอกผลวอก่อน</td></tr>';return}
-  if(!cN&&!wN&&!rN){body.innerHTML='<tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr>';return}
-  const rw=getRewardValues();
-  const capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
-  const n=Math.max(cN,Math.ceil(wN/capW),Math.ceil(rN/capR));
-  if(!n){body.innerHTML='<tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr>';return}
-  const C=spreadN_(cN,n,1), W=spreadN_(wN,n,capW), R=spreadN_(rN,n,capR);
-  let cp=(dist?dist.n:0)+1;
-  let wp=(dist?dist.n*dist.pW:0)+1;
-  let rp=(dist?dist.white+dist.n*dist.pR:0)+1;
-  const out=[];
-  for(let k=0;k<n;k++){
-    const cq=C[k],wq=W[k],rq=R[k];
-    if(!cq&&!wq&&!rq)continue;
-    const cs=cp,ws=wp,rs=rp; cp+=cq; wp+=wq; rp+=rq;
-    const cb=cq?(()=>{const g=_toPageBox(cs);return `Page${g.page}(${g.box})`})():'—';
-    out.push(`<tr><td style="font-weight:700">#${k+1}</td><td>${cb}</td>
-      <td>${wq?fmtSlots(ws,wq):'—'}</td><td>${rq?fmtSlots(rs,rq):'—'}</td></tr>`);
+  if(_aucMode==='wait'||_aucMode==='done'){body.innerHTML='<tr><td colspan="3" class="au-empty2">'+(_aucMode==='done'?'ประมูลรอบนี้ครบแล้ว':'รอกรอกผลวอก่อน')+'</td></tr>';return}
+  var dist=computeDistribution();
+  var wN=Math.max(0,+(document.getElementById('lo-w')||{}).value||0);
+  var rN=Math.max(0,+(document.getElementById('lo-r')||{}).value||0);
+  if(!wN&&!rN){body.innerHTML='<tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr>';return}
+  var rw=getRewardValues();
+  var capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
+  var n=Math.max(Math.ceil(wN/capW),Math.ceil(rN/capR));
+  if(!n){body.innerHTML='<tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr>';return}
+  var W=spreadN_(wN,n,capW), R=spreadN_(rN,n,capR);
+  var wp=(dist?dist.n*dist.pW:0)+1;
+  var rp=(dist?dist.white+dist.n*dist.pR:0)+1;
+  var out=[];
+  for(var k=0;k<n;k++){
+    var wq=W[k],rq=R[k];
+    if(!wq&&!rq)continue;
+    var ws=wp,rs=rp; wp+=wq; rp+=rq;
+    out.push('<tr><td style="font-weight:700">#'+(k+1)+'</td>'
+      +'<td>'+(wq?fmtSlots(ws,wq):'—')+'</td><td>'+(rq?fmtSlots(rs,rq):'—')+'</td></tr>');
   }
-  body.innerHTML=out.join('')||'<tr><td colspan="4" class="empty">—</td></tr>';
+  body.innerHTML=out.join('')||'<tr><td colspan="3" class="empty">—</td></tr>';
 }
+
 
 
 function populateDesignatedWeeks(){
