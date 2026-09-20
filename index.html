@@ -612,6 +612,10 @@ input[type=checkbox]{accent-color:var(--teal)}
 .qrow .txt{flex:1;min-width:0;font-size:12.5px;color:var(--muted)}
 .qrow .txt b{display:block;font-size:14px;color:var(--text);font-weight:700}
 .hist{width:100%;border-collapse:collapse;font-size:13px}
+.hist-more{display:block;width:100%;margin-top:10px;padding:9px;border:1px solid var(--border);background:var(--card2);border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;transition:border-color .15s,color .15s}
+.hist-more b{font-family:var(--font-pixel)}
+.hist-more span{font-weight:400;color:var(--muted)}
+.hist-more:hover{border-color:var(--accent);color:var(--accent)}
 .hist th{text-align:left;font-size:11px;font-weight:700;color:var(--muted);padding:0 0 8px}
 .hist td{padding:8px 0;border-top:1px solid var(--border)}
 .hist .pos{display:inline-block;min-width:26px;text-align:center;font-weight:700;font-size:12px;
@@ -890,6 +894,15 @@ input[type=checkbox]{accent-color:var(--teal)}
 
   <div id="auc-calc">
 
+    <div class="au-sec" id="au-s0" style="display:none">
+      <div class="au-sec-h ct" onclick="augTog('au-s0')">
+        <svg class="au-cv"><use href="#i-caret2"/></svg>
+        <b>Next Event</b><div class="sp"></div>
+        <span class="au-fc-tag">คาดการณ์</span>
+      </div>
+      <div class="au-sec-b"><div id="auc-fc"></div></div>
+    </div>
+
     <div class="au-sec" id="au-s1">
       <div class="au-sec-h ct" onclick="augTog('au-s1')">
         <svg class="au-cv"><use href="#i-caret2"/></svg>
@@ -899,7 +912,6 @@ input[type=checkbox]{accent-color:var(--teal)}
         <div class="au-rib" id="auc-rib" style="display:none"><span class="dot"></span><span id="auc-rib-t"></span></div>
         <div class="au-war" id="auc-war"></div>
         <div class="au-mwarn" id="auc-mwarn" style="display:none"></div>
-        <div id="auc-fc"></div>
 
         <div class="au-bx" id="auc-cfgbx">
           <div class="au-bx-h"><b>Configuration</b><div class="sp"></div></div>
@@ -916,7 +928,7 @@ input[type=checkbox]{accent-color:var(--teal)}
       </div>
     </div>
 
-    <div class="au-sec">
+    <div class="au-sec" id="au-s2">
       <div class="au-sec-h"><b>Distribution</b><div class="sp"></div>
         <span class="au-hint" id="auc-per-person-summary">—</span></div>
       <div class="au-sec-b">
@@ -1275,6 +1287,9 @@ function renderParty(){
 }
 
 let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
+let _histShow={},_histDraw=null;
+const HIST_PAGE=5;
+function histMore(k){ _histShow[k]=(_histShow[k]||HIST_PAGE)+HIST_PAGE; if(_histDraw)_histDraw(); }
 const DISCORD_SVG=`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
 const CLASS_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
 const ID_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`;
@@ -1340,14 +1355,20 @@ async function searchMain(){
           <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'} en">${qRow.status==='done'?'Drawn':'Pending'}</span></div>`;
     } else queueHtml='<div class="pf-empty en">No active queue</div>';
 
+    const hKey=keyOf(m);
+    const hShow=_histShow[hKey]||HIST_PAGE;
+    const hPage=hist===null?[]:hist.slice(0,hShow);
+    const hRest=hist===null?0:Math.max(0,hist.length-hShow);
+    const hBtn=hRest?('<button class="hist-more" onclick="histMore('+JSON.stringify(hKey).replace(/"/g,'&quot;')+')">'
+      +'\u0e14\u0e39\u0e40\u0e1e\u0e34\u0e48\u0e21 <b>'+Math.min(HIST_PAGE,hRest)+'</b> \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23 <span>(\u0e40\u0e2b\u0e25\u0e37\u0e2d '+hRest+')</span></button>'):'';
     const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading...</div>':
       hist.length?`<table class="hist">
         <thead><tr><th class="en">Queue date</th><th class="en" style="width:76px">Position</th><th class="en">Result</th></tr></thead>
-        <tbody>${hist.map(r=>`<tr>
+        <tbody>${hPage.map(r=>`<tr>
           <td style="color:var(--muted)">${r.queue_date}</td>
           <td><span class="pos num">${String(r.position).padStart(2,'0')}</span></td>
           <td><span class="qs ${r.status==='done'?'qs-done':'qs-pend'} en">${r.status==='done'?'Drawn':'Pending'}</span></td>
-        </tr>`).join('')}</tbody></table>`
+        </tr>`).join('')}</tbody></table>`+hBtn
       :'<div class="pf-empty en">No auction history</div>';
 
     const meta=[cls?`<span class="en">${cls}</span>`:'',
@@ -1378,6 +1399,7 @@ async function searchMain(){
       return renderCard(m,qRow,hist);
     }).join('');
   };
+  _histDraw=draw;
 
   draw();   // แสดงผลทันทีด้วยข้อมูลที่มี (ประวัติจะขึ้น "Loading..." ถ้ายังไม่เคยโหลด)
 
@@ -1638,7 +1660,7 @@ function auThai_(iso){var d=new Date(iso+'T00:00:00');return AU_DOW[d.getDay()]+
 function auWarDays_(){
   var set={};
   try{
-    (_events||[]).forEach(function(e){
+    (_calEventsRaw||[]).forEach(function(e){
       if(String(e.tag||'').toUpperCase()!=='GUILDWAR')return;
       String(e.day_of_week||'').split(',').forEach(function(s){
         var n=parseInt(String(s).trim(),10);           /* 1=จันทร์ … 7=อาทิตย์ */
@@ -1797,12 +1819,12 @@ function auForecastQueue_(f){
 }
 
 function renderForecast(){
+  var sec=document.getElementById('au-s0');
   var w=document.getElementById('auc-fc'); if(!w)return;
   var f=_aucFc;
-  if(!f){w.innerHTML='';return}
-  w.innerHTML='<div class="au-fc"><div class="au-fc-h"><b>Next Event</b><div class="sp"></div>'+
-    '<span class="au-fc-tag">คาดการณ์</span></div><div class="au-fc-b">'+
-    '<div class="au-fc-when"><b>'+auThai_(f.date)+'</b> · '+f.ev+' · '+f.sub+'</div>'+
+  if(!f){ w.innerHTML=''; if(sec)sec.style.display='none'; return }
+  if(sec)sec.style.display='';
+  w.innerHTML='<div class="au-fc-when"><b>'+auThai_(f.date)+'</b> \u00b7 '+f.ev+' \u00b7 '+f.sub+'</div>'+
     '<div class="au-fc-g">'+
       '<div class="au-fc-box"><b>('+f.card+')</b><span>Card Slot</span></div>'+
       '<div class="au-fc-box"><b>('+f.white+')</b><span>White Feather</span></div>'+
@@ -1810,8 +1832,7 @@ function renderForecast(){
     '</div>'+
     auForecastQueue_(f)+
     '<div class="au-fc-foot">'+f.src+'</div>'+
-    '<div class="au-fc-foot">'+f.why+' · ตัวเลขในวงเล็บคือเพดานที่เป็นไปได้ ยังไม่ใช่ของจริง</div>'+
-    '</div></div>';
+    '<div class="au-fc-foot">'+f.why+' \u00b7 \u0e15\u0e31\u0e27\u0e40\u0e25\u0e02\u0e43\u0e19\u0e27\u0e07\u0e40\u0e25\u0e47\u0e1a\u0e04\u0e37\u0e2d\u0e40\u0e1e\u0e14\u0e32\u0e19\u0e17\u0e35\u0e48\u0e40\u0e1b\u0e47\u0e19\u0e44\u0e1b\u0e44\u0e14\u0e49 \u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e02\u0e2d\u0e07\u0e08\u0e23\u0e34\u0e07</div>';
 }
 
 
@@ -1821,13 +1842,16 @@ function renderWarLine(){
   var warn=document.getElementById('auc-mwarn');
   var rib=document.getElementById('auc-rib');
   var sec=document.getElementById('au-s1');
+  var dist=document.getElementById('au-s2');
   var cfg=document.getElementById('auc-cfgbx');
   if(!box)return;
   renderForecast();
 
   var w=_aucAutoWar, today=auISO_(new Date());
+  var quiet=(_aucMode==='wait'||_aucMode==='done');   /* \u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e23\u0e39\u0e49\u0e1c\u0e25 / \u0e1b\u0e23\u0e30\u0e21\u0e39\u0e25\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27 */
   if(sec)sec.classList.toggle('ro',_aucMode==='closed'||_aucMode==='done');
-  if(cfg)cfg.style.display=(_aucMode==='wait'||_aucMode==='done')?'none':'';
+  if(cfg)cfg.style.display=quiet?'none':'';
+  if(dist)dist.style.display=quiet?'none':'';   /* \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e34\u0e27\u0e43\u0e2b\u0e49\u0e41\u0e08\u0e01 \u0e0b\u0e48\u0e2d\u0e19\u0e17\u0e31\u0e49\u0e07 section */
 
   if(_aucMode==='wait'){
     box.innerHTML='';
@@ -1836,7 +1860,7 @@ function renderWarLine(){
     if(rib){
       rib.style.display='flex'; rib.className='au-rib wait';
       document.getElementById('auc-rib-t').innerHTML=
-        'ยังไม่ได้กรอกผล <b>'+(evName||'วอ')+'</b> ของวัน <b>'+auThai_(today)+'</b> — กรอกในชีตแล้วหน้านี้จะคำนวณให้เอง';
+        '\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e01\u0e23\u0e2d\u0e01\u0e1c\u0e25 <b>'+(evName||'\u0e27\u0e2d')+'</b> \u0e02\u0e2d\u0e07\u0e27\u0e31\u0e19 <b>'+auThai_(today)+'</b> \u2014 \u0e01\u0e23\u0e2d\u0e01\u0e43\u0e19\u0e0a\u0e35\u0e15\u0e41\u0e25\u0e49\u0e27\u0e2b\u0e19\u0e49\u0e32\u0e19\u0e35\u0e49\u0e08\u0e30\u0e04\u0e33\u0e19\u0e27\u0e13\u0e43\u0e2b\u0e49\u0e40\u0e2d\u0e07';
     }
     if(title)title.textContent=(evName||'Guild League')+' Reward';
     return;
@@ -1846,27 +1870,35 @@ function renderWarLine(){
   if(rib){
     if(_aucMode==='closed'){
       rib.style.display='flex'; rib.className='au-rib';
-      document.getElementById('auc-rib-t').innerHTML='รอบที่ปิดไปแล้ว · <b>'+auThai_(w.date)+'</b> — อ่านอย่างเดียว';
+      document.getElementById('auc-rib-t').innerHTML='\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27 \u00b7 <b>'+auThai_(w.date)+'</b> \u2014 \u0e2d\u0e48\u0e32\u0e19\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e40\u0e14\u0e35\u0e22\u0e27';
     }else if(_aucMode==='done'){
       rib.style.display='flex'; rib.className='au-rib';
-      document.getElementById('auc-rib-t').innerHTML='ประมูลของ <b>'+auThai_(w.date)+'</b> ครบแล้ว — ด้านล่างคือคิวของรอบถัดไป';
+      document.getElementById('auc-rib-t').innerHTML=
+        '\u0e1b\u0e23\u0e30\u0e21\u0e39\u0e25\u0e02\u0e2d\u0e07 <b>'+auThai_(w.date)+'</b> \u00b7 '+(w.event_type||'')+(w.group?' \u00b7 '+w.group:'')+' \u00b7 '+(w.rank||'')+' \u2014 \u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27';
     }else rib.style.display='none';
   }
   if(title)title.textContent=(w.event_type||'Guild League')+' Reward';
 
+  /* \u0e42\u0e2b\u0e21\u0e14 done \u2014 ribbon \u0e1a\u0e2d\u0e01\u0e04\u0e23\u0e1a\u0e17\u0e38\u0e01\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e41\u0e25\u0e49\u0e27 \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\u0e27\u0e2d\u0e0b\u0e49\u0e33 */
+  if(_aucMode==='done'){
+    box.innerHTML='';
+    if(warn)warn.style.display='none';
+    return;
+  }
+
   var st=String(w.status||'').toLowerCase();
   var diff=Math.abs(Number(String(w.diff||'').replace(/,/g,''))||0);
-  var grp=w.group?' · '+w.group:'';
+  var grp=w.group?' \u00b7 '+w.group:'';
   var autoMul=parseFloat(w.mul)||1, cur=_aucGlobalMul||1;
   var man=Math.abs(cur-autoMul)>1e-9;
   var chip=st?('<span class="au-chip '+(st==='win'?'win':'lose')+'">'+w.status+(diff?' '+diff.toLocaleString():'')+'</span>'):'';
   box.innerHTML='<span class="au-wd">'+w.date+'</span>'+
-    '<span class="au-wm">'+(w.event_type||'')+grp+' · '+(w.rank||'')+'</span>'+chip+
-    '<span class="au-mul"><small>×</small><span>'+cur.toFixed(1)+'</span></span>'+
-    (_aucMode==='closed'||_aucMode==='done'?'':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>');
+    '<span class="au-wm">'+(w.event_type||'')+grp+' \u00b7 '+(w.rank||'')+'</span>'+chip+
+    '<span class="au-mul"><small>\u00d7</small><span>'+cur.toFixed(1)+'</span></span>'+
+    (_aucMode==='closed'?'':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>');
   if(warn){
     warn.style.display=(man&&_aucMode!=='closed')?'block':'none';
-    if(man)warn.innerHTML='ตัวคูณไม่ตรงกับผลวอ ('+autoMul+') &nbsp;<a href="#" onclick="aucResetAuto();return false">กลับค่าอัตโนมัติ</a>';
+    if(man)warn.innerHTML='\u0e15\u0e31\u0e27\u0e04\u0e39\u0e13\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e1c\u0e25\u0e27\u0e2d ('+autoMul+') &nbsp;<a href="#" onclick="aucResetAuto();return false">\u0e01\u0e25\u0e31\u0e1a\u0e04\u0e48\u0e32\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34</a>';
   }
 }
 
