@@ -633,6 +633,68 @@ input[type=checkbox]{accent-color:var(--teal)}
   .main{padding:3.4rem 0.9rem 2rem!important}
 }
 
+
+/* ── Auction v2 · sections ── */
+.au-sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow-out-sm);min-width:0}
+.au-sec-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--card2)}
+.au-sec-h b{font-size:13px;font-weight:700;font-family:var(--font-pixel);letter-spacing:.3px}
+.au-sec-h .sp{flex:1}
+.au-sec-h.ct{cursor:pointer;user-select:none}
+.au-sec.closed .au-sec-b{display:none}
+.au-sec.closed .au-cv{transform:rotate(-90deg)}
+.au-cv{width:13px;height:13px;color:var(--faint);flex-shrink:0;transition:transform .16s}
+.au-sec-b{padding:14px;min-width:0}
+.au-hint{font-size:11px;color:var(--muted)}
+.au-bx{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--card)}
+.au-bx-h{display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--border)}
+.au-bx-h b{font-size:12px;font-weight:700;font-family:var(--font-pixel);letter-spacing:.3px}
+.au-bx-h .sp{flex:1}
+.au-bx-b{padding:13px}
+.au-lbl{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--faint);margin:14px 0 8px 2px;font-family:var(--font-pixel)}
+.au-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.au-g3.gm{margin-top:11px}
+.au-fld{background:var(--card2);border:1px solid transparent;border-radius:12px;padding:12px 13px;min-width:0}
+.au-fld.ov{border-color:var(--orange-border)}
+.au-fld .k{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.au-fld input{width:100%;border:0;background:none;color:var(--text);font:inherit;font-size:21px;font-weight:700;outline:none;padding:0}
+.au-fld .u{font-size:10.5px;color:var(--faint);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.au-mini{background:var(--card2);border:1px solid transparent;border-radius:12px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0}
+.au-mini.ov{border-color:var(--orange-border)}
+.au-mini .k{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;line-height:22px}
+.au-mini input,.au-mini select{border:0;background:none;color:var(--text);font:inherit;font-size:14px;font-weight:700;outline:none;margin-left:auto;text-align:right;min-width:0;height:22px;line-height:22px;padding:0;appearance:none;-webkit-appearance:none}
+.au-mini input{width:72px;flex-shrink:0}
+.au-mini select{max-width:66%;text-align:right;text-align-last:right;cursor:pointer}
+.au-reset{cursor:pointer;text-align:left}
+.au-reset b{font-size:14px;font-weight:700;color:var(--orange);margin-left:auto;height:22px;line-height:22px}
+.au-kbox{background:var(--card2);border-radius:12px;padding:12px 13px;text-align:center;min-width:0}
+.au-kbox b{display:block;font-size:20px;font-weight:700;line-height:1.2;color:var(--text);font-family:var(--font-pixel)}
+.au-kbox span{font-size:11px;color:var(--muted)}
+.au-kbox i{font-style:normal;font-weight:700;color:var(--red)}
+.au-war{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:0 2px 13px}
+.au-wd{font-size:14px;font-weight:800;color:var(--text);line-height:28px;font-family:var(--font-pixel)}
+.au-wm{font-size:12.5px;color:var(--muted);line-height:28px}
+.au-chip,.au-mul,.au-tag{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 12px;
+  border-radius:999px;border:1px solid transparent;font-size:11.5px;font-weight:700;letter-spacing:.3px;line-height:1;white-space:nowrap}
+.au-chip.win{background:var(--green-dim,rgba(62,169,142,.16));color:var(--green,#3EA98E)}
+.au-chip.lose{background:var(--red-dim);color:var(--red)}
+.au-mul{gap:3px;background:var(--orange-dim);color:var(--orange)}
+.au-mul small{font-size:11px;font-weight:700;opacity:.75}
+.au-mul span{font-size:13.5px;font-weight:800;font-family:var(--font-pixel)}
+.au-tag{border-color:var(--border2);color:var(--faint);font-size:10px;letter-spacing:.7px;text-transform:uppercase}
+.au-tag.on{border-color:var(--orange-border);color:var(--orange)}
+.au-mwarn{margin:0 0 13px;font-size:12px;color:var(--orange);background:var(--orange-dim);border-radius:8px;padding:8px 12px}
+.au-mwarn a{color:inherit;font-weight:700}
+.au-tblx{width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:1000px){.au-fld input{font-size:19px}.au-fld .k,.au-mini .k{font-size:10.5px}}
+@media(max-width:700px){
+  .au-g3{grid-template-columns:1fr}
+  .au-sec-b{padding:12px}
+  .au-bx-b{padding:11px}
+  .au-war{gap:8px;padding:0 2px 11px}
+  .au-wm{width:100%;order:3;line-height:1.5}
+  .au-tbl{min-width:520px}
+  .au-tbl th,.au-tbl td{white-space:nowrap}
+}
 </style>
 </head>
 <body>
@@ -682,6 +744,7 @@ input[type=checkbox]{accent-color:var(--teal)}
   <rect x="4" y="7" width="3" height="1" fill="#7E8C95"/><rect x="9" y="7" width="3" height="1" fill="#7E8C95"/>
   <rect x="13" y="1" width="3" height="1" fill="#A8B4BC"/><rect x="14" y="2" width="1" height="1" fill="#A8B4BC"/><rect x="13" y="3" width="3" height="1" fill="#A8B4BC"/>
 </g></symbol>
+<symbol id="i-caret2" viewBox="0 0 16 16"><g fill="currentColor"><rect x="2" y="5" width="2" height="2"/><rect x="4" y="7" width="2" height="2"/><rect x="6" y="9" width="4" height="2"/><rect x="10" y="7" width="2" height="2"/><rect x="12" y="5" width="2" height="2"/></g></symbol>
 </defs></svg>
 <div class="zoom-pill" id="zoom-pill" hidden><button class="zp-lbl" id="zoom-lbl">100%</button></div>
 <div class="setpanel" id="setp">
@@ -780,47 +843,62 @@ input[type=checkbox]{accent-color:var(--teal)}
   </div>
 
   <div id="auc-calc">
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <div style="flex:1;min-width:150px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Event</label>
-        <select id="auc-event-type" onchange="onAucEventType()" style="width:100%"></select>
-      </div>
-      <div style="flex:1;min-width:150px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Rank</label>
-        <select id="auc-event-rank" onchange="onAucRank()" style="width:100%"></select>
-      </div>
-    </div>
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;font-family:var(--font-pixel)" id="auc-calc-title">Distribution result</div>
 
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm);margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--card2);border-bottom:1px solid var(--border)">
-        <span style="font-size:11px;font-weight:700;font-family:var(--font-pixel);color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:1">🧮 ตัวคำนวณ</span>
-        <span style="font-size:10px;color:var(--faint)">ปรับดูได้ ไม่บันทึกลงชีท</span>
+    <div class="au-sec" id="au-s1">
+      <div class="au-sec-h ct" onclick="augTog('au-s1')">
+        <svg class="au-cv"><use href="#i-caret2"/></svg>
+        <b id="auc-calc-title">Guild League Reward</b><div class="sp"></div>
       </div>
-      <div style="padding:14px">
-        <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-wrap:wrap">
-          <div style="background:var(--orange-dim);padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-right:2px solid var(--border2);flex-shrink:0">
-            <span style="font-size:9px;font-weight:700;font-family:var(--font-pixel);text-transform:uppercase;letter-spacing:.8px;color:var(--orange-l)">Mul ×</span>
-            <input type="number" id="auc-global-mul" value="1" min="0.1" step="0.1" oninput="onGlobalMul()" style="width:56px;font-size:20px;font-weight:700;color:var(--orange);background:transparent;border:none;outline:none;padding:0;font-family:var(--font-pixel);text-align:center">
+      <div class="au-sec-b">
+        <div class="au-war" id="auc-war"></div>
+        <div class="au-mwarn" id="auc-mwarn" style="display:none"></div>
+
+        <div class="au-bx">
+          <div class="au-bx-h"><b>Configuration</b><div class="sp"></div></div>
+          <div class="au-bx-b">
+            <div class="au-g3" id="auc-reward-inputs"></div>
+            <div class="au-g3 gm" id="auc-per-person-inputs"></div>
+            <div class="au-g3 gm">
+              <label class="au-mini"><span class="k">Event</span><select id="auc-event-type" onchange="onAucEventType()"></select></label>
+              <label class="au-mini"><span class="k">Rank</span><select id="auc-event-rank" onchange="onAucRank()"></select></label>
+              <button class="au-mini au-reset" id="auc-reset" onclick="aucResetAuto()"><span class="k">Reset</span><b>auto</b></button>
+            </div>
+            <div class="au-lbl">Allocated / Remaining</div>
+            <div class="au-g3" id="auc-summary-cards"></div>
           </div>
-          <div id="auc-reward-inputs" style="display:flex;flex:1;flex-wrap:wrap"></div>
-          <div style="border-left:2px solid var(--border2)"></div>
-          <div id="auc-per-person-inputs" style="display:flex;flex-wrap:wrap"></div>
         </div>
-        <div id="auc-summary-cards" style="display:flex;gap:8px;flex-wrap:wrap"></div>
       </div>
     </div>
 
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)">
-      <div style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <span style="font-size:13px;font-weight:700;color:var(--text)" id="auc-user-title">การแจกรางวัล</span>
-        <span style="font-size:11px;color:var(--muted)" id="auc-per-person-summary">—</span>
+    <div class="au-sec">
+      <div class="au-sec-h"><b>Distribution</b><div class="sp"></div>
+        <span class="au-hint" id="auc-per-person-summary">—</span></div>
+      <div class="au-sec-b">
+        <div class="au-tblx"><table class="au-tbl">
+          <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th></tr></thead>
+          <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล</td></tr></tbody>
+        </table></div>
       </div>
-      <div class="tbl-wrap" style="border:none;border-radius:0;box-shadow:none"><table class="au-tbl">
-        <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card slot</th><th>White feather</th><th>Red/Black feather</th></tr></thead>
-        <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล</td></tr></tbody>
-      </table></div>
     </div>
+
+    <div class="au-sec" id="au-s3">
+      <div class="au-sec-h ct" onclick="augTog('au-s3')">
+        <svg class="au-cv"><use href="#i-caret2"/></svg>
+        <b>Leftover</b><div class="sp"></div>
+      </div>
+      <div class="au-sec-b">
+        <div class="au-g3">
+          <label class="au-mini"><span class="k">Card Slot</span><input id="lo-c" type="number" min="0" value="0" oninput="renderLeftover()"></label>
+          <label class="au-mini"><span class="k">White</span><input id="lo-w" type="number" min="0" value="0" oninput="renderLeftover()"></label>
+          <label class="au-mini"><span class="k">Red / Black</span><input id="lo-r" type="number" min="0" value="0" oninput="renderLeftover()"></label>
+        </div>
+        <div class="au-tblx" style="margin-top:14px"><table class="au-tbl">
+          <thead><tr><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th></tr></thead>
+          <tbody id="lo-body"><tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
   </div>
 
   <div id="auc-designated" style="display:none">
@@ -1369,6 +1447,9 @@ function allQueueRows_(){
 async function initAuctionPage(){
   await loadAuctionData();
   populateAucEventTypes();
+  applyAutoWar();
+  renderRewardInputs();
+  renderDistribution();
   populateQueueRounds();
   populateDesignatedWeeks();
   renderRewardsPreview();
@@ -1404,8 +1485,6 @@ function getCurrentReward(){
 
 function onAucRank(){
   _aucFieldOverrides={};_aucPerPersonOverrides={};
-  const mulEl=document.getElementById('auc-global-mul');
-  if(mulEl){mulEl.value=_aucGlobalMul;}
   renderRewardInputs();
   renderDistribution();
 }
@@ -1439,9 +1518,9 @@ function getRewardValues(){
   const m=_aucGlobalMul||1;
   const ov=_aucFieldOverrides;
   return {
-    card:  ov.card!=null              ? ov.card              : Math.round((+base.card||0)*m),
-    white: ov.feather_white!=null     ? ov.feather_white     : Math.round((+base.feather_white||0)*m),
-    red:   ov.feather_red_black!=null ? ov.feather_red_black : Math.round((+base.feather_red_black||0)*m),
+    card:  ov.card!=null              ? ov.card              : Math.ceil((+base.card||0)*m),
+    white: ov.feather_white!=null     ? ov.feather_white     : Math.ceil((+base.feather_white||0)*m),
+    red:   ov.feather_red_black!=null ? ov.feather_red_black : Math.ceil((+base.feather_red_black||0)*m),
     limWhite: +base.lim_light_dark || 0,
     limRed:   +base.lim_time_space || 0,
     event_name:base.event_type,
@@ -1451,59 +1530,6 @@ function getRewardValues(){
 
 /** จำกัดค่าไม่ให้เกินเพดาน — เพดาน 0 หรือไม่มีข้อมูล = ไม่จำกัด */
 function capPerPerson_(v, lim){ return lim > 0 ? Math.min(v, lim) : v; }
-
-function renderRewardInputs(){
-  const base=getCurrentReward();
-  const wrap=document.getElementById('auc-reward-inputs');
-  const title=document.getElementById('auc-calc-title');
-  if(!base){if(wrap)wrap.innerHTML='';if(title)title.textContent='Distribution result';return}
-  const evLabel=/^\d+$/.test(String(base.rank))?'Rank '+base.rank:base.rank;
-  const grpLabel=base.group?` — ${base.group}`:'';
-  title.textContent=`Distribution result — ${base.event_type}${grpLabel} — ${evLabel}`;
-
-  const mul=_aucGlobalMul;
-  const fields=[
-    {k:'card',label:'Card (= คน)',base:+base.card||0},
-    {k:'feather_white',label:'ขนนกขาว',base:+base.feather_white||0},
-    {k:'feather_red_black',label:'ขนนกดำ/แดง',base:+base.feather_red_black||0}
-  ];
-  wrap.innerHTML=fields.map(f=>{
-    const calcVal=Math.round(f.base*mul);
-    const hasOverride=_aucFieldOverrides[f.k]!=null;
-    const displayVal=hasOverride?_aucFieldOverrides[f.k]:calcVal;
-    return `<div style="flex:1;min-width:130px;background:var(--card);border:0.5px solid ${hasOverride?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${f.label}${hasOverride?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-      <input type="number" min="0" value="${displayVal}" oninput="onRewardFieldEdit('${f.k}',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit">
-      <div style="font-size:10px;color:var(--faint);margin-top:4px">base ${f.base}${mul!==1?` × ${mul} = ${calcVal}`:''}${hasOverride?' · เคลียร์ช่องเพื่อกลับค่าคำนวณ':''}</div>
-    </div>`;
-  }).join('');
-
-  const ppWrap=document.getElementById('auc-per-person-inputs');
-  if(ppWrap){
-    const rw=getRewardValues();
-    if(rw){
-      const n=rw.card||1;
-      const rawAutoW=Math.floor(rw.white/n), rawAutoR=Math.floor(rw.red/n);
-      const autoW=capPerPerson_(rawAutoW,rw.limWhite), autoR=capPerPerson_(rawAutoR,rw.limRed);
-      const hasW=_aucPerPersonOverrides.white!=null, hasR=_aucPerPersonOverrides.red!=null;
-      const ppW=capPerPerson_(hasW?_aucPerPersonOverrides.white:autoW, rw.limWhite);
-      const ppR=capPerPerson_(hasR?_aucPerPersonOverrides.red:autoR, rw.limRed);
-      const capNoteW=rw.limWhite>0?` · เพดาน ${rw.limWhite}/คน${rawAutoW>rw.limWhite?' (หารได้ '+rawAutoW+' ตัดเหลือเพดาน)':''}`:'';
-      const capNoteR=rw.limRed>0?` · เพดาน ${rw.limRed}/คน${rawAutoR>rw.limRed?' (หารได้ '+rawAutoR+' ตัดเหลือเพดาน)':''}`:'';
-      ppWrap.innerHTML=`
-        <div style="flex:1;min-width:130px;background:var(--card2);border:0.5px solid ${hasW?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ขาว / คน${hasW?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-          <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--blue)">
-          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.white}÷${n}⌋=${rawAutoW}${capNoteW}${hasW?' · เคลียร์เพื่อกลับ auto':''}</div>
-        </div>
-        <div style="flex:1;min-width:130px;background:var(--card2);border:0.5px solid ${hasR?'var(--orange-border)':'var(--border)'};border-radius:8px;padding:10px 12px">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ดำ/แดง / คน${hasR?' <span style="color:var(--orange)">● แก้เอง</span>':''}</div>
-          <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)" style="width:100%;font-size:22px;font-weight:700;background:transparent;border:none;outline:none;padding:0;font-family:inherit;color:var(--red)">
-          <div style="font-size:10px;color:var(--faint);margin-top:4px">auto ⌊${rw.red}÷${n}⌋=${rawAutoR}${capNoteR}${hasR?' · เคลียร์เพื่อกลับ auto':''}</div>
-        </div>`;
-    }else{ppWrap.innerHTML=''}
-  }
-}
 
 const _toPageBox=g=>({page:Math.ceil(g/4),box:((g-1)%4)+1});
 const _slotRange=(start,count)=>{const s=[];for(let i=0;i<count;i++)s.push(_toPageBox(start+i));return s;};
@@ -1548,6 +1574,120 @@ function computeDistribution(){
   return {rows,card:n,cardTarget:rw.card,white,red,wRem,rRem,n,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0};
 }
 
+
+function augTog(id){const e=document.getElementById(id);if(e)e.classList.toggle('closed')}
+
+/* นัดล่าสุดที่ข้อมูลครบ — ใช้ตั้งค่าตัวคูณและแรงก์ให้อัตโนมัติ */
+let _aucAutoWar=null, _aucMulManual=false;
+function latestWar_(){
+  const rows=_warLog.filter(r=>r.date&&String(r.status||'').trim()&&String(r.rank||'').trim()&&String(r.event_type||'').trim());
+  rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  return rows[0]||null;
+}
+function applyAutoWar(){
+  _aucAutoWar=latestWar_();
+  if(!_aucAutoWar)return false;
+  const w=_aucAutoWar;
+  const tSel=document.getElementById('auc-event-type');
+  const rSel=document.getElementById('auc-event-rank');
+  if(!tSel||!rSel)return false;
+  if([...tSel.options].some(o=>o.value===w.event_type)){
+    tSel.value=w.event_type;
+    const ranks=_aucRewardsRef.filter(r=>r.event_type===w.event_type);
+    rSel.innerHTML=ranks.map(r=>{
+      const grp=r.group?`${r.group} · `:'';
+      const label=r.cross_server==='Y'?`${grp}${r.rank} (ข้ามเซิร์ฟ)`:`${grp}${r.rank} (ในเซิร์ฟ)`;
+      return `<option value="${r.rank}|${r.cross_server}|${r.group||''}">${label}</option>`;
+    }).join('');
+    const want=`${w.rank}|${w.cross_server||''}|${w.group||''}`;
+    if([...rSel.options].some(o=>o.value===want))rSel.value=want;
+  }
+  const m=parseFloat(w.mul);
+  _aucGlobalMul=(isFinite(m)&&m>0)?m:1;
+  _aucMulManual=false;
+  return true;
+}
+function aucResetAuto(){
+  _aucFieldOverrides={};_aucPerPersonOverrides={};
+  applyAutoWar();
+  renderRewardInputs();renderDistribution();
+}
+function renderWarLine(){
+  const box=document.getElementById('auc-war');
+  const title=document.getElementById('auc-calc-title');
+  const warn=document.getElementById('auc-mwarn');
+  if(!box)return;
+  const w=_aucAutoWar;
+  if(!w){box.innerHTML='<span class="au-wm">ยังไม่มีนัดที่ข้อมูลครบใน War Log</span>';if(warn)warn.style.display='none';return}
+  if(title)title.textContent=(w.event_type||'Guild League')+' Reward';
+  const st=String(w.status||'').toLowerCase();
+  const diff=Math.abs(Number(String(w.diff||'').replace(/,/g,''))||0);
+  const grp=w.group?` · ${w.group}`:'';
+  const autoMul=parseFloat(w.mul)||1;
+  const cur=_aucGlobalMul||1;
+  const man=Math.abs(cur-autoMul)>1e-9;
+  box.innerHTML=
+    `<span class="au-wd">${w.date}</span>`+
+    `<span class="au-wm">${w.event_type||''}${grp} · ${w.rank||''}</span>`+
+    `<span class="au-chip ${st==='win'?'win':'lose'}">${w.status}${diff?' '+diff.toLocaleString():''}</span>`+
+    `<span class="au-mul"><small>×</small><span>${cur.toFixed(1)}</span></span>`+
+    `<span class="au-tag${man?'':' on'}">${man?'manual':'auto'}</span>`;
+  if(warn){
+    warn.style.display=man?'block':'none';
+    if(man)warn.innerHTML=`ตัวคูณไม่ตรงกับผลวอ (${autoMul}) &nbsp;<a href="#" onclick="aucResetAuto();return false">กลับค่าอัตโนมัติ</a>`;
+  }
+}
+
+function renderRewardInputs(){
+  const base=getCurrentReward();
+  const wrap=document.getElementById('auc-reward-inputs');
+  const ppWrap=document.getElementById('auc-per-person-inputs');
+  renderWarLine();
+  if(!base){if(wrap)wrap.innerHTML='';if(ppWrap)ppWrap.innerHTML='';return}
+
+  const mul=_aucGlobalMul;
+  const fields=[
+    {k:'card',label:'Card Slot',u:'ช่องการ์ด',base:+base.card||0},
+    {k:'feather_white',label:'White Feather',u:'ขนขาว',base:+base.feather_white||0},
+    {k:'feather_red_black',label:'Red / Black Feather',u:'ขนดำแดง',base:+base.feather_red_black||0}
+  ];
+  wrap.innerHTML=fields.map(f=>{
+    const calcVal=Math.ceil(f.base*mul);
+    const ov=_aucFieldOverrides[f.k]!=null;
+    const v=ov?_aucFieldOverrides[f.k]:calcVal;
+    return `<div class="au-fld${ov?' ov':''}">
+      <div class="k">${f.label}</div>
+      <input type="number" min="0" value="${v}" oninput="onRewardFieldEdit('${f.k}',this)">
+      <div class="u">${ov?'แก้เอง · เคลียร์ช่องเพื่อกลับค่าคำนวณ':f.u}</div>
+    </div>`;
+  }).join('');
+
+  if(ppWrap){
+    const rw=getRewardValues();
+    if(!rw){ppWrap.innerHTML='';return}
+    const n=rw.card||1;
+    const autoW=capPerPerson_(Math.floor(rw.white/n),rw.limWhite);
+    const autoR=capPerPerson_(Math.floor(rw.red/n),rw.limRed);
+    const hasW=_aucPerPersonOverrides.white!=null, hasR=_aucPerPersonOverrides.red!=null;
+    const ppW=capPerPerson_(hasW?_aucPerPersonOverrides.white:autoW,rw.limWhite);
+    const ppR=capPerPerson_(hasR?_aucPerPersonOverrides.red:autoR,rw.limRed);
+    const autoMul=_aucAutoWar?(parseFloat(_aucAutoWar.mul)||1):1;
+    const mOv=Math.abs((_aucGlobalMul||1)-autoMul)>1e-9;
+    ppWrap.innerHTML=
+      `<label class="au-mini${mOv?' ov':''}"><span class="k">Multiplier ×</span>
+        <input type="number" min="0.1" step="0.1" id="auc-global-mul" value="${_aucGlobalMul}" oninput="onGlobalMul()"></label>`+
+      `<label class="au-mini${hasW?' ov':''}"><span class="k">White / person</span>
+        <input type="number" min="0" value="${ppW}" oninput="onPerPersonEdit('white',this)"></label>`+
+      `<label class="au-mini${hasR?' ov':''}"><span class="k">Red / person</span>
+        <input type="number" min="0" value="${ppR}" oninput="onPerPersonEdit('red',this)"></label>`;
+  }
+}
+
+function auKbox_(lb,a,b,rem,over){
+  const r=over?`<i>เกิน ${Math.abs(rem)}</i>`:(rem?`<i>${rem}</i>`:'0');
+  return `<div class="au-kbox"><b>${a}/${b}</b><span>${lb} · เหลือ ${r}</span></div>`;
+}
+
 function renderDistribution(){
   const dist=computeDistribution();
   const tbody=document.getElementById('auc-dist-tbody');
@@ -1558,25 +1698,14 @@ function renderDistribution(){
     tbody.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
     if(sumWrap)sumWrap.innerHTML='';
     if(perSum)perSum.textContent='—';
+    renderLeftover();
     return;
   }
-  const wUsed=dist.n*dist.pW, rUsed=dist.n*dist.pR;
-  const cardLeft=dist.cardTarget-dist.card;
-  const wRemLbl=dist.wOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.wRem)}</span>`:`เหลือ ${dist.wRem}`;
-  const rRemLbl=dist.rOverflow?`<span style="color:var(--red);font-weight:700">เกิน ${Math.abs(dist.rRem)}</span>`:`เหลือ ${dist.rRem}`;
-  if(sumWrap)sumWrap.innerHTML=`
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
-      <div style="font-size:18px;font-weight:700">${dist.card}/${dist.cardTarget}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">Card (เหลือ ${cardLeft})</div>
-    </div>
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${dist.wOverflow?'var(--red-b)':'var(--border)'};border-radius:var(--radius-sm);padding:14px;text-align:center">
-      <div style="font-size:18px;font-weight:700;${dist.wOverflow?'color:var(--red)':''}">${wUsed}/${dist.white}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">ขาว (${wRemLbl})</div>
-    </div>
-    <div style="flex:1;min-width:100px;background:var(--card);border:1px solid ${dist.rOverflow?'var(--red-b)':'var(--border)'};border-radius:var(--radius-sm);padding:14px;text-align:center">
-      <div style="font-size:18px;font-weight:700;${dist.rOverflow?'color:var(--red)':''}">${rUsed}/${dist.red}</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">ดำ/แดง (${rRemLbl})</div>
-    </div>`;
+  const wUsed=dist.n*dist.pW, rUsed=dist.n*dist.pR, cardLeft=dist.cardTarget-dist.card;
+  if(sumWrap)sumWrap.innerHTML=
+    auKbox_('Card',dist.card,dist.cardTarget,cardLeft,false)+
+    auKbox_('ขาว',wUsed,dist.white,dist.wRem,dist.wOverflow)+
+    auKbox_('ดำแดง',rUsed,dist.red,dist.rRem,dist.rOverflow);
   if(perSum)perSum.textContent=`${dist.n} คน · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
   tbody.innerHTML=dist.rows.map((r,i)=>{
     const card=_toPageBox(r.cardSlot);
@@ -1588,7 +1717,52 @@ function renderDistribution(){
       <td>${fmtSlots(r.rStart,r.red)}</td>
     </tr>`;
   }).join('');
+  const c=document.getElementById('lo-c'), w=document.getElementById('lo-w'), rr=document.getElementById('lo-r');
+  if(c)c.value=Math.max(0,cardLeft);
+  if(w)w.value=Math.max(0,dist.wRem);
+  if(rr)rr.value=Math.max(0,dist.rRem);
+  renderLeftover();
 }
+
+function spreadN_(total,count,cap){
+  const per=new Array(count).fill(0);
+  let left=total,guard=0;
+  while(left>0&&guard++<99999){
+    let moved=false;
+    for(let k=0;k<count&&left>0;k++){if(per[k]<cap){per[k]++;left--;moved=true}}
+    if(!moved)break;
+  }
+  return per;
+}
+
+function renderLeftover(){
+  const body=document.getElementById('lo-body');
+  if(!body)return;
+  const dist=computeDistribution();
+  const cN=Math.max(0,+(document.getElementById('lo-c')||{}).value||0);
+  const wN=Math.max(0,+(document.getElementById('lo-w')||{}).value||0);
+  const rN=Math.max(0,+(document.getElementById('lo-r')||{}).value||0);
+  if(!cN&&!wN&&!rN){body.innerHTML='<tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr>';return}
+  const rw=getRewardValues();
+  const capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
+  const n=Math.max(cN,Math.ceil(wN/capW),Math.ceil(rN/capR));
+  if(!n){body.innerHTML='<tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr>';return}
+  const C=spreadN_(cN,n,1), W=spreadN_(wN,n,capW), R=spreadN_(rN,n,capR);
+  let cp=(dist?dist.n:0)+1;
+  let wp=(dist?dist.n*dist.pW:0)+1;
+  let rp=(dist?dist.white+dist.n*dist.pR:0)+1;
+  const out=[];
+  for(let k=0;k<n;k++){
+    const cq=C[k],wq=W[k],rq=R[k];
+    if(!cq&&!wq&&!rq)continue;
+    const cs=cp,ws=wp,rs=rp; cp+=cq; wp+=wq; rp+=rq;
+    const cb=cq?(()=>{const g=_toPageBox(cs);return `Page${g.page}(${g.box})`})():'—';
+    out.push(`<tr><td style="font-weight:700">#${k+1}</td><td>${cb}</td>
+      <td>${wq?fmtSlots(ws,wq):'—'}</td><td>${rq?fmtSlots(rs,rq):'—'}</td></tr>`);
+  }
+  body.innerHTML=out.join('')||'<tr><td colspan="4" class="empty">—</td></tr>';
+}
+
 
 function populateDesignatedWeeks(){
   const sel=document.getElementById('da-week');
