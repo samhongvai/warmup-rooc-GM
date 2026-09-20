@@ -722,6 +722,25 @@ input[type=checkbox]{accent-color:var(--teal)}
 .au-fc-box span{font-size:11px;color:var(--faint)}
 .au-fc-foot{font-size:11.5px;color:var(--faint);margin-top:10px;line-height:1.7}
 @media(max-width:700px){.au-fc-g{grid-template-columns:1fr}}
+
+/* ── Auction v4 · คิวประมูลคาดการณ์ ── */
+.au-qh{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin:16px 0 9px}
+.au-qh b{font-size:12px;font-weight:700;font-family:var(--font-pixel)}
+.au-tier{font-size:11px;color:var(--faint);border:1px solid var(--border2);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.au-tier b{font-weight:700;color:var(--muted);font-size:11px;font-family:inherit}
+.au-qt{width:100%;border-collapse:collapse}
+.au-qt td{padding:6px 8px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle}
+.au-qt td.n{width:32px;color:var(--faint);font-size:11px;text-align:right}
+.au-qt td.nm{font-weight:600}
+.au-qt td.src{color:var(--faint);font-size:11px;width:165px}
+.au-qt td.ct{text-align:right;width:150px}
+.au-cut{font-size:10.5px;font-weight:700;color:var(--orange);background:var(--orange-dim);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.au-qh2{margin:16px 0 8px;font-size:12px;font-weight:700;color:var(--muted);font-family:var(--font-pixel)}
+.au-dup{list-style:none;margin:0;padding:0}
+.au-dup li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding:6px 11px;background:var(--soft);border:1px solid var(--border);border-radius:9px;margin-bottom:6px}
+.au-dup b{font-size:12.5px;font-weight:700}
+.au-dup span{font-size:11.5px;color:var(--faint)}
+@media(max-width:700px){.au-qt td.src{display:none}.au-qt td.ct{width:auto}}
 </style>
 </head>
 <body>
@@ -1656,6 +1675,11 @@ function auDrawnToday_(){
     return String(r.status||'').toLowerCase()==='done'&&String(r.drawn_date||'')===today;
   }).length;
 }
+/* คิวที่โดนข้ามเพราะชื่อซ้ำ — สคริปต์ในชีตมาร์คไว้เป็น duplicate */
+function auDuplicateQueue_(){
+  return (_aucQueue||[]).filter(function(r){return String(r.status||'').toLowerCase()==='duplicate'})
+    .sort(function(a,b){return String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0))});
+}
 /* คิวที่รอประมูลรอบถัดไป เรียงตามรอบแล้วตามเลขคิว */
 function auUpcomingQueue_(){
   return (_aucQueue||[]).filter(function(r){return String(r.status||'').toLowerCase()==='pending'})
@@ -1734,10 +1758,42 @@ function auBuildForecast_(today,rows){
   }
   if(!base)return null;
   var mul=(ev==='Guild League')?2:1;
+  var bc=+base.card||0;
+  var tiers=(ev==='Guild League')
+    ? [{lb:'แพ้ ×1',n:Math.ceil(bc*1)},{lb:'แพ้ ×1.5',n:Math.ceil(bc*1.5)},
+       {lb:'แพ้ ×1.7',n:Math.ceil(bc*1.7)},{lb:'ชนะ ×2',n:Math.ceil(bc*2)}]
+    : [{lb:'อันดับ '+rank,n:bc}];
   return {date:target,ev:ev,sub:(grp?grp+' · ':'')+(ev==='Overrun'?'อันดับ '+rank:rank),
-    card:Math.ceil((+base.card||0)*mul), white:Math.ceil((+base.feather_white||0)*mul),
-    red:Math.ceil((+base.feather_red_black||0)*mul), src:src,
+    card:Math.ceil(bc*mul), white:Math.ceil((+base.feather_white||0)*mul),
+    red:Math.ceil((+base.feather_red_black||0)*mul), src:src, tiers:tiers,
     why:(ev==='Guild League')?'เพดานคือชนะ ×2':'Overrun ไม่มีตัวคูณ'};
+}
+
+/* ตารางคิวประมูลคาดการณ์ + เส้นตัดแต่ละตัวคูณ + คนที่โดนข้ามเพราะซ้ำ */
+function auForecastQueue_(f){
+  var q=auUpcomingQueue_();
+  if(!q.length)return '';
+  var tiers=f.tiers||[];
+  var maxN=0; tiers.forEach(function(t){if(t.n>maxN)maxN=t.n});
+  if(!maxN)return '';
+  var cut={}; tiers.forEach(function(t){cut[t.n]=t.lb});
+  var chips=tiers.map(function(t){return '<span class="au-tier"><b>'+t.lb+'</b> '+t.n+' คน</span>'}).join('');
+  var rows=q.slice(0,maxN).map(function(r,i){
+    var k=i+1;
+    return '<tr><td class="n">'+k+'</td><td class="nm">'+(r.member_name||'')+'</td>'
+      +'<td class="src">'+(r.queue_date||'')+' · คิว '+(r.position||'')+'</td>'
+      +'<td class="ct">'+(cut[k]?'<span class="au-cut">'+cut[k]+' ถึงแค่นี่</span>':'')+'</td></tr>';
+  }).join('');
+  var dup=auDuplicateQueue_();
+  var dupHtml='';
+  if(dup.length){
+    dupHtml='<div class="au-qh2">ซ้ำรอบเก่า — ข้ามให้อัตโนมัติ เลื่อนไปประมูลรอบถัดไป</div>'
+      +'<ul class="au-dup">'+dup.map(function(r){
+        return '<li><b>'+(r.member_name||'')+'</b><span>รอบ '+(r.queue_date||'')+' คิว '+(r.position||'')+'</span></li>';
+      }).join('')+'</ul>';
+  }
+  return '<div class="au-qh"><b>คิวประมูลคาดการณ์</b>'+chips+'</div>'
+    +'<div class="au-tblx"><table class="au-qt"><tbody>'+rows+'</tbody></table></div>'+dupHtml;
 }
 
 function renderForecast(){
@@ -1752,6 +1808,7 @@ function renderForecast(){
       '<div class="au-fc-box"><b>('+f.white+')</b><span>White Feather</span></div>'+
       '<div class="au-fc-box"><b>('+f.red+')</b><span>Red / Black</span></div>'+
     '</div>'+
+    auForecastQueue_(f)+
     '<div class="au-fc-foot">'+f.src+'</div>'+
     '<div class="au-fc-foot">'+f.why+' · ตัวเลขในวงเล็บคือเพดานที่เป็นไปได้ ยังไม่ใช่ของจริง</div>'+
     '</div></div>';
