@@ -516,17 +516,15 @@ input[type=checkbox]{accent-color:var(--teal)}
 .qs-skip{background:var(--t-pink);color:var(--t-pink-i);border:0}
 .loading,.empty{color:var(--muted)}
 
-/* ── แผงตั้งค่ามุมขวาล่าง (แทน zoom pill เดิม) ── */
-.setwrap{position:fixed;right:16px;bottom:16px;z-index:260;display:flex;
-  flex-direction:column;align-items:flex-end;gap:9px}
-.setbtn{height:40px;padding:0 13px;border-radius:14px;background:var(--card);
-  border:1px solid var(--border2);box-shadow:var(--shadow-out);display:flex;gap:7px;
-  align-items:center;cursor:pointer;color:var(--muted)}
-.setbtn b{font-size:12.5px;font-weight:700;color:var(--text)}
-.setbtn:hover,.setbtn.on{color:var(--orange-l);border-color:var(--orange-border)}
-.setbtn svg{width:19px;height:19px}
-.setpanel{display:none;width:238px;background:var(--card);border:1px solid var(--border);
-  border-radius:18px;box-shadow:var(--shadow-out);padding:14px 15px}
+/* ── แถวตั้งค่าในแถบเมนู + แผงลอยข้างๆ ── */
+.zoom-pill[hidden]{display:none!important}
+#gear{margin-top:6px}
+#gear .navz{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--faint)}
+#gear.on{color:var(--orange-l);background:var(--orange-dim)}
+#gear.on .navz{color:var(--orange-l)}
+.sidebar.rail #gear .navz{display:none}
+.setpanel{display:none;position:fixed;z-index:400;width:238px;background:var(--card);
+  border:1px solid var(--border2);border-radius:18px;box-shadow:var(--shadow-out);padding:14px 15px}
 .setpanel.open{display:block}
 .setpanel .lb{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;
   margin-bottom:7px}
@@ -628,7 +626,6 @@ input[type=checkbox]{accent-color:var(--teal)}
 .pc-head{gap:8px}
 @media(max-width:1024px){
   .main{padding:3.4rem 0.9rem 2rem!important}
-  .setwrap{right:11px;bottom:11px}
 }
 
 </style>
@@ -682,8 +679,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 </g></symbol>
 </defs></svg>
 <div class="zoom-pill" id="zoom-pill" hidden><button class="zp-lbl" id="zoom-lbl">100%</button></div>
-<div class="setwrap">
-  <div class="setpanel" id="setp">
+<div class="setpanel" id="setp">
     <div class="lb en">Theme</div>
     <div class="segbar" id="themeseg">
       <button data-th="light"><svg><use href="#i-sun"/></svg><span class="en">Light</span></button>
@@ -702,8 +698,6 @@ input[type=checkbox]{accent-color:var(--teal)}
       <button id="li" title="+"><svg><use href="#i-plus2"/></svg></button>
     </div>
   </div>
-  <div class="setbtn" id="gear" title="Settings"><svg><use href="#i-gear"/></svg><b class="num" id="gearz">100%</b></div>
-</div>
 <div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app" id="app-root">
 <nav class="sidebar" id="sidebar-el">
@@ -716,6 +710,7 @@ input[type=checkbox]{accent-color:var(--teal)}
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
+  <div class="nav-item" id="gear" title="Settings"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label en">Settings</span><b class="navz num" id="gearz">100%</b><span class="nav-tip">Settings</span></div>
   <div class="nav-spacer"></div>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span><button id="refresh-btn" onclick="forceRefresh()" title="ดึงข้อมูลล่าสุดจากชีท" style="margin-left:auto;background:transparent;border:none;cursor:pointer;font-size:13px;line-height:1;padding:2px 4px"><svg style="width:14px;height:14px"><use href="#i-refresh"/></svg></button></div>
 </nav>
@@ -2152,7 +2147,22 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
 /* ═══ แผงตั้งค่า — ธีม / ซูม / ขนาดตัวอังกฤษ ═══ */
 (function(){
   var gear=document.getElementById('gear'), panel=document.getElementById('setp');
-  gear.onclick=function(e){e.stopPropagation();panel.classList.toggle('open');gear.classList.toggle('on')};
+  function place(){
+    var r=gear.getBoundingClientRect();
+    var w=248, h=panel.offsetHeight||300;
+    var left=r.right+10;
+    if(left+w>window.innerWidth-8) left=Math.max(8,window.innerWidth-w-8);
+    panel.style.left=left+'px';
+    panel.style.top=Math.max(8,Math.min(r.top-6,window.innerHeight-h-12))+'px';
+  }
+  gear.onclick=function(e){
+    e.stopPropagation();
+    var open=!panel.classList.contains('open');
+    panel.classList.toggle('open',open);
+    gear.classList.toggle('on',open);
+    if(open)place();
+  };
+  window.addEventListener('resize',function(){if(panel.classList.contains('open'))place()});
   document.addEventListener('click',function(e){
     if(!panel.contains(e.target)&&e.target!==gear){panel.classList.remove('open');gear.classList.remove('on')}});
 
