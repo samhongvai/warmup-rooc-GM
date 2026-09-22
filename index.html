@@ -2962,15 +2962,15 @@ function admInit_(){
   const link=document.getElementById('adm-link'), t=document.getElementById('adm-link-t');
   if(ADMIN){
     document.body.classList.add('is-admin');
-    if(link){ link.style.display=''; link.href=SITE_URL; }
+    if(link){ link.style.display=''; link.href=SITE_URL; link.onclick=()=>uiGo_(link,SITE_URL); }
     if(t)t.textContent='Admin · ออก';
     const rb=document.getElementById('adm-ribbon');
     setTimeout(admAutoArchive_,4000);
     if(rb)rb.innerHTML=`<div class="adm-rib"><span>🟢 <b>โหมดแอดมิน</b> · ${ADMIN.email||''}</span>
       <span style="color:var(--faint);font-size:12px">ทุกการแก้บันทึกลงชีท + เก็บประวัติใน _Admin_Log</span>
-      <span class="sp"></span><a href="${SITE_URL}" target="_top">ออกจากโหมดแอดมิน</a></div>`;
+      <span class="sp"></span><a href="${SITE_URL}" target="_top" onclick="uiGo_(this,SITE_URL)">ออกจากโหมดแอดมิน</a></div>`;
   }else if(link&&ADMIN_URL.indexOf('https://')===0){
-    link.style.display=''; link.href=ADMIN_URL;
+    link.style.display=''; link.href=ADMIN_URL; link.onclick=()=>uiGo_(link,ADMIN_URL);
   }
 }
 
@@ -3870,6 +3870,31 @@ function calGoToday(){
   loadCalendarWeek();
 }
 
+/* ══ ตั้งค่าหน้าจอให้เหมือนกันทั้ง 2 โหมด ══
+   หน้าแอดมินเปิดใน iframe ของ Apps Script (คนละ origin กับ GitHub Pages) localStorage จึงไม่ใช้ร่วมกัน
+   และบางเบราว์เซอร์ห้าม iframe เก็บค่าเลย → ส่งค่า zoom / ขนาดตัวอังกฤษ / ธีม ไปกับลิงก์ตอนสลับโหมดทุกครั้ง */
+const UI_Z=[80,90,100,110,125,150], UI_LS=[90,93,96,98,100];
+const _uiSeed=(()=>{
+  const o={};
+  try{
+    const src=ADMIN&&ADMIN.prefs?ADMIN.prefs:Object.fromEntries(new URLSearchParams(location.search));
+    const z=parseInt(src.z,10), l=parseInt(src.ls,10), t=String(src.th||'');
+    if(UI_Z.includes(z))o.warmup_zoom=String(z);
+    if(UI_LS.includes(l))o.warmup_ls=String(l);
+    if(t==='light'||t==='dark')o.warmup_theme=t;
+    Object.keys(o).forEach(k=>{try{localStorage.setItem(k,o[k])}catch(e){}});
+    if(!ADMIN&&(src.z||src.ls||src.th)){const u=new URL(location.href);['z','ls','th'].forEach(k=>u.searchParams.delete(k));history.replaceState(null,'',u.toString());}
+  }catch(e){}
+  return o;
+})();
+function uiGet_(k){ try{const v=localStorage.getItem(k); if(v!=null)return v;}catch(e){} return _uiSeed[k]||null; }
+function uiQS_(){
+  const th=document.documentElement.getAttribute('data-theme')||'dark';
+  const ls=Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ls'))*100)||96;
+  return `z=${_zoomLevel}&ls=${ls}&th=${th}`;
+}
+function uiGo_(a,base){ a.href=base+(base.indexOf('?')>=0?'&':'?')+uiQS_(); }
+
 let _zoomLevel=100;
 const ZOOM_MIN=60,ZOOM_MAX=150;
 function onZoomSlider(v){
@@ -3913,7 +3938,7 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
     try{localStorage.setItem('warmup_theme',t)}catch(e){}
   }
   document.querySelectorAll('#themeseg button').forEach(function(b){b.onclick=function(){setTheme(b.dataset.th)}});
-  try{var t=localStorage.getItem('warmup_theme');if(t==='light'||t==='dark')setTheme(t)}catch(e){}
+  try{var t=uiGet_('warmup_theme');if(t==='light'||t==='dark')setTheme(t)}catch(e){}
 
   var ZS=[80,90,100,110,125,150], zi=2;
   function zpaint(){
@@ -3924,7 +3949,7 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
   }
   document.getElementById('zo').onclick=function(){if(zi>0){zi--;zpaint()}};
   document.getElementById('zi').onclick=function(){if(zi<ZS.length-1){zi++;zpaint()}};
-  try{var z=parseInt(localStorage.getItem('warmup_zoom'),10);var k=ZS.indexOf(z);if(k>=0)zi=k}catch(e){}
+  try{var z=parseInt(uiGet_('warmup_zoom'),10);var k=ZS.indexOf(z);if(k>=0)zi=k}catch(e){}
   zpaint();
 
   var LS=[90,93,96,98,100], li=2;
@@ -3937,11 +3962,11 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
   }
   document.getElementById('lo').onclick=function(){if(li>0){li--;lpaint()}};
   document.getElementById('li').onclick=function(){if(li<LS.length-1){li++;lpaint()}};
-  try{var l=parseInt(localStorage.getItem('warmup_ls'),10);var k2=LS.indexOf(l);if(k2>=0)li=k2}catch(e){}
+  try{var l=parseInt(uiGet_('warmup_ls'),10);var k2=LS.indexOf(l);if(k2>=0)li=k2}catch(e){}
   lpaint();
 })();
 function resetZoom(){onZoomSlider(100)}
-(function(){try{const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)}catch(e){}})();
+(function(){try{const z=parseInt(uiGet_('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)}catch(e){}})();
 
 /* ═══ ปุ่มดึงข้อมูลล่าสุด ═══
    ล้างแคชในหน้าทั้งหมด ตั้ง nocache แล้วโหลดใหม่ตั้งแต่ต้น
