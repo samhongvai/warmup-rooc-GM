@@ -538,6 +538,29 @@ input[type=checkbox]{accent-color:var(--teal)}
 .dd-act button:hover{background:var(--green);color:#fff}
 .dd-act button.u{border-color:var(--border2);color:var(--muted)}
 .dd-act button.u:hover{background:var(--card2);color:var(--text)}
+/* ── admin: party edit ── */
+.pe-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:9px 14px;margin-bottom:10px;font-size:13px}
+.pe-bar b{color:var(--green)}.pe-bar .sp{flex:1}
+.pe-chg{color:var(--orange);font-weight:700}
+.pe-hint{background:var(--blue-dim);border:1px solid var(--blue-b);color:var(--blue);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:12.5px}
+.pe-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:0 0 10px}
+.pe-acts{display:flex;gap:3px;margin-left:6px;flex:0 0 auto}
+body.is-admin #party-content .pm .pm-tag{display:none}
+.pe-ic{width:24px;height:24px;border-radius:7px;border:1px solid var(--border2);background:var(--card);display:grid;place-items:center;font-size:11.5px;cursor:pointer;color:var(--muted);padding:0;font-family:inherit}
+.pe-ic:hover{border-color:var(--orange);color:var(--orange)}
+.pe-ic.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.pe-ic.moon.on{background:#475569;border-color:#475569}
+.pm.pe-sel{background:var(--orange-dim);box-shadow:inset 0 0 0 2px var(--orange)}
+.pm.pe-cand{cursor:pointer}
+.pm.pe-cand:hover{background:var(--blue-dim)}
+.pm.pe-dirty{position:relative}
+.pm.pe-dirty::after{content:'';position:absolute;right:3px;top:3px;width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.pe-empty{display:flex;align-items:center;justify-content:center;min-height:38px;border-top:1px dashed var(--border2);color:var(--faint);font-size:12px}
+.pe-empty.pe-cand{cursor:pointer;color:var(--blue)}
+.pe-warn{font-size:10px;font-weight:800;color:var(--red);background:var(--red-dim);border:1px solid var(--red-b);border-radius:999px;padding:1px 7px;margin-left:6px}
+.pe-pool{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:10px 12px;margin:8px 0 14px;font-size:12.5px}
+.pe-pool .chip{display:inline-block;border:1px solid var(--border2);border-radius:999px;padding:3px 10px;margin:6px 4px 0 0;background:var(--bg);cursor:pointer}
+.pe-pool .chip.pe-sel{border-color:var(--orange);color:var(--orange)}
 /* ── admin: shuffle ── */
 .shf{background:var(--card);border:1px solid var(--border2);border-radius:14px;margin-bottom:12px;overflow:hidden}
 .shf-h{padding:12px 16px;border-bottom:1px solid var(--border);font-weight:800;font-size:15px}
@@ -1299,6 +1322,7 @@ async function loadData(){
       attend:exact(v,'attend'),
       pfixed:exact(v,'party_fixed')
     }}).filter(m=>m.ign);
+    if(_peLocal&&Date.now()<_peHold)members=_peLocal.map(m=>({...m}));   /* เพิ่งบันทึกตี้ — WebMaster ยังตามไม่ทัน */
     applyMode();
     document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode));
     setS(true,`Loaded · ${members.length} members`);
@@ -1420,20 +1444,26 @@ function renderParty(){
       const mark=leave?'<span class="pm-tag abs en">Absent</span>'
         :sub?'<span class="pm-tag alt en">Alt</span>'
         :isLead?'<span class="pm-tag lead en">Leader</span>':'';
-      return`<div class="pm${leave?' pm-absent':''}"><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}</div>`;
+      const nmq=esc_(m.ign).replace(/'/g,"\\'");
+      const ed=ADMIN?peRowAttr_(m):'';
+      const acts=ADMIN?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
+      return`<div class="pm${leave?' pm-absent':''}${ed}" ${ADMIN?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}${acts}</div>`;
     }).join('');
     const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span><span class="pc-cnt num ${here===5?'full':''}">${here}/5</span></div><div class="pm-body">${pmHtml}</div></div>`;
+    const noLead=ADMIN&&!pts[p].some(x=>(x.role||'')==='Leader');
+    const empties=ADMIN?Array.from({length:Math.max(0,5-pts[p].length)},()=>`<div class="pe-empty${_pe.sel?' pe-cand':''}" onclick="peTapEmpty('${p}')">${_pe.sel?'+ ย้ายมาช่องนี้':'ช่องว่าง'}</div>`).join(''):'';
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here===5?'full':''}">${here}/5</span></div><div class="pm-body">${pmHtml}${empties}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
   const editBtn='';
+  const peTop=ADMIN?peTop_():'';
   const absList=sorted.map(p=>({p,names:pts[p].filter(isLeaveNote).map(x=>x.ign)})).filter(x=>x.names.length);
   const absTotal=absList.reduce((a,x)=>a+x.names.length,0);
   const absPanel=`<div class="abs-panel"><div class="abs-head"><span class="abs-ic">🌙</span><span class="abs-title">ลาวันนี้</span><span class="abs-count">${absTotal} คน</span></div>`+
     (absTotal?`<div class="abs-rows">${absList.map(x=>`<div class="abs-row"><span class="abs-p">P${x.p}</span><span class="abs-names">${x.names.join(' · ')}</span></div>`).join('')}</div>`
              :`<div class="abs-empty">ไม่มีใครลา</div>`)+`</div>`;
-  document.getElementById('party-content').innerHTML=
+  document.getElementById('party-content').innerHTML=peTop+
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
     `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
     `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`+absPanel;
@@ -2390,6 +2420,101 @@ function renderAdmQueueBar_(line){
   if(_shf)el.insertAdjacentHTML('afterbegin',shfPanel_());
 }
 
+/* ── admin: แก้ตี้ (หัวตี้ · ลา · ย้าย/สลับ) — แก้ในเครื่องก่อน แล้วบันทึกทีเดียว ── */
+let _pe={ops:[],sel:null,snap:null,dirty:new Set()};
+let _peHold=0,_peLocal=null;
+const esc_=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+function peRowAttr_(m){ return (_pe.sel===m.ign?' pe-sel':(_pe.sel?' pe-cand':''))+(_pe.dirty.has(m.ign)?' pe-dirty':''); }
+function peFind_(name){ return members.find(m=>m.ign===name); }
+function peBegin_(){ if(!_pe.snap)_pe.snap=members.map(m=>({...m})); }
+function peTop_(){
+  const n=_pe.ops.length;
+  const pool=members.filter(m=>!m.party&&String(m.status||'').toUpperCase()!=='ARCHIVED');
+  const sel=_pe.sel;
+  return `<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · แก้หัวตี้ · ลา · ย้าย/สลับคน<span class="sp"></span>
+      ${n?`<span class="pe-chg">แก้ไว้ ${n} จุด ยังไม่บันทึก</span>`:''}
+      <button class="adm-btn" onclick="peResetAttend()" title="ล้างการลาทั้งหมด">🌙 ทุกคนมา</button>
+      ${n?'<button class="adm-btn" onclick="peCancel()">ยกเลิก</button>':''}
+      <button class="adm-btn pri" onclick="peSave()"${n?'':' disabled'}>💾 บันทึก${n?' ('+n+')':''}</button></div>
+    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา / กดอีกครั้ง = มา</span><span>⇄ เลือกคนนี้ แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span></div>
+    ${sel?`<div class="pe-hint">⇄ เลือก <b>${esc_(sel)}</b> แล้ว — กดชื่อคนในตี้อื่นเพื่อสลับ · กดช่องว่างเพื่อย้าย · กด ⇄ อีกครั้งเพื่อยกเลิก</div>`:''}
+    ${pool.length?`<div class="pe-pool"><b>ยังไม่ได้จัดเข้าตี้</b> (${pool.length})<br>${pool.map(m=>{const q=esc_(m.ign).replace(/'/g,"\\'");return `<span class="chip${sel===m.ign?' pe-sel':''}" onclick="peTap('${q}')">${esc_(m.ign)}</span>`}).join('')}</div>`:''}`;
+}
+function peLeader(p,name){
+  peBegin_();
+  members.filter(m=>String(m.party)===String(p)).forEach(m=>{ const want=m.ign===name?'Leader':'Member'; if(m.role!==want){m.role=want;_pe.dirty.add(m.ign);} });
+  _pe.ops=_pe.ops.filter(o=>!(o.t==='leader'&&String(o.p)===String(p)));
+  _pe.ops.push({t:'leader',p:+p,name});
+  renderParty();
+}
+function peAbsent(name){
+  const m=peFind_(name); if(!m)return;
+  peBegin_();
+  const abs=!isLeaveNote(m);
+  m.attend=abs?'ABSENT':'ACTIVE';
+  if(!abs&&String(m.status||'').toUpperCase()==='ABSENT')m.status='ACTIVE';
+  _pe.dirty.add(name);
+  _pe.ops=_pe.ops.filter(o=>!(o.t==='attend'&&o.name===name));
+  _pe.ops.push({t:'attend',name,absent:abs});
+  renderParty();
+}
+function peResetAttend(){
+  peBegin_();
+  members.forEach(m=>{ if(isLeaveNote(m))_pe.dirty.add(m.ign); m.attend='ACTIVE'; if(String(m.status||'').toUpperCase()==='ABSENT')m.status='ACTIVE'; });
+  _pe.ops=_pe.ops.filter(o=>o.t!=='attend'&&o.t!=='resetAttend');
+  _pe.ops.push({t:'resetAttend'});
+  renderParty();
+}
+function pePick(name){ _pe.sel=_pe.sel===name?null:name; renderParty(); }
+function peTap(name){
+  if(!_pe.sel||_pe.sel===name){ if(_pe.sel===name){_pe.sel=null;renderParty();} return; }
+  const a=peFind_(_pe.sel), b=peFind_(name); if(!a||!b)return;
+  if(a.party&&b.party&&String(a.party)===String(b.party)){ _pe.sel=null; renderParty(); return; }
+  peBegin_();
+  const pa=a.party, pb=b.party, ra=a.role, rb=b.role;
+  a.party=pb; b.party=pa;
+  a.role=pb?'Member':''; b.role=pa?'Member':'';
+  if(ra==='Leader'&&pa||rb==='Leader'&&pb)toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
+  _pe.dirty.add(a.ign); _pe.dirty.add(b.ign);
+  _pe.ops.push({t:'swap',a:a.ign,b:b.ign});
+  _pe.sel=null; renderParty();
+}
+function peTapEmpty(p){
+  if(!_pe.sel)return;
+  const a=peFind_(_pe.sel); if(!a)return;
+  peBegin_();
+  if(a.role==='Leader'&&a.party)toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
+  a.party=String(p); a.role='Member'; _pe.dirty.add(a.ign);
+  _pe.ops.push({t:'move',a:a.ign,p:+p});
+  _pe.sel=null; renderParty();
+}
+function peCancel(){
+  if(_pe.snap)members=_pe.snap;
+  _pe={ops:[],sel:null,snap:null,dirty:new Set()};
+  applyMode(); renderParty();
+}
+function peFromWeb_(o){
+  return {class_gl:o.class_gl||'',class_or:o.class_or||'',class:'',field_gl:o.field_gl||'',field_or:o.field_or||'',field:'',
+    ign:o.character_name||'',char_id:o.character_id||'',discord:o.discord_id||'',party:o.party_no||'',slot:o.slot||'',
+    role:o.role||'',note:'',status:o.status||'',tag:o.tag||'',attend:o.attend||'',pfixed:o.party_fixed||''};
+}
+async function peSave(){
+  if(!_pe.ops.length)return;
+  admBusy_(true);
+  toast('กำลังบันทึก… (10–20 วินาที)');
+  try{
+    const res=await admCall('admPartySave',_pe.ops);
+    if(res.members&&res.members.length){
+      members=res.members.map(peFromWeb_).filter(m=>m.ign);
+      _peLocal=members.map(m=>({...m})); _peHold=Date.now()+5*60*1000;  /* WebMaster ดึงตามทีหลัง — ใช้ข้อมูลนี้ไปก่อน */
+    }
+    _pe={ops:[],sel:null,snap:null,dirty:new Set()};
+    applyMode(); renderParty(); try{renderMembers();renderStats();}catch(e){}
+    toast('บันทึกแล้ว · '+res.log.length+' รายการ'+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''), null, (res.warn||[]).length>0);
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
+}
+
 /* ── admin: สุ่มคิวรอบใหม่ — สุ่มฝั่งเซิร์ฟเวอร์ ครั้งเดียว ไม่มีพรีวิวลำดับ ── */
 let _shf=null;
 function shfRerender_(){ renderAdmQueueBar_(document.getElementById('qm-round').value==='__line__'); }
@@ -3244,6 +3369,7 @@ function autoSkip_(){
   if(_autoBusy||document.hidden)return true;
   if(_aucUserEdited&&_currentPage==='auction')return true;     /* กำลังปรับค่าหน้าประมูลค้างอยู่ */
   if(document.body.classList.contains('adm-busy'))return true;
+  if(_pe.ops.length)return true;                                         /* แก้ตี้ค้างอยู่ ยังไม่บันทึก */
   const a=document.activeElement;
   if(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))return true;
   return false;
