@@ -520,6 +520,57 @@ input[type=checkbox]{accent-color:var(--teal)}
 .qs-pend{background:var(--t-peach);color:var(--t-peach-i);border:0}
 .qs-skip{background:var(--t-pink);color:var(--t-pink-i);border:0}
 .qs-dup{background:var(--soft);color:var(--muted);border:1px solid var(--border)}
+/* ── admin ── */
+.adm-only{display:none}
+body.is-admin .adm-only{display:table-cell}
+.adm-link{text-decoration:none}
+body.is-admin .adm-link{color:var(--green)}
+.adm-rib{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:9px 14px;margin:0 0 14px;font-size:13px}
+.adm-rib b{color:var(--green)}
+.adm-rib .sp{flex:1}
+.adm-rib a{color:var(--muted);font-size:12px;font-weight:700;text-decoration:none;border:1px solid var(--border2);background:var(--card);border-radius:8px;padding:4px 10px}
+.adm-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:12.5px}
+.adm-bar .sp{flex:1}
+.adm-sel{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--green)}
+.adm-sel select{min-width:210px;font-size:12.5px}
+.adm-st{color:var(--muted);font-size:12px}
+.adm-btn{border:1px solid var(--border2);background:var(--card);color:var(--text);border-radius:9px;padding:6px 12px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}
+.adm-btn:hover{border-color:var(--orange);color:var(--orange)}
+.adm-btn.pri{background:var(--orange);border-color:var(--orange);color:#fff}
+.adm-btn.pri:hover{filter:brightness(1.06);color:#fff}
+.adm-btn.arm{background:var(--red);border-color:var(--red);color:#fff}
+.adm-btn:disabled{opacity:.45;cursor:not-allowed}
+.adm-qbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:13px}
+.adm-qbar b{color:var(--orange)}
+.adm-qbar .sp{flex:1}
+.adm-qbar input{width:58px;border:1px solid var(--orange-border);border-radius:8px;padding:4px 8px;background:var(--card);color:var(--text);font-family:var(--font-pixel);text-align:center}
+.qm-act{text-align:right;white-space:nowrap}
+.qm-act button{border:1px solid var(--border2);background:var(--card);color:var(--muted);border-radius:8px;padding:3px 9px;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;margin-left:4px}
+.qm-act button.ok:hover{border-color:var(--green);color:var(--green)}
+.qm-act button.sk:hover{border-color:var(--red);color:var(--red)}
+tr.qm-gone td:nth-child(2){text-decoration:line-through;color:var(--faint)}
+tr.qm-warn td{background:var(--red-dim)}
+.qm-flag{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--red);background:var(--red-dim);border-radius:999px;padding:1px 8px}
+.qm-why{display:block;font-size:10.5px;color:var(--red);margin-top:2px;font-weight:600}
+.qm-cut{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--orange);background:var(--orange-dim);border-radius:999px;padding:1px 8px;white-space:nowrap}
+tr.qm-sheet td{background:var(--soft)}
+.qm-sheet-b{padding:4px 2px}
+.qm-sheet-b p{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.qm-reasons{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.qm-reasons button{border:1px solid var(--border2);background:var(--card);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.qm-reasons button.on{background:var(--red);border-color:var(--red);color:#fff}
+.qm-reasons input{border:1px solid var(--border2);border-radius:8px;padding:4px 10px;font-size:12.5px;background:var(--card);color:var(--text);min-width:170px;font-family:inherit}
+.au-tag.adm{border-color:var(--green-b);color:var(--green)}
+body.adm-busy{cursor:progress}
+body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:.5}
+.adm-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(140px);background:var(--text);color:var(--card);border-radius:12px;padding:11px 16px;font-size:13px;display:flex;gap:14px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.25);transition:transform .25s;z-index:999;max-width:calc(100% - 32px)}
+.adm-toast.on{transform:translateX(-50%) translateY(0)}
+.adm-toast.err{background:var(--red);color:#fff}
+.adm-toast button{background:none;border:0;color:var(--orange);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.war-soon{display:flex;flex-direction:column;align-items:center;gap:6px;padding:56px 16px;background:var(--card);border:1px dashed var(--border2);border-radius:var(--radius-md);color:var(--muted);text-align:center}
+.war-soon .ic svg{width:34px;height:34px;color:var(--orange)}
+.war-soon b{font-size:16px;color:var(--text)}
+.war-soon span{font-size:12.5px;color:var(--faint)}
 .loading,.empty{color:var(--muted)}
 
 /* ── แถวตั้งค่าในแถบเมนู + แผงลอยข้างๆ ── */
@@ -780,7 +831,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 <symbol id="i-cal" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="3" y="1" width="2" height="3"/><rect x="11" y="1" width="2" height="3"/><rect x="1" y="3" width="14" height="12"/><rect x="3" y="7" width="10" height="6" fill="var(--shell)"/></g></symbol>
 <symbol id="i-party" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="3" width="4" height="4"/><rect x="11" y="3" width="4" height="4"/><rect x="6" y="1" width="4" height="4"/><rect x="0" y="8" width="6" height="6"/><rect x="10" y="8" width="6" height="6"/><rect x="5" y="6" width="6" height="8"/></g></symbol>
 <symbol id="i-member" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="1" width="6" height="6"/><rect x="2" y="8" width="12" height="7"/></g></symbol>
-<symbol id="i-hammer" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="2" width="10" height="4"/><rect x="2" y="1" width="8" height="1"/><rect x="8" y="6" width="3" height="2"/><rect x="10" y="8" width="3" height="7"/></g></symbol>
+<symbol id="i-sword" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="12" y="1" width="3" height="2"/><rect x="10" y="3" width="3" height="2"/><rect x="8" y="5" width="3" height="2"/><rect x="6" y="7" width="3" height="2"/><rect x="3" y="7" width="3" height="2"/><rect x="7" y="10" width="2" height="3"/><rect x="4" y="10" width="3" height="2"/><rect x="1" y="12" width="3" height="3"/></g></symbol><symbol id="i-lock" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="1" width="6" height="2"/><rect x="4" y="2" width="2" height="5"/><rect x="10" y="2" width="2" height="5"/><rect x="3" y="7" width="10" height="8"/></g></symbol><symbol id="i-hammer" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="2" width="10" height="4"/><rect x="2" y="1" width="8" height="1"/><rect x="8" y="6" width="3" height="2"/><rect x="10" y="8" width="3" height="7"/></g></symbol>
 <symbol id="i-check" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="11" width="2" height="2"/><rect x="3" y="9" width="2" height="2"/><rect x="7" y="9" width="2" height="2"/><rect x="9" y="7" width="2" height="2"/><rect x="11" y="5" width="2" height="2"/><rect x="13" y="3" width="2" height="2"/></g></symbol>
 <symbol id="i-refresh" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="4" y="2" width="8" height="2"/><rect x="2" y="4" width="2" height="2"/><rect x="12" y="4" width="2" height="2"/><rect x="1" y="6" width="2" height="4"/><rect x="13" y="6" width="2" height="4"/><rect x="2" y="10" width="2" height="2"/><rect x="12" y="10" width="2" height="2"/><rect x="4" y="12" width="8" height="2"/><rect x="10" y="0" width="2" height="4"/></g></symbol>
 <symbol id="i-gear" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="6" y="0" width="4" height="3"/><rect x="6" y="13" width="4" height="3"/><rect x="0" y="6" width="3" height="4"/><rect x="13" y="6" width="3" height="4"/><rect x="3" y="3" width="10" height="10"/><rect x="6" y="6" width="4" height="4" fill="var(--shell)"/></g></symbol>
@@ -832,10 +883,12 @@ input[type=checkbox]{accent-color:var(--teal)}
   <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni"><svg><use href="#i-cal"/></svg></span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
+  <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">War</span><span class="nav-tip">War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
   <div class="nav-sep"></div>
   <div class="nav-item" id="gear" title="Settings"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label en">Settings</span><span class="nav-tip">Settings</span></div>
   <div class="nav-item" id="refresh-btn" onclick="forceRefresh()" title="Refresh"><span class="ni"><svg><use href="#i-refresh"/></svg></span><span class="nav-label"><b class="en">Refresh</b> <i id="upd" class="num">(--:--)</i></span><span class="nav-tip">Refresh</span></div>
+  <a class="nav-item adm-link" id="adm-link" href="#" target="_top" style="display:none"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label"><b class="en" id="adm-link-t">Admin</b></span><span class="nav-tip">Admin</span></a>
   <div class="nav-spacer"></div>
   <div class="nav-footer"><span class="sdot" id="sdot"></span><span id="snav">Loading...</span></div>
 </nav>
@@ -889,6 +942,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 <div id="page-auction" class="page">
   <div class="page-title">Auction</div>
   <div class="page-sub" id="auc-sub">คิวประมูล รางวัล และประวัติการแข่ง</div>
+  <div id="adm-ribbon"></div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
     <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated</button>
@@ -914,6 +968,7 @@ input[type=checkbox]{accent-color:var(--teal)}
         <b id="auc-calc-title">Guild League Reward</b><div class="sp"></div>
       </div>
       <div class="au-sec-b">
+        <div id="adm-aucbar"></div>
         <div class="au-rib" id="auc-rib" style="display:none"><span class="dot"></span><span id="auc-rib-t"></span></div>
         <div class="au-war" id="auc-war"></div>
         <div class="au-mwarn" id="auc-mwarn" style="display:none"></div>
@@ -991,8 +1046,9 @@ input[type=checkbox]{accent-color:var(--teal)}
       </div>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="qm-count">—</div>
+    <div id="adm-qbar"></div>
     <div class="tbl-wrap"><table class="rtbl">
-      <thead><tr><th style="width:44px">#</th><th>ชื่อ</th><th style="width:100px">สถานะ</th><th style="width:110px">วันที่ประมูล</th></tr></thead>
+      <thead><tr><th style="width:44px">#</th><th>ชื่อ</th><th style="width:118px">สถานะ</th><th style="width:130px" id="qm-th4">วันที่ประมูล</th><th class="adm-only" style="width:150px;text-align:right">จัดการ</th></tr></thead>
       <tbody id="qm-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
@@ -1024,6 +1080,12 @@ input[type=checkbox]{accent-color:var(--teal)}
     </div>
   </div>
 </div>
+<div id="page-war" class="page">
+  <div class="page-title">War</div>
+  <div class="page-sub">ผลวอ คะแนนรายคน และสถิติ</div>
+  <div class="war-soon"><div class="ic"><svg><use href="#i-sword"/></svg></div><b>กำลังพัฒนา</b><span>บันทึกผลวอ · คะแนนรายคน · สถิติ</span></div>
+</div>
+
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar</div>
   <div style="margin-bottom:14px">
@@ -1060,7 +1122,24 @@ const SRC_AUCTION='1OQcwEoOjzMZ09jqTdh8aNex9EeMC-DnEH6Jc31u8dYM'; // Warmup Auct
 const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Event (Link)
 /* แท็บไหนอยู่ไฟล์ไหน — ที่ไม่มีในนี้จะไปดึงจาก Bridge */
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
-               War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT};
+               War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
+               Auction_Adjust:SRC_AUCTION};
+
+/* ══ ADMIN ══
+   โหมดแอดมิน = หน้าเว็บนี้ถูกเปิดผ่าน Apps Script (Admin.gs ใน Warmup Members)
+   Admin.gs แปะ window.__WARMUP_ADMIN__ ไว้ต้น <head> — บน GitHub Pages ตัวแปรนี้ไม่มี ปุ่มแก้ไขจึงไม่โผล่
+   ความปลอดภัยจริงอยู่ที่ deployment "Only myself" + ตรวจอีเมลซ้ำใน Admin.gs */
+const ADMIN=window.__WARMUP_ADMIN__||null;
+const ADMIN_URL='https://script.google.com/macros/s/AKfycbzTho04o8jKR9SsNH5iHUVFiplgZCxuYq9BTj7bFyYKuGQxhB6_9YrJIgVFp3toCgCb/exec';
+const SITE_URL='https://samhongvai.github.io/warmup-rooc-GM/';
+function admCall(fn){
+  const args=[].slice.call(arguments,1);
+  return new Promise((res,rej)=>{
+    google.script.run.withSuccessHandler(res)
+      .withFailureHandler(e=>rej(e&&e.message?e.message:String(e)))[fn].apply(null,args);
+  });
+}
+let _aucAdjust={},_aucAdjRow=null,_aucAppliedKey=null,_aucUserEdited=false,_admWarDate='';
 /* ปุ่มดึงข้อมูลล่าสุดจะตั้ง _bust เป็นเวลาปัจจุบัน ทำให้ URL ไม่ซ้ำเดิม
    เบราว์เซอร์กับ CDN ของ Google จึงไม่คืนของเก่าที่แคชไว้ */
 let _bust='';
@@ -1070,7 +1149,8 @@ const mkUrl=s=>bust(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?
 const CFG={max_card:1,max_white:4,max_red:7};
 const CLASS_TYPE={'High Priest':'Support','Minstrel':'Support','Gypsy':'Support','Biochemist':'All Rounder','Summoner':'All Rounder','Lord Knight':'All Rounder','Paladin':'All Rounder','Mastersmith':'All Rounder','Professor':'Attack (DPS)','High Wizard':'Attack (DPS)','Sniper':'Attack (DPS)','Stalker':'Attack (DPS)','Rebellion':'Attack (DPS)','Champion':'Attack (DPS)','Assassin Cross':'Attack (DPS)'};
 
-let _mode=localStorage.getItem('warmup_mode')==='OR'?'OR':'GL';
+/* อ่าน localStorage ต้องมี try เสมอ — ในหน้าแอดมิน (iframe ของ Apps Script) หรือโหมดส่วนตัว เบราว์เซอร์อาจห้ามเข้าถึงแล้ว throw ทำให้สคริปต์ทั้งหน้าหยุด */
+let _mode=(()=>{try{return localStorage.getItem('warmup_mode')==='OR'?'OR':'GL'}catch(e){return 'GL'}})();
 function normField(f){const t=String(f||'').trim();
   if(t==='หลัก')return 'Elite';
   if(t==='รอง')return 'Sub-battle';
@@ -1498,9 +1578,16 @@ async function loadAuctionData(){
       try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
       catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
     };
-    const [q,hl,rw,wl,cf]=await Promise.all([
-      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log'),get('Config')
+    const [q,hl,rw,wl,cf,aj]=await Promise.all([
+      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log'),get('Config'),get('Auction_Adjust')
     ]);
+    /* ค่าที่แอดมินบันทึกไว้ต่อวันวอ — ถ้ายังไม่มีแท็บ gviz อาจคืนแท็บอื่นมา จึงเช็คหัวคอลัมน์ก่อนใช้ */
+    _aucAdjust={};
+    (aj||[]).forEach(r=>{
+      if(!('mul' in r)||!('card' in r)||!('feather_white' in r))return;
+      const d=normDate(r.date);
+      if(/^\d{4}-\d{2}-\d{2}$/.test(d))_aucAdjust[d]=r;
+    });
 
     /* เพดานรางวัลอ่านจากแท็บ Config ในชีท ถ้าอ่านไม่ได้ใช้ค่าเริ่มต้นเดิม */
     cf.forEach(r=>{
@@ -1539,6 +1626,7 @@ function allQueueRows_(){
 
 async function initAuctionPage(){
   await loadAuctionData();
+  if(!_aucUserEdited)_aucAppliedKey=null;   /* โหลดข้อมูลใหม่ — ใช้ค่าที่บันทึกล่าสุดถ้ายังไม่ได้แก้อะไรค้าง */
   populateAucEventTypes();
   applyAutoWar();
   renderRewardInputs();
@@ -1577,7 +1665,8 @@ function getCurrentReward(){
 }
 
 function onAucRank(){
-  _aucFieldOverrides={};_aucPerPersonOverrides={};
+  /* select นี้ซ่อนอยู่ ถูกเรียกตอนโหลดหน้าเท่านั้น — อย่าล้างค่าที่ผู้ใช้กำลังแก้ */
+  if(!_aucUserEdited){_aucFieldOverrides={};_aucPerPersonOverrides={};}
   renderRewardInputs();
   renderDistribution();
 }
@@ -1588,18 +1677,21 @@ let _aucPerPersonOverrides={};
 
 function onGlobalMul(){
   const v=parseFloat(document.getElementById('auc-global-mul').value);
+  _aucUserEdited=true;
   _aucGlobalMul=(isNaN(v)||v<=0)?1:v;
   _aucFieldOverrides={};_aucPerPersonOverrides={};
   renderRewardInputs();renderDistribution();
 }
 function onRewardFieldEdit(key,inputEl){
   const raw=inputEl.value.trim();
+  _aucUserEdited=true;
   if(raw===''){delete _aucFieldOverrides[key]}
   else{const n=parseInt(raw,10);if(isNaN(n)||n<0)return;_aucFieldOverrides[key]=n}
   renderRewardInputs();renderDistribution();
 }
 function onPerPersonEdit(key,inputEl){
   const raw=inputEl.value.trim();
+  _aucUserEdited=true;
   if(raw===''){delete _aucPerPersonOverrides[key]}
   else{const n=parseInt(raw,10);if(isNaN(n)||n<0)return;_aucPerPersonOverrides[key]=n}
   renderRewardInputs();renderDistribution();
@@ -1672,6 +1764,7 @@ function augTog(id){const e=document.getElementById(id);if(e)e.classList.toggle(
 
 var _aucAutoWar=null;
 function aucResetAuto(){
+  _aucUserEdited=false;_aucAppliedKey=null;
   _aucFieldOverrides={};_aucPerPersonOverrides={};
   applyAutoWar();
   renderRewardInputs();renderDistribution();
@@ -1740,8 +1833,16 @@ function applyAutoWar(){
   var todayRow=null;
   for(var i=0;i<rows.length;i++){ if(rows[i].date===today){todayRow=rows[i];break} }
 
+  /* แอดมินเลือกวันวอเอง — ใช้แถวนั้นตรงๆ และเปิดหน้าคำนวณไว้เสมอ */
+  var forced=null;
+  if(ADMIN&&_admWarDate){
+    for(var f=0;f<rows.length;f++){ if(rows[f].date===_admWarDate&&auRowReady_(rows[f])){forced=rows[f];break} }
+    if(!forced)_admWarDate='';
+  }
+
   var pick=null;
-  if(todayRow&&auRowReady_(todayRow)){ _aucMode='live'; pick=todayRow; }
+  if(forced){ _aucMode='live'; pick=forced; }
+  else if(todayRow&&auRowReady_(todayRow)){ _aucMode='live'; pick=todayRow; }
   else if(todayRow||auIsWarDay_(today)){ _aucMode='wait'; pick=null; }
   else{
     _aucMode='closed';
@@ -1750,8 +1851,10 @@ function applyAutoWar(){
     if(!pick)_aucMode='wait';
   }
 
-  if(_aucMode==='live'&&pick){
-    var slots=Number(String(pick.card||'').replace(/,/g,''))||0;
+  _aucAdjRow=pick?(_aucAdjust[pick.date]||null):null;
+  if(!forced&&_aucMode==='live'&&pick){
+    var adjCard=_aucAdjRow?String(_aucAdjRow.card==null?'':_aucAdjRow.card).trim():'';
+    var slots=Number(String(adjCard!==''?adjCard:(pick.card||'')).replace(/,/g,''))||0;
     if(slots>0&&auDrawnToday_()>=slots)_aucMode='done';
   }
   _aucFc=(_aucMode==='live')?null:auBuildForecast_(today,rows);
@@ -1771,9 +1874,27 @@ function applyAutoWar(){
     var want=w.rank+'|'+(w.cross_server||'')+'|'+(w.group||'');
     if([].slice.call(rSel.options).some(function(o){return o.value===want}))rSel.value=want;
   }
-  var m=parseFloat(w.mul);
-  _aucGlobalMul=(isFinite(m)&&m>0)?m:1;
+  /* ตั้งตัวคูณ + ค่าที่แอดมินบันทึก เฉพาะตอนวันวอหรือค่าที่บันทึกเปลี่ยน — ไม่ทับสิ่งที่กำลังแก้อยู่ */
+  var key=w.date+'|'+JSON.stringify(_aucAdjRow||{});
+  if(key!==_aucAppliedKey){
+    _aucAppliedKey=key; _aucUserEdited=false;
+    _aucGlobalMul=aucRefMul_();
+    _aucFieldOverrides=aucAdjOverrides_();
+    _aucPerPersonOverrides={};
+  }
   return true;
+}
+/* ตัวคูณตามผลวอ */
+function aucAutoMul_(){ var m=parseFloat(_aucAutoWar&&_aucAutoWar.mul); return (isFinite(m)&&m>0)?m:1; }
+/* ตัวคูณอ้างอิง — ค่าที่แอดมินบันทึกก่อน ถ้าไม่มีใช้ตามผลวอ */
+function aucRefMul_(){ var a=_aucAdjRow, m=a?parseFloat(a.mul):NaN; return (isFinite(m)&&m>0)?m:aucAutoMul_(); }
+/* จำนวนที่แอดมินบันทึก — ช่องว่าง = ใช้ค่าคำนวณ */
+function aucAdjOverrides_(){
+  var o={}, a=_aucAdjRow; if(!a)return o;
+  ['card','feather_white','feather_red_black'].forEach(function(k){
+    var v=String(a[k]==null?'':a[k]).trim(); if(v!==''&&isFinite(+v))o[k]=+v;
+  });
+  return o;
 }
 
 /* กล่องคาดการณ์ — ใช้แรงก์ที่ใส่ล่วงหน้าในชีตก่อน ถ้าไม่มีค่อยเดาจากรอบก่อน */
@@ -1873,6 +1994,7 @@ function renderWarLine(){
   var cfg=document.getElementById('auc-cfgbx');
   if(!box)return;
   renderForecast();
+  renderAdmAucBar_();
 
   var w=_aucAutoWar, today=auISO_(new Date());
   var quiet=(_aucMode==='wait'||_aucMode==='done');   /* \u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e23\u0e39\u0e49\u0e1c\u0e25 / \u0e1b\u0e23\u0e30\u0e21\u0e39\u0e25\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27 */
@@ -1916,16 +2038,16 @@ function renderWarLine(){
   var st=String(w.status||'').toLowerCase();
   var diff=Math.abs(Number(String(w.diff||'').replace(/,/g,''))||0);
   var grp=w.group?' \u00b7 '+w.group:'';
-  var autoMul=parseFloat(w.mul)||1, cur=_aucGlobalMul||1;
+  var autoMul=aucRefMul_(), cur=_aucGlobalMul||1;
   var man=Math.abs(cur-autoMul)>1e-9;
   var chip=st?('<span class="au-chip '+(st==='win'?'win':'lose')+'">'+w.status+(diff?' '+diff.toLocaleString():'')+'</span>'):'';
   box.innerHTML='<span class="au-wd">'+w.date+'</span>'+
     '<span class="au-wm">'+(w.event_type||'')+grp+' \u00b7 '+(w.rank||'')+'</span>'+chip+
     '<span class="au-mul"><small>\u00d7</small><span>'+cur.toFixed(1)+'</span></span>'+
-    (_aucMode==='closed'?'':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>');
+    (_aucMode==='closed'?'':(_aucAdjRow&&!man?'<span class="au-tag adm">admin</span>':'<span class="au-tag'+(man?'':' on')+'">'+(man?'manual':'auto')+'</span>'));
   if(warn){
     warn.style.display=(man&&_aucMode!=='closed')?'block':'none';
-    if(man)warn.innerHTML='\u0e15\u0e31\u0e27\u0e04\u0e39\u0e13\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e1c\u0e25\u0e27\u0e2d ('+autoMul+') &nbsp;<a href="#" onclick="aucResetAuto();return false">\u0e01\u0e25\u0e31\u0e1a\u0e04\u0e48\u0e32\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34</a>';
+    if(man)warn.innerHTML='\u0e15\u0e31\u0e27\u0e04\u0e39\u0e13\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a'+(_aucAdjRow?'\u0e04\u0e48\u0e32\u0e17\u0e35\u0e48\u0e41\u0e2d\u0e14\u0e21\u0e34\u0e19\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01':'\u0e1c\u0e25\u0e27\u0e2d')+' ('+autoMul+') &nbsp;<a href="#" onclick="aucResetAuto();return false">\u0e01\u0e25\u0e31\u0e1a\u0e04\u0e48\u0e32\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34</a>';
   }
 }
 
@@ -1942,14 +2064,16 @@ function renderRewardInputs(){
     {k:'feather_white',label:'White Feather',u:'ขนขาว',base:+base.feather_white||0},
     {k:'feather_red_black',label:'Red / Black Feather',u:'ขนดำแดง',base:+base.feather_red_black||0}
   ];
+  const adjO=aucAdjOverrides_();
   wrap.innerHTML=fields.map(f=>{
     const calcVal=Math.ceil(f.base*mul);
     const ov=_aucFieldOverrides[f.k]!=null;
     const v=ov?_aucFieldOverrides[f.k]:calcVal;
+    const byAdmin=ov&&adjO[f.k]!=null&&adjO[f.k]===v;
     return `<div class="au-fld${ov?' ov':''}">
       <div class="k">${f.label}</div>
       <input type="number" min="0" value="${v}" oninput="onRewardFieldEdit('${f.k}',this)">
-      <div class="u">${ov?'แก้เอง · เคลียร์ช่องเพื่อกลับค่าคำนวณ':f.u}</div>
+      <div class="u">${byAdmin?'ค่าที่แอดมินบันทึก':(ov?'แก้เอง · เคลียร์ช่องเพื่อกลับค่าคำนวณ':f.u)}</div>
     </div>`;
   }).join('');
 
@@ -1962,7 +2086,7 @@ function renderRewardInputs(){
     const hasW=_aucPerPersonOverrides.white!=null, hasR=_aucPerPersonOverrides.red!=null;
     const ppW=capPerPerson_(hasW?_aucPerPersonOverrides.white:autoW,rw.limWhite);
     const ppR=capPerPerson_(hasR?_aucPerPersonOverrides.red:autoR,rw.limRed);
-    const autoMul=_aucAutoWar?(parseFloat(_aucAutoWar.mul)||1):1;
+    const autoMul=aucRefMul_();
     const mOv=Math.abs((_aucGlobalMul||1)-autoMul)>1e-9;
     ppWrap.innerHTML=
       `<label class="au-mini${mOv?' ov':''}"><span class="k">Multiplier ×</span>
@@ -2083,8 +2207,9 @@ function renderDesignated(){
 function statusBadge(s){
   const v=String(s||'').toLowerCase().trim();
   if(v==='done')   return '<span class="gf" style="background:var(--green-dim);color:var(--green);border-color:var(--green-b)">✅ done</span>';
-  if(v==='skipped'||v==='skip') return '<span class="gf">⏭ skipped</span>';
+  if(v==='skipped'||v==='skip') return '<span class="gf" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">⏭ skipped</span>';
   if(v==='pending')return '<span class="gf" style="background:var(--amber-dim);color:var(--amber);border-color:var(--amber-b)">⏳ pending</span>';
+  if(v==='duplicate')return '<span class="gf">🔁 ซ้ำคิว</span>';
   return `<span style="color:var(--faint)">—</span>`;
 }
 
@@ -2093,30 +2218,225 @@ function populateQueueRounds(){
   if(!sel)return;
   const prev=sel.value;
   const dates=[...new Set(allQueueRows_().map(r=>r.queue_date).filter(Boolean))].sort().reverse();
-  sel.innerHTML=dates.length?dates.map(d=>`<option value="${d}">${d}</option>`).join(''):'<option value="">ยังไม่มีคิว</option>';
-  /* คงวันที่เดิมไว้ถ้ายังมีอยู่ในลิสต์ใหม่ (กันกระโดดกลับไปรอบล่าสุดตอนโหลดประวัติเสร็จ) */
-  if(prev && dates.includes(prev)) sel.value=prev;
+  /* มุมมองแรก = ลำดับที่จะได้จริงต่อกันทุกรอบ แล้วค่อยเลือกดูทีละรอบ */
+  sel.innerHTML='<option value="__line__">ลำดับรอประมูล (ทุกรอบ)</option>'+dates.map(d=>`<option value="${d}">รอบ ${d}</option>`).join('');
+  /* คงค่าเดิมไว้ถ้ายังมีอยู่ (กันกระโดดตอนโหลดประวัติเสร็จ) */
+  sel.value=(prev==='__line__'||dates.includes(prev))?prev:'__line__';
   renderQueueManager();
 }
 
-function renderQueueManager(){
-  const round=document.getElementById('qm-round').value;
-  const fs=document.getElementById('qm-filter-status').value;
-  let rows=allQueueRows_().filter(r=>r.queue_date===round);
-  const total=rows.length;
-  const pending=rows.filter(r=>String(r.status).toLowerCase()==='pending').length;
-  if(fs)rows=rows.filter(r=>String(r.status).toLowerCase()===fs);
-  rows.sort((a,b)=>(+a.position||0)-(+b.position||0));
+let _qmRows=[],_qmSkipIdx=-1,_qmReason='ออกกิลด์',_qmBulkArm=false,_qmBulkN=null;
+const QM_REASONS=['ออกกิลด์','เลิกเล่น','ไม่มาประมูล','อื่นๆ'];
 
-  document.getElementById('qm-count').textContent=total?`${total} คน · pending ${pending}`:'—';
+function renderQueueManager(){
+  const sel=document.getElementById('qm-round');
+  const fsEl=document.getElementById('qm-filter-status');
+  const round=sel.value, fs=fsEl.value, line=round==='__line__';
+  fsEl.disabled=line;
+  let rows;
+  if(line){
+    rows=getPendingQueue();
+    document.getElementById('qm-count').textContent=rows.length?`รอประมูล ${rows.length} คิว · เรียงรอบเก่าก่อน`:'—';
+  }else{
+    rows=allQueueRows_().filter(r=>r.queue_date===round);
+    const total=rows.length;
+    const pending=rows.filter(r=>String(r.status).toLowerCase()==='pending').length;
+    if(fs)rows=rows.filter(r=>String(r.status).toLowerCase()===fs);
+    rows.sort((a,b)=>(+a.position||0)-(+b.position||0));
+    document.getElementById('qm-count').textContent=total?`${total} คน · pending ${pending}`:'—';
+  }
+  const th4=document.getElementById('qm-th4'); if(th4)th4.textContent=line?'รอบ · คิว':'วันที่ประมูล';
+  _qmRows=rows;
+  renderAdmQueueBar_(line);
+
   const tb=document.getElementById('qm-tbody');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty">ไม่พบข้อมูล</td></tr>';return}
-  tb.innerHTML=rows.map(r=>`<tr>
-    <td class="m-num">${r.position||'—'}</td>
-    <td style="font-weight:600">${r.member_name||'—'}</td>
-    <td>${statusBadge(r.status)}</td>
-    <td style="font-size:11px;color:var(--muted)">${fmtShort(r.drawn_date)}</td>
-  </tr>`).join('');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">ไม่พบข้อมูล</td></tr>';return}
+  const inGuild=new Set(members.map(m=>String(m.char_id||'').trim()));
+  const cuts=line?qmCuts_():{};
+  tb.innerHTML=rows.map((r,i)=>{
+    const st=String(r.status||'').toLowerCase();
+    const live=st==='pending';
+    const gone=st==='done'||st==='skipped';
+    const lost=ADMIN&&live&&r.character_id&&!inGuild.has(String(r.character_id).trim());
+    const why=st==='skipped'?(String(r.note||'').match(/skip:\s*([^·]*)/)||[])[1]:'';
+    const act=!ADMIN?'':(live
+      ?`<button class="ok" onclick="qmSet(${i},'done')">✓ Done</button><button class="sk" onclick="qmAskSkip(${i})">⏭ Skip</button>`
+      :(gone?`<button onclick="qmSet(${i},'pending')">↺ คืน</button>`:'<span style="color:var(--faint)">—</span>'));
+    let h=`<tr class="${gone?'qm-gone':''}${lost?' qm-warn':''}">
+      <td class="m-num">${line?(i+1):(r.position||'—')}</td>
+      <td style="font-weight:600">${r.member_name||'—'}${lost?'<span class="qm-flag">ไม่อยู่ในรายชื่อกิลด์</span>':''}${cuts[i+1]?`<span class="qm-cut">${cuts[i+1]} ถึงแค่นี้</span>`:''}</td>
+      <td>${statusBadge(r.status)}${why?`<span class="qm-why">${why.trim()}</span>`:''}</td>
+      <td style="font-size:11px;color:var(--muted)">${line?('รอบ '+fmtShort(r.queue_date)+' · คิว '+(r.position||'—')):fmtShort(r.drawn_date)}</td>
+      <td class="adm-only qm-act">${act}</td>
+    </tr>`;
+    if(ADMIN&&_qmSkipIdx===i){
+      h+=`<tr class="qm-sheet"><td colspan="5"><div class="qm-sheet-b">
+        <p>ข้ามคิว <b>${r.member_name||''}</b> เพราะ</p>
+        <div class="qm-reasons">${QM_REASONS.map(x=>`<button class="${x===_qmReason?'on':''}" onclick="qmPick('${x}')">${x}</button>`).join('')}
+          ${_qmReason==='อื่นๆ'?'<input id="qm-other" placeholder="พิมพ์เหตุผล">':''}</div>
+        <button class="adm-btn pri" onclick="qmConfirmSkip(${i})">ยืนยัน Skip</button>
+        <button class="adm-btn" onclick="_qmSkipIdx=-1;renderQueueManager()">ยกเลิก</button>
+      </div></td></tr>`;
+    }
+    return h;
+  }).join('');
+}
+
+/* เส้นตัดของแต่ละผลวอ — ตัวเลขเดียวกับกล่อง Next Event */
+function qmCuts_(){
+  const out={};
+  if(_aucFc&&_aucFc.tiers){ _aucFc.tiers.forEach(t=>{ if(t.n>0)out[t.n]=t.lb; }); return out; }
+  const rw=getRewardValues(); if(rw&&rw.card)out[rw.card]='ได้รางวัลวันนี้';
+  return out;
+}
+
+/* ── admin: แถบบนแท็บ Queue ── */
+function renderAdmQueueBar_(line){
+  const el=document.getElementById('adm-qbar'); if(!el)return;
+  if(!ADMIN||!line){el.innerHTML='';return}
+  const dist=computeDistribution();
+  const suggest=dist&&_aucMode==='live'?dist.n:((getRewardValues()||{}).card||0);
+  if(_qmBulkN==null)_qmBulkN=suggest||0;
+  el.innerHTML=`<div class="adm-qbar">
+    <span>ประมูลเสร็จแล้ว — มาร์ค <b>Done</b> ลำดับ 1 ถึง</span>
+    <input id="qm-bulk-n" inputmode="numeric" value="${_qmBulkN}" oninput="_qmBulkN=parseInt(this.value,10)||0">
+    ${suggest?`<span style="color:var(--faint);font-size:12px">วันนี้แจก ${suggest} คน</span>`:''}
+    <span class="sp"></span>
+    <button class="adm-btn ${_qmBulkArm?'arm':'pri'}" onclick="qmBulk()">${_qmBulkArm?'กดอีกครั้งเพื่อยืนยัน '+_qmBulkN+' คน':'✓ บันทึก Done'}</button>
+  </div>`;
+}
+
+function qmKey_(r){ return {date:r.queue_date,pos:String(r.position),id:String(r.character_id||'').trim()}; }
+function qmAskSkip(i){ _qmSkipIdx=i; _qmReason='ออกกิลด์'; renderQueueManager(); }
+function qmPick(x){ _qmReason=x; renderQueueManager(); if(x==='อื่นๆ')setTimeout(()=>{const e=document.getElementById('qm-other');if(e)e.focus()},0); }
+function qmConfirmSkip(i){
+  let why=_qmReason;
+  if(why==='อื่นๆ'){ const e=document.getElementById('qm-other'); why=(e&&e.value.trim())||'อื่นๆ'; }
+  qmSet(i,'skipped',why);
+}
+async function qmSet(i,status,reason){
+  const r=_qmRows[i]; if(!r)return;
+  const before={status:r.status,note:r.note||'',drawn_date:r.drawn_date};
+  const ok=await admRowStatus_(r,status,reason);
+  if(!ok)return;
+  const oldWhy=(String(before.note).match(/skip:\s*([^·]*)/)||[])[1]||'';
+  toast(r.member_name+' → '+qsInfo_(status).label+(reason?' · '+reason:''),
+        ()=>admRowStatus_(r,String(before.status).toLowerCase(),oldWhy.trim()));
+}
+async function admRowStatus_(r,status,reason){
+  admBusy_(true);
+  try{
+    const res=await admCall('admSetQueueStatus',qmKey_(r),status,reason||'');
+    r.status=res.status; r.drawn_date=res.drawn_date; r.note=res.note;
+    _qmSkipIdx=-1;
+    aucAfterQueueChange_();
+    return true;
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); return false; }
+  finally{ admBusy_(false); }
+}
+async function qmBulk(){
+  if(!_qmBulkArm){
+    _qmBulkArm=true; renderAdmQueueBar_(true);
+    setTimeout(()=>{ if(_qmBulkArm){_qmBulkArm=false;renderAdmQueueBar_(document.getElementById('qm-round').value==='__line__');} },6000);
+    return;
+  }
+  _qmBulkArm=false;
+  const rows=getPendingQueue().slice(0,Math.max(0,_qmBulkN|0));
+  if(!rows.length){renderAdmQueueBar_(true);return}
+  admBusy_(true);
+  try{
+    const res=await admCall('admBulkDone',rows.map(qmKey_));
+    const hit=new Set((res.done||[]).map(k=>k.date+'#'+k.pos+'#'+k.id));
+    rows.forEach(r=>{ const k=qmKey_(r); if(hit.has(k.date+'#'+k.pos+'#'+k.id)){ r.status='done'; r.drawn_date=res.date; } });
+    _qmBulkN=null;
+    aucAfterQueueChange_();
+    toast('มาร์ค Done '+(res.done||[]).length+' คิวแล้ว'+((res.skipped||[]).length?' · ข้าม '+res.skipped.length+' แถว':''));
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
+}
+/* หลังแก้คิว — คำนวณหน้าประมูลใหม่ทั้งหมดจากข้อมูลในเครื่อง ไม่ต้องรอโหลดชีท */
+function aucAfterQueueChange_(){
+  applyAutoWar(); renderRewardInputs(); renderDistribution(); renderQueueManager();
+  if(typeof renderDesignated==='function'){ try{renderDesignated()}catch(e){} }
+}
+
+/* ── admin: แถบบนหัวข้อรางวัล (เลือกวันวอ + บันทึกค่าที่ปรับ) ── */
+function renderAdmAucBar_(){
+  const el=document.getElementById('adm-aucbar'); if(!el)return;
+  if(!ADMIN){el.innerHTML='';return}
+  const today=auISO_(new Date());
+  const opts=_warLog.filter(r=>r.date<=today&&auRowReady_(r)).sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,24);
+  const w=_aucAutoWar, adj=_aucAdjRow;
+  const lbl=r=>auThai_(r.date)+' · '+r.event_type+(r.group?' · '+r.group:'')+' · '+r.rank;
+  el.innerHTML=`<div class="adm-bar">
+    <label class="adm-sel">วันวอ
+      <select onchange="admPickWar(this.value)">
+        <option value="">อัตโนมัติ${!_admWarDate&&w?' · '+auThai_(w.date):''}</option>
+        ${opts.map(r=>`<option value="${r.date}"${r.date===_admWarDate?' selected':''}>${lbl(r)}</option>`).join('')}
+      </select></label>
+    <span class="sp"></span>
+    <span class="adm-st">${adj?'ใช้ค่าที่บันทึกไว้':'ใช้ค่าตามสูตร'}</span>
+    ${adj?'<button class="adm-btn" onclick="admClearAdj()">↺ กลับค่าตามสูตร</button>':''}
+    <button class="adm-btn pri" onclick="admSaveAdj()"${w?'':' disabled'}>💾 บันทึกค่าที่ปรับ</button>
+  </div>`;
+}
+function admPickWar(v){
+  _admWarDate=v||''; _aucAppliedKey=null; _aucUserEdited=false;
+  applyAutoWar(); renderRewardInputs(); renderDistribution(); renderQueueManager();
+}
+async function admSaveAdj(){
+  const w=_aucAutoWar, rw=getRewardValues(); if(!w||!rw)return;
+  const vals={mul:_aucGlobalMul||1,card:rw.card,feather_white:rw.white,feather_red_black:rw.red};
+  admBusy_(true);
+  try{
+    await admCall('admSaveAdjust',w.date,vals);
+    _aucAdjust[w.date]={date:w.date,mul:String(vals.mul),card:String(vals.card),
+      feather_white:String(vals.feather_white),feather_red_black:String(vals.feather_red_black)};
+    _aucAppliedKey=null; _aucUserEdited=false;
+    applyAutoWar(); renderRewardInputs(); renderDistribution(); renderQueueManager();
+    toast('บันทึกค่าของ '+auThai_(w.date)+' แล้ว · สมาชิกเห็นค่านี้');
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
+}
+async function admClearAdj(){
+  const w=_aucAutoWar; if(!w)return;
+  admBusy_(true);
+  try{
+    await admCall('admClearAdjust',w.date);
+    delete _aucAdjust[w.date];
+    _aucAppliedKey=null; _aucUserEdited=false;
+    applyAutoWar(); renderRewardInputs(); renderDistribution(); renderQueueManager();
+    toast('กลับไปใช้ค่าตามสูตรของ '+auThai_(w.date)+' แล้ว');
+  }catch(e){ toast('ไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
+}
+
+function admBusy_(on){ document.body.classList.toggle('adm-busy',!!on); }
+let _toastT=null,_toastUndo=null;
+function toast(msg,undo,err){
+  let t=document.getElementById('adm-toast');
+  if(!t){ t=document.createElement('div'); t.id='adm-toast'; t.className='adm-toast'; document.body.appendChild(t); }
+  _toastUndo=undo||null;
+  t.className='adm-toast on'+(err?' err':'');
+  t.innerHTML='<span>'+(err?'':'✓ ')+msg+'</span>'+(undo?'<button onclick="toastUndo_()">ย้อนกลับ</button>':'');
+  clearTimeout(_toastT); _toastT=setTimeout(()=>t.classList.remove('on'),err?6000:4500);
+}
+function toastUndo_(){ const u=_toastUndo; _toastUndo=null; const t=document.getElementById('adm-toast'); if(t)t.classList.remove('on'); if(u)u(); }
+
+/* ── ตั้งค่าหน้าเว็บตามโหมด ── */
+function admInit_(){
+  const link=document.getElementById('adm-link'), t=document.getElementById('adm-link-t');
+  if(ADMIN){
+    document.body.classList.add('is-admin');
+    if(link){ link.style.display=''; link.href=SITE_URL; }
+    if(t)t.textContent='Admin · ออก';
+    const rb=document.getElementById('adm-ribbon');
+    if(rb)rb.innerHTML=`<div class="adm-rib"><span>🟢 <b>โหมดแอดมิน</b> · ${ADMIN.email||''}</span>
+      <span style="color:var(--faint);font-size:12px">ทุกการแก้บันทึกลงชีท + เก็บประวัติใน _Admin_Log</span>
+      <span class="sp"></span><a href="${SITE_URL}" target="_top">ออกจากโหมดแอดมิน</a></div>`;
+  }else if(link&&ADMIN_URL.indexOf('https://')===0){
+    link.style.display=''; link.href=ADMIN_URL;
+  }
 }
 
 function renderWarHistory(){
@@ -2687,7 +3007,7 @@ function stepZoom(d){onZoomSlider(_zoomLevel+d)}
   lpaint();
 })();
 function resetZoom(){onZoomSlider(100)}
-(function(){const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)})();
+(function(){try{const z=parseInt(localStorage.getItem('warmup_zoom'),10);if(z&&z!==100)onZoomSlider(z)}catch(e){}})();
 
 /* ═══ ปุ่มดึงข้อมูลล่าสุด ═══
    ล้างแคชในหน้าทั้งหมด ตั้ง nocache แล้วโหลดใหม่ตั้งแต่ต้น
@@ -2734,6 +3054,8 @@ const AUTO_MS=60000;
 let _lastAuto=Date.now(), _autoBusy=false;
 function autoSkip_(){
   if(_autoBusy||document.hidden)return true;
+  if(_aucUserEdited&&_currentPage==='auction')return true;     /* กำลังปรับค่าหน้าประมูลค้างอยู่ */
+  if(document.body.classList.contains('adm-busy'))return true;
   const a=document.activeElement;
   if(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))return true;
   return false;
@@ -2749,6 +3071,7 @@ document.addEventListener('visibilitychange',function(){
   if(!document.hidden&&Date.now()-_lastAuto>30000)autoRefresh_();
 });
 
+admInit_();
 loadData();
 </script>
 
