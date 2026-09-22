@@ -519,6 +519,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 .qs-done{background:var(--t-mint);color:var(--t-mint-i);border:0}
 .qs-pend{background:var(--t-peach);color:var(--t-peach-i);border:0}
 .qs-skip{background:var(--t-pink);color:var(--t-pink-i);border:0}
+.qs-dup{background:var(--soft);color:var(--muted);border:1px solid var(--border)}
 .loading,.empty{color:var(--muted)}
 
 /* ── แถวตั้งค่าในแถบเมนู + แผงลอยข้างๆ ── */
@@ -1336,9 +1337,9 @@ async function searchMain(){
       <div class="pf-tile"><div class="k en">Party</div>
         <div class="v num">${m.party||'\u2014'}</div>
         <div class="h en">${m.field||'No Party'}</div></div>
-      <div class="pf-tile${qRow&&remain&&remain.rank===1?' good':''}"><div class="k en">Queue</div>
+      <div class="pf-tile${remain&&remain.rank===1?' good':''}"><div class="k en">Queue</div>
         <div class="v num">${qRow?'#'+qRow.position:'\u2014'}</div>
-        <div class="h">${qRow?(qRow.status==='done'?'จับฉลากแล้ว':(remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คน'):'รอจับฉลาก')):'ยังไม่มีคิว'}</div></div>
+        <div class="h">${qRow?(remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คน'):qsInfo_(qRow.status).short):'ยังไม่มีคิว'}</div></div>
       <div class="pf-tile${absent?' warn':''}"><div class="k en">Today</div>
         <div class="v en" style="font-size:19px">${absent?'ABSENT':'ACTIVE'}</div>
         <div class="h">${absent?'แจ้งลารอบนี้':'พร้อมลงวอ'}</div></div>
@@ -1356,15 +1357,18 @@ async function searchMain(){
 
     let queueHtml;
     if(qRow){
-      const tot=_searchQueueRows.length||1;
+      const qi=qsInfo_(qRow.status);
+      const line=pendingLine_();
+      const myIdx=line.indexOf(qRow);
       let dots='';
-      for(let k=1;k<=tot;k++)
-        dots+=`<i class="${k===+qRow.position?('me'+(qRow.status==='done'?' done':'')):(k<+qRow.position?'past':'')}"></i>`;
-      queueHtml=`<div class="qz">${dots}</div>
-        <div class="qrow"><div class="big num">${String(qRow.position).padStart(2,'0')}</div>
-          <div class="txt"><b>${qRow.status==='done'?'จับฉลากไปแล้ว':(remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คนก่อนถึงคิว'):'รอจับฉลาก')}</b>
-            <span>รอบคิววันที่ ${_searchLatestDate||'\u2014'} \u00b7 ทั้งหมด ${tot} คิว</span></div>
-          <span class="qs ${qRow.status==='done'?'qs-done':'qs-pend'} en">${qRow.status==='done'?'Drawn':'Pending'}</span></div>`;
+      for(let k=0;k<line.length;k++)
+        dots+=`<i class="${k===myIdx?'me':(myIdx>=0&&k<myIdx?'past':'')}"></i>`;
+      const head=remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คนก่อนถึงคิว'):qi.long;
+      queueHtml=(myIdx>=0?`<div class="qz">${dots}</div>`:'')+
+        `<div class="qrow"><div class="big num">${String(qRow.position).padStart(2,'0')}</div>
+          <div class="txt"><b>${head}</b>
+            <span>รอบคิววันที่ ${qRow.queue_date||'\u2014'} \u00b7 รอประมูลทั้งหมด ${line.length} คิว</span></div>
+          <span class="qs ${qi.cls} en">${qi.label}</span></div>`;
     } else queueHtml='<div class="pf-empty en">No active queue</div>';
 
     const hKey=keyOf(m);
@@ -1376,11 +1380,11 @@ async function searchMain(){
     const histHtml=hist===null?'<div class="loading" style="padding:8px 0">Loading...</div>':
       hist.length?`<table class="hist">
         <thead><tr><th class="en">Queue date</th><th class="en" style="width:76px">Position</th><th class="en">Result</th></tr></thead>
-        <tbody>${hPage.map(r=>`<tr>
+        <tbody>${hPage.map(r=>{const qi=qsInfo_(r.status);return `<tr>
           <td style="color:var(--muted)">${r.queue_date}</td>
           <td><span class="pos num">${String(r.position).padStart(2,'0')}</span></td>
-          <td><span class="qs ${r.status==='done'?'qs-done':'qs-pend'} en">${r.status==='done'?'Drawn':'Pending'}</span></td>
-        </tr>`).join('')}</tbody></table>`+hBtn
+          <td><span class="qs ${qi.cls} en">${qi.label}</span></td>
+        </tr>`}).join('')}</tbody></table>`+hBtn
       :'<div class="pf-empty en">No auction history</div>';
 
     const meta=[cls?`<span class="en">${cls}</span>`:'',
@@ -1404,13 +1408,23 @@ async function searchMain(){
 
   const keyOf=m=>String(m.char_id||'').trim()||String(m.ign||'').trim();
   const draw=()=>{
+    const byOrder=(a,b)=>String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0));
     el.innerHTML=found.map(m=>{
-      const k=keyOf(m);
-      const qRow=_searchQueueRows.find(r=>(String(r.character_id||'').trim()||String(r.member_name||'').trim())===k);
-      const hist=_searchCacheLoaded?(_searchHistMap[k]||[]).sort((a,b)=>b.queue_date.localeCompare(a.queue_date)):null;
+      const k=keyOf(m), nm=String(m.ign||'').trim();
+      const mine=_searchQueueRows.filter(r=>(String(r.character_id||'').trim()||String(r.member_name||'').trim())===k).sort(byOrder);
+      /* คิวที่รออยู่เก่าสุดคือคิวที่จะได้จริง — ไม่มีคิวรอ ค่อยโชว์แถวล่าสุด */
+      const qRow=mine.find(r=>String(r.status).toLowerCase()==='pending')||mine[mine.length-1];
+      let hist=null;
+      if(_searchCacheLoaded){
+        hist=(_searchHistMap[k]||[]).slice();
+        /* แถวเก่าที่ยังไม่มี character_id ถูกเก็บด้วยชื่อ — รวมเข้ามาด้วย */
+        if(nm&&nm!==k)hist=hist.concat(_searchHistMap[nm]||[]);
+        hist.sort((a,b)=>String(b.queue_date).localeCompare(String(a.queue_date))||((+b.position||0)-(+a.position||0)));
+      }
       return renderCard(m,qRow,hist);
     }).join('');
   };
+
   _histDraw=draw;
 
   draw();   // แสดงผลทันทีด้วยข้อมูลที่มี (ประวัติจะขึ้น "Loading..." ถ้ายังไม่เคยโหลด)
@@ -2187,22 +2201,35 @@ async function preloadSearchCache(){
   /* คิวปัจจุบัน (รอบล่าสุด) — ใช้ _aucQueue อย่างเดียว ไม่ปนกับประวัติเก่า */
   const allDates=[...new Set(_aucQueue.map(r=>r.queue_date).filter(Boolean))].sort().reverse();
   _searchLatestDate=allDates.length?allDates[0]:'';
-  _searchQueueRows=_searchLatestDate?_aucQueue.filter(r=>r.queue_date===_searchLatestDate):[];
+  _searchQueueRows=_aucQueue.slice();   /* ทุกรอบที่ยังเปิดอยู่ — คิวซ้อนกันหลายรอบได้ */
   _searchCacheLoaded=true;
 }
 
 /** อันดับในคิวที่ "เหลือ" ของรอบปัจจุบัน — นับเฉพาะคนที่ยัง pending อยู่
  *  ไม่รวมคนที่ถูก skip (เช่นออกกิลด์แล้ว) เพราะไม่มีทางถูกเรียกจริง
  *  คืนค่า null ถ้าตัวเองไม่ได้ pending (ประมูลไปแล้ว/ถูก skip/ไม่มีคิว) */
+/* ป้ายสถานะคิว — ใช้ร่วมกันทั้งการ์ดคิวและตารางประวัติ */
+function qsInfo_(st){
+  const s=String(st||'').toLowerCase().trim();
+  if(s==='done')return {cls:'qs-done',label:'Drawn',short:'จับฉลากแล้ว',long:'จับฉลากไปแล้ว'};
+  if(s==='duplicate')return {cls:'qs-dup',label:'Duplicate',short:'ซ้ำคิว',long:'ซ้ำคิวรอบเก่า — เลื่อนไปรอบถัดไป'};
+  if(s==='skipped'||s==='skip')return {cls:'qs-skip',label:'Skipped',short:'ข้ามคิว',long:'ข้ามคิวนี้'};
+  return {cls:'qs-pend',label:'Pending',short:'รอจับฉลาก',long:'รอจับฉลาก'};
+}
+/* คิวที่รออยู่ทุกรอบ เรียงรอบเก่าก่อน แล้วตามเลขคิว — ลำดับเดียวกับที่หน้า Auction ใช้แจกจริง */
+function pendingLine_(){
+  return _searchQueueRows.filter(r=>String(r.status).toLowerCase()==='pending')
+    .sort((a,b)=>String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0)));
+}
+/** อันดับที่เหลือในแถวรอประมูล (นับข้ามรอบ) — null ถ้าไม่ได้ pending */
 function remainingQueueRank_(qRow){
   if(!qRow || String(qRow.status).toLowerCase()!=='pending') return null;
-  const pending=_searchQueueRows
-    .filter(r=>String(r.status).toLowerCase()==='pending')
-    .sort((a,b)=>(+a.position||0)-(+b.position||0));
-  const idx=pending.findIndex(r=>+r.position===+qRow.position);   // position ไม่ซ้ำกันในรอบเดียว พอใช้ระบุแถวได้แม่นกว่าชื่อ
+  const line=pendingLine_();
+  const idx=line.indexOf(qRow);
   if(idx===-1) return null;
-  return { rank: idx+1, total: pending.length };
+  return { rank: idx+1, total: line.length };
 }
+
 
 const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 const SLOT_MINS=15;
