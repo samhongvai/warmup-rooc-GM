@@ -718,6 +718,26 @@ body.is-admin .wr-adm{display:inline-block}
 .pe-swp.cand{border-color:var(--green);color:var(--green);border-style:dashed}
 .ce-sel{background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:3px 6px;font:inherit;font-size:12px;max-width:150px}
 .ce-sel.chg{border-color:var(--amber);color:var(--amber);font-weight:700}
+.gh-mode{display:flex;gap:12px;align-items:flex-start;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:13px;line-height:1.65;border:1px solid}
+.gh-mode>b{white-space:nowrap}
+.gh-mode.x{background:var(--green-dim);border-color:var(--green-b)}.gh-mode.x>b{color:var(--green)}
+.gh-mode.i{background:var(--blue-dim);border-color:var(--blue-b)}.gh-mode.i>b{color:var(--blue)}
+.gh-mode.u{background:var(--amber-dim);border-color:var(--amber-b)}.gh-mode.u>b{color:var(--amber)}
+.gh-days{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.gh-days{grid-template-columns:1fr}}
+.gh-day{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.gh-dh{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:2px solid var(--orange);font-weight:800}
+.gh-dh small{font-size:12px;color:var(--muted);font-weight:600}.gh-dh .sp,.gh-s .sp{flex:1}
+.gh-cnt{font-size:11.5px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--soft,var(--card2));color:var(--muted);font-family:var(--font-pixel)}
+.gh-s{display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--border);font-size:13.5px}
+.gh-s:first-of-type{border-top:0}
+.gh-n{width:22px;height:22px;border-radius:7px;background:var(--soft,var(--card2));display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--muted)}
+.gh-nm{font-weight:700}.gh-s.empty .gh-nm{color:var(--faint);font-weight:500}
+.gh-s.fix{background:var(--orange-dim)}
+.gh-tag{font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 8px;border:1px solid var(--border2);color:var(--muted)}
+.gh-tag.done{color:var(--green);border-color:var(--green-b);background:var(--green-dim)}
+.gh-tag.fix{color:var(--orange-l);border-color:var(--orange-border)}
+.gh-fe{font-size:12px;color:var(--muted)}
 .gr-upd{background:var(--green-dim);border:1px solid var(--green-b);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;gap:12px;align-items:flex-start}
 .gr-upd b{color:var(--green);white-space:nowrap}.gr-upd ul{margin:0;padding-left:18px;line-height:1.7}
 .gr-sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:14px;overflow:hidden}
@@ -1151,7 +1171,7 @@ body.is-admin .wr-adm{display:inline-block}
   <div id="adm-ribbon"></div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Distribution</button>
-    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated</button>
+    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Guild Helper</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
   </div>
 
@@ -1230,10 +1250,7 @@ body.is-admin .wr-adm{display:inline-block}
       </div>
       <div style="font-size:11px;color:var(--muted);padding-bottom:9px" id="da-count">—</div>
     </div>
-    <div class="tbl-wrap"><table class="rtbl">
-      <thead><tr><th style="width:44px">#</th><th>Name</th><th style="width:100px">Status</th><th style="width:110px">Auction Date</th></tr></thead>
-      <tbody id="da-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
-    </table></div>
+    <div id="da-body"><div class="empty">กำลังโหลด...</div></div>
   </div>
 
   <div id="auc-manage" style="display:none">
@@ -2457,6 +2474,8 @@ function renderLeftover(){
   var n=Math.max(Math.ceil(wN/capW),Math.ceil(rN/capR));
   if(!n){body.innerHTML='<tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr>';return}
   var W=spreadN_(wN,n,capW), R=spreadN_(rN,n,capR);
+  /* วันในเซิร์ฟ: เศษขนนกแจกให้ Guild Helper ของวันนั้นตามลำดับ · เกินจำนวนผู้ช่วยค่อยเป็น #n */
+  var loNames=(_aucAutoWar&&String(_aucAutoWar.cross_server||'').trim()==='N')?ghHelpersForDate_(_aucAutoWar.date):[];
   var wp=(dist?dist.n*dist.pW:0)+1;
   var rp=(dist?dist.white+dist.n*dist.pR:0)+1;
   var out=[];
@@ -2464,7 +2483,7 @@ function renderLeftover(){
     var wq=W[k],rq=R[k];
     if(!wq&&!rq)continue;
     var ws=wp,rs=rp; wp+=wq; rp+=rq;
-    out.push('<tr><td style="font-weight:700">#'+(k+1)+'</td>'
+    out.push('<tr><td style="font-weight:700">'+(loNames[k]?esc_(loNames[k]):'#'+(k+1))+'</td>'
       +'<td>'+(wq?fmtSlots(ws,wq):'—')+'</td><td>'+(rq?fmtSlots(rs,rq):'—')+'</td></tr>');
   }
   body.innerHTML=out.join('')||'<tr><td colspan="3" class="empty">—</td></tr>';
@@ -2472,28 +2491,64 @@ function renderLeftover(){
 
 
 
+/* ══ GUILD HELPER (เดิมชื่อ Designated) ══ อ่านจาก Helper_Log
+   สัปดาห์ละ 8 คน · ลำดับ 1–5 = อังคาร · 6–10 = พฤหัส (ตามที่ชีทใช้อยู่)
+   ข้ามเซิร์ฟ = ประมูลล็อกหัว วันละ 5 คน (ผู้ช่วย 4 + Ficelle) · ในเซิร์ฟ = ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกแทน (ไปโผล่ในตาราง Leftover) */
+const GH_FIXED='Ficelle';
+const ghIsFixed_=r=>String(r.member_name||'').trim()===GH_FIXED||/fixed/i.test(String(r.note||''));
+function ghAddDays_(d,n){const x=new Date(d+'T00:00:00');x.setDate(x.getDate()+n);return toDateStr(x);}
+/* ลีกของสัปดาห์นั้น: Y = ข้ามเซิร์ฟ · N = ในเซิร์ฟ · '' = ยังไม่รู้ */
+function ghCross_(wk){
+  const end=ghAddDays_(wk,6);
+  const r=_warLog.filter(x=>x.event_type==='Guild League'&&x.date>=wk&&x.date<=end&&String(x.cross_server||'').trim());
+  return r.length?String(r[0].cross_server).trim():'';
+}
+function ghDayRows_(wk,dow){
+  const lo=dow===2?1:6, hi=dow===2?5:10;
+  return _aucHelpers.filter(r=>r.week_start===wk&&+r.position>=lo&&+r.position<=hi&&String(r.member_name||'').trim())
+    .sort((a,b)=>(+a.position||0)-(+b.position||0));
+}
+/* ชื่อผู้ช่วยของวันวอนั้น (ไม่รวม Ficelle) — ใช้ใส่ชื่อในตาราง Leftover ของวันในเซิร์ฟ */
+function ghHelpersForDate_(date){
+  if(!date)return [];
+  const d=new Date(date+'T00:00:00').getDay(); if(d!==2&&d!==4)return [];
+  return ghDayRows_(mondayOfDate(date),d).filter(r=>!ghIsFixed_(r)).map(r=>String(r.member_name).trim());
+}
 function populateDesignatedWeeks(){
   const sel=document.getElementById('da-week');
   if(!sel)return;
-  const weeks=[...new Set(_aucHelpers.map(r=>r.week_start).filter(Boolean))].sort().reverse();
-  sel.innerHTML=weeks.length?weeks.map(w=>`<option value="${w}">${w}</option>`).join(''):'<option value="">ยังไม่มีข้อมูล</option>';
+  const cur=mondayOfDate(toDateStr(new Date()));
+  const weeks=[...new Set(_aucHelpers.map(r=>r.week_start).filter(Boolean).concat([cur]))].sort().reverse();
+  const keep=sel.value;
+  sel.innerHTML=weeks.map(w=>`<option value="${w}">Week ${wDay_(w)} – ${wDay_(ghAddDays_(w,6))} ${w.slice(0,4)}</option>`).join('');
+  sel.value=weeks.includes(keep)?keep:cur;
   renderDesignated();
 }
-
 function renderDesignated(){
-  const wk=document.getElementById('da-week').value;
-  const rows=_aucHelpers.filter(r=>r.week_start===wk)
-    .sort((a,b)=>(+a.position||0)-(+b.position||0));
-  const tb=document.getElementById('da-tbody');
-  const done=rows.filter(r=>String(r.auction_status).toLowerCase()==='done').length;
-  document.getElementById('da-count').textContent=rows.length?`${rows.length} คิว · done ${done}`:'—';
-  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty">ยังไม่มีรายชื่อสัปดาห์นี้</td></tr>';return}
-  tb.innerHTML=rows.map(r=>`<tr>
-    <td class="m-num">${r.position||'—'}</td>
-    <td style="font-weight:600">${r.member_name||'—'}</td>
-    <td>${statusBadge(r.auction_status)}</td>
-    <td style="font-size:11px;color:var(--muted)">${fmtShort(r.auction_done_date)}</td>
-  </tr>`).join('');
+  const wk=(document.getElementById('da-week')||{}).value; const box=document.getElementById('da-body');
+  if(!box||!wk)return;
+  const cross=ghCross_(wk), isX=cross==='Y', isI=cross==='N';
+  const all=_aucHelpers.filter(r=>r.week_start===wk&&String(r.member_name||'').trim()&&!ghIsFixed_(r)).length;
+  document.getElementById('da-count').textContent=`${all} / 8 คน`+(isX?' + Ficelle':'');
+  const mode=isX?`<div class="gh-mode x"><b>Cross-server</b><span>ผู้ช่วยได้สิทธิ์ <b>ประมูลล็อกหัว</b> วันละ 5 คน (ผู้ช่วย 4 + ${GH_FIXED} 1) · ล็อกหัวได้เฉพาะวันข้ามเซิร์ฟเท่านั้น</span></div>`
+    :isI?`<div class="gh-mode i"><b>Intra-server</b><span>สัปดาห์นี้<b>ไม่มีล็อกหัว</b> · ผู้ช่วยได้เศษขนนกที่เหลือจากการแจกแทน (ชื่อจะไปอยู่ในตาราง Leftover ของวันนั้น)</span></div>`
+    :`<div class="gh-mode u"><b>League</b><span>ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ — ใส่ cross_server ของนัดลีกกิลด์ใน GL_Log แล้วจะขึ้นเอง</span></div>`;
+  const tag=r=>{const st=String(r.auction_status||'').toLowerCase().trim();
+    if(isI)return '<span class="gh-fe">ได้เศษขนนก</span>';
+    return st==='done'?'<span class="gh-tag done">Done</span>':st==='skipped'||st==='skip'?'<span class="gh-tag">Skipped</span>':'<span class="gh-tag">Pending</span>';};
+  const day=(dow,label)=>{
+    const date=ghAddDays_(wk,dow-1), rows=ghDayRows_(wk,dow);
+    const helpers=rows.filter(r=>!ghIsFixed_(r)), fixed=rows.find(ghIsFixed_);
+    const slots=[];
+    for(let i=0;i<4;i++){const r=helpers[i];
+      slots.push(r?`<div class="gh-s"><span class="gh-n">${i+1}</span><span class="gh-nm">${esc_(r.member_name)}</span><span class="sp"></span>${tag(r)}</div>`
+                :`<div class="gh-s empty"><span class="gh-n">${i+1}</span><span class="gh-nm">ยังไม่มีชื่อ</span></div>`);}
+    helpers.slice(4).forEach((r,i)=>slots.push(`<div class="gh-s"><span class="gh-n">${i+5}</span><span class="gh-nm">${esc_(r.member_name)}</span><span class="sp"></span>${tag(r)}</div>`));
+    if(!isI)slots.push(`<div class="gh-s fix"><span class="gh-n">5</span><span class="gh-nm">${GH_FIXED}</span><span class="sp"></span><span class="gh-tag fix">Fixed</span></div>`);
+    const n=helpers.length+(isI?0:1), max=isI?4:5;
+    return `<div class="gh-day"><div class="gh-dh">${label}<small>${wDay_(date)}</small><span class="sp"></span><span class="gh-cnt">${n}/${max}</span></div>${slots.join('')}</div>`;
+  };
+  box.innerHTML=mode+`<div class="gh-days">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`;
 }
 
 function statusBadge(s){
@@ -3061,7 +3116,10 @@ const GR_DATA=[
     {t:'ดึงของผิดแล้วไม่แจ้ง — ตัดสิทธิ์ประมูล 2 รอบ'},
     {t:'ประมูลจบแล้วไม่ต้องออกเกม',tag:'chg',was:'ประมูลเสร็จแล้วต้องออกจากเกม'}]},
   {id:'helper',icon:'i-party',title:'Guild Helper',sub:'การช่วยเหลือ',rules:[
-    {t:'ช่วยเหลือทุก อังคาร + พฤหัส เวลา 21:00–22:00 (หลังจบวอ)',tag:'new'}]}
+    {t:'ช่วยเหลือทุก อังคาร + พฤหัส เวลา 21:00–22:00 (หลังจบวอ)',tag:'new'},
+    {t:'สัปดาห์ละ 8 คน · อังคาร 4 คน พฤหัส 4 คน',tag:'new'},
+    {t:'สัปดาห์ข้ามเซิร์ฟ ผู้ช่วยได้สิทธิ์ประมูลล็อกหัว วันละ 5 คน (ผู้ช่วย 4 + Ficelle 1) · ล็อกหัวได้เฉพาะวันข้ามเซิร์ฟ',tag:'new'},
+    {t:'สัปดาห์ในเซิร์ฟ ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกที่เหลือจากการแจกแทน',tag:'new'}]}
 ];
 let _grSec='';
 function grPick(id){_grSec=id;renderRules();}
