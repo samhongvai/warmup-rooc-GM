@@ -1126,9 +1126,9 @@ const SHEET_ID='1RmjOzHMbCQfrjEzu2vd3iqUQHcZWkLN87HCsOm8XPTE'; // Warmup Bridge 
 const SRC_AUCTION='1OQcwEoOjzMZ09jqTdh8aNex9EeMC-DnEH6Jc31u8dYM'; // Warmup Auction (Link)
 const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Event (Link)
 /* แท็บไหนอยู่ไฟล์ไหน — ที่ไม่มีในนี้จะไปดึงจาก Bridge */
-/* Auction_Queue อ่านจาก Bridge (IMPORTRANGE) — ไฟล์ต้นทางเปิดตัวกรองค้างไว้ให้สมาชิกดู
-   gviz คืนเฉพาะแถวที่มองเห็น แถว done จึงหายถ้าอ่านตรง (2026-09-22) */
-const TAB_SRC={Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
+/* ⚠️ ห้ามเปิดตัวกรองปกติ (Create a filter) ค้างไว้ในแท็บที่เว็บดึงตรง
+   gviz คืนเฉพาะแถวที่มองเห็น แถวที่ถูกกรองจะหายจากเว็บ — ใช้ Filter views แทน (2026-09-22) */
+const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
                Auction_Adjust:SRC_AUCTION};
 
