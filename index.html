@@ -525,6 +525,36 @@ input[type=checkbox]{accent-color:var(--teal)}
 .qs-pend{background:var(--t-peach);color:var(--t-peach-i);border:0}
 .qs-skip{background:var(--t-pink);color:var(--t-pink-i);border:0}
 .qs-dup{background:var(--soft);color:var(--muted);border:1px solid var(--border)}
+/* ── rewards ── */
+.rw-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.rw-tab{white-space:nowrap;border:0;background:none;font:inherit;padding:8px 14px;font-weight:700;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer}
+.rw-tab.on{color:var(--orange);border-color:var(--orange)}
+.rw-seg{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px;gap:4px;margin-bottom:14px}
+.rw-seg button{border:0;background:none;color:var(--muted);font:inherit;font-weight:700;font-size:13px;padding:6px 14px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.rw-seg button.on{background:var(--orange);color:#fff}
+.rw-hero{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.rw-hc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px}
+.rw-hc.rw-main{background:var(--orange-dim);border-color:var(--orange-border)}
+.rw-hc .k{font-size:11.5px;color:var(--muted);font-weight:600}
+.rw-hc .v{font-size:21px;font-weight:800;margin-top:2px;font-family:var(--font-pixel)}
+.rw-hc.rw-main .v{font-family:var(--font);color:var(--orange)}
+.rw-hc .s{font-size:11.5px;color:var(--faint);margin-top:2px}
+.rw-tbl{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:8px}
+.rw-tbl table{width:100%;border-collapse:collapse;font-size:13.5px}
+.rw-tbl th{text-align:right;font-size:11.5px;color:var(--muted);font-weight:700;padding:9px 12px;background:var(--card2);white-space:nowrap}
+.rw-tbl td{padding:9px 12px;border-top:1px solid var(--border);text-align:right;font-family:var(--font-pixel);font-size:12.5px}
+.rw-tbl th:first-child,.rw-tbl td:first-child{text-align:left}
+.rw-tbl .lg{border-left:1px solid var(--border)}
+.rw-tbl tr.cur td{background:var(--orange-dim)}
+.rw-tbl tr.cur td:first-child{box-shadow:inset 3px 0 0 var(--orange)}
+.rw-rk{display:flex;align-items:center;gap:10px;font-weight:700;font-family:var(--font);font-size:13.5px}
+.rw-b{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--card2);color:var(--muted);flex-shrink:0}
+.rw-b.b1{background:linear-gradient(135deg,#f5c451,#e39a2d);color:#3a2600}
+.rw-b.b2{background:linear-gradient(135deg,#dfe4ee,#9aa3b2);color:#20242e}
+.rw-b.b3{background:linear-gradient(135deg,#e6a26b,#a8622e);color:#2b1400}
+.rw-now{font-size:10.5px;font-weight:800;color:var(--orange);background:var(--orange-dim);border-radius:999px;padding:2px 8px;margin-left:4px;white-space:nowrap}
+.rw-foot{color:var(--faint);font-size:12px;margin-bottom:18px;display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:760px){.rw-hero{grid-template-columns:1fr 1fr}.rw-tbl .lim{display:none}}
 /* ── admin ── */
 .adm-only{display:none}
 body.is-admin .adm-only{display:table-cell}
@@ -1072,11 +1102,6 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
 
   <div id="auc-rewards" style="display:none">
     <div id="auc-rewards-wrap"></div>
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;font-family:var(--font-pixel)" id="rwprev-title">Rewards Preview</div>
-    <div class="tbl-wrap" style="margin-bottom:16px"><table class="rtbl">
-      <thead><tr id="rwprev-thead"></tr></thead>
-      <tbody id="rwprev-tbody"></tbody>
-    </table></div>
     <div class="section-h">Schedule</div>
     <div class="evts">
       <div class="evt"><div class="et">Event</div><div class="en">Guild League</div><div class="ed">Tuesday &amp; Thursday</div></div>
@@ -2480,20 +2505,52 @@ function renderWarHistory(){
   }).join('');
 }
 
+/* ── Rewards ── ตารางรางวัลจาก Rewards_Ref
+   Guild League แยก Cross-server (Y) / Intra-server (N) · Overrun แยก Normal / Advanced
+   การ์ดด้านบน = อันดับล่าสุดจาก War_Log (วันที่ไม่เกินวันนี้) */
+let _rwEvt='gl',_rwSub=null;
+function rwLatest_(evt){
+  const today=toDateStr(new Date());
+  const rows=_warLog.filter(w=>w.event_type===evt&&w.date&&w.date<=today&&String(w.rank||'').trim());
+  if(!rows.length)return null;
+  const last=rows[rows.length-1];
+  const cross=[...rows].reverse().find(w=>w.cross_server);
+  return {rank:String(last.rank).trim(),date:last.date,group:last.group||'',cross:(cross&&cross.cross_server)||''};
+}
+function rwPick(e,sub){_rwEvt=e;_rwSub=sub||null;renderRewardsPreview();}
 function renderRewardsPreview(){
-  const thead=document.getElementById('rwprev-thead');
-  const tbody=document.getElementById('rwprev-tbody');
-  if(!thead||!tbody)return;
-  thead.innerHTML='<th style="width:110px">Event</th><th style="width:80px">เซิร์ฟ</th><th>Rank / Tier</th><th style="width:64px">Card</th><th style="width:64px">ขาว</th><th style="width:78px">ดำ/แดง</th>';
-  if(!_aucRewardsRef.length){tbody.innerHTML='<tr><td colspan="6" class="empty">ไม่พบข้อมูล</td></tr>';return}
-  tbody.innerHTML=_aucRewardsRef.map(r=>`<tr>
-    <td style="font-size:12px">${r.event_type||''}${r.group?` (${r.group})`:''}</td>
-    <td style="font-size:11px;color:var(--muted)">${r.cross_server==='Y'?'ข้ามเซิร์ฟ':'ในเซิร์ฟ'}</td>
-    <td style="font-weight:600;font-size:12px">${r.rank||''}</td>
-    <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${r.card||0}</td>
-    <td style="font-family:var(--font-pixel);font-size:11px">${r.feather_white||0}</td>
-    <td style="font-family:var(--font-pixel);font-size:11px">${r.feather_red_black||0}</td>
-  </tr>`).join('');
+  const wrap=document.getElementById('auc-rewards-wrap');
+  if(!wrap)return;
+  if(!_aucRewardsRef.length){wrap.innerHTML='<div class="empty">ไม่พบข้อมูลรางวัล</div>';return}
+  const isGL=_rwEvt==='gl', evt=isGL?'Guild League':'Overrun';
+  const latest=rwLatest_(evt);
+  if(!_rwSub)_rwSub=isGL?(latest&&latest.cross==='N'?'N':'Y'):(latest&&latest.group==='Normal'?'Normal':'Advanced');
+  const rows=_aucRewardsRef.filter(r=>r.event_type===evt&&(isGL?r.cross_server===_rwSub:(r.group||'')===_rwSub));
+  const isCur=r=>latest&&String(r.rank).trim()===latest.rank&&(isGL?latest.cross===_rwSub:latest.group===_rwSub);
+  const cur=rows.find(isCur);
+  const hasIll=rows.some(r=>String(r.lim_illusion||'').trim()!=='');
+  const n=v=>{const x=String(v==null?'':v).trim();return x===''?'—':x};
+  const fmtD=d=>{const p=String(d||'').split('-');return p.length===3?`${+p[2]}/${+p[1]}`:''};
+  const segs=isGL?[['Y','Cross-server'],['N','Intra-server']]:[['Normal','Normal'],['Advanced','Advanced']];
+  const label=r=>isGL?r.rank:`อันดับ ${r.rank}`;
+  const hero=cur?`<div class="rw-hero">
+      <div class="rw-hc rw-main"><div class="k">${isGL?'อันดับตอนนี้':'รอบล่าสุด'}</div><div class="v">${label(cur)}</div><div class="s">${isGL?(_rwSub==='Y'?'Cross-server':'Intra-server'):_rwSub+' · '+fmtD(latest.date)}</div></div>
+      <div class="rw-hc"><div class="k">Card Slot</div><div class="v">${n(cur.card)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'Overrun ไม่มีตัวคูณ'}</div></div>
+      <div class="rw-hc"><div class="k">ขนนกขาว</div><div class="v">${n(cur.feather_white)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'&nbsp;'}</div></div>
+      <div class="rw-hc"><div class="k">ขนนกแดง/ดำ</div><div class="v">${n(cur.feather_red_black)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'&nbsp;'}</div></div>
+    </div>`:'';
+  const body=rows.map((r,i)=>{
+    const c=isCur(r), k=i<3?' b'+(i+1):'';
+    return `<tr${c?' class="cur"':''}><td><div class="rw-rk"><span class="rw-b${k}">${i+1}</span>${label(r)}${c?`<span class="rw-now">${isGL?'ตอนนี้':'รอบล่าสุด'}</span>`:''}</div></td>
+      <td>${n(r.card)}</td><td>${n(r.feather_white)}</td><td>${n(r.feather_red_black)}</td>
+      <td class="lim lg">${n(r.lim_light_dark)}</td><td class="lim">${n(r.lim_time_space)}</td><td class="lim">${n(r.lim_purple)}</td>${hasIll?`<td class="lim">${n(r.lim_illusion)}</td>`:''}</tr>`;
+  }).join('');
+  wrap.innerHTML=`<div class="rw-tabs"><button class="rw-tab${isGL?' on':''}" onclick="rwPick('gl')">Guild League</button><button class="rw-tab${isGL?'':' on'}" onclick="rwPick('or')">Guild Overrun</button></div>
+    <div class="rw-seg">${segs.map(([v,t])=>`<button class="${v===_rwSub?'on':''}" onclick="rwPick('${_rwEvt}','${v}')">${t} · ${_aucRewardsRef.filter(r=>r.event_type===evt&&(isGL?r.cross_server===v:(r.group||'')===v)).length} ระดับ</button>`).join('')}</div>
+    ${hero}
+    <div class="rw-tbl"><table><thead><tr><th>อันดับ</th><th>Card</th><th>ขาว</th><th>แดง/ดำ</th><th class="lim lg">Light/Dark</th><th class="lim">Time/Space</th><th class="lim">Purple</th>${hasIll?'<th class="lim">Illusion</th>':''}</tr></thead>
+    <tbody>${body||'<tr><td colspan="8" class="empty">ไม่พบข้อมูล</td></tr>'}</tbody></table></div>
+    <div class="rw-foot">${isGL?'<span>ตัวคูณ: ชนะ ×2 · แพ้สูสี ×1.5 · แพ้ห่าง ×1</span>':''}<span>Light/Dark – Illusion = ของจำกัด (ซ่อนบนมือถือ)</span></div>`;
 }
 
 function swAucTab(t){
