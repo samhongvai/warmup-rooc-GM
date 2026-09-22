@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="th" data-theme="dark">
 <head>
+<script>/* admin: show script errors on screen (admin iframe has no devtools console) */
+if(window.__WARMUP_ADMIN__){(function(){function show(m){try{var d=document.getElementById('adm-err');if(!d){d=document.createElement('pre');d.id='adm-err';d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;margin:0;max-height:40vh;overflow:auto;background:#fff1f0;color:#b42318;font:12px/1.4 monospace;padding:8px 12px;white-space:pre-wrap';(document.body||document.documentElement).appendChild(d)}d.textContent+=m+'\n'}catch(_){}}
+window.addEventListener('error',function(e){show('ERR '+e.message+' @'+(e.lineno||'?')+':'+(e.colno||'?'))});
+window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('REJ '+(r&&r.message||r))});})()}
+</script>
 <!-- Warmup build 2026-09-19 17:08 UTC -->
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache">
