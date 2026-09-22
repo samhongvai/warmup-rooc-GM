@@ -710,6 +710,41 @@ body.is-admin .wr-adm{display:inline-block}
 .wi-foot .sp{flex:1;font-size:12px;color:var(--faint);min-width:200px}
 .wi-save{background:var(--orange)!important;border-color:var(--orange)!important;color:#fff!important;font-weight:700}
 .wi-save[disabled]{opacity:.6}
+.ov-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}
+@media(max-width:640px){.ov-grid{grid-template-columns:1fr}.wr-kpis>div:nth-child(3){grid-column:1/3}}
+.gr-upd{background:var(--green-dim);border:1px solid var(--green-b);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;gap:12px;align-items:flex-start}
+.gr-upd b{color:var(--green);white-space:nowrap}.gr-upd ul{margin:0;padding-left:18px;line-height:1.7}
+.gr-sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:14px;overflow:hidden}
+.gr-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.gr-h b{font-size:15px}.gr-sub{margin-left:auto;font-size:12px;color:var(--muted)}
+.gr-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--orange-dim);color:var(--orange-l)}
+.gr-ic svg{width:16px;height:16px}
+.gr-list{padding:2px 16px 8px}
+.gr-r{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--border);line-height:1.7;font-size:14px}
+.gr-r:first-child{border-top:0}
+.gr-n{flex-shrink:0;width:22px;height:22px;border-radius:7px;background:var(--soft,var(--card2));font-size:11.5px;font-weight:800;display:grid;place-items:center;color:var(--muted);margin-top:2px}
+.gr-was{color:var(--faint);text-decoration:line-through;font-size:12.5px}
+.gr-tag{font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 8px;margin-left:8px;white-space:nowrap;border:1px solid}
+.gr-tag.new{color:var(--green);background:var(--green-dim);border-color:var(--green-b)}
+.gr-tag.chg{color:var(--amber);background:var(--amber-dim);border-color:var(--amber-b)}
+.gr-pen{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin-top:6px;font-size:13px}
+.gr-pen .k{font-weight:700;color:var(--muted)}
+.gr-bad{color:var(--red);font-weight:700}
+.gr-chip{display:inline-block;font-family:var(--font-pixel);font-size:12px;background:var(--soft,var(--card2));border-radius:6px;padding:0 7px;margin:0 2px}
+.gr-foot{font-size:12px;color:var(--faint);margin-top:4px}
+/* History บนมือถือ — เรียงเป็นการ์ด ไม่บีบ 5 คอลัมน์ */
+@media(max-width:640px){
+  .wr-tbl>thead{display:none}
+  .wr-tbl>tbody>tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 12px;border-top:1px solid var(--border)}
+  .wr-tbl>tbody>tr>td{border:0!important;padding:0!important}
+  .wr-tbl>tbody>tr>td:nth-child(1){grid-column:1;grid-row:1}
+  .wr-tbl>tbody>tr>td:nth-child(5){grid-column:2;grid-row:1;text-align:right}
+  .wr-tbl>tbody>tr>td:nth-child(2){grid-column:1/3}
+  .wr-tbl>tbody>tr>td:nth-child(3){grid-column:1}
+  .wr-tbl>tbody>tr>td:nth-child(4){grid-column:2;text-align:right}
+  .wr-tbl>tbody>tr.wr-sub{display:block;padding:0 8px 10px}
+  .wr-tbl>tbody>tr.wr-sub>td{display:block;padding:8px!important}
+}
 .wr-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 @media(max-width:700px){.wr-kpis{grid-template-columns:1fr 1fr}}
 .wr-k{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;min-width:0}
@@ -993,6 +1028,7 @@ body.is-admin .wr-adm{display:inline-block}
 <symbol id="i-cal" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="3" y="1" width="2" height="3"/><rect x="11" y="1" width="2" height="3"/><rect x="1" y="3" width="14" height="12"/><rect x="3" y="7" width="10" height="6" fill="var(--shell)"/></g></symbol>
 <symbol id="i-party" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="3" width="4" height="4"/><rect x="11" y="3" width="4" height="4"/><rect x="6" y="1" width="4" height="4"/><rect x="0" y="8" width="6" height="6"/><rect x="10" y="8" width="6" height="6"/><rect x="5" y="6" width="6" height="8"/></g></symbol>
 <symbol id="i-member" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="1" width="6" height="6"/><rect x="2" y="8" width="12" height="7"/></g></symbol>
+<symbol id="i-rules" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="3" y="1" width="10" height="2"/><rect x="2" y="3" width="2" height="11"/><rect x="12" y="3" width="2" height="11"/><rect x="3" y="13" width="10" height="2"/><rect x="5" y="5" width="6" height="1"/><rect x="5" y="8" width="6" height="1"/><rect x="5" y="11" width="4" height="1"/></g></symbol>
 <symbol id="i-sword" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="12" y="1" width="3" height="2"/><rect x="10" y="3" width="3" height="2"/><rect x="8" y="5" width="3" height="2"/><rect x="6" y="7" width="3" height="2"/><rect x="3" y="7" width="3" height="2"/><rect x="7" y="10" width="2" height="3"/><rect x="4" y="10" width="3" height="2"/><rect x="1" y="12" width="3" height="3"/></g></symbol><symbol id="i-lock" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="1" width="6" height="2"/><rect x="4" y="2" width="2" height="5"/><rect x="10" y="2" width="2" height="5"/><rect x="3" y="7" width="10" height="8"/></g></symbol><symbol id="i-hammer" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="1" y="2" width="10" height="4"/><rect x="2" y="1" width="8" height="1"/><rect x="8" y="6" width="3" height="2"/><rect x="10" y="8" width="3" height="7"/></g></symbol>
 <symbol id="i-check" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="5" y="11" width="2" height="2"/><rect x="3" y="9" width="2" height="2"/><rect x="7" y="9" width="2" height="2"/><rect x="9" y="7" width="2" height="2"/><rect x="11" y="5" width="2" height="2"/><rect x="13" y="3" width="2" height="2"/></g></symbol>
 <symbol id="i-refresh" viewBox="0 0 16 16"><g class="px" fill="currentColor"><rect x="4" y="2" width="8" height="2"/><rect x="2" y="4" width="2" height="2"/><rect x="12" y="4" width="2" height="2"/><rect x="1" y="6" width="2" height="4"/><rect x="13" y="6" width="2" height="4"/><rect x="2" y="10" width="2" height="2"/><rect x="12" y="10" width="2" height="2"/><rect x="4" y="12" width="8" height="2"/><rect x="10" y="0" width="2" height="4"/></g></symbol>
@@ -1041,12 +1077,14 @@ body.is-admin .wr-adm{display:inline-block}
     <div class="logo-img-wrap"><div class="logo-img"><svg style="width:20px;height:20px"><use href="#m-sun"/></svg></div></div>
     <div class="logo-text"><h1>WARMUP</h1><p>GUILD MANAGER</p></div>
   </div>
+  <div class="nav-item" onclick="sw('rules');closeSidebar()"><span class="ni"><svg><use href="#i-rules"/></svg></span><span class="nav-label">Guild Rules</span><span class="nav-tip">Guild Rules</span></div>
+  <div class="nav-sep"></div>
   <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni"><svg><use href="#i-search"/></svg></span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
   <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni"><svg><use href="#i-cal"/></svg></span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
-  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
+  <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Guild Auction</span><span class="nav-tip">Guild Auction</span></div>
   <div class="nav-sep"></div>
   <div class="nav-item" id="gear" title="Settings"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label en">Settings</span><span class="nav-tip">Settings</span></div>
   <div class="nav-item" id="refresh-btn" onclick="forceRefresh()" title="Refresh"><span class="ni"><svg><use href="#i-refresh"/></svg></span><span class="nav-label"><b class="en">Refresh</b> <i id="upd" class="num">(--:--)</i></span><span class="nav-tip">Refresh</span></div>
@@ -1102,11 +1140,11 @@ body.is-admin .wr-adm{display:inline-block}
 </div>
 
 <div id="page-auction" class="page">
-  <div class="page-title">Auction</div>
+  <div class="page-title">Guild Auction</div>
   <div class="page-sub" id="auc-sub">คิวประมูลและการแจกของ</div>
   <div id="adm-ribbon"></div>
   <div class="au-tabs">
-    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
+    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Distribution</button>
     <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
   </div>
@@ -1153,7 +1191,7 @@ body.is-admin .wr-adm{display:inline-block}
         <span class="au-hint" id="auc-per-person-summary">—</span></div>
       <div class="au-sec-b">
         <div class="au-tblx"><table class="au-tbl">
-          <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th><th class="dd-act" id="auc-dist-th">สถานะ</th></tr></thead>
+          <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th><th class="dd-act" id="auc-dist-th">Status</th></tr></thead>
           <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล</td></tr></tbody>
         </table></div>
       </div>
@@ -1181,13 +1219,13 @@ body.is-admin .wr-adm{display:inline-block}
   <div id="auc-designated" style="display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:170px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">สัปดาห์</label>
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Week</label>
         <select id="da-week" onchange="renderDesignated()" style="width:100%"></select>
       </div>
       <div style="font-size:11px;color:var(--muted);padding-bottom:9px" id="da-count">—</div>
     </div>
     <div class="tbl-wrap"><table class="rtbl">
-      <thead><tr><th style="width:44px">#</th><th>ชื่อ</th><th style="width:100px">สถานะ</th><th style="width:110px">วันที่ประมูล</th></tr></thead>
+      <thead><tr><th style="width:44px">#</th><th>Name</th><th style="width:100px">Status</th><th style="width:110px">Auction Date</th></tr></thead>
       <tbody id="da-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
@@ -1195,25 +1233,31 @@ body.is-admin .wr-adm{display:inline-block}
   <div id="auc-manage" style="display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:170px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">รอบคิว</label>
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Round</label>
         <select id="qm-round" onchange="renderQueueManager()" style="width:100%"></select>
       </div>
       <div style="flex:1;min-width:130px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">สถานะ</label>
+        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Status</label>
         <select id="qm-filter-status" onchange="renderQueueManager()" style="width:100%">
-          <option value="">ทั้งหมด</option><option value="pending">Pending</option><option value="done">Done</option><option value="skipped">Skipped</option>
+          <option value="">All</option><option value="pending">Pending</option><option value="done">Done</option><option value="skipped">Skipped</option>
         </select>
       </div>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="qm-count">—</div>
     <div id="adm-qbar"></div>
     <div class="tbl-wrap"><table class="rtbl">
-      <thead><tr><th style="width:44px">#</th><th>ชื่อ</th><th style="width:118px">สถานะ</th><th style="width:130px" id="qm-th4">วันที่ประมูล</th><th class="adm-only" style="width:150px;text-align:right">จัดการ</th></tr></thead>
+      <thead><tr><th style="width:44px">#</th><th>Name</th><th style="width:118px">Status</th><th style="width:130px" id="qm-th4">Auction Date</th><th class="adm-only" style="width:150px;text-align:right">Action</th></tr></thead>
       <tbody id="qm-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
 
 </div>
+<div id="page-rules" class="page">
+  <div class="page-title">Guild Rules</div>
+  <div class="page-sub">กฎการอยู่ร่วมกัน · อัปเดตล่าสุด <span id="gr-date"></span></div>
+  <div id="gr-root"></div>
+</div>
+
 <div id="page-war" class="page">
   <div class="page-title">Guild War</div>
   <div class="page-sub">ผลวอ ประวัติ และรางวัล</div>
@@ -1222,8 +1266,8 @@ body.is-admin .wr-adm{display:inline-block}
     <button class="au-tab wr-tab active" data-wt="hist" onclick="swWarTab('hist')">History</button>
     <button class="au-tab wr-tab" data-wt="stats" onclick="swWarTab('stats')">Stats</button>
     <button class="au-tab wr-tab" data-wt="rewards" onclick="swWarTab('rewards')">Rewards</button>
-    <button class="au-tab wr-tab wr-adm" data-wt="glin" onclick="swWarTab('glin')">กรอกผล Guild League</button>
-    <button class="au-tab wr-tab wr-adm" data-wt="orin" onclick="swWarTab('orin')">กรอกผล Overrun</button>
+    <button class="au-tab wr-tab wr-adm" data-wt="glin" onclick="swWarTab('glin')">Guild League Input</button>
+    <button class="au-tab wr-tab wr-adm" data-wt="orin" onclick="swWarTab('orin')">Overrun Input</button>
   </div>
   <div id="war-stats" style="display:none"></div>
   <div id="war-glin" style="display:none"></div>
@@ -1231,12 +1275,12 @@ body.is-admin .wr-adm{display:inline-block}
   <div id="war-hist">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <select id="wh-filter-type" onchange="renderWarHistory()" style="flex:1;min-width:150px">
-        <option value="">ทุกประเภท</option><option value="Guild League">Guild League</option><option value="Overrun">Overrun</option>
+        <option value="">All types</option><option value="Guild League">Guild League</option><option value="Overrun">Overrun</option>
       </select>
-      <select id="wh-filter-month" onchange="renderWarHistory()" style="flex:1;min-width:150px"><option value="">ทุกเดือน</option></select>
+      <select id="wh-filter-month" onchange="renderWarHistory()" style="flex:1;min-width:150px"><option value="">All months</option></select>
     </div>
     <div class="tbl-wrap"><table class="rtbl wr-tbl">
-      <thead><tr><th style="width:96px">วันที่</th><th style="width:170px">ประเภท</th><th>อันดับ</th><th>แข่งกับ</th><th style="width:130px">ผล</th></tr></thead>
+      <thead><tr><th style="width:96px">Date</th><th style="width:170px">Type</th><th>Rank</th><th>Opponent</th><th style="width:130px">Result</th></tr></thead>
       <tbody id="wh-tbody"><tr><td colspan="5" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
@@ -1257,13 +1301,13 @@ body.is-admin .wr-adm{display:inline-block}
     <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;min-height:20px;font-family:var(--font-pixel)" id="cal-week-label">Loading...</div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
-      <button class="btn btn-ghost" onclick="calGoToday()">สัปดาห์นี้</button>
+      <button class="btn btn-ghost" onclick="calGoToday()">This week</button>
       <button class="btn btn-ghost" onclick="calNavWeek(1)">▶</button>
       <button class="btn btn-ghost" id="cal-refresh-btn" onclick="calRefresh()" title="Refresh">🔄</button>
     </div>
   </div>
   <div class="helper-strip" id="cal-helper-strip">
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">🤝 Helpers this week</div>
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">🤝 Guild Helper this week</div>
     <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">None listed</span></div>
   </div>
   <div class="cal-legend" id="cal-legend"></div>
@@ -1373,6 +1417,7 @@ function sw(t){
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
   if(t==='war')initWarPage();
+  if(t==='rules')renderRules();
   if(t==='calendar')initCalendarPage();
 }
 let _currentPage='';
@@ -1458,7 +1503,7 @@ function renderStats(){
   if(!el)return;
   el.innerHTML=`
     <div class="ov-header"><span class="ov-title">Class Overview</span><span class="ov-total">${total} members</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
+    <div class="ov-grid">
       <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--green)">Support</span><span class="ov-type-count" style="color:var(--green)">${supC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(supC)}%;background:var(--green)"></div></div><div class="ov-chips">${mkChips('Support')}</div></div>
       <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--amber)">All Rounder</span><span class="ov-type-count" style="color:var(--amber)">${arC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(arC)}%;background:var(--amber)"></div></div><div class="ov-chips">${mkChips('All Rounder')}</div></div>
       <div><div class="ov-type-head"><span class="ov-type-name" style="color:var(--red)">DPS</span><span class="ov-type-count" style="color:var(--red)">${dpsC}</span></div><div class="ov-bar-wrap"><div class="ov-bar" style="width:${pct(dpsC)}%;background:var(--red)"></div></div><div class="ov-chips">${mkChips('Attack (DPS)')}</div></div>
@@ -2292,7 +2337,7 @@ function auKbox_(lb,a,b,rem,over){
 
 function renderDistribution(){
   const dist=(_aucMode==='wait')?null:computeDistribution();
-  const th=document.getElementById('auc-dist-th'); if(th)th.textContent=ADMIN?'จัดการ':'สถานะ';
+  const th=document.getElementById('auc-dist-th'); if(th)th.textContent=ADMIN?'Action':'Status';
   const tbody=document.getElementById('auc-dist-tbody');
   const perSum=document.getElementById('auc-per-person-summary');
   if(!tbody)return;
@@ -2441,7 +2486,7 @@ function renderQueueManager(){
     rows.sort((a,b)=>(+a.position||0)-(+b.position||0));
     document.getElementById('qm-count').textContent=total?`${total} คน · pending ${pending}`:'—';
   }
-  const th4=document.getElementById('qm-th4'); if(th4)th4.textContent=line?'รอบ · คิว':'วันที่ประมูล';
+  const th4=document.getElementById('qm-th4'); if(th4)th4.textContent=line?'Round · Queue':'Auction Date';
   _qmRows=rows;
   renderAdmQueueBar_(line);
 
@@ -2871,7 +2916,7 @@ function populateWarMonths_(){
   const sel=document.getElementById('wh-filter-month'); if(!sel)return;
   const cur=sel.value;
   const ms=[...new Set(warRows_().map(r=>r.date.slice(0,7)))].sort().reverse();
-  sel.innerHTML='<option value="">ทุกเดือน</option>'+ms.map(m=>`<option value="${m}"${m===cur?' selected':''}>${wMonLbl_(m)}</option>`).join('');
+  sel.innerHTML='<option value="">All months</option>'+ms.map(m=>`<option value="${m}"${m===cur?' selected':''}>${wMonLbl_(m)}</option>`).join('');
 }
 function renderWarKpis(){
   const box=document.getElementById('wr-kpis'); if(!box)return;
@@ -2884,13 +2929,13 @@ function renderWarKpis(){
   const lastGl=gl.find(r=>r.rank);
   const lastOr=rows.find(r=>r.type==='Overrun'&&r.rank);
   const orN=lastOr?orTotal_(orGuilds_(lastOr.date)):0;
-  const crossT=c=>c==='Y'?'ข้ามเซิร์ฟ':c==='N'?'ในเซิร์ฟ':'';
+  const crossT=c=>c==='Y'?'Cross-server':c==='N'?'Intra-server':'';
   box.innerHTML=`
-    <div class="wr-k win"><div class="l">Guild League เดือนนี้</div><div class="v">${mon.length?`${w}–${l}`:'—'}</div>
+    <div class="wr-k win"><div class="l">Guild League · This month</div><div class="v">${mon.length?`${w}–${l}`:'—'}</div>
       <div class="s">${mon.length?`ชนะ–แพ้ · ${Math.round(w*100/mon.length)}%`:'ยังไม่มีผลเดือนนี้'}</div>${form?`<div class="wr-form">${form}</div>`:''}</div>
-    <div class="wr-k"><div class="l">อันดับ Guild League ล่าสุด</div><div class="v sm">${lastGl?esc_(lastGl.rank):'—'}</div>
+    <div class="wr-k"><div class="l">Latest Guild League Rank</div><div class="v sm">${lastGl?esc_(lastGl.rank):'—'}</div>
       <div class="s">${lastGl?[crossT(lastGl.cross),wDay_(lastGl.date)].filter(Boolean).join(' · '):''}</div></div>
-    <div class="wr-k"><div class="l">Overrun ล่าสุด</div><div class="v">${lastOr?esc_(lastOr.rank)+(orN?` <small>/ ${orN}</small>`:''):'—'}</div>
+    <div class="wr-k"><div class="l">Latest Overrun</div><div class="v">${lastOr?esc_(lastOr.rank)+(orN?` <small>/ ${orN}</small>`:''):'—'}</div>
       <div class="s">${lastOr?[lastOr.group,wDay_(lastOr.date)].filter(Boolean).join(' · '):''}</div></div>`;
 }
 function whToggle(d){_whOpen[d]=!_whOpen[d];renderWarHistory();}
@@ -2909,7 +2954,7 @@ function renderWarHistory(){
       const st=r.status.toLowerCase();
       const stH=st==='win'?'<span class="wr-b W">Win</span>':st==='lose'?'<span class="wr-b L">Lose</span>':'';
       const dH=r.diff!=null&&r.diff!==0?` <span class="wr-f">${r.diff>0?'+':'−'}${wFmt_(r.diff)}</span>`:'';
-      const sub=[r.league,r.cross==='Y'?'ข้ามเซิร์ฟ':r.cross==='N'?'ในเซิร์ฟ':''].filter(Boolean).map(esc_).join(' · ');
+      const sub=[r.league,r.cross==='Y'?'Cross-server':r.cross==='N'?'Intra-server':''].filter(Boolean).map(esc_).join(' · ');
       return `<tr>${date}<td>Guild League${sub?`<div class="wr-f">${sub}</div>`:''}</td>
         <td><b>${r.rank?esc_(r.rank):''}</b>${r.rank?'':dash}</td>
         <td>${r.opp?`<b>${esc_(r.opp)}</b>`:dash}</td>
@@ -2918,15 +2963,53 @@ function renderWarHistory(){
     const gs=orGuilds_(r.date), open=!!_whOpen[r.date];
     const main=`<tr${gs.length?` class="wr-click" onclick="whToggle('${r.date}')"`:''}>${date}<td>Overrun${r.group?`<div class="wr-f">${esc_(r.group)}</div>`:''}</td>
       <td>${r.rank?`<b>${esc_(r.rank)}</b>${gs.length?` <span class="wr-f">/ ${orTotal_(gs)} กิลด์</span>`:''}`:dash}</td>
-      <td>${gs.length?`<span class="wr-lnk">${open?'▾':'▸'} ดูกิลด์ทั้งหมด</span>`:dash}</td><td>${dash}</td></tr>`;
+      <td>${gs.length?`<span class="wr-lnk">${open?'▾':'▸'} All guilds</span>`:dash}</td><td>${dash}</td></tr>`;
     if(!gs.length||!open)return main;
     const me=g=>String(g.guild_name||'').trim().toLowerCase()===WAR_GUILD.toLowerCase();
     const hasSrv=gs.some(g=>g.server), hasSc=gs.some(g=>g.score);
     const inner=gs.map(g=>`<tr${me(g)?' class="me"':''}><td>${esc_(g.rank)}</td><td>${g.guild_name?`<b>${esc_(g.guild_name)}</b>`:''}${me(g)?' <span class="wr-me">เรา</span>':''}</td>${hasSrv?`<td>${esc_(g.server)}</td>`:''}${hasSc?`<td class="n">${wNum_(g.score)!=null?wFmt_(wNum_(g.score)):esc_(g.score)}</td>`:''}</tr>`).join('');
-    return main+`<tr class="wr-sub"><td colspan="5"><table class="wr-in"><thead><tr><th>#</th><th>กิลด์</th>${hasSrv?'<th>เซิร์ฟ</th>':''}${hasSc?'<th class="n">คะแนน</th>':''}</tr></thead><tbody>${inner}</tbody></table></td></tr>`;
+    return main+`<tr class="wr-sub"><td colspan="5"><table class="wr-in"><thead><tr><th>#</th><th>Guild</th>${hasSrv?'<th>Server</th>':''}${hasSc?'<th class="n">Score</th>':''}</tr></thead><tbody>${inner}</tbody></table></td></tr>`;
   }).join('');
 }
 
+
+
+/* ══ GUILD RULES ══ แก้กฎได้ที่ GR_DATA ที่เดียว
+   tag: 'new' = ข้อใหม่ · 'chg' = เปลี่ยน · was = ข้อความเดิม (ขีดฆ่าไว้ให้เห็นว่าเปลี่ยนจากอะไร)
+   ข้อความกฎทั้งหมดต้องมาจากเจ้าของกิลด์เท่านั้น ห้ามแต่งเพิ่ม */
+const GR_UPDATED='2026-09-22';
+const GR_UPDATE=['Guild Helper เปลี่ยนเป็นทุกอังคาร + พฤหัส หลังจบวอ ประมาณ 1 ชั่วโมง','ประมูลจบแล้วไม่ต้องออกเกม'];
+const GR_DATA=[
+  {id:'war',icon:'i-sword',title:'Guild War',sub:'วันและเวลาวอ',rules:[
+    {t:'วอทุก อังคาร · พฤหัส (Guild League) และ อาทิตย์ (Overrun)'},
+    {t:'ตั้งตี้ให้เสร็จก่อน 19:50 · เข้าดิสคอร์ด 19:50'},
+    {html:'ห้อง Guild League <span class="gr-chip">ELITE-01</span><span class="gr-chip">SUB-BATTLE</span> · ห้อง Overrun <span class="gr-chip">OVERRUN</span>'}]},
+  {id:'leave',icon:'i-moon',title:'Leave',sub:'การลาและการขาด',rules:[
+    {t:'ลาต้องแจ้งในห้องลากิจ ก่อน 12:00 ของวันที่มีกิจกรรม'},
+    {t:'ขาดโดยไม่แจ้ง',pen:[['ครั้งที่ 1','ตัดสิทธิ์ประมูล 1 รอบ'],['ครั้งที่ 2','ตัดสิทธิ์ประมูล 2 รอบ'],['ครั้งถัดไป','เตะออกกิลด์',1]]}]},
+  {id:'auction',icon:'i-hammer',title:'Guild Auction',sub:'กฎการประมูล',rules:[
+    {t:'ประมูลตามลำดับคิว 1 คนถือคิวรอได้ 1 ใบ คิวที่ซ้ำเลื่อนไปประมูลรอบถัดไป'},
+    {html:'ห้ามกด BUYOUT / FLASH DEAL — <b class="gr-bad">เตะออกทุกกรณี</b>'},
+    {t:'ดึงของผิดแล้วไม่แจ้ง — ตัดสิทธิ์ประมูล 2 รอบ'},
+    {t:'ประมูลจบแล้วไม่ต้องออกเกม',tag:'chg',was:'ประมูลเสร็จแล้วต้องออกจากเกม'}]},
+  {id:'helper',icon:'i-party',title:'Guild Helper',sub:'การช่วยเหลือ',rules:[
+    {t:'ช่วยเหลือทุก อังคาร + พฤหัส หลังจบวอ ประมาณ 1 ชั่วโมง',tag:'new'}]}
+];
+let _grSec='';
+function grPick(id){_grSec=id;renderRules();}
+function renderRules(){
+  const root=document.getElementById('gr-root'); if(!root)return;
+  const d=document.getElementById('gr-date'); if(d)d.textContent=wDay_(GR_UPDATED)+' '+GR_UPDATED.slice(0,4);
+  const tagH=r=>r.tag==='new'?'<span class="gr-tag new">New</span>':r.tag==='chg'?'<span class="gr-tag chg">Update</span>':'';
+  const secs=GR_DATA.filter(x=>!_grSec||x.id===_grSec);
+  root.innerHTML=`${GR_UPDATE.length?`<div class="gr-upd"><b>Update</b><ul>${GR_UPDATE.map(t=>`<li>${esc_(t)}</li>`).join('')}</ul></div>`:''}
+    <div class="ws-chips">${[['','All'],...GR_DATA.map(x=>[x.id,x.title])].map(([id,t])=>`<button class="ws-chip${id===_grSec?' on':''}" onclick="grPick('${id}')">${t}</button>`).join('')}</div>
+    ${secs.map(x=>`<div class="gr-sec"><div class="gr-h"><span class="gr-ic"><svg><use href="#${x.icon}"/></svg></span><b>${x.title}</b><span class="gr-sub">${x.sub}</span></div>
+      <div class="gr-list">${x.rules.map((r,i)=>`<div class="gr-r"><span class="gr-n">${i+1}</span><div>
+        ${r.was?`<div class="gr-was">${esc_(r.was)}</div>`:''}${r.html||esc_(r.t)}${tagH(r)}
+        ${r.pen?`<div class="gr-pen">${r.pen.map(p=>`<span class="k">${p[0]}</span><span class="${p[2]?'gr-bad':''}">${p[1]}</span>`).join('')}</div>`:''}</div></div>`).join('')}</div></div>`).join('')}
+    <div class="gr-foot">ระบบขึ้นป้าย "เข้าเกณฑ์..." ให้เห็นเท่านั้น คนตัดสินยังเป็นผู้จัดการกิลด์</div>`;
+}
 
 /* ══ WAR · Stats ══ %ชนะแยกสนาม + สถิติเจอกับแต่ละกิลด์ (นับเฉพาะนัดที่มีผล Win/Lose) */
 const GL_LEAGUES=['Stellar Clash','Vale of Clash','Vigrid Avenge'];
@@ -2970,14 +3053,14 @@ function renderWarStats(){
     if(!open)return main;
     return main+`<tr class="ws-sub"><td colspan="6"><div class="ws-list">${o.rows.map(r=>`<span>${wDay_(r.date)}${r.league?' · '+esc_(r.league):''} · <b class="${r.st==='win'?'tw':'tl'}">${r.st==='win'?'W':'L'}</b>${dtxt(r)}</span>`).join('')}</div></td></tr>`;
   }).join('');
-  const chips=['',...GL_LEAGUES].map(l=>`<button class="ws-chip${l===_wsLeague?' on':''}" onclick="wsPick('${l}')">${l||'ทุกสนาม'}</button>`).join('');
+  const chips=['',...GL_LEAGUES].map(l=>`<button class="ws-chip${l===_wsLeague?' on':''}" onclick="wsPick('${l}')">${l||'All leagues'}</button>`).join('');
   box.innerHTML=`<div class="section-h">Win rate by league</div><div class="ws-cards">${cards}</div>
-    <div class="ws-key"><span class="w">ชนะ</span><span class="l">แพ้</span>${nol.length?`<span class="sp">นัดเก่าที่ไม่ได้ระบุสนาม: ชนะ ${nw} · แพ้ ${nol.length-nw} (ไม่นับในการ์ด)</span>`:''}</div>
+    <div class="ws-key"><span class="w">Win</span><span class="l">Lose</span>${nol.length?`<span class="sp">นัดเก่าที่ไม่ได้ระบุสนาม: ชนะ ${nw} · แพ้ ${nol.length-nw} (ไม่นับในการ์ด)</span>`:''}</div>
     <div class="section-h">Head-to-head</div>
     <div class="ws-chips">${chips}</div>
-    <div class="tbl-wrap"><table class="rtbl ws-tbl"><thead><tr><th>กิลด์</th><th class="n">เจอ</th><th class="n">ชนะ–แพ้</th><th class="n">% ชนะ</th><th></th><th>ครั้งล่าสุด</th></tr></thead>
+    <div class="tbl-wrap"><table class="rtbl ws-tbl"><thead><tr><th>Guild</th><th class="n">Met</th><th class="n">W–L</th><th class="n">Win %</th><th></th><th>Last Match</th></tr></thead>
     <tbody>${body||'<tr><td colspan="6" class="empty">ยังไม่มีข้อมูลคู่แข่ง</td></tr>'}</tbody></table></div>
-    ${pages>1?`<div class="ws-pg"><button class="btn btn-ghost" ${_wsPage?'':'disabled'} onclick="wsPage(-1)">◀ ก่อนหน้า</button><span>หน้า ${_wsPage+1} / ${pages} · ${list.length} กิลด์</span><button class="btn btn-ghost" ${_wsPage<pages-1?'':'disabled'} onclick="wsPage(1)">ถัดไป ▶</button></div>`:''}`;
+    ${pages>1?`<div class="ws-pg"><button class="btn btn-ghost" ${_wsPage?'':'disabled'} onclick="wsPage(-1)">◀ Prev</button><span>หน้า ${_wsPage+1} / ${pages} · ${list.length} กิลด์</span><button class="btn btn-ghost" ${_wsPage<pages-1?'':'disabled'} onclick="wsPage(1)">Next ▶</button></div>`:''}`;
 }
 
 /* ══ WAR · กรอกผล (แอดมิน) ══ เขียนผ่าน Admin.gs → ไฟล์ Warmup Event */
@@ -3018,15 +3101,15 @@ function renderOrInput(keepFocus){
     <td>${inp(i,'guild','100%')}</td><td>${inp(i,'server','70px')}</td><td>${inp(i,'score','100px',1)}</td>
     <td>${inp(i,'c3','60px',1)}</td><td>${inp(i,'c2','60px',1)}</td><td>${inp(i,'c1','60px',1)}</td></tr>`).join('');
   box.innerHTML=`<div class="wi-box">
-    <div class="wi-row"><label class="wi-f"><span>วันที่</span><input type="date" value="${_oi.date}" onchange="oiDate(this.value)"></label>
-      <div class="wi-f"><span>กลุ่ม</span><div class="wi-seg">${['Normal','Advanced'].map(g=>`<button class="${g===_oi.group?'on':''}" onclick="oiGroup('${g}')">${g}</button>`).join('')}</div></div>
+    <div class="wi-row"><label class="wi-f"><span>Date</span><input type="date" value="${_oi.date}" onchange="oiDate(this.value)"></label>
+      <div class="wi-f"><span>Group</span><div class="wi-seg">${['Normal','Advanced'].map(g=>`<button class="${g===_oi.group?'on':''}" onclick="oiGroup('${g}')">${g}</button>`).join('')}</div></div>
       <span class="wi-st">${_oi.exists?'● มีข้อมูลรอบนี้แล้ว — กำลังแก้':'○ รอบใหม่'}</span></div>
-    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th style="min-width:150px">กิลด์</th><th>เซิร์ฟ</th><th>คะแนน</th><th>ปราสาท 3</th><th>ปราสาท 2</th><th>ปราสาท 1</th></tr></thead>
+    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th style="min-width:150px">Guild</th><th>Server</th><th>Score</th><th>Castle 3</th><th>Castle 2</th><th>Castle 1</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
-    ${_oi.rows.length<12?'<div style="text-align:center;margin-top:8px"><button class="btn btn-ghost" onclick="oiAdd()">+ เพิ่มแถว</button></div>':''}
+    ${_oi.rows.length<12?'<div style="text-align:center;margin-top:8px"><button class="btn btn-ghost" onclick="oiAdd()">+ Add row</button></div>':''}
     <div class="wi-foot"><span class="sp">อันดับ = เลขแถว · แถวของ ${WAR_GUILD} คืออันดับเรา · แถวว่างทั้งแถวไม่บันทึก</span>
-      <button class="btn btn-ghost" onclick="oiLoad_(_oi.date);renderOrInput()">ยกเลิก</button>
-      <button class="btn wi-save" ${_oi.busy?'disabled':''} onclick="oiSave()">${_oi.busy?'กำลังบันทึก…':'💾 บันทึก'}</button></div></div>`;
+      <button class="btn btn-ghost" onclick="oiLoad_(_oi.date);renderOrInput()">Cancel</button>
+      <button class="btn wi-save" ${_oi.busy?'disabled':''} onclick="oiSave()">${_oi.busy?'Saving…':'💾 Save'}</button></div></div>`;
 }
 async function oiSave(){
   if(!_oi||_oi.busy)return;
@@ -3045,8 +3128,8 @@ async function oiSave(){
 let _gi=null;
 /* คอลัมน์รายคนที่ต่างกันตามสนาม — Vale / Vigrid ยังไม่รู้หัวคอลัมน์จริง ใช้แค่ ฆ่า ช่วย ตาย คะแนน */
 function giCols_(league,field){
-  const base=[['kill','ฆ่า'],['assist','ช่วย'],['death','ตาย'],['score','คะแนน']];
-  if(league==='Stellar Clash')return (field==='Elite'?[['fort','ป้อม'],['minion','ครีป']]:[['minion','ครีป'],['boss','บอส']]).concat(base);
+  const base=[['kill','Kill'],['assist','Assist'],['death','Death'],['score','Score']];
+  if(league==='Stellar Clash')return (field==='Elite'?[['fort','Fort'],['minion','Minion']]:[['minion','Minion'],['boss','Boss']]).concat(base);
   return base;
 }
 function giBoss_(league,field){return league==='Stellar Clash'&&field==='Elite';}
@@ -3121,26 +3204,26 @@ function renderGlInput(){
     <td style="white-space:nowrap"><button class="wi-x" title="ย้ายไป ${G.field==='Elite'?'Sub-battle':'Elite'}" onclick="giMove(${i})">⇄</button><button class="wi-x" title="เอาออก" onclick="giDel(${i})">✕</button></td></tr>`).join('');
   const nm=giNames_();
   const dl=`<datalist id="gi-names">${[...nm.cur].sort().map(n=>`<option value="${esA_(n)}"></option>`).join('')}${[...nm.past].sort().map(n=>`<option value="${esA_(n)}" label="ออกกิลด์แล้ว"></option>`).join('')}</datalist>`;
-  box.innerHTML=`<div class="wi-box"><div class="wi-h"><span class="n">1</span>ผลนัด <span class="wi-st">${G.exists?'● มีนัดนี้แล้ว — กำลังแก้':'○ นัดใหม่'}</span></div>
-    <div class="wi-row"><label class="wi-f"><span>วันที่</span><input type="date" value="${G.date}" onchange="giDate(this.value)"></label>
-      <div class="wi-f"><span>สนาม</span>${seg(GL_LEAGUES.map(l=>[l,l]),G.league,v=>`giPick_('league','${v}')`)}</div></div>
-    <div class="wi-row"><div class="wi-f"><span>ลีก</span>${seg([['Y','ข้ามเซิร์ฟ'],['N','ในเซิร์ฟ']],G.cross,v=>`giPick_('cross','${v}')`)}</div>
-      <label class="wi-f" style="width:200px"><span>อันดับ (tier)</span><select onchange="giSet('rank',this.value)"><option value="">—</option>${tiers.map(t=>`<option${t===G.rank?' selected':''}>${esA_(t)}</option>`).join('')}</select></label>
-      <label class="wi-f" style="flex:1;min-width:160px"><span>คู่แข่ง</span><input value="${esA_(G.opp)}" oninput="giSet('opp',this.value)"></label></div>
-    <div class="wi-row"><div class="wi-f"><span>สกอร์ (เรา : เขา)</span><div class="wi-score"><input inputmode="numeric" value="${esA_(G.our)}" oninput="giSet('our',this.value)"><b>:</b><input inputmode="numeric" value="${esA_(G.their)}" oninput="giSet('their',this.value)"></div></div>
-      <div class="wi-f"><span>ผล</span>${seg([['Win','Win'],['Lose','Lose'],['','ยังไม่รู้']],G.status,v=>`giPick_('status','${v}')`)}</div></div>
+  box.innerHTML=`<div class="wi-box"><div class="wi-h"><span class="n">1</span>Match Result <span class="wi-st">${G.exists?'● มีนัดนี้แล้ว — กำลังแก้':'○ นัดใหม่'}</span></div>
+    <div class="wi-row"><label class="wi-f"><span>Date</span><input type="date" value="${G.date}" onchange="giDate(this.value)"></label>
+      <div class="wi-f"><span>League</span>${seg(GL_LEAGUES.map(l=>[l,l]),G.league,v=>`giPick_('league','${v}')`)}</div></div>
+    <div class="wi-row"><div class="wi-f"><span>Server Type</span>${seg([['Y','Cross-server'],['N','Intra-server']],G.cross,v=>`giPick_('cross','${v}')`)}</div>
+      <label class="wi-f" style="width:200px"><span>Tier</span><select onchange="giSet('rank',this.value)"><option value="">—</option>${tiers.map(t=>`<option${t===G.rank?' selected':''}>${esA_(t)}</option>`).join('')}</select></label>
+      <label class="wi-f" style="flex:1;min-width:160px"><span>Opponent</span><input value="${esA_(G.opp)}" oninput="giSet('opp',this.value)"></label></div>
+    <div class="wi-row"><div class="wi-f"><span>Score (Us : Them)</span><div class="wi-score"><input inputmode="numeric" value="${esA_(G.our)}" oninput="giSet('our',this.value)"><b>:</b><input inputmode="numeric" value="${esA_(G.their)}" oninput="giSet('their',this.value)"></div></div>
+      <div class="wi-f"><span>Result</span>${seg([['Win','Win'],['Lose','Lose'],['','Unknown']],G.status,v=>`giPick_('status','${v}')`)}</div></div>
     <div class="wi-calc" id="gi-diff">${giDiffTxt_()}</div>
-    <label class="wi-f" style="margin-top:10px"><span>หมายเหตุ</span><input value="${esA_(G.note)}" oninput="giSet('note',this.value)"></label></div>
-  <div class="wi-box"><div class="wi-h"><span class="n">2</span>สกอร์รายคน <span class="wr-f">(ไม่บังคับ · บันทึกเฉพาะสนามย่อยที่แก้)</span></div>
-    <div class="wi-row"><div class="wi-f"><span>สนามย่อย</span>${seg([['Elite',`Elite · ${cnt('Elite')}`],['Sub-battle',`Sub-battle · ${cnt('Sub-battle')}`]],G.field,v=>`giField('${v}')`)}</div>
+    <label class="wi-f" style="margin-top:10px"><span>Note</span><input value="${esA_(G.note)}" oninput="giSet('note',this.value)"></label></div>
+  <div class="wi-box"><div class="wi-h"><span class="n">2</span>Player Scores <span class="wr-f">(ไม่บังคับ · บันทึกเฉพาะสนามย่อยที่แก้)</span></div>
+    <div class="wi-row"><div class="wi-f"><span>Field</span>${seg([['Elite',`Elite · ${cnt('Elite')}`],['Sub-battle',`Sub-battle · ${cnt('Sub-battle')}`]],G.field,v=>`giField('${v}')`)}</div>
       <span class="wi-st">${S.had?'● มีสกอร์เดิม':'รายชื่อดึงจากหน้าปาร์ตี้'}${S.touched?' · แก้แล้ว':''}</span></div>
     ${G.league?'':'<div class="wi-warn">เลือกสนามก่อน ช่องกรอกจะเปลี่ยนตามสนาม</div>'}
     ${G.league&&G.league!=='Stellar Clash'?'<div class="wi-warn">'+esc_(G.league)+' ยังไม่รู้หัวคอลัมน์เฉพาะสนาม — กรอกได้แค่ ฆ่า · ช่วย · ตาย · คะแนน</div>':''}
-    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th>ชื่อ</th>${cols.map(c=>`<th>${c[1]}</th>`).join('')}${boss?'<th title="ลาสบอสตัวสุดท้าย">💀</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div style="display:flex;gap:10px;align-items:center;margin-top:8px">${dl}<button class="btn btn-ghost" onclick="giAddRow()">+ เพิ่มคน</button><button class="btn btn-ghost" onclick="giRefill()">↺ รายชื่อปาร์ตี้ปัจจุบัน</button><button class="btn btn-ghost" onclick="giClear()">ล้างรายชื่อ</button><span class="wi-calc">รวมฆ่า <b id="gi-kill">${giKill_()}</b> — เทียบกับยอด "เอาชนะ" ท้ายตารางในเกม</span></div>
+    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th>Name</th>${cols.map(c=>`<th>${c[1]}</th>`).join('')}${boss?'<th title="ลาสบอสตัวสุดท้าย">💀</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:8px">${dl}<button class="btn btn-ghost" onclick="giAddRow()">+ Add player</button><button class="btn btn-ghost" onclick="giRefill()">↺ Current party</button><button class="btn btn-ghost" onclick="giClear()">Clear</button><span class="wi-calc">รวมฆ่า <b id="gi-kill">${giKill_()}</b> — เทียบกับยอด "เอาชนะ" ท้ายตารางในเกม</span></div>
     <div class="wi-foot"><span class="sp">คนที่ไม่มีตัวเลขเลยจะไม่ถูกบันทึก</span>
-      <button class="btn btn-ghost" onclick="giLoad_(_gi.date);renderGlInput()">ยกเลิก</button>
-      <button class="btn wi-save" ${G.busy?'disabled':''} onclick="giSave()">${G.busy?'กำลังบันทึก…':'💾 บันทึก'}</button></div></div>`;
+      <button class="btn btn-ghost" onclick="giLoad_(_gi.date);renderGlInput()">Cancel</button>
+      <button class="btn wi-save" ${G.busy?'disabled':''} onclick="giSave()">${G.busy?'Saving…':'💾 Save'}</button></div></div>`;
 }
 function giPick_(k,v){ if(k==='status')_gi.stAuto=false; if(k==='cross'&&_gi.cross!==v)_gi.rank=''; _gi[k]=v; renderGlInput(); }
 async function giSave(){
@@ -3195,10 +3278,10 @@ function renderRewardsPreview(){
   const segs=isGL?[['Y','Cross-server'],['N','Intra-server']]:[['Normal','Normal'],['Advanced','Advanced']];
   const label=r=>isGL?r.rank:`อันดับ ${r.rank}`;
   const hero=cur?`<div class="rw-hero">
-      <div class="rw-hc rw-main"><div class="k">${isGL?'อันดับตอนนี้':'รอบล่าสุด'}</div><div class="v">${label(cur)}</div><div class="s">${isGL?(_rwSub==='Y'?'Cross-server':'Intra-server'):_rwSub+' · '+fmtD(latest.date)}</div></div>
+      <div class="rw-hc rw-main"><div class="k">${isGL?'Current Rank':'Latest Round'}</div><div class="v">${label(cur)}</div><div class="s">${isGL?(_rwSub==='Y'?'Cross-server':'Intra-server'):_rwSub+' · '+fmtD(latest.date)}</div></div>
       <div class="rw-hc"><div class="k">Card Slot</div><div class="v">${n(cur.card)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'Overrun ไม่มีตัวคูณ'}</div></div>
-      <div class="rw-hc"><div class="k">ขนนกขาว</div><div class="v">${n(cur.feather_white)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'&nbsp;'}</div></div>
-      <div class="rw-hc"><div class="k">ขนนกแดง/ดำ</div><div class="v">${n(cur.feather_red_black)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'&nbsp;'}</div></div>
+      <div class="rw-hc"><div class="k">White Feather</div><div class="v">${n(cur.feather_white)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'&nbsp;'}</div></div>
+      <div class="rw-hc"><div class="k">Red / Black Feather</div><div class="v">${n(cur.feather_red_black)}</div><div class="s">${isGL?'ก่อนคูณตัวคูณ':'&nbsp;'}</div></div>
     </div>`:'';
   const body=rows.map((r,i)=>{
     const c=isCur(r), k=i<3?' b'+(i+1):'';
@@ -3209,7 +3292,7 @@ function renderRewardsPreview(){
   wrap.innerHTML=`<div class="rw-tabs"><button class="rw-tab${isGL?' on':''}" onclick="rwPick('gl')">Guild League</button><button class="rw-tab${isGL?'':' on'}" onclick="rwPick('or')">Guild Overrun</button></div>
     <div class="rw-seg">${segs.map(([v,t])=>`<button class="${v===_rwSub?'on':''}" onclick="rwPick('${_rwEvt}','${v}')">${t} · ${_aucRewardsRef.filter(r=>r.event_type===evt&&(isGL?r.cross_server===v:(r.group||'')===v)).length} ระดับ</button>`).join('')}</div>
     ${hero}
-    <div class="rw-tbl"><table><thead><tr><th>อันดับ</th><th>Card</th><th>ขาว</th><th>แดง/ดำ</th><th class="lim lg">Light/Dark</th><th class="lim">Time/Space</th><th class="lim">Purple</th>${hasIll?'<th class="lim">Illusion</th>':''}</tr></thead>
+    <div class="rw-tbl"><table><thead><tr><th>Rank</th><th>Card</th><th>White</th><th>Red / Black</th><th class="lim lg">Light/Dark</th><th class="lim">Time/Space</th><th class="lim">Purple</th>${hasIll?'<th class="lim">Illusion</th>':''}</tr></thead>
     <tbody>${body||'<tr><td colspan="8" class="empty">ไม่พบข้อมูล</td></tr>'}</tbody></table></div>
     <div class="rw-foot">${isGL?'<span>ตัวคูณ: ชนะ ×2 · แพ้สูสี ×1.5 · แพ้ห่าง ×1</span>':''}<span>Light/Dark – Illusion = ของจำกัด (ซ่อนบนมือถือ)</span></div>`;
 }
