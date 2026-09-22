@@ -656,6 +656,28 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
 .war-soon{display:flex;flex-direction:column;align-items:center;gap:6px;padding:56px 16px;background:var(--card);border:1px dashed var(--border2);border-radius:var(--radius-md);color:var(--muted);text-align:center}
 .war-soon .ic svg{width:34px;height:34px;color:var(--orange)}
 .war-soon b{font-size:16px;color:var(--text)}
+.wr-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.wr-kpis{grid-template-columns:1fr 1fr}}
+.wr-k{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;min-width:0}
+.wr-k .l{font-size:11.5px;color:var(--muted);font-weight:700}
+.wr-k .v{font-size:24px;font-weight:800;font-family:var(--font-pixel);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wr-k .v.sm{font-size:17px;padding:4px 0}.wr-k .v small{font-size:14px;color:var(--muted)}
+.wr-k .s{font-size:11.5px;color:var(--faint)}.wr-k.win .v{color:var(--green)}
+.wr-form{display:flex;gap:4px;margin-top:6px}
+.wr-form i{width:18px;height:18px;border-radius:5px;font-style:normal;font-size:10px;font-weight:800;display:grid;place-items:center;color:#fff}
+.wr-form .W{background:var(--green)}.wr-form .L{background:var(--red)}
+.wr-d{font-size:11px;font-family:var(--font-pixel);color:var(--orange-l);white-space:nowrap}
+.wr-f{font-size:11.5px;color:var(--muted);font-weight:400}
+.wr-b{font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;border:1px solid}
+.wr-b.W{color:var(--green);background:var(--green-dim);border-color:var(--green-b)}
+.wr-b.L{color:var(--red);background:var(--red-dim);border-color:var(--red-b)}
+.wr-click{cursor:pointer}.wr-lnk{font-size:12px;color:var(--orange-l);font-weight:700}
+.wr-sub>td{background:var(--card2,var(--soft));padding:8px 12px 12px!important}
+.wr-in{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.wr-in th{font-size:11px;padding:6px 10px;text-align:left;color:var(--muted)}.wr-in td{padding:6px 10px;font-size:12.5px;border-top:1px solid var(--border)}
+.wr-in .n{text-align:right;font-family:var(--font-pixel)}
+.wr-in tr.me td{background:var(--orange-dim)}
+.wr-me{font-size:10.5px;font-weight:800;color:var(--orange-l);border:1px solid var(--orange-border);border-radius:999px;padding:1px 7px;margin-left:4px}
 .war-soon span{font-size:12.5px;color:var(--faint)}
 .loading,.empty{color:var(--muted)}
 
@@ -969,7 +991,7 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
   <div class="nav-item" onclick="sw('calendar');closeSidebar()"><span class="ni"><svg><use href="#i-cal"/></svg></span><span class="nav-label">Calendar</span><span class="nav-tip">Calendar</span></div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
-  <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">War</span><span class="nav-tip">War</span></div>
+  <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Auction</span><span class="nav-tip">Auction</span></div>
   <div class="nav-sep"></div>
   <div class="nav-item" id="gear" title="Settings"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label en">Settings</span><span class="nav-tip">Settings</span></div>
@@ -1027,14 +1049,12 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
 
 <div id="page-auction" class="page">
   <div class="page-title">Auction</div>
-  <div class="page-sub" id="auc-sub">คิวประมูล รางวัล และประวัติการแข่ง</div>
+  <div class="page-sub" id="auc-sub">คิวประมูลและการแจกของ</div>
   <div id="adm-ribbon"></div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
     <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Designated</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
-    <button class="au-tab" data-tab="warhistory" onclick="swAucTab('warhistory')">War History</button>
-    <button class="au-tab" data-tab="rewards" onclick="swAucTab('rewards')">Rewards</button>
   </div>
 
   <div id="auc-calc">
@@ -1139,19 +1159,28 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
     </table></div>
   </div>
 
-  <div id="auc-warhistory" style="display:none">
+</div>
+<div id="page-war" class="page">
+  <div class="page-title">Guild War</div>
+  <div class="page-sub">ผลวอ ประวัติ และรางวัล</div>
+  <div class="wr-kpis" id="wr-kpis"></div>
+  <div class="au-tabs">
+    <button class="au-tab wr-tab active" data-wt="hist" onclick="swWarTab('hist')">History</button>
+    <button class="au-tab wr-tab" data-wt="rewards" onclick="swWarTab('rewards')">Rewards</button>
+  </div>
+  <div id="war-hist">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <select id="wh-filter-type" onchange="renderWarHistory()" style="flex:1;min-width:150px">
         <option value="">ทุกประเภท</option><option value="Guild League">Guild League</option><option value="Overrun">Overrun</option>
       </select>
+      <select id="wh-filter-month" onchange="renderWarHistory()" style="flex:1;min-width:150px"><option value="">ทุกเดือน</option></select>
     </div>
-    <div class="tbl-wrap"><table class="rtbl">
-      <thead><tr><th style="width:96px">วันที่</th><th style="width:120px">ประเภท</th><th>อันดับ / Tier</th><th style="width:76px">ผล</th><th style="width:150px">รางวัล</th></tr></thead>
+    <div class="tbl-wrap"><table class="rtbl wr-tbl">
+      <thead><tr><th style="width:96px">วันที่</th><th style="width:170px">ประเภท</th><th>อันดับ</th><th>แข่งกับ</th><th style="width:130px">ผล</th></tr></thead>
       <tbody id="wh-tbody"><tr><td colspan="5" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
-
-  <div id="auc-rewards" style="display:none">
+  <div id="war-rewards" style="display:none">
     <div id="auc-rewards-wrap"></div>
     <div class="section-h">Schedule</div>
     <div class="evts">
@@ -1160,11 +1189,6 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
       <div class="evt"><div class="et">GL Rank announced</div><div class="en">Every Monday</div><div class="ed">Weekly</div></div>
     </div>
   </div>
-</div>
-<div id="page-war" class="page">
-  <div class="page-title">War</div>
-  <div class="page-sub">ผลวอ คะแนนรายคน และสถิติ</div>
-  <div class="war-soon"><div class="ic"><svg><use href="#i-sword"/></svg></div><b>กำลังพัฒนา</b><span>บันทึกผลวอ · คะแนนรายคน · สถิติ</span></div>
 </div>
 
 <div id="page-calendar" class="page">
@@ -1206,7 +1230,9 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
    gviz คืนเฉพาะแถวที่มองเห็น แถวที่ถูกกรองจะหายจากเว็บ — ใช้ Filter views แทน (2026-09-22) */
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
-               Auction_Adjust:SRC_AUCTION};
+               Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT};
+/* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
+const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L'};
 
 /* ══ ADMIN ══
    โหมดแอดมิน = หน้าเว็บนี้ถูกเปิดผ่าน Apps Script (Admin.gs ใน Warmup Members)
@@ -1285,6 +1311,7 @@ function sw(t){
   if(t==='party')renderParty();
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
+  if(t==='war')initWarPage();
   if(t==='calendar')initCalendarPage();
 }
 let _currentPage='';
@@ -1612,7 +1639,7 @@ async function searchMain(){
 /* เลิกใช้ AUCTION_SHEET_ID — แต่ละแท็บดูไฟล์ต้นทางจาก TAB_SRC ข้างบน */
 /* ดึงเป็น CSV ไม่ใช่ JSON — gviz JSON เดาชนิดคอลัมน์จากค่าแรกที่ไม่ว่าง
    คอลัมน์ที่ปนข้อความกับตัวเลข (เช่น rank ใน Rewards_Ref) จะถูกทิ้งเป็น null เงียบๆ */
-const mkUrlA=s=>bust(`https://docs.google.com/spreadsheets/d/${TAB_SRC[s]||SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(s)}`);
+const mkUrlA=s=>bust(`https://docs.google.com/spreadsheets/d/${TAB_SRC[s]||SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(s)}`+(TAB_RANGE[s]?`&range=${TAB_RANGE[s]}`:''));
 
 /* แกะ CSV เอง เพราะ field อาจมี comma อยู่ในเครื่องหมายคำพูด เช่น "3,000" ที่มีจริงใน GL_Log */
 function parseCsvRows(text){
@@ -1723,8 +1750,6 @@ async function initAuctionPage(){
   renderDistribution();
   populateQueueRounds();
   populateDesignatedWeeks();
-  renderRewardsPreview();
-  renderWarHistory();
 }
 
 function populateAucEventTypes(){
@@ -2720,37 +2745,117 @@ function admInit_(){
   }
 }
 
+/* ══ WAR ══ (ย้ายจากหน้า Auction 2026-09-22)
+   ลีกกิลด์อ่าน GL_Log (คู่แข่ง/ส่วนต่าง/ผล) · โอเวอร์รันอ่าน War_Log (อันดับ/กลุ่ม) + OR_Rank (กิลด์ทั้งหมดในรอบ)
+   ช่องที่กรอก "n/a" = ไม่รู้ข้อมูล → ถือเป็นช่องว่าง ไม่แสดง */
+const WAR_GUILD='Warmup';   /* ต้องตรงกับ Config › guild_name ในไฟล์ Warmup Event */
+let _warLoaded=false,_warLoadPromise=null,_glLog=[],_orRank=[],_whOpen={};
+const naV_=v=>{const x=String(v==null?'':v).trim();return x.toLowerCase()==='n/a'?'':x};
+const naRow_=r=>{const o={};Object.keys(r).forEach(k=>o[k]=naV_(r[k]));return o};
+const wNum_=v=>{const n=Number(String(v||'').replace(/,/g,''));return String(v||'').trim()!==''&&isFinite(n)?n:null};
+const wFmt_=n=>n==null?'':Math.abs(n).toLocaleString('en-US');
+async function loadWarData(){
+  await loadAuctionData();
+  if(_warLoaded)return;
+  if(_warLoadPromise)return _warLoadPromise;
+  _warLoadPromise=(async()=>{
+    const get=async(tab)=>{
+      try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
+      catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
+    };
+    const [gl,orr]=await Promise.all([get('GL_Log'),get('OR_Rank')]);
+    _glLog=gl.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
+    _orRank=orr.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
+    _warLoaded=true;_warLoadPromise=null;
+  })();
+  return _warLoadPromise;
+}
+async function initWarPage(){
+  await loadWarData();
+  populateWarMonths_();
+  renderWarKpis();
+  renderWarHistory();
+  renderRewardsPreview();
+}
+function swWarTab(t){
+  document.querySelectorAll('.wr-tab').forEach(b=>b.classList.toggle('active',b.dataset.wt===t));
+  document.getElementById('war-hist').style.display=t==='hist'?'':'none';
+  document.getElementById('war-rewards').style.display=t==='rewards'?'':'none';
+}
+const TH_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const wMonLbl_=ym=>{const p=ym.split('-');return `${TH_MON[+p[1]-1]} ${p[0]}`};
+const wDay_=d=>{const p=String(d||'').split('-');return p.length===3?`${+p[2]} ${TH_MON[+p[1]-1]}`:''};
+/* แถวประวัติ: ลีกกิลด์จาก GL_Log · โอเวอร์รันจาก War_Log — เฉพาะวันที่ไม่เกินวันนี้ */
+function warRows_(){
+  const today=toDateStr(new Date());
+  const gl=_glLog.filter(r=>r.date<=today).map(r=>({date:r.date,type:'Guild League',league:naV_(r.league),cross:naV_(r.cross_server),
+    rank:naV_(r.rank),opp:naV_(r.opponent),diff:wNum_(r.diff),status:naV_(r.status)}));
+  const or=_warLog.filter(r=>r.event_type==='Overrun'&&r.date<=today).map(r=>({date:r.date,type:'Overrun',group:naV_(r.group),rank:naV_(r.rank)}));
+  return gl.concat(or).sort((a,b)=>b.date.localeCompare(a.date));
+}
+function orGuilds_(date){
+  return _orRank.filter(r=>r.date===date&&(r.guild_name||r.rank))
+    .sort((a,b)=>(wNum_(a.rank)??999)-(wNum_(b.rank)??999));
+}
+/* จำนวนกิลด์ในรอบ = ค่ามากสุดระหว่างจำนวนแถวที่กรอก กับเลขอันดับสูงสุด (กรอกไม่ครบก็ยังนับถูก) */
+function orTotal_(gs){return gs.reduce((m,g)=>Math.max(m,wNum_(g.rank)||0),gs.length);}
+function populateWarMonths_(){
+  const sel=document.getElementById('wh-filter-month'); if(!sel)return;
+  const cur=sel.value;
+  const ms=[...new Set(warRows_().map(r=>r.date.slice(0,7)))].sort().reverse();
+  sel.innerHTML='<option value="">ทุกเดือน</option>'+ms.map(m=>`<option value="${m}"${m===cur?' selected':''}>${wMonLbl_(m)}</option>`).join('');
+}
+function renderWarKpis(){
+  const box=document.getElementById('wr-kpis'); if(!box)return;
+  const rows=warRows_(), ym=toDateStr(new Date()).slice(0,7);
+  const gl=rows.filter(r=>r.type==='Guild League');
+  const dec=gl.filter(r=>/^(win|lose)$/i.test(r.status));
+  const mon=dec.filter(r=>r.date.slice(0,7)===ym);
+  const w=mon.filter(r=>/^win$/i.test(r.status)).length, l=mon.length-w;
+  const form=dec.slice(0,5).reverse().map(r=>/^win$/i.test(r.status)?'<i class="W">W</i>':'<i class="L">L</i>').join('');
+  const lastGl=gl.find(r=>r.rank);
+  const lastOr=rows.find(r=>r.type==='Overrun'&&r.rank);
+  const orN=lastOr?orTotal_(orGuilds_(lastOr.date)):0;
+  const crossT=c=>c==='Y'?'ข้ามเซิร์ฟ':c==='N'?'ในเซิร์ฟ':'';
+  box.innerHTML=`
+    <div class="wr-k win"><div class="l">Guild League เดือนนี้</div><div class="v">${mon.length?`${w}–${l}`:'—'}</div>
+      <div class="s">${mon.length?`ชนะ–แพ้ · ${Math.round(w*100/mon.length)}%`:'ยังไม่มีผลเดือนนี้'}</div>${form?`<div class="wr-form">${form}</div>`:''}</div>
+    <div class="wr-k"><div class="l">อันดับ Guild League ล่าสุด</div><div class="v sm">${lastGl?esc_(lastGl.rank):'—'}</div>
+      <div class="s">${lastGl?[crossT(lastGl.cross),wDay_(lastGl.date)].filter(Boolean).join(' · '):''}</div></div>
+    <div class="wr-k"><div class="l">Overrun ล่าสุด</div><div class="v">${lastOr?esc_(lastOr.rank)+(orN?` <small>/ ${orN}</small>`:''):'—'}</div>
+      <div class="s">${lastOr?[lastOr.group,wDay_(lastOr.date)].filter(Boolean).join(' · '):''}</div></div>`;
+}
+function whToggle(d){_whOpen[d]=!_whOpen[d];renderWarHistory();}
 function renderWarHistory(){
-  const ft=document.getElementById('wh-filter-type').value;
-
-  let rows=_warLog.map(r=>({
-    date:r.date,
-    type:r.event_type||'',
-    rank:(r.event_type==='Overrun'&&r.group)?`${r.group} ${r.rank||''}`.trim():(r.rank||''),
-    status:r.status||'',
-    card:+r.card||0, white:+r.feather_white||0, red:+r.feather_red_black||0
-  }));
-
+  const tb=document.getElementById('wh-tbody'); if(!tb)return;
+  const ft=(document.getElementById('wh-filter-type')||{}).value||'';
+  const fm=(document.getElementById('wh-filter-month')||{}).value||'';
+  let rows=warRows_();
   if(ft)rows=rows.filter(r=>r.type===ft);
-  rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-
-  const tb=document.getElementById('wh-tbody');
+  if(fm)rows=rows.filter(r=>r.date.slice(0,7)===fm);
   if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีข้อมูล</td></tr>';return}
+  const dash='<span class="wr-f">—</span>';
   tb.innerHTML=rows.map(r=>{
-    const st=String(r.status||'').toLowerCase();
-    const stHtml=st==='win'?'<span class="gf gf-e">Win</span>'
-      :st==='lose'?'<span class="gf" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">Lose</span>'
-      :'<span style="color:var(--faint)">—</span>';
-    const rewards=(r.card||r.white||r.red)
-      ?`<span style="font-size:11px;color:var(--muted)">🃏${r.card} · ⚪${r.white} · 🔴${r.red}</span>`
-      :'<span style="color:var(--faint)">—</span>';
-    return `<tr>
-      <td style="font-size:11px;font-family:var(--font-pixel);color:var(--orange-l)">${r.date||'—'}</td>
-      <td style="font-size:12px">${r.type||'—'}</td>
-      <td style="font-weight:600;font-size:12px">${r.rank||'—'}</td>
-      <td>${stHtml}</td>
-      <td>${rewards}</td>
-    </tr>`;
+    const date=`<td class="wr-d">${r.date}</td>`;
+    if(r.type==='Guild League'){
+      const st=r.status.toLowerCase();
+      const stH=st==='win'?'<span class="wr-b W">Win</span>':st==='lose'?'<span class="wr-b L">Lose</span>':'';
+      const dH=r.diff!=null&&r.diff!==0?` <span class="wr-f">${r.diff>0?'+':'−'}${wFmt_(r.diff)}</span>`:'';
+      const sub=[r.league,r.cross==='Y'?'ข้ามเซิร์ฟ':r.cross==='N'?'ในเซิร์ฟ':''].filter(Boolean).map(esc_).join(' · ');
+      return `<tr>${date}<td>Guild League${sub?`<div class="wr-f">${sub}</div>`:''}</td>
+        <td><b>${r.rank?esc_(r.rank):''}</b>${r.rank?'':dash}</td>
+        <td>${r.opp?`<b>${esc_(r.opp)}</b>`:dash}</td>
+        <td>${stH||dash}${stH?dH:''}</td></tr>`;
+    }
+    const gs=orGuilds_(r.date), open=!!_whOpen[r.date];
+    const main=`<tr${gs.length?` class="wr-click" onclick="whToggle('${r.date}')"`:''}>${date}<td>Overrun${r.group?`<div class="wr-f">${esc_(r.group)}</div>`:''}</td>
+      <td>${r.rank?`<b>${esc_(r.rank)}</b>${gs.length?` <span class="wr-f">/ ${orTotal_(gs)} กิลด์</span>`:''}`:dash}</td>
+      <td>${gs.length?`<span class="wr-lnk">${open?'▾':'▸'} ดูกิลด์ทั้งหมด</span>`:dash}</td><td>${dash}</td></tr>`;
+    if(!gs.length||!open)return main;
+    const me=g=>String(g.guild_name||'').trim().toLowerCase()===WAR_GUILD.toLowerCase();
+    const hasSrv=gs.some(g=>g.server), hasSc=gs.some(g=>g.score);
+    const inner=gs.map(g=>`<tr${me(g)?' class="me"':''}><td>${esc_(g.rank)}</td><td>${g.guild_name?`<b>${esc_(g.guild_name)}</b>`:''}${me(g)?' <span class="wr-me">เรา</span>':''}</td>${hasSrv?`<td>${esc_(g.server)}</td>`:''}${hasSc?`<td class="n">${wNum_(g.score)!=null?wFmt_(wNum_(g.score)):esc_(g.score)}</td>`:''}</tr>`).join('');
+    return main+`<tr class="wr-sub"><td colspan="5"><table class="wr-in"><thead><tr><th>#</th><th>กิลด์</th>${hasSrv?'<th>เซิร์ฟ</th>':''}${hasSc?'<th class="n">คะแนน</th>':''}</tr></thead><tbody>${inner}</tbody></table></td></tr>`;
   }).join('');
 }
 
@@ -2804,7 +2909,7 @@ function renderRewardsPreview(){
 
 function swAucTab(t){
   document.querySelectorAll('.au-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  ['calc','designated','manage','warhistory','rewards'].forEach(k=>{
+  ['calc','designated','manage'].forEach(k=>{
     const el=document.getElementById('auc-'+k);
     if(el)el.style.display=(k===t)?'':'none';
   });
@@ -3338,6 +3443,7 @@ async function forceRefresh(){
   _bust=String(Date.now());
 
   _aucLoaded=false;_aucLoadPromise=null;
+  _warLoaded=false;_warLoadPromise=null;_glLog=[];_orRank=[];
   _aucQueue=[];_aucHelpers=[];_aucRewardsRef=[];_warLog=[];
   _aucQueueArchive=[];_aucArchiveLoaded=false;_aucArchiveLoadPromise=null;
   _aucQueueRows=[];
@@ -3349,6 +3455,7 @@ async function forceRefresh(){
   try{
     await loadData();
     if(_currentPage==='auction')await initAuctionPage();
+    else if(_currentPage==='war')await initWarPage();
     else if(_currentPage==='calendar')await initCalendarPage();
     if(_currentPage==='search'&&(document.getElementById('si-main')||{}).value)searchMain();
     else if(_currentPage==='party')renderParty();
