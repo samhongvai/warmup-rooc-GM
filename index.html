@@ -656,6 +656,57 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
 .war-soon{display:flex;flex-direction:column;align-items:center;gap:6px;padding:56px 16px;background:var(--card);border:1px dashed var(--border2);border-radius:var(--radius-md);color:var(--muted);text-align:center}
 .war-soon .ic svg{width:34px;height:34px;color:var(--orange)}
 .war-soon b{font-size:16px;color:var(--text)}
+.wr-adm{display:none}
+body.is-admin .wr-adm{display:inline-block}
+.ws-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:720px){.ws-cards{grid-template-columns:1fr}}
+.ws-c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px}
+.ws-c .l{font-size:12px;color:var(--muted);font-weight:700}.ws-c .v{font-size:28px;font-weight:800;font-family:var(--font-pixel);margin:2px 0}
+.ws-c.empty .v{color:var(--faint)}.ws-c .s{font-size:12px;color:var(--muted)}
+.ws-bar{display:flex;gap:2px;height:8px;margin:8px 0 6px}.ws-bar i{display:block;border-radius:4px}
+.ws-bar.mini{width:90px;height:6px;margin:0}
+.ws-bar .W{background:var(--green)}.ws-bar .L{background:var(--red)}.ws-bar .E{background:var(--border2);flex:1}
+.ws-key{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:8px 0 4px}
+.ws-key .sp{margin-left:auto}
+.ws-key .w::before,.ws-key .l::before{content:'';display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.ws-key .w::before{background:var(--green)}.ws-key .l::before{background:var(--red)}
+.ws-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ws-chip{padding:5px 12px;border-radius:999px;border:1px solid var(--border2);background:none;font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.ws-chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.ws-tbl .n{text-align:right;font-family:var(--font-pixel)}
+.ws-open td,.ws-sub td{background:var(--orange-dim)}
+.ws-list{display:flex;flex-wrap:wrap;gap:6px}.ws-list span{font-size:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px 9px}
+.ws-list .tw{color:var(--green)}.ws-list .tl{color:var(--red)}
+.ws-pg{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+.ws-pg button[disabled]{opacity:.4;pointer-events:none}
+.wi-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:14px}
+.wi-h{font-size:14px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.wi-h .n{background:var(--orange);color:#fff;border-radius:7px;width:22px;height:22px;display:grid;place-items:center;font-size:12px}
+.wi-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.wi-f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.wi-f>span{font-size:11px;color:var(--muted);font-weight:700}
+.wi-box input,.wi-box select{background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 9px;font:inherit;font-size:13px;width:100%;min-width:0}
+.wi-box input.num{font-family:var(--font-pixel);text-align:right}
+.wi-seg{display:inline-flex;flex-wrap:wrap;background:var(--bg);border:1px solid var(--border2);border-radius:9px;padding:3px;gap:3px}
+.wi-seg button{border:0;background:none;font:inherit;padding:5px 12px;border-radius:7px;font-size:12.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.wi-seg button.on{background:var(--orange);color:#fff;font-weight:700}
+.wi-st{font-size:12px;color:var(--green);font-weight:700;padding-bottom:8px}
+.wi-score{display:flex;align-items:center;gap:8px}.wi-score input{width:120px!important;font-size:20px!important;font-weight:800;text-align:center;font-family:var(--font-pixel)}
+.wi-score b{font-size:20px;color:var(--faint)}
+.wi-calc{font-size:12px;color:var(--muted)}.wi-calc b{color:var(--text)}
+.wi-warn{background:var(--amber-dim,rgba(232,181,74,.1));border:1px solid var(--amber-b,rgba(232,181,74,.35));color:var(--amber,#b58a2a);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:10px}
+.wi-tbl{width:100%;border-collapse:collapse}
+.wi-tbl th{font-size:11px;color:var(--muted);text-align:left;padding:7px 5px;font-weight:700;white-space:nowrap}
+.wi-tbl td{padding:3px;border-top:1px solid var(--border)}
+.wi-tbl tr.me td{background:var(--orange-dim)}
+.wi-tbl input{padding:5px 6px!important}
+.wi-rk{font-family:var(--font-pixel);color:var(--faint);text-align:center;width:30px}
+.wi-chk{width:18px!important;height:18px;accent-color:var(--orange)}
+.wi-x{border:0;background:none;color:var(--faint);cursor:pointer;font-size:14px;padding:4px 6px}.wi-x:hover{color:var(--red)}
+.wi-foot{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:12px;flex-wrap:wrap}
+.wi-foot .sp{flex:1;font-size:12px;color:var(--faint);min-width:200px}
+.wi-save{background:var(--orange)!important;border-color:var(--orange)!important;color:#fff!important;font-weight:700}
+.wi-save[disabled]{opacity:.6}
 .wr-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 @media(max-width:700px){.wr-kpis{grid-template-columns:1fr 1fr}}
 .wr-k{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;min-width:0}
@@ -1166,8 +1217,14 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
   <div class="wr-kpis" id="wr-kpis"></div>
   <div class="au-tabs">
     <button class="au-tab wr-tab active" data-wt="hist" onclick="swWarTab('hist')">History</button>
+    <button class="au-tab wr-tab" data-wt="stats" onclick="swWarTab('stats')">Stats</button>
     <button class="au-tab wr-tab" data-wt="rewards" onclick="swWarTab('rewards')">Rewards</button>
+    <button class="au-tab wr-tab wr-adm" data-wt="glin" onclick="swWarTab('glin')">กรอกผล Guild League</button>
+    <button class="au-tab wr-tab wr-adm" data-wt="orin" onclick="swWarTab('orin')">กรอกผล Overrun</button>
   </div>
+  <div id="war-stats" style="display:none"></div>
+  <div id="war-glin" style="display:none"></div>
+  <div id="war-orin" style="display:none"></div>
   <div id="war-hist">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <select id="wh-filter-type" onchange="renderWarHistory()" style="flex:1;min-width:150px">
@@ -1231,8 +1288,9 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
                Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT};
+/* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
-const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L'};
+const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:L'};
 
 /* ══ ADMIN ══
    โหมดแอดมิน = หน้าเว็บนี้ถูกเปิดผ่าน Apps Script (Admin.gs ใน Warmup Members)
@@ -2749,7 +2807,7 @@ function admInit_(){
    ลีกกิลด์อ่าน GL_Log (คู่แข่ง/ส่วนต่าง/ผล) · โอเวอร์รันอ่าน War_Log (อันดับ/กลุ่ม) + OR_Rank (กิลด์ทั้งหมดในรอบ)
    ช่องที่กรอก "n/a" = ไม่รู้ข้อมูล → ถือเป็นช่องว่าง ไม่แสดง */
 const WAR_GUILD='Warmup';   /* ต้องตรงกับ Config › guild_name ในไฟล์ Warmup Event */
-let _warLoaded=false,_warLoadPromise=null,_glLog=[],_orRank=[],_whOpen={};
+let _warLoaded=false,_warLoadPromise=null,_glLog=[],_orRank=[],_glScore=[],_whOpen={};
 const naV_=v=>{const x=String(v==null?'':v).trim();return x.toLowerCase()==='n/a'?'':x};
 const naRow_=r=>{const o={};Object.keys(r).forEach(k=>o[k]=naV_(r[k]));return o};
 const wNum_=v=>{const n=Number(String(v||'').replace(/,/g,''));return String(v||'').trim()!==''&&isFinite(n)?n:null};
@@ -2763,7 +2821,8 @@ async function loadWarData(){
       try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
       catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
     };
-    const [gl,orr]=await Promise.all([get('GL_Log'),get('OR_Rank')]);
+    const [gl,orr,gs]=await Promise.all([get('GL_Log'),get('OR_Rank'),ADMIN?get('GL_Score'):Promise.resolve([])]);
+    _glScore=gs.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     _glLog=gl.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     _orRank=orr.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     _warLoaded=true;_warLoadPromise=null;
@@ -2775,12 +2834,18 @@ async function initWarPage(){
   populateWarMonths_();
   renderWarKpis();
   renderWarHistory();
+  renderWarStats();
   renderRewardsPreview();
+  swWarTab(_warTab);
 }
+let _warTab='hist';
 function swWarTab(t){
+  if((t==='glin'||t==='orin')&&!ADMIN)t='hist';
+  _warTab=t;
   document.querySelectorAll('.wr-tab').forEach(b=>b.classList.toggle('active',b.dataset.wt===t));
-  document.getElementById('war-hist').style.display=t==='hist'?'':'none';
-  document.getElementById('war-rewards').style.display=t==='rewards'?'':'none';
+  ['hist','stats','rewards','glin','orin'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
+  if(t==='glin')giOpen_();
+  if(t==='orin')oiOpen_();
 }
 const TH_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const wMonLbl_=ym=>{const p=ym.split('-');return `${TH_MON[+p[1]-1]} ${p[0]}`};
@@ -2857,6 +2922,221 @@ function renderWarHistory(){
     const inner=gs.map(g=>`<tr${me(g)?' class="me"':''}><td>${esc_(g.rank)}</td><td>${g.guild_name?`<b>${esc_(g.guild_name)}</b>`:''}${me(g)?' <span class="wr-me">เรา</span>':''}</td>${hasSrv?`<td>${esc_(g.server)}</td>`:''}${hasSc?`<td class="n">${wNum_(g.score)!=null?wFmt_(wNum_(g.score)):esc_(g.score)}</td>`:''}</tr>`).join('');
     return main+`<tr class="wr-sub"><td colspan="5"><table class="wr-in"><thead><tr><th>#</th><th>กิลด์</th>${hasSrv?'<th>เซิร์ฟ</th>':''}${hasSc?'<th class="n">คะแนน</th>':''}</tr></thead><tbody>${inner}</tbody></table></td></tr>`;
   }).join('');
+}
+
+
+/* ══ WAR · Stats ══ %ชนะแยกสนาม + สถิติเจอกับแต่ละกิลด์ (นับเฉพาะนัดที่มีผล Win/Lose) */
+const GL_LEAGUES=['Stellar Clash','Vale of Clash','Vigrid Avenge'];
+let _wsLeague='',_wsPage=0,_wsOpen={};
+const WS_PER=5;
+function wsDecided_(){
+  const today=toDateStr(new Date());
+  return _glLog.filter(r=>r.date<=today).map(r=>({date:r.date,league:naV_(r.league),opp:naV_(r.opponent),
+    st:naV_(r.status).toLowerCase(),diff:wNum_(r.diff)})).filter(r=>r.st==='win'||r.st==='lose');
+}
+function wsPick(l){_wsLeague=l;_wsPage=0;_wsOpen={};renderWarStats();}
+function wsPage(d){_wsPage+=d;renderWarStats();}
+function wsToggle(k){_wsOpen[k]=!_wsOpen[k];renderWarStats();}
+function renderWarStats(){
+  const box=document.getElementById('war-stats'); if(!box)return;
+  const today=toDateStr(new Date());
+  const all=wsDecided_();
+  const bar=(w,l)=>w+l?`<div class="ws-bar">${w?`<i class="W" style="flex:${w}"></i>`:''}${l?`<i class="L" style="flex:${l}"></i>`:''}</div>`:'<div class="ws-bar"><i class="E"></i></div>';
+  const cards=GL_LEAGUES.map(lg=>{
+    const rs=all.filter(r=>r.league===lg), w=rs.filter(r=>r.st==='win').length, l=rs.length-w;
+    const pend=_glLog.filter(r=>naV_(r.league)===lg&&r.date<=today&&!/^(win|lose)$/i.test(naV_(r.status))).length;
+    return `<div class="ws-c${rs.length?'':' empty'}"><div class="l">${lg}</div><div class="v">${rs.length?Math.round(w*100/rs.length)+'%':'—'}</div>${bar(w,l)}
+      <div class="s">${rs.length?`ชนะ ${w} · แพ้ ${l} · ${rs.length} นัด`:'ยังไม่มีผล'}${pend?` <span class="wr-f">(+${pend} นัดยังไม่มีผล)</span>`:''}</div></div>`;
+  }).join('');
+  const nol=all.filter(r=>GL_LEAGUES.indexOf(r.league)<0), nw=nol.filter(r=>r.st==='win').length;
+  /* head-to-head */
+  const src=all.filter(r=>r.opp&&(!_wsLeague||r.league===_wsLeague));
+  const g={};
+  src.forEach(r=>{const k=r.opp.toLowerCase(); (g[k]=g[k]||{name:r.opp,rows:[]}).rows.push(r);});
+  const list=Object.keys(g).map(k=>{const o=g[k]; o.rows.sort((a,b)=>b.date.localeCompare(a.date)); o.name=o.rows[0].opp; o.k=k;
+    o.w=o.rows.filter(r=>r.st==='win').length; o.l=o.rows.length-o.w; return o;})
+    .sort((a,b)=>b.rows.length-a.rows.length||b.rows[0].date.localeCompare(a.rows[0].date));
+  const pages=Math.max(1,Math.ceil(list.length/WS_PER));
+  if(_wsPage>=pages)_wsPage=pages-1; if(_wsPage<0)_wsPage=0;
+  const res=r=>`<span class="wr-b ${r.st==='win'?'W">Win':'L">Lose'}</span>`;
+  const dtxt=r=>r.diff!=null&&r.diff!==0?` ${r.diff>0?'+':'−'}${wFmt_(r.diff)}`:'';
+  const body=list.slice(_wsPage*WS_PER,_wsPage*WS_PER+WS_PER).map(o=>{
+    const last=o.rows[0], open=!!_wsOpen[o.k];
+    const main=`<tr class="wr-click${open?' ws-open':''}" onclick="wsToggle('${esc_(o.k).replace(/'/g,"\\'")}')"><td><b>${open?'▾':'▸'} ${esc_(o.name)}</b></td><td class="n">${o.rows.length}</td><td class="n">${o.w}–${o.l}</td><td class="n">${Math.round(o.w*100/o.rows.length)}%</td>
+      <td>${bar(o.w,o.l).replace('ws-bar','ws-bar mini')}</td><td>${res(last)} <span class="wr-f">${wDay_(last.date)}${dtxt(last)}</span></td></tr>`;
+    if(!open)return main;
+    return main+`<tr class="ws-sub"><td colspan="6"><div class="ws-list">${o.rows.map(r=>`<span>${wDay_(r.date)}${r.league?' · '+esc_(r.league):''} · <b class="${r.st==='win'?'tw':'tl'}">${r.st==='win'?'W':'L'}</b>${dtxt(r)}</span>`).join('')}</div></td></tr>`;
+  }).join('');
+  const chips=['',...GL_LEAGUES].map(l=>`<button class="ws-chip${l===_wsLeague?' on':''}" onclick="wsPick('${l}')">${l||'ทุกสนาม'}</button>`).join('');
+  box.innerHTML=`<div class="section-h">Win rate by league</div><div class="ws-cards">${cards}</div>
+    <div class="ws-key"><span class="w">ชนะ</span><span class="l">แพ้</span>${nol.length?`<span class="sp">นัดเก่าที่ไม่ได้ระบุสนาม: ชนะ ${nw} · แพ้ ${nol.length-nw} (ไม่นับในการ์ด)</span>`:''}</div>
+    <div class="section-h">Head-to-head</div>
+    <div class="ws-chips">${chips}</div>
+    <div class="tbl-wrap"><table class="rtbl ws-tbl"><thead><tr><th>กิลด์</th><th class="n">เจอ</th><th class="n">ชนะ–แพ้</th><th class="n">% ชนะ</th><th></th><th>ครั้งล่าสุด</th></tr></thead>
+    <tbody>${body||'<tr><td colspan="6" class="empty">ยังไม่มีข้อมูลคู่แข่ง</td></tr>'}</tbody></table></div>
+    ${pages>1?`<div class="ws-pg"><button class="btn btn-ghost" ${_wsPage?'':'disabled'} onclick="wsPage(-1)">◀ ก่อนหน้า</button><span>หน้า ${_wsPage+1} / ${pages} · ${list.length} กิลด์</span><button class="btn btn-ghost" ${_wsPage<pages-1?'':'disabled'} onclick="wsPage(1)">ถัดไป ▶</button></div>`:''}`;
+}
+
+/* ══ WAR · กรอกผล (แอดมิน) ══ เขียนผ่าน Admin.gs → ไฟล์ Warmup Event */
+const esA_=v=>esc_(v==null?'':String(v));
+const wLastDow_=dow=>{const d=new Date();d.setHours(0,0,0,0);while(d.getDay()!==dow)d.setDate(d.getDate()-1);return toDateStr(d);};
+async function warReload_(){
+  _bust=String(Date.now());
+  _aucLoaded=false;_aucLoadPromise=null;_warLoaded=false;_warLoadPromise=null;
+  await initWarPage();
+}
+
+/* ── Overrun ── */
+let _oi=null;
+function oiBlank_(){return {guild:'',server:'',score:'',c3:'',c2:'',c1:''};}
+function oiLoad_(date){
+  const rows=_orRank.filter(r=>r.date===date).sort((a,b)=>(wNum_(a.rank)??99)-(wNum_(b.rank)??99));
+  const n=Math.max(8,rows.reduce((m,r)=>Math.max(m,wNum_(r.rank)||0),0));
+  const out=[];for(let i=0;i<n;i++)out.push(oiBlank_());
+  rows.forEach(r=>{const i=(wNum_(r.rank)||0)-1; if(i<0||i>=n)return;
+    out[i]={guild:r.guild_name||'',server:r.server||'',score:r.score||'',c3:r.castle_3||'',c2:r.castle_2||'',c1:r.castle_1||''};});
+  const wl=_warLog.find(r=>r.event_type==='Overrun'&&r.date===date);
+  const lastG=[..._warLog].reverse().find(r=>r.event_type==='Overrun'&&r.group);
+  _oi={date,group:(wl&&naV_(wl.group))||(lastG&&lastG.group)||'Advanced',rows:out,exists:!!(rows.length||wl),busy:false};
+}
+function oiOpen_(){ if(!_oi)oiLoad_(wLastDow_(0)); renderOrInput(); }
+function oiSet(i,k,v){_oi.rows[i][k]=v; if(k==='guild')renderOrInput(true);}
+function oiDate(v){ if(/^\d{4}-\d{2}-\d{2}$/.test(v)){oiLoad_(v);renderOrInput();} }
+function oiGroup(g){_oi.group=g;renderOrInput();}
+function oiAdd(){ if(_oi.rows.length<12){_oi.rows.push(oiBlank_());renderOrInput();} }
+function renderOrInput(keepFocus){
+  const box=document.getElementById('war-orin'); if(!box||!_oi)return;
+  if(keepFocus){ /* อัปเดตแค่ไฮไลต์แถวเรา ไม่วาดใหม่ทั้งตาราง จะได้ไม่เสียโฟกัสตอนพิมพ์ */
+    box.querySelectorAll('tr[data-i]').forEach(tr=>{const me=String(_oi.rows[+tr.dataset.i].guild).trim().toLowerCase()===WAR_GUILD.toLowerCase(); tr.classList.toggle('me',me);});
+    return;
+  }
+  const inp=(i,k,w,num)=>`<input class="wi${num?' num':''}" style="width:${w}" value="${esA_(_oi.rows[i][k])}" oninput="oiSet(${i},'${k}',this.value)"${num?' inputmode="numeric"':''}>`;
+  const rows=_oi.rows.map((r,i)=>`<tr data-i="${i}"${String(r.guild).trim().toLowerCase()===WAR_GUILD.toLowerCase()?' class="me"':''}><td class="wi-rk">${i+1}</td>
+    <td>${inp(i,'guild','100%')}</td><td>${inp(i,'server','70px')}</td><td>${inp(i,'score','100px',1)}</td>
+    <td>${inp(i,'c3','60px',1)}</td><td>${inp(i,'c2','60px',1)}</td><td>${inp(i,'c1','60px',1)}</td></tr>`).join('');
+  box.innerHTML=`<div class="wi-box">
+    <div class="wi-row"><label class="wi-f"><span>วันที่</span><input type="date" value="${_oi.date}" onchange="oiDate(this.value)"></label>
+      <div class="wi-f"><span>กลุ่ม</span><div class="wi-seg">${['Normal','Advanced'].map(g=>`<button class="${g===_oi.group?'on':''}" onclick="oiGroup('${g}')">${g}</button>`).join('')}</div></div>
+      <span class="wi-st">${_oi.exists?'● มีข้อมูลรอบนี้แล้ว — กำลังแก้':'○ รอบใหม่'}</span></div>
+    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th style="min-width:150px">กิลด์</th><th>เซิร์ฟ</th><th>คะแนน</th><th>ปราสาท 3</th><th>ปราสาท 2</th><th>ปราสาท 1</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    ${_oi.rows.length<12?'<div style="text-align:center;margin-top:8px"><button class="btn btn-ghost" onclick="oiAdd()">+ เพิ่มแถว</button></div>':''}
+    <div class="wi-foot"><span class="sp">อันดับ = เลขแถว · แถวของ ${WAR_GUILD} คืออันดับเรา · แถวว่างทั้งแถวไม่บันทึก</span>
+      <button class="btn btn-ghost" onclick="oiLoad_(_oi.date);renderOrInput()">ยกเลิก</button>
+      <button class="btn wi-save" ${_oi.busy?'disabled':''} onclick="oiSave()">${_oi.busy?'กำลังบันทึก…':'💾 บันทึก'}</button></div></div>`;
+}
+async function oiSave(){
+  if(!_oi||_oi.busy)return;
+  if(!_oi.rows.some(r=>String(r.guild).trim().toLowerCase()===WAR_GUILD.toLowerCase())){toast('ต้องมีแถวของ '+WAR_GUILD+' ในตาราง',null,true);return;}
+  _oi.busy=true;renderOrInput();admBusy_(true);
+  try{
+    const res=await admCall('admOrSave',{date:_oi.date,group:_oi.group,rows:_oi.rows});
+    toast(`บันทึก Overrun ${res.date} แล้ว · อันดับเรา ${res.rank} / ${res.guilds} กิลด์`);
+    const d=_oi.date; _oi=null;
+    await warReload_(); oiLoad_(d); renderOrInput();
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); if(_oi){_oi.busy=false;renderOrInput();} }
+  finally{ admBusy_(false); }
+}
+
+/* ── Guild League ── */
+let _gi=null;
+/* คอลัมน์รายคนที่ต่างกันตามสนาม — Vale / Vigrid ยังไม่รู้หัวคอลัมน์จริง ใช้แค่ ฆ่า ช่วย ตาย คะแนน */
+function giCols_(league,field){
+  const base=[['kill','ฆ่า'],['assist','ช่วย'],['death','ตาย'],['score','คะแนน']];
+  if(league==='Stellar Clash')return (field==='Elite'?[['fort','ป้อม'],['minion','ครีป']]:[['minion','ครีป'],['boss','บอส']]).concat(base);
+  return base;
+}
+function giBoss_(league,field){return league==='Stellar Clash'&&field==='Elite';}
+function giBlankRow_(name){return {name:name||'',fort:'',minion:'',boss:'',kill:'',assist:'',death:'',score:''};}
+function giRoster_(field){
+  return members.filter(m=>(m.field_gl||'')===field&&String(m.status||'').toUpperCase()!=='ARCHIVED')
+    .sort((a,b)=>(+a.party||99)-(+b.party||99)).map(m=>giBlankRow_(m.ign));
+}
+function giLoad_(date){
+  const r=_glLog.find(x=>x.date===date);
+  const prev=[..._glLog].filter(x=>x.date<date).sort((a,b)=>a.date.localeCompare(b.date)).pop()||{};
+  const sc={};
+  ['Elite','Sub-battle'].forEach(f=>{
+    const rows=_glScore.filter(x=>x.date===date&&x.field===f).sort((a,b)=>(wNum_(a.list_rank)??999)-(wNum_(b.list_rank)??999));
+    sc[f]={had:rows.length>0,touched:false,rows:rows.length?rows.map(x=>({name:x.member_name||'',fort:x.fort||'',minion:x.minion||'',boss:x.boss||'',kill:x.kill||'',assist:x.assist||'',death:x.death||'',score:x.score||''})):giRoster_(f)};
+  });
+  const g=k=>naV_(r?r[k]:'');
+  _gi={date,exists:!!r,league:g('league')||naV_(prev.league)||'',cross:g('cross_server')||naV_(prev.cross_server)||'',
+    rank:g('rank')||naV_(prev.rank)||'',opp:g('opponent'),our:g('our_score'),their:g('opp_score'),status:g('status'),stAuto:!g('status'),
+    note:g('note'),field:'Elite',sc,busy:false};
+}
+function giOpen_(){ if(!_gi){ const t=toDateStr(new Date()); const d=_glLog.filter(x=>x.date<=t).map(x=>x.date).sort().pop()||t; giLoad_(d);} renderGlInput(); }
+function giDate(v){ if(/^\d{4}-\d{2}-\d{2}$/.test(v)){giLoad_(v);renderGlInput();} }
+function giSet(k,v,redraw){
+  _gi[k]=v;
+  if(k==='our'||k==='their'){
+    const a=wNum_(_gi.our),b=wNum_(_gi.their);
+    if(_gi.stAuto&&a!=null&&b!=null&&a!==b){_gi.status=a>b?'Win':'Lose';redraw=true;}
+    const el=document.getElementById('gi-diff'); if(el)el.innerHTML=giDiffTxt_();
+  }
+  if(k==='status')_gi.stAuto=false;
+  if(redraw)renderGlInput();
+}
+function giDiffTxt_(){const a=wNum_(_gi.our),b=wNum_(_gi.their); return a!=null&&b!=null?`ส่วนต่าง <b>${a-b>0?'+':a-b<0?'−':''}${wFmt_(a-b)}</b> · ตัวคูณชีทคำนวณเอง`:'ส่วนต่างกับตัวคูณชีทคำนวณเองหลังบันทึก';}
+function giScSet(i,k,v){const s=_gi.sc[_gi.field]; s.rows[i][k]=v; s.touched=true; if(k==='kill'){const el=document.getElementById('gi-kill');if(el)el.textContent=giKill_();}}
+function giKill_(){return _gi.sc[_gi.field].rows.reduce((t,r)=>t+(wNum_(r.kill)||0),0).toLocaleString('en-US');}
+function giBoss(i,on){const s=_gi.sc[_gi.field]; s.rows.forEach((r,j)=>{ if(j===i)r.boss=on?'1':''; else if(on)r.boss=''; }); s.touched=true; renderGlInput();}
+function giDel(i){const s=_gi.sc[_gi.field]; s.rows.splice(i,1); s.touched=true; renderGlInput();}
+function giAddRow(){const s=_gi.sc[_gi.field]; s.rows.push(giBlankRow_()); s.touched=true; renderGlInput();}
+function giField(f){_gi.field=f;renderGlInput();}
+/* ช่องที่ใช้จริงของสนามนั้น — ช่องที่ซ่อนอยู่ (เช่นเปลี่ยนสนามหลังกรอก) จะไม่ถูกส่ง */
+const giKeys_=(league,field)=>giCols_(league,field).map(c=>c[0]).concat(giBoss_(league,field)?['boss']:[]);
+const giHasData_=(r,keys)=>(keys||['fort','minion','boss','kill','assist','death','score']).some(k=>String(r[k]||'').trim()!=='');
+function renderGlInput(){
+  const box=document.getElementById('war-glin'); if(!box||!_gi)return;
+  const G=_gi, seg=(arr,cur,mk)=>`<div class="wi-seg">${arr.map(([v,t])=>`<button class="${v===cur?'on':''}" onclick="${mk(v)}">${t}</button>`).join('')}</div>`;
+  const tiers=_aucRewardsRef.filter(r=>r.event_type==='Guild League'&&(!G.cross||r.cross_server===G.cross)).map(r=>r.rank);
+  if(G.rank&&tiers.indexOf(G.rank)<0)tiers.unshift(G.rank);
+  const S=G.sc[G.field], cols=giCols_(G.league,G.field), boss=giBoss_(G.league,G.field);
+  const cnt=f=>G.sc[f].rows.filter(r=>giHasData_(r,giKeys_(G.league,f))).length;
+  const rows=S.rows.map((r,i)=>`<tr><td class="wi-rk">${i+1}</td>
+    <td><input class="wi" style="width:140px" value="${esA_(r.name)}" oninput="giScSet(${i},'name',this.value)"></td>
+    ${cols.map(([k])=>`<td><input class="wi num" style="width:${k==='score'?'84px':'58px'}" inputmode="numeric" value="${esA_(r[k])}" oninput="giScSet(${i},'${k}',this.value)"></td>`).join('')}
+    ${boss?`<td style="text-align:center"><input type="checkbox" class="wi-chk" ${String(r.boss)==='1'?'checked':''} onchange="giBoss(${i},this.checked)"></td>`:''}
+    <td><button class="wi-x" title="เอาออก" onclick="giDel(${i})">✕</button></td></tr>`).join('');
+  box.innerHTML=`<div class="wi-box"><div class="wi-h"><span class="n">1</span>ผลนัด <span class="wi-st">${G.exists?'● มีนัดนี้แล้ว — กำลังแก้':'○ นัดใหม่'}</span></div>
+    <div class="wi-row"><label class="wi-f"><span>วันที่</span><input type="date" value="${G.date}" onchange="giDate(this.value)"></label>
+      <div class="wi-f"><span>สนาม</span>${seg(GL_LEAGUES.map(l=>[l,l]),G.league,v=>`giPick_('league','${v}')`)}</div></div>
+    <div class="wi-row"><div class="wi-f"><span>ลีก</span>${seg([['Y','ข้ามเซิร์ฟ'],['N','ในเซิร์ฟ']],G.cross,v=>`giPick_('cross','${v}')`)}</div>
+      <label class="wi-f" style="width:200px"><span>อันดับ (tier)</span><select onchange="giSet('rank',this.value)"><option value="">—</option>${tiers.map(t=>`<option${t===G.rank?' selected':''}>${esA_(t)}</option>`).join('')}</select></label>
+      <label class="wi-f" style="flex:1;min-width:160px"><span>คู่แข่ง</span><input value="${esA_(G.opp)}" oninput="giSet('opp',this.value)"></label></div>
+    <div class="wi-row"><div class="wi-f"><span>สกอร์ (เรา : เขา)</span><div class="wi-score"><input inputmode="numeric" value="${esA_(G.our)}" oninput="giSet('our',this.value)"><b>:</b><input inputmode="numeric" value="${esA_(G.their)}" oninput="giSet('their',this.value)"></div></div>
+      <div class="wi-f"><span>ผล</span>${seg([['Win','Win'],['Lose','Lose'],['','ยังไม่รู้']],G.status,v=>`giPick_('status','${v}')`)}</div></div>
+    <div class="wi-calc" id="gi-diff">${giDiffTxt_()}</div>
+    <label class="wi-f" style="margin-top:10px"><span>หมายเหตุ</span><input value="${esA_(G.note)}" oninput="giSet('note',this.value)"></label></div>
+  <div class="wi-box"><div class="wi-h"><span class="n">2</span>สกอร์รายคน <span class="wr-f">(ไม่บังคับ · บันทึกเฉพาะสนามย่อยที่แก้)</span></div>
+    <div class="wi-row"><div class="wi-f"><span>สนามย่อย</span>${seg([['Elite',`Elite · ${cnt('Elite')}`],['Sub-battle',`Sub-battle · ${cnt('Sub-battle')}`]],G.field,v=>`giField('${v}')`)}</div>
+      <span class="wi-st">${S.had?'● มีสกอร์เดิม':'รายชื่อดึงจากหน้าปาร์ตี้'}${S.touched?' · แก้แล้ว':''}</span></div>
+    ${G.league?'':'<div class="wi-warn">เลือกสนามก่อน ช่องกรอกจะเปลี่ยนตามสนาม</div>'}
+    ${G.league&&G.league!=='Stellar Clash'?'<div class="wi-warn">'+esc_(G.league)+' ยังไม่รู้หัวคอลัมน์เฉพาะสนาม — กรอกได้แค่ ฆ่า · ช่วย · ตาย · คะแนน</div>':''}
+    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th>ชื่อ</th>${cols.map(c=>`<th>${c[1]}</th>`).join('')}${boss?'<th title="ลาสบอสตัวสุดท้าย">💀</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn btn-ghost" onclick="giAddRow()">+ เพิ่มคน</button><span class="wi-calc">รวมฆ่า <b id="gi-kill">${giKill_()}</b> — เทียบกับยอด "เอาชนะ" ท้ายตารางในเกม</span></div>
+    <div class="wi-foot"><span class="sp">คนที่ไม่มีตัวเลขเลยจะไม่ถูกบันทึก</span>
+      <button class="btn btn-ghost" onclick="giLoad_(_gi.date);renderGlInput()">ยกเลิก</button>
+      <button class="btn wi-save" ${G.busy?'disabled':''} onclick="giSave()">${G.busy?'กำลังบันทึก…':'💾 บันทึก'}</button></div></div>`;
+}
+function giPick_(k,v){ if(k==='status')_gi.stAuto=false; if(k==='cross'&&_gi.cross!==v)_gi.rank=''; _gi[k]=v; renderGlInput(); }
+async function giSave(){
+  const G=_gi; if(!G||G.busy)return;
+  const scores=['Elite','Sub-battle'].filter(f=>G.sc[f].touched).map(f=>{
+    const keys=giKeys_(G.league,f);
+    return {field:f,rows:G.sc[f].rows.filter(r=>String(r.name).trim()&&giHasData_(r,keys))
+      .map(r=>{const o={name:String(r.name).trim()}; keys.forEach(k=>o[k]=r[k]); return o;})};
+  });
+  /* สนามย่อยที่ไม่มีตัวเลขเลย ฝั่งเซิร์ฟเวอร์จะข้าม ไม่ลบของเดิม */
+  G.busy=true;renderGlInput();admBusy_(true);
+  try{
+    const res=await admCall('admGlSave',{date:G.date,league:G.league,cross:G.cross,rank:G.rank,opp:G.opp,our:G.our,their:G.their,status:G.status,note:G.note,scores});
+    toast(`บันทึก Guild League ${res.date} แล้ว`+(res.scores?` · สกอร์ ${res.scores} คน`:'')+((res.missing||[]).length?` · ⚠ ไม่พบ id: ${res.missing.join(', ')}`:''),null,(res.missing||[]).length>0);
+    const d=G.date; _gi=null;
+    await warReload_(); giLoad_(d); renderGlInput();
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); if(_gi){_gi.busy=false;renderGlInput();} }
+  finally{ admBusy_(false); }
 }
 
 /* ── Rewards ── ตารางรางวัลจาก Rewards_Ref
@@ -3443,7 +3723,7 @@ async function forceRefresh(){
   _bust=String(Date.now());
 
   _aucLoaded=false;_aucLoadPromise=null;
-  _warLoaded=false;_warLoadPromise=null;_glLog=[];_orRank=[];
+  _warLoaded=false;_warLoadPromise=null;_glLog=[];_orRank=[];_glScore=[];
   _aucQueue=[];_aucHelpers=[];_aucRewardsRef=[];_warLog=[];
   _aucQueueArchive=[];_aucArchiveLoaded=false;_aucArchiveLoadPromise=null;
   _aucQueueRows=[];
