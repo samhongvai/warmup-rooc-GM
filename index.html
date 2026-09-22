@@ -525,6 +525,19 @@ input[type=checkbox]{accent-color:var(--teal)}
 .qs-pend{background:var(--t-peach);color:var(--t-peach-i);border:0}
 .qs-skip{background:var(--t-pink);color:var(--t-pink-i);border:0}
 .qs-dup{background:var(--soft);color:var(--muted);border:1px solid var(--border)}
+/* ── distribution: Done ── */
+.au-tbl tr.dd-done td{background:var(--green-dim)}
+.au-tbl tr.dd-done td.dd-nm span,.au-tbl tr.dd-done td.dd-sl{color:var(--faint)}
+.au-tbl tr.dd-done td.dd-nm span{text-decoration:line-through}
+.dd-ok{font-size:10.5px;font-weight:800;color:var(--green);border:1px solid var(--green-b);border-radius:999px;padding:1px 8px;margin-left:8px;white-space:nowrap;font-style:normal}
+.au-tbl tr.dd-next td:first-child{box-shadow:inset 3px 0 0 var(--orange)}
+.dd-nx{font-size:10.5px;font-weight:800;color:var(--orange);background:var(--orange-dim);border-radius:999px;padding:1px 8px;margin-left:8px;white-space:nowrap}
+.dd-st{font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}.dd-st.y{color:var(--green)}
+.dd-act{text-align:right;white-space:nowrap;width:1%}
+.dd-act button{border:1px solid var(--green-b);background:var(--card);color:var(--green);border-radius:8px;padding:3px 10px;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.dd-act button:hover{background:var(--green);color:#fff}
+.dd-act button.u{border-color:var(--border2);color:var(--muted)}
+.dd-act button.u:hover{background:var(--card2);color:var(--text)}
 /* ── rewards ── */
 .rw-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:14px}
 .rw-tab{white-space:nowrap;border:0;background:none;font:inherit;padding:8px 14px;font-weight:700;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer}
@@ -1028,7 +1041,7 @@ body.adm-busy .adm-btn,body.adm-busy .qm-act button{pointer-events:none;opacity:
         <span class="au-hint" id="auc-per-person-summary">—</span></div>
       <div class="au-sec-b">
         <div class="au-tblx"><table class="au-tbl">
-          <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th></tr></thead>
+          <thead><tr><th style="width:30px">#</th><th>Name</th><th>Card Slot</th><th>White</th><th>Red / Black</th><th class="dd-act" id="auc-dist-th">สถานะ</th></tr></thead>
           <tbody id="auc-dist-tbody"><tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล</td></tr></tbody>
         </table></div>
       </div>
@@ -1772,20 +1785,31 @@ function getPendingQueue(){
     .sort((a,b)=>String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0)));
 }
 
+/* คิวของตารางแจก = คนที่ดึงไปแล้ววันนี้ (done · drawn_date = วันนี้) + คนที่รอ
+   คนที่กด Done แล้วยังอยู่ที่ตำแหน่งเดิม — หน้า/ช่องของคนอื่นจึงไม่เลื่อน */
+function getDistQueue_(){
+  const today=auISO_(new Date());
+  const isDoneToday=r=>String(r.status||'').toLowerCase()==='done'&&String(r.drawn_date||'')===today;
+  /* คิวซ้ำที่เพิ่งคืนเป็น pending ของคนที่ดึงไปแล้ววันนี้ — ไปประมูลรอบถัดไป ไม่เข้ารอบนี้ (กันได้ 2 ครั้ง + กันช่องคนอื่นเลื่อน) */
+  const doneIds=new Set(_aucQueue.filter(isDoneToday).map(r=>String(r.character_id||'').trim()).filter(Boolean));
+  return _aucQueue
+    .filter(r=>{const st=String(r.status||'').toLowerCase();return isDoneToday(r)||(st==='pending'&&!doneIds.has(String(r.character_id||'').trim()))})
+    .sort((a,b)=>String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0)));
+}
 function computeDistribution(){
   const rw=getRewardValues();
   if(!rw)return null;
-  const pend=getPendingQueue();
+  const pend=getDistQueue_();
   const n=Math.min(rw.card,pend.length);
   if(!n)return null;
-  const names=pend.slice(0,n).map(r=>r.member_name);
+  const picked=pend.slice(0,n), names=picked.map(r=>r.member_name);
   const white=rw.white,red=rw.red;
   const pW=capPerPerson_(_aucPerPersonOverrides.white!=null?_aucPerPersonOverrides.white:Math.floor(white/n), rw.limWhite);
   const pR=capPerPerson_(_aucPerPersonOverrides.red!=null?_aucPerPersonOverrides.red:Math.floor(red/n), rw.limRed);
   const wRem=white-n*pW, rRem=red-n*pR;
   let wPos=1,rPos=white+1;
   const rows=names.map((name,i)=>{
-    const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos};
+    const row={name,cardSlot:i+1,white:pW,red:pR,wStart:wPos,rStart:rPos,q:picked[i],done:String(picked[i].status||'').toLowerCase()==='done'};
     wPos+=pW;rPos+=pR;return row;
   });
   return {rows,card:n,cardTarget:rw.card,white,red,wRem,rRem,n,pW,pR,wOverflow:wRem<0,rOverflow:rRem<0};
@@ -2136,35 +2160,44 @@ function auKbox_(lb,a,b,rem,over){
 }
 
 function renderDistribution(){
-  const dist=(_aucMode==='wait'||_aucMode==='done')?null:computeDistribution();
+  const dist=(_aucMode==='wait')?null:computeDistribution();
+  const th=document.getElementById('auc-dist-th'); if(th)th.textContent=ADMIN?'จัดการ':'สถานะ';
   const tbody=document.getElementById('auc-dist-tbody');
   const perSum=document.getElementById('auc-per-person-summary');
   if(!tbody)return;
   if(!dist){
     if(_aucMode==='wait'||_aucMode==='done'){
+      if(th)th.textContent='';
       var q=auUpcomingQueue_();
       if(perSum)perSum.textContent=q.length?('คิวรอบถัดไป · '+q.length+' คน'):'—';
       tbody.innerHTML=q.length
         ? q.map(function(r,i){return '<tr><td style="color:var(--faint);font-size:11px">'+(i+1)+'</td>'
             +'<td style="font-weight:500">'+(r.member_name||'')+'</td>'
-            +'<td colspan="3" style="color:var(--faint);font-size:11px">'+(r.queue_date||'')+' · คิวที่ '+(r.position||'')+'</td></tr>'}).join('')
-        : '<tr><td colspan="5" class="au-empty2">ยังไม่มีคิวที่รอประมูล</td></tr>';
+            +'<td colspan="4" style="color:var(--faint);font-size:11px">'+(r.queue_date||'')+' · คิวที่ '+(r.position||'')+'</td></tr>'}).join('')
+        : '<tr><td colspan="6" class="au-empty2">ยังไม่มีคิวที่รอประมูล</td></tr>';
     }else{
       if(perSum)perSum.textContent='—';
-      tbody.innerHTML='<tr><td colspan="5" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
+      tbody.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
     }
     renderLeftover();
     return;
   }
-  if(perSum)perSum.textContent=`${dist.n} คน · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
+  const nDone=dist.rows.filter(r=>r.done).length;
+  if(perSum)perSum.textContent=`ดึงแล้ว ${nDone}/${dist.n} · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
+  _distRows=dist.rows;
+  const nextI=dist.rows.findIndex(r=>!r.done);
   tbody.innerHTML=dist.rows.map((r,i)=>{
-    const card=_toPageBox(r.cardSlot);
-    return `<tr>
+    const card=_toPageBox(r.cardSlot), nx=i===nextI&&nDone>0;
+    const act=ADMIN
+      ?(r.done?`<button class="u" title="ย้อนเป็นรอ" onclick="distDone(${i},false)">↺</button>`:`<button onclick="distDone(${i},true)">✓ Done</button>`)
+      :(r.done?'<span class="dd-st y">✓ ดึงแล้ว</span>':'<span class="dd-st">รอ</span>');
+    return `<tr class="${r.done?'dd-done':''}${nx?' dd-next':''}">
       <td style="color:var(--faint);font-size:11px">${i+1}</td>
-      <td style="font-weight:500">${r.name}</td>
-      <td>Page${card.page}(${card.box})</td>
-      <td>${fmtSlots(r.wStart,r.white)}</td>
-      <td>${fmtSlots(r.rStart,r.red)}</td>
+      <td class="dd-nm" style="font-weight:500"><span>${r.name}</span>${r.done&&ADMIN?'<em class="dd-ok">✓ ดึงแล้ว</em>':''}${nx?'<span class="dd-nx">คนถัดไป</span>':''}</td>
+      <td class="dd-sl">Page${card.page}(${card.box})</td>
+      <td class="dd-sl">${fmtSlots(r.wStart,r.white)}</td>
+      <td class="dd-sl">${fmtSlots(r.rStart,r.red)}</td>
+      <td class="dd-act">${act}</td>
     </tr>`;
   }).join('');
   const w=document.getElementById('lo-w'), rr=document.getElementById('lo-r');
@@ -2355,11 +2388,26 @@ async function qmSet(i,status,reason){
   toast(r.member_name+' → '+qsInfo_(status).label+(reason?' · '+reason:''),
         ()=>admRowStatus_(r,String(before.status).toLowerCase(),oldWhy.trim()));
 }
+/* คิวซ้ำที่สคริปต์คืนเป็น pending / กลับเป็น duplicate — อัปเดตในเครื่องให้ตรงชีท */
+function admApplyDups_(dups){
+  (dups||[]).forEach(d=>{
+    const q=_aucQueue.find(x=>x.queue_date===d.date&&String(x.position)===String(d.pos)&&String(x.character_id||'').trim()===String(d.id));
+    if(q)q.status=d.status;
+  });
+}
+let _distRows=[];
+async function distDone(i,on){
+  const r=_distRows[i]&&_distRows[i].q; if(!r||!ADMIN)return;
+  const ok=await admRowStatus_(r,on?'done':'pending');
+  if(ok)toast(r.member_name+(on?' ดึงแล้ว':' ย้อนเป็นรอ'));
+}
 async function admRowStatus_(r,status,reason){
   admBusy_(true);
   try{
     const res=await admCall('admSetQueueStatus',qmKey_(r),status,reason||'');
     r.status=res.status; r.drawn_date=res.drawn_date; r.note=res.note;
+    admApplyDups_(res.dups);
+    if((res.dups||[]).length)toast('คิวซ้ำของ '+r.member_name+' → '+res.dups[0].status+' ('+res.dups.map(d=>d.date.slice(5)+' #'+d.pos).join(', ')+')');
     _qmSkipIdx=-1;
     aucAfterQueueChange_();
     return true;
@@ -2380,6 +2428,7 @@ async function qmBulk(){
     const res=await admCall('admBulkDone',rows.map(qmKey_));
     const hit=new Set((res.done||[]).map(k=>k.date+'#'+k.pos+'#'+k.id));
     rows.forEach(r=>{ const k=qmKey_(r); if(hit.has(k.date+'#'+k.pos+'#'+k.id)){ r.status='done'; r.drawn_date=res.date; } });
+    admApplyDups_(res.dups);
     _qmBulkN=null;
     aucAfterQueueChange_();
     toast('มาร์ค Done '+(res.done||[]).length+' คิวแล้ว'+((res.skipped||[]).length?' · ข้าม '+res.skipped.length+' แถว':''));
