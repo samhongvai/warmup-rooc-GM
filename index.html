@@ -538,6 +538,21 @@ input[type=checkbox]{accent-color:var(--teal)}
 .dd-act button:hover{background:var(--green);color:#fff}
 .dd-act button.u{border-color:var(--border2);color:var(--muted)}
 .dd-act button.u:hover{background:var(--card2);color:var(--text)}
+/* ── admin: shuffle ── */
+.shf{background:var(--card);border:1px solid var(--border2);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.shf-h{padding:12px 16px;border-bottom:1px solid var(--border);font-weight:800;font-size:15px}
+.shf-b{padding:14px 16px;display:grid;gap:12px;font-size:13px}
+.shf-f{padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--card2)}
+.shf-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.shf-row input[type=date]{border:1px solid var(--border2);border-radius:8px;padding:5px 10px;font:inherit;background:var(--card);color:var(--text)}
+.shf-st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.shf-st div{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.shf-st b{display:block;font-size:19px;font-family:var(--font-pixel)}
+.shf-st span{font-size:11.5px;color:var(--muted)}
+.shf-info{background:var(--blue-dim);border:1px solid var(--blue-b);border-radius:10px;padding:9px 12px;color:var(--blue);line-height:1.65;font-size:12.5px}
+.shf-warn{background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:10px;padding:9px 12px;color:var(--orange);font-size:12.5px}
+.shf-err{background:var(--red-dim);border:1px solid var(--red-b);border-radius:10px;padding:9px 12px;color:var(--red);font-size:12.5px}
+.adm-btn.go{background:var(--green);border-color:var(--green);color:#fff}
 /* ── rewards ── */
 .rw-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:14px}
 .rw-tab{white-space:nowrap;border:0;background:none;font:inherit;padding:8px 14px;font-weight:700;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer}
@@ -2358,7 +2373,9 @@ function qmCuts_(){
 /* ── admin: แถบบนแท็บ Queue ── */
 function renderAdmQueueBar_(line){
   const el=document.getElementById('adm-qbar'); if(!el)return;
-  if(!ADMIN||!line){el.innerHTML='';return}
+  if(!ADMIN){el.innerHTML='';return}
+  const shfBtn='<button class="adm-btn pri" onclick="shfOpen()">🎲 สุ่มคิวรอบใหม่</button>';
+  if(!line){el.innerHTML=(_shf?shfPanel_():'')+`<div class="adm-qbar"><span>จัดการคิว</span><span class="sp"></span>${shfBtn}</div>`;return}
   const dist=computeDistribution();
   const suggest=dist&&_aucMode==='live'?dist.n:((getRewardValues()||{}).card||0);
   if(_qmBulkN==null)_qmBulkN=suggest||0;
@@ -2367,8 +2384,65 @@ function renderAdmQueueBar_(line){
     <input id="qm-bulk-n" inputmode="numeric" value="${_qmBulkN}" oninput="_qmBulkN=parseInt(this.value,10)||0">
     ${suggest?`<span style="color:var(--faint);font-size:12px">วันนี้แจก ${suggest} คน</span>`:''}
     <span class="sp"></span>
-    <button class="adm-btn ${_qmBulkArm?'arm':'pri'}" onclick="qmBulk()">${_qmBulkArm?'กดอีกครั้งเพื่อยืนยัน '+_qmBulkN+' คน':'✓ บันทึก Done'}</button>
+    <button class="adm-btn ${_qmBulkArm?'arm':''}" onclick="qmBulk()">${_qmBulkArm?'กดอีกครั้งเพื่อยืนยัน '+_qmBulkN+' คน':'✓ บันทึก Done'}</button>
+    ${shfBtn}
   </div>`;
+  if(_shf)el.insertAdjacentHTML('afterbegin',shfPanel_());
+}
+
+/* ── admin: สุ่มคิวรอบใหม่ — สุ่มฝั่งเซิร์ฟเวอร์ ครั้งเดียว ไม่มีพรีวิวลำดับ ── */
+let _shf=null;
+function shfRerender_(){ renderAdmQueueBar_(document.getElementById('qm-round').value==='__line__'); }
+async function shfOpen(date){
+  _shf={date:date||auISO_(new Date()),loading:true,ok:false,info:null,err:''};
+  shfRerender_();
+  try{ _shf.info=await admCall('admShufflePreview',_shf.date); }
+  catch(e){ _shf.err=String(e); }
+  _shf.loading=false; shfRerender_();
+}
+function shfClose(){ _shf=null; shfRerender_(); }
+function shfPanel_(){
+  const f=_shf, i=f.info;
+  const thai=d=>{try{return auThai_(d)}catch(e){return d}};
+  let body='';
+  if(f.loading) body='<div style="color:var(--muted)">กำลังตรวจข้อมูลคิว…</div>';
+  else if(f.err) body=`<div class="shf-err">${f.err}</div>`;
+  else if(i){
+    body=`<div class="shf-st">
+        <div><b>${i.eligible}</b><span>เข้าคิวรอบนี้</span></div>
+        <div><b>${i.pending}</b><span>ยังค้างรอบเก่า (pending)</span></div>
+        <div><b>≈${i.dup}</b><span>จะเป็น duplicate</span></div></div>
+      <div class="shf-info">• ไม่เข้าคิว: ${i.exclude.join(', ')||'—'}<br>
+        • คนที่ยังถือคิวค้าง → แถวรอบใหม่เป็น <b>duplicate</b> · พอคิวเก่า Done ค่อยคืนเป็น pending<br>
+        • ย้ายเข้า Queue_Archive ก่อนสุ่ม: <b>${i.archiveDates.length?i.archiveDates.join(', '):'ไม่มี'}</b>
+        ${i.openDates.length?'<br>• ยังเปิดอยู่: '+i.openDates.join(' · '):''}</div>
+      ${i.exists?`<div class="shf-err">มีรอบวันที่ ${i.date} อยู่แล้ว — เลือกวันอื่น</div>`:''}
+      <div class="shf-warn">⚠️ สุ่มได้ครั้งเดียว ไม่มีดูลำดับก่อน · บันทึกเวลาและคนกดใน _Admin_Log</div>
+      <label class="shf-row"><input type="checkbox" ${f.ok?'checked':''} onchange="_shf.ok=this.checked;shfRerender_()"> ตรวจแล้ว ยืนยันสุ่มรอบ ${i.date}</label>`;
+  }
+  const can=i&&!i.exists&&f.ok&&!f.loading;
+  return `<div class="shf"><div class="shf-h">🎲 สุ่มคิวรอบใหม่</div>
+    <div class="shf-b"><div class="shf-row"><b>วันที่รอบ</b><input type="date" value="${f.date}" onchange="shfOpen(this.value)"><span style="color:var(--faint);font-size:12px">ค่าเริ่มต้น = วันนี้</span></div>${body}</div>
+    <div class="shf-f"><button class="adm-btn" onclick="shfClose()">ยกเลิก</button><button class="adm-btn go" onclick="shfGo()"${can?'':' disabled'}>🎲 สุ่มเลย</button></div></div>`;
+}
+async function shfGo(){
+  const f=_shf; if(!f||!f.info||f.info.exists||!f.ok)return;
+  admBusy_(true);
+  try{
+    const res=await admCall('admShuffle',f.date);
+    _shf=null;
+    toast('สุ่มรอบ '+res.date+' แล้ว · '+res.count+' คิว · duplicate '+res.dup+(res.archived&&res.archived.dates.length?' · ย้าย '+res.archived.dates.join(', ')+' เข้า Archive':''));
+    await forceRefresh();
+  }catch(e){ toast('สุ่มไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
+}
+/* เปิดหน้าแอดมิน — ย้ายรอบที่จบแล้วเข้า Archive (ข้ามรอบที่มีคนดึงวันนี้ / คิวซ้ำ) */
+async function admAutoArchive_(){
+  if(!ADMIN)return;
+  try{
+    const r=await admCall('admAutoArchive');
+    if(r&&r.dates&&r.dates.length){ toast('ย้ายรอบ '+r.dates.join(', ')+' เข้า Archive แล้ว ('+r.rows+' แถว)'); forceRefresh(); }
+  }catch(e){ console.warn('auto archive',e); }
 }
 
 function qmKey_(r){ return {date:r.queue_date,pos:String(r.position),id:String(r.character_id||'').trim()}; }
@@ -2512,6 +2586,7 @@ function admInit_(){
     if(link){ link.style.display=''; link.href=SITE_URL; }
     if(t)t.textContent='Admin · ออก';
     const rb=document.getElementById('adm-ribbon');
+    setTimeout(admAutoArchive_,4000);
     if(rb)rb.innerHTML=`<div class="adm-rib"><span>🟢 <b>โหมดแอดมิน</b> · ${ADMIN.email||''}</span>
       <span style="color:var(--faint);font-size:12px">ทุกการแก้บันทึกลงชีท + เก็บประวัติใน _Admin_Log</span>
       <span class="sp"></span><a href="${SITE_URL}" target="_top">ออกจากโหมดแอดมิน</a></div>`;
