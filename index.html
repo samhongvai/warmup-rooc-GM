@@ -3103,10 +3103,10 @@ function peTop_(){
       <button class="adm-btn" onclick="peResetAttend()" title="ล้างการลาทั้งหมด">🌙 All present</button>
       ${n?'<button class="adm-btn" onclick="peCancel()">Cancel</button>':''}
       <button class="adm-btn pri" onclick="peSave()"${n?'':' disabled'}>💾 Save${n?' ('+n+')':''}</button></div>
-    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา / กดอีกครั้ง = มา</span><span>⇄ เลือกคนนี้ แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span></div>
+    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา / กดอีกครั้ง = มา</span><span>⇄ เลือกคนนี้ แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span><span>กดชื่อในกล่องข้างล่างเพื่อเลือกคนที่ยังไม่ได้จัดตี้</span></div>
     ${_pe.swp?`<div class="pe-hint">⇄ เลือก <b>Party ${_pe.swp}</b> แล้ว — กด ⇄ ที่หัวตี้ที่จะสลับด้วย · กดตี้เดิมอีกครั้งเพื่อยกเลิก</div>`:''}
     ${sel?`<div class="pe-hint">⇄ เลือก <b>${esc_(sel)}</b> แล้ว — กดชื่อคนในตี้อื่นเพื่อสลับ · กดช่องว่างเพื่อย้าย · กด ⇄ อีกครั้งเพื่อยกเลิก</div>`:''}
-    ${pool.length?`<div class="pe-pool"><b>ยังไม่ได้จัดเข้าตี้</b> (${pool.length})<br>${pool.map(m=>{const q=esc_(m.ign).replace(/'/g,"\\'");return `<span class="chip${sel===m.ign?' pe-sel':''}" onclick="peTap('${q}')">${esc_(m.ign)}</span>`}).join('')}</div>`:''}`;
+    ${pool.length?`<div class="pe-pool"><b>ยังไม่ได้จัดเข้าตี้</b> (${pool.length})<br>${pool.map(m=>{const q=esc_(m.ign).replace(/'/g,"\\'");return `<span class="chip${sel===m.ign?' pe-sel':''}" onclick="pePool('${q}')">${esc_(m.ign)}</span>`}).join('')}</div>`:''}`;
 }
 function peLeader(p,name){
   peBegin_();
@@ -3150,6 +3150,13 @@ function peSwapParty(p){
   _pe.swp=null; toast(`สลับทั้งตี้ Party ${a} ⇄ Party ${b} แล้ว · กด Save เพื่อบันทึก`); renderParty();
 }
 function pePick(name){ _pe.sel=_pe.sel===name?null:name; renderParty(); }
+/* ชิปในกล่อง "ยังไม่ได้จัดเข้าตี้" — กดครั้งแรกคือเลือกคนนั้น ไม่ใช่สลับ
+   เลือกแล้วไปกดช่องว่างเพื่อย้ายเข้าตี้ หรือกดชื่อคนในตี้เพื่อสลับกัน */
+function pePool(name){
+  const cur=_pe.sel?peFind_(_pe.sel):null;
+  if(!cur||cur.ign===name||!cur.party){ pePick(name); return; }
+  peTap(name);
+}
 function peTap(name){
   if(!_pe.sel||_pe.sel===name){ if(_pe.sel===name){_pe.sel=null;renderParty();} return; }
   const a=peFind_(_pe.sel), b=peFind_(name); if(!a||!b)return;
