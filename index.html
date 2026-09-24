@@ -161,6 +161,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .party-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
 @media(max-width:1500px){.party-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:700px){.party-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.party-grid{grid-template-columns:1fr}.pm-name{font-size:13px}}
 .pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)}
 .pc-head{padding:10px 13px;display:flex;justify-content:space-between;align-items:center;background:var(--card2);border-bottom:3px solid}
 .ph-main{border-bottom-color:var(--orange)}
@@ -559,6 +560,7 @@ body.is-admin #party-content .pm .pm-tag{display:none}
 .pe-empty.pe-cand{cursor:pointer;color:var(--blue)}
 .pe-warn{font-size:10px;font-weight:800;color:var(--red);background:var(--red-dim);border:1px solid var(--red-b);border-radius:999px;padding:1px 7px;margin-left:6px}
 .pe-pool{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:10px 12px;margin:8px 0 14px;font-size:12.5px}
+.pe-pool small{color:var(--faint);font-size:11.5px;font-weight:500}
 .pe-pool .chip{display:inline-block;border:1px solid var(--border2);border-radius:999px;padding:3px 10px;margin:6px 4px 0 0;background:var(--bg);cursor:pointer}
 .pe-pool .chip.pe-sel{border-color:var(--orange);color:var(--orange)}
 /* ── admin: shuffle ── */
@@ -2888,7 +2890,7 @@ function renderDistribution(){
         : '<tr><td colspan="6" class="au-empty2">ยังไม่มีคิวที่รอประมูล</td></tr>';
     }else{
       if(perSum)perSum.textContent='—';
-      tbody.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีคิวที่รอประมูล (status = pending)</td></tr>';
+      tbody.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีคิวที่รอประมูล</td></tr>';
     }
     renderLeftover();
     return;
@@ -3088,7 +3090,7 @@ function renderQueueManager(){
         <p>ข้ามคิว <b>${r.member_name||''}</b> เพราะ</p>
         <div class="qm-reasons">${QM_REASONS.map(x=>`<button class="${x===_qmReason?'on':''}" onclick="qmPick('${x}')">${x}</button>`).join('')}
           ${_qmReason==='อื่นๆ'?'<input id="qm-other" placeholder="พิมพ์เหตุผล">':''}</div>
-        <button class="adm-btn pri" onclick="qmConfirmSkip(${i})">ยืนยัน Skip</button>
+        <button class="adm-btn pri" onclick="qmConfirmSkip(${i})">ยืนยันข้ามคิว</button>
         <button class="adm-btn" onclick="_qmSkipIdx=-1;renderQueueManager()">ยกเลิก</button>
       </div></td></tr>`;
     }
@@ -3114,11 +3116,11 @@ function renderAdmQueueBar_(line){
   const suggest=dist&&_aucMode==='live'?dist.n:((getRewardValues()||{}).card||0);
   if(_qmBulkN==null)_qmBulkN=suggest||0;
   el.innerHTML=`<div class="adm-qbar">
-    <span>ประมูลเสร็จแล้ว — มาร์ค <b>Done</b> ลำดับ 1 ถึง</span>
+    <span>ประมูลเสร็จแล้ว บันทึกว่าดึงแล้วตั้งแต่คิว 1 ถึง</span>
     <input id="qm-bulk-n" inputmode="numeric" value="${_qmBulkN}" oninput="_qmBulkN=parseInt(this.value,10)||0">
     ${suggest?`<span style="color:var(--faint);font-size:12px">วันนี้แจก ${suggest} คน</span>`:''}
     <span class="sp"></span>
-    <button class="adm-btn ${_qmBulkArm?'arm':''}" onclick="qmBulk()">${_qmBulkArm?'กดอีกครั้งเพื่อยืนยัน '+_qmBulkN+' คน':'✓ บันทึก Done'}</button>
+    <button class="adm-btn ${_qmBulkArm?'arm':''}" onclick="qmBulk()">${_qmBulkArm?'กดอีกครั้งเพื่อยืนยัน '+_qmBulkN+' คน':'✓ บันทึก'}</button>
     ${shfBtn}
   </div>`;
   if(_shf)el.insertAdjacentHTML('afterbegin',shfPanel_());
@@ -3140,10 +3142,10 @@ function peTop_(){
       <button class="adm-btn" onclick="peResetAttend()" title="ล้างการลาทั้งหมด">🌙 All present</button>
       ${n?'<button class="adm-btn" onclick="peCancel()">Cancel</button>':''}
       <button class="adm-btn pri" onclick="peSave()"${n?'':' disabled'}>💾 Save${n?' ('+n+')':''}</button></div>
-    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา / กดอีกครั้ง = มา</span><span>⇄ เลือกคนนี้ แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span><span>กดชื่อในกล่องข้างล่างเพื่อเลือกคนที่ยังไม่ได้จัดตี้</span></div>
+    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา · กดซ้ำเพื่อยกเลิก</span><span>⇄ เลือกคน แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span></div>
     ${_pe.swp?`<div class="pe-hint">⇄ เลือก <b>Party ${_pe.swp}</b> แล้ว — กด ⇄ ที่หัวตี้ที่จะสลับด้วย · กดตี้เดิมอีกครั้งเพื่อยกเลิก</div>`:''}
     ${sel?`<div class="pe-hint">⇄ เลือก <b>${esc_(sel)}</b> แล้ว — กดชื่อคนในตี้อื่นเพื่อสลับ · กดช่องว่างเพื่อย้าย · กด ⇄ อีกครั้งเพื่อยกเลิก</div>`:''}
-    ${pool.length?`<div class="pe-pool"><b>ยังไม่ได้จัดเข้าตี้</b> (${pool.length})<br>${pool.map(m=>{const q=esc_(m.ign).replace(/'/g,"\\'");return `<span class="chip${sel===m.ign?' pe-sel':''}" onclick="pePool('${q}')">${esc_(m.ign)}</span>`}).join('')}</div>`:''}`;
+    ${pool.length?`<div class="pe-pool"><b>ยังไม่ได้จัดเข้าตี้</b> (${pool.length}) <small>กดชื่อเพื่อเลือก แล้วกดช่องว่างในตี้</small><br>${pool.map(m=>{const q=esc_(m.ign).replace(/'/g,"\\'");return `<span class="chip${sel===m.ign?' pe-sel':''}" onclick="pePool('${q}')">${esc_(m.ign)}</span>`}).join('')}</div>`:''}`;
 }
 function peLeader(p,name){
   peBegin_();
@@ -3263,14 +3265,14 @@ function shfPanel_(){
   else if(i){
     body=`<div class="shf-st">
         <div><b>${i.eligible}</b><span>เข้าคิวรอบนี้</span></div>
-        <div><b>${i.pending}</b><span>ยังค้างรอบเก่า (pending)</span></div>
-        <div><b>≈${i.dup}</b><span>จะเป็น duplicate</span></div></div>
+        <div><b>${i.pending}</b><span>ยังค้างคิวรอบเก่า</span></div>
+        <div><b>≈${i.dup}</b><span>จะกลายเป็นคิวซ้ำ</span></div></div>
       <div class="shf-info">• ไม่เข้าคิว: ${i.exclude.join(', ')||'—'}<br>
-        • คนที่ยังถือคิวค้าง → แถวรอบใหม่เป็น <b>duplicate</b> · พอคิวเก่า Done ค่อยคืนเป็น pending<br>
+        • คนที่ยังถือคิวค้าง คิวรอบใหม่จะเป็นคิวซ้ำ พอประมูลคิวเก่าแล้วระบบคืนให้เอง<br>
         • ย้ายเข้า Queue_Archive ก่อนสุ่ม: <b>${i.archiveDates.length?i.archiveDates.join(', '):'ไม่มี'}</b>
         ${i.openDates.length?'<br>• ยังเปิดอยู่: '+i.openDates.join(' · '):''}</div>
       ${i.exists?`<div class="shf-err">มีรอบวันที่ ${i.date} อยู่แล้ว — เลือกวันอื่น</div>`:''}
-      <div class="shf-warn">⚠️ สุ่มได้ครั้งเดียว ไม่มีดูลำดับก่อน · บันทึกเวลาและคนกดใน _Admin_Log</div>
+      <div class="shf-warn">⚠️ สุ่มได้ครั้งเดียว ดูลำดับก่อนไม่ได้ · ระบบบันทึกเวลาและคนกดไว้</div>
       <label class="shf-row"><input type="checkbox" ${f.ok?'checked':''} onchange="_shf.ok=this.checked;shfRerender_()"> ตรวจแล้ว ยืนยันสุ่มรอบ ${i.date}</label>`;
   }
   const can=i&&!i.exists&&f.ok&&!f.loading;
@@ -3284,7 +3286,7 @@ async function shfGo(){
   try{
     const res=await admCall('admShuffle',f.date);
     _shf=null;
-    toast('สุ่มรอบ '+res.date+' แล้ว · '+res.count+' คิว · duplicate '+res.dup+(res.archived&&res.archived.dates.length?' · ย้าย '+res.archived.dates.join(', ')+' เข้า Archive':''));
+    toast('สุ่มรอบ '+res.date+' แล้ว · '+res.count+' คิว · คิวซ้ำ '+res.dup+(res.archived&&res.archived.dates.length?' · ย้าย '+res.archived.dates.join(', ')+' เข้า Archive':''));
     await forceRefresh();
   }catch(e){ toast('สุ่มไม่สำเร็จ · '+e,null,true); }
   finally{ admBusy_(false); }
@@ -3366,7 +3368,7 @@ async function qmBulk(){
     admApplyDups_(res.dups);
     _qmBulkN=null;
     aucAfterQueueChange_();
-    toast('มาร์ค Done '+(res.done||[]).length+' คิวแล้ว'+((res.skipped||[]).length?' · ข้าม '+res.skipped.length+' แถว':''));
+    toast('บันทึกว่าดึงแล้ว '+(res.done||[]).length+' คิว'+((res.skipped||[]).length?' · ข้าม '+res.skipped.length+' แถว':''));
   }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
   finally{ admBusy_(false); }
 }
@@ -3445,7 +3447,7 @@ function admInit_(){
   if(ADMIN){
     document.body.classList.add('is-admin');
     if(link){ link.style.display=''; link.href=SITE_URL; link.onclick=()=>uiGo_(link,SITE_URL); }
-    if(t)t.textContent='Admin · ออก';
+    if(t)t.textContent='ออกจากโหมดแอดมิน';
     const rb=document.getElementById('adm-ribbon');
     setTimeout(admAutoArchive_,4000);
     setTimeout(admSkipLeavers_,9000);
@@ -3702,7 +3704,7 @@ const GR_UPDATED='2026-09-22';
 const GR_UPDATE=['Guild Helper เปลี่ยนเป็นทุกอังคาร + พฤหัส 21:00–22:00 หลังจบวอ','ประมูลจบแล้วไม่ต้องออกเกม'];
 const GR_DATA=[
   {id:'war',icon:'i-sword',title:'Guild War',sub:'วันและเวลาวอ',rules:[
-    {t:'วอทุก อังคาร · พฤหัส (Guild League) และ อาทิตย์ (Overrun)'},
+    {t:'วอทุกวันอังคารและพฤหัส (Guild League) · วันอาทิตย์ (Overrun)'},
     {t:'ตั้งตี้ให้เสร็จก่อน 19:50 · เข้าดิสคอร์ด 19:50'},
     {html:'ห้อง Guild League <span class="gr-chip">ELITE-01</span><span class="gr-chip">SUB-BATTLE</span> · ห้อง Overrun <span class="gr-chip">OVERRUN</span>'}]},
   {id:'leave',icon:'i-moon',title:'Leave',sub:'การลาและการขาด',rules:[
@@ -4094,7 +4096,7 @@ function renderRewardsPreview(){
     ${hero}
     <div class="rw-tbl"><table><thead><tr><th>Rank</th><th>Card</th><th>White</th><th>Red / Black</th><th class="lim lg">Light/Dark</th><th class="lim">Time/Space</th><th class="lim">Purple</th>${hasIll?'<th class="lim">Illusion</th>':''}</tr></thead>
     <tbody>${body||'<tr><td colspan="8" class="empty">ไม่พบข้อมูล</td></tr>'}</tbody></table></div>
-    <div class="rw-foot">${isGL?'<span>ตัวคูณ: ชนะ ×2 · แพ้สูสี ×1.5 · แพ้ห่าง ×1</span>':''}<span>Light/Dark – Illusion = ของจำกัด (ซ่อนบนมือถือ)</span></div>`;
+    <div class="rw-foot">${isGL?'<span>ตัวคูณ: ชนะ ×2 · แพ้สูสี ×1.5 · แพ้ห่าง ×1</span>':''}<span>Light/Dark ถึง Illusion คือของจำกัด · ซ่อนบนมือถือ</span></div>`;
 }
 
 function swAucTab(t){
