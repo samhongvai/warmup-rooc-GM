@@ -716,6 +716,10 @@ body.is-admin .wr-adm{display:inline-block}
 .ns-f{display:flex;gap:10px;align-items:center;padding:12px 18px;flex-wrap:wrap}
 .ns-f .sp{flex:1;font-size:12px;color:var(--faint)}
 .ns-lv{background:var(--card2);border-radius:10px;padding:8px 11px;font-size:12.5px;color:var(--muted);line-height:1.8}
+.mn-in{background:none;border:1px solid transparent;border-radius:7px;padding:3px 6px;font:inherit;font-size:13px;font-weight:600;color:var(--text);width:100%;max-width:190px}
+.mn-in:hover{border-color:var(--border2)}
+.mn-in:focus{border-color:var(--orange);outline:none;background:var(--card2)}
+.mn-in.chg{border-color:var(--amber);color:var(--amber)}
 .wh-st{font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px;border:1px solid;white-space:nowrap}
 .wh-st.p{color:var(--green);border-color:var(--green)}
 .wh-st.l{color:var(--amber);border-color:var(--amber)}
@@ -1601,7 +1605,7 @@ function renderMembers(){
     const gfBadge=fld?`<span class="gf gf-${fld==='Elite'?'e':'s'}">${fld}</span>`:'<span style="color:var(--faint)">—</span>';
     return`<tr>
       <td class="m-num">${i+1}</td>
-      <td style="font-weight:600">${m.ign}</td>
+      <td style="font-weight:600">${ADMIN?mnCell_(m):m.ign}</td>
       <td style="font-size:12px;color:var(--text)">${ADMIN?clsGlCell:clsGl}</td>
       <td style="font-size:12px">${ADMIN?clsOrCell:orHtml}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
@@ -1640,6 +1644,18 @@ async function msLoad_(){
   catch(e){ _msAll=[]; }
   finally{ _msBusy=false; }
 }
+/* เปลี่ยนชื่อตัวละคร — รหัสตัวละครไม่เปลี่ยน ชื่อเดิมถูกเก็บลง Alias ตอนบันทึก */
+let _mn={};
+function mnCell_(m){
+  const nq=esc_(m.ign).replace(/'/g,"\\'");
+  const v=_mn[m.ign]!=null?_mn[m.ign]:m.ign;
+  return `<input class="mn-in${_mn[m.ign]!=null?' chg':''}" value="${esA_(v)}" onchange="mnSet('${nq}',this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
+}
+function mnSet(name,v){
+  const nv=String(v||'').trim();
+  if(!nv||nv===name)delete _mn[name]; else _mn[name]=nv;
+  renderMembers();
+}
 function msSet(name,v){
   const m=msRows_().find(x=>x.ign===name); if(!m)return;
   if(String(m.status||'').trim().toUpperCase()===v)delete _ms[name]; else _ms[name]=v;
@@ -1671,27 +1687,31 @@ function ceBar_(){
   if(!ADMIN){ if(bar)bar.remove(); return; }
   if(!bar){bar=document.createElement('div');bar.id='ce-bar';tw.parentNode.insertBefore(bar,tw);}
   const list=Object.keys(_ce).flatMap(n=>Object.keys(_ce[n]).map(k=>`${esc_(n)} ${k==='gl'?'GL':'OR'} → ${esc_(_ce[n][k])}`))
-    .concat(Object.keys(_ms).map(n=>`${esc_(n)} → ${_ms[n]==='ARCHIVED'?'Archived':'Active'}`));
+    .concat(Object.keys(_ms).map(n=>`${esc_(n)} → ${_ms[n]==='ARCHIVED'?'Archived':'Active'}`))
+    .concat(Object.keys(_mn).map(n=>`${esc_(n)} → ${esc_(_mn[n])}`));
   bar.innerHTML=`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพที่ช่อง Class และเปลี่ยนสถานะที่ช่อง Status<span class="sp"></span>
     ${list.length?`<span class="pe-chg">แก้ไว้ ${list.length} ช่อง ยังไม่บันทึก</span><button class="adm-btn" onclick="ceCancel()">Cancel</button>`:''}
     <button class="adm-btn pri" onclick="ceSave()"${list.length?'':' disabled'}>💾 Save${list.length?' ('+list.length+')':''}</button></div>
     ${list.length?`<div class="pe-hint">${list.join(' · ')}</div>`:''}`;
 }
-function ceCancel(){_ce={};_ms={};renderMembers();}
+function ceCancel(){_ce={};_ms={};_mn={};renderMembers();}
 async function ceSave(){
   const ch=Object.keys(_ce).map(n=>({name:n,gl:_ce[n].gl||'',or:_ce[n].or||''}));
   const st=Object.keys(_ms).map(n=>({name:n,status:_ms[n]}));
-  if(!ch.length&&!st.length)return;
+  const rn=Object.keys(_mn).map(n=>({name:n,newName:_mn[n]}));
+  if(!ch.length&&!st.length&&!rn.length)return;
   admBusy_(true); toast('กำลังบันทึก… (10–20 วินาที)');
   try{
     let res={log:[],warn:[]};
     if(st.length){ const r1=await admCall('admStatusSave',st); res={log:r1.log||[],warn:r1.warn||[],members:r1.members}; if(r1.all)_msAll=r1.all; }
     if(ch.length){ const r2=await admCall('admClassSave',ch); res={log:res.log.concat(r2.log||[]),warn:res.warn.concat(r2.warn||[]),members:r2.members||res.members}; }
+    /* เปลี่ยนชื่อไว้ท้ายสุด เพราะคำสั่งอื่นอ้างชื่อเดิม */
+    if(rn.length){ const r3=await admCall('admRenameSave',rn); res={log:res.log.concat(r3.log||[]),warn:res.warn.concat(r3.warn||[]),members:r3.members||res.members}; if(r3.all)_msAll=r3.all; }
     if(res.members&&res.members.length){
       members=res.members.map(peFromWeb_).filter(m=>m.ign);
       _peLocal=members.map(m=>({...m})); _peHold=Date.now()+5*60*1000;
     }
-    _ce={}; _ms={}; applyMode(); renderMembers(); try{renderParty();renderStats();}catch(e){}
+    _ce={}; _ms={}; _mn={}; applyMode(); renderMembers(); try{renderParty();renderStats();}catch(e){}
     toast('บันทึกแล้ว · '+res.log.length+' รายการ'+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''),null,(res.warn||[]).length>0);
   }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
   finally{ admBusy_(false); }
