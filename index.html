@@ -705,6 +705,17 @@ body.is-admin .wr-adm{display:inline-block}
 .wi-tag.bad{color:var(--red);border-color:var(--red)}
 .wi-rk{font-family:var(--font-pixel);color:var(--faint);text-align:center;width:30px}
 .wi-chk{width:18px!important;height:18px;accent-color:var(--orange)}
+.ns-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1200;display:flex;align-items:center;justify-content:center;padding:16px}
+.ns-dlg{background:var(--card);border:1px solid var(--border2);border-radius:16px;width:560px;max-width:100%;max-height:86vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.ns-h{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;font-size:15px}
+.ns-h small{display:block;color:var(--muted);font-weight:600;font-size:12.5px;margin-top:3px;line-height:1.7}
+.ns-sec{padding:10px 18px;border-bottom:1px solid var(--border)}
+.ns-sl{font-size:11.5px;color:var(--muted);font-weight:800;margin-bottom:6px}
+.ns-r{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
+.ns-r:first-of-type{border-top:0}.ns-r .nm{flex:1}.ns-r .nm i{font-style:normal;color:var(--muted);font-size:11.5px;margin-left:6px}
+.ns-f{display:flex;gap:10px;align-items:center;padding:12px 18px;flex-wrap:wrap}
+.ns-f .sp{flex:1;font-size:12px;color:var(--faint)}
+.ns-lv{background:var(--card2);border-radius:10px;padding:8px 11px;font-size:12.5px;color:var(--muted);line-height:1.8}
 .wh-miss{margin-top:3px;font-size:10.5px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-b);border-radius:8px;padding:2px 7px;display:inline-block;line-height:1.5;white-space:normal}
 .wi-box select.wi-cls{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:4px 5px;font:inherit;font-size:11.5px;min-width:104px;max-width:128px}
 .wi-ttl{display:flex;gap:3px;flex-wrap:nowrap}.wi-ttl button{font:inherit;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 7px;border:1px solid var(--border2);background:none;color:var(--faint);cursor:pointer;white-space:nowrap}.wi-ttl button.on{background:var(--orange-dim);border-color:var(--orange);color:var(--orange)}
@@ -3369,6 +3380,9 @@ function giField(f){_gi.field=f;renderGlInput();}
 /* ช่องที่ใช้จริงของสนามนั้น — ช่องที่ซ่อนอยู่ (เช่นเปลี่ยนสนามหลังกรอก) จะไม่ถูกส่ง */
 const giKeys_=(league,field)=>giCols_(league,field).map(c=>c[0]).concat(giBoss_(league,field)?['boss']:[]).concat(giVale_(league)?['title']:[]).concat(['cls']);
 /* อาชีพอย่างเดียวไม่นับว่ากรอกแล้ว — ไม่งั้นทุกคนในรายชื่อจะถูกบันทึกหมด */
+/* คนที่แจ้งลาไว้ในหน้าปาร์ตี้ของสนามนั้น */
+const giLeaveOf_=field=>members.filter(m=>(m.field_gl||'')===field&&isLeaveNote(m)).map(m=>m.ign);
+const giPartyOf_=name=>{const m=members.find(x=>x.ign===name);return m?String(m.party||''):'';};
 const giHasData_=(r,keys)=>(keys||['fort','minion','boss','kill','assist','death','score','title','base_s','base_a','base_b']).filter(k=>k!=='cls').some(k=>String(r[k]||'').trim()!=='');
 function renderGlInput(){
   const box=document.getElementById('war-glin'); if(!box||!_gi)return;
@@ -3424,6 +3438,42 @@ function giPullRoster_(){
   });
   if(done.length)toast('ดึงรายชื่อจากตี้ปัจจุบันแล้ว · '+done.join(' · '));
 }
+/* ยืนยันคนที่ไม่แจ้งลา ก่อนบันทึก — คืน array ของประวัติการมา หรือ null ถ้ากดย้อนกลับ
+   ไม่มีสนามไหนถูกแก้เลย = ไม่แตะประวัติ (คืน undefined) */
+function giAttendConfirm_(G,scores){
+  const fields=scores.map(x=>x.field);
+  if(!fields.length)return Promise.resolve(undefined);
+  const missing=[],leaveAll=[];
+  fields.forEach(f=>{
+    const played=new Set(G.sc[f].rows.filter(r=>String(r.name).trim()&&giHasData_(r,giKeys_(G.league,f))).map(r=>String(r.name).trim()));
+    const leave=new Set(giLeaveOf_(f));
+    leave.forEach(n=>{ if(!played.has(n))leaveAll.push({name:n,field:f}); });
+    giRoster_(f).map(r=>r.name).forEach(n=>{ if(!played.has(n)&&!leave.has(n))missing.push({name:n,field:f,party:giPartyOf_(n),cls:giClassOf_(n)}); });
+  });
+  const rows=()=>leaveAll.map(x=>({name:x.name,status:'LEAVE',party:giPartyOf_(x.name),note:''}))
+    .concat([...document.querySelectorAll('.ns-chk:checked')].map(c=>({name:c.dataset.name,status:'NO_SHOW',party:c.dataset.party,note:''})));
+  if(!missing.length){
+    return Promise.resolve(leaveAll.map(x=>({name:x.name,status:'LEAVE',party:giPartyOf_(x.name),note:''})));
+  }
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='ns-ov';
+    const byField=f=>missing.filter(x=>x.field===f);
+    const secs=fields.filter(f=>byField(f).length).map(f=>`<div class="ns-sec"><div class="ns-sl">${esc_(giFieldLbl_(G.league,f))}</div>
+      ${byField(f).map(x=>`<div class="ns-r"><input type="checkbox" class="ns-chk" checked data-name="${esA_(x.name)}" data-party="${esA_(x.party)}">
+        <span class="nm">${esc_(x.name)}<i>${esc_(x.cls||'')}${x.party?' · ตี้ '+esc_(x.party):''}</i></span></div>`).join('')}</div>`).join('');
+    const lv=leaveAll.length?`<div class="ns-sec"><div class="ns-sl">Marked leave</div><div class="ns-lv">แจ้งลาไว้แล้ว ${leaveAll.length} คน ไม่นับเป็นคนไม่แจ้งลา — ${leaveAll.map(x=>esc_(x.name)).join(' · ')}</div></div>`:'';
+    ov.innerHTML=`<div class="ns-dlg"><div class="ns-h">Confirm no-show
+      <small>${fields.map(f=>`${esc_(giFieldLbl_(G.league,f))} มีสกอร์ ${G.sc[f].rows.filter(r=>String(r.name).trim()&&giHasData_(r,giKeys_(G.league,f))).length} คน จากผังตี้ ${giRoster_(f).length} คน`).join(' · ')} — คนที่ไม่มีชื่อในตารางและไม่ได้แจ้งลา จะถูกบันทึกว่าไม่แจ้งลา</small></div>
+      ${secs}${lv}
+      <div class="ns-f"><span class="sp">เอาเครื่องหมายออกได้ ถ้าคนนั้นมาจริงแต่ยังไม่ได้กรอกสกอร์</span>
+        <button class="btn btn-ghost" id="ns-back">Back</button><button class="btn wi-save" id="ns-ok">Save</button></div></div>`;
+    document.body.appendChild(ov);
+    const close=v=>{ov.remove();resolve(v);};
+    ov.querySelector('#ns-back').onclick=()=>close(null);
+    ov.querySelector('#ns-ok').onclick=()=>close(rows());
+    ov.onclick=e=>{ if(e.target===ov)close(null); };
+  });
+}
 async function giSave(){
   const G=_gi; if(!G||G.busy)return;
   const scores=['Elite','Sub-battle'].filter(f=>G.sc[f].touched).map(f=>{
@@ -3437,10 +3487,13 @@ async function giSave(){
   if(both.length){toast(`ชื่อซ้ำทั้ง ${giFieldLbl_(G.league,'Elite')} และ ${giFieldLbl_(G.league,'Sub-battle')}: `+both.join(', '),null,true);return;}
   const emptied=scores.find(x=>!x.rows.length&&G.sc[x.field].had);
   if(emptied){toast(giFieldLbl_(G.league,emptied.field)+' ไม่มีสกอร์เหลือเลย — ถ้าจะลบสกอร์ของสนามนี้ทั้งหมดให้ลบในชีท GL_Score',null,true);return;}
+  /* ใครไม่มีชื่อในตารางและไม่ได้แจ้งลา = ไม่แจ้งลา (No-show) · คนแจ้งลาแต่มีสกอร์ ถือว่ามา ไม่บันทึก */
+  const attend=await giAttendConfirm_(G,scores);
+  if(attend===null)return;
   G.busy=true;renderGlInput();admBusy_(true);
   try{
-    const res=await admCall('admGlSave',{date:G.date,league:G.league,cross:G.cross,rank:G.rank,opp:G.opp,our:G.our,their:G.their,status:G.status,note:G.note,scores});
-    toast(`บันทึก Guild League ${res.date} แล้ว`+(res.scores?` · สกอร์ ${res.scores} คน`:'')+((res.missing||[]).length?` · ⚠ ไม่พบ id: ${res.missing.join(', ')}`:''),null,(res.missing||[]).length>0);
+    const res=await admCall('admGlSave',{date:G.date,league:G.league,cross:G.cross,rank:G.rank,opp:G.opp,our:G.our,their:G.their,status:G.status,note:G.note,scores,attend});
+    toast(`บันทึก Guild League ${res.date} แล้ว`+(res.scores?` · สกอร์ ${res.scores} คน`:'')+(res.attend&&res.attend.saved?` · ประวัติการมา ${res.attend.saved} คน`:'')+((res.missing||[]).length?` · ⚠ ไม่พบ id: ${res.missing.join(', ')}`:''),null,(res.missing||[]).length>0);
     const d=G.date; _gi=null;
     await warReload_(); giLoad_(d); renderGlInput();
   }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); if(_gi){_gi.busy=false;renderGlInput();} }
