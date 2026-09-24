@@ -437,8 +437,15 @@ input[type=checkbox]{accent-color:var(--orange)}
 .abs2-h b{font-size:14.5px}
 .abs2-pc{margin-left:auto;font-family:var(--font-pixel);font-size:15px;font-weight:800}
 .abs2-pc i{font-style:normal;font-size:11px;color:var(--faint)}
-.abs2-bararea{display:block;height:5px;border-radius:3px;background:var(--card2);overflow:hidden;margin:7px 0 8px}
-.abs2-bararea i{display:block;height:100%;border-radius:3px}
+.abs2-bararea{display:flex;height:5px;border-radius:3px;background:var(--card2);overflow:hidden;margin:7px 0 8px}
+.abs2-bararea i{display:block;height:100%}
+.abs2-bararea i.s-lv{background:var(--amber)}
+.abs2-bararea i.s-ns{background:var(--red)}
+.abs2-bararea i.s-lp{background:var(--blue)}
+.abs2-lg{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:12px}
+.abs2-lg span{display:flex;align-items:center;gap:5px}
+.abs2-lg i{width:9px;height:9px;border-radius:3px;display:block}
+.abs2-lg i.s-lv{background:var(--amber)}.abs2-lg i.s-ns{background:var(--red)}.abs2-lg i.s-lp{background:var(--blue)}
 .abs2-b{display:flex;gap:16px}
 .abs2-b div{display:flex;flex-direction:column}
 .abs2-b span{font-size:10.5px;color:var(--muted)}
@@ -446,9 +453,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .abs2-b b.sm{font-size:12px;font-weight:700;color:var(--muted)}
 .abs2-b i{font-style:normal;font-size:11px;color:var(--faint)}
 .abs2-dim{color:var(--faint);font-weight:500;font-size:12px}
-.abs2-c.hi .abs2-pc{color:var(--red)}.abs2-c.hi .abs2-bararea i{background:var(--red)}
-.abs2-c.mid .abs2-pc{color:var(--amber)}.abs2-c.mid .abs2-bararea i{background:var(--amber)}
-.abs2-c.lo .abs2-pc{color:var(--green)}.abs2-c.lo .abs2-bararea i{background:var(--green)}
+.abs2-c.hi .abs2-pc{color:var(--red)}
+.abs2-c.mid .abs2-pc{color:var(--amber)}
+.abs2-c.lo .abs2-pc{color:var(--green)}
 .abs2-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
 .abs2-once{margin-top:10px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px 11px}
 .abs2-once-h{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:7px}
@@ -3607,29 +3614,64 @@ function absGap_(from,to){
   if(!from||!to)return 0;
   return Math.round((new Date(to+'T00:00:00')-new Date(from+'T00:00:00'))/86400000);
 }
+/* วอที่มีสกอร์รายคนแล้ว — ใช้ตัดสินว่าคนที่แจ้งลาสุดท้ายเข้ามาเล่นหรือไม่
+   วอที่ยังไม่ได้กรอกสกอร์เลยสักคน จะไม่เอามาตัดสิน เพราะแยกไม่ออกว่าไม่มาหรือยังไม่ได้กรอก */
+function absPlayed_(){
+  const by={};
+  (_glScore||[]).forEach(r=>{
+    const d=r.date; if(!d)return;
+    const k=String(r.character_id||'').trim(), n=String(r.member_name||'').trim();
+    const o=by[d]=by[d]||{id:new Set(),nm:new Set()};
+    if(k)o.id.add(k); if(n)o.nm.add(n);
+  });
+  return by;
+}
 function absData_(){
   const wars=[...new Set(warRows_().map(r=>r.date).filter(Boolean))].sort();
   let from='';
   if(_absDays>0){ const d=new Date(); d.setDate(d.getDate()-_absDays+1); from=toDateStr(d); }
   const rng=wars.filter(d=>!from||d>=from);
-  const rngSet=new Set(rng);
-  const byName={};
+  const played=absPlayed_();
+  const camePlay=(d,name,id)=>{
+    const o=played[d]; if(!o)return null;            /* ยังไม่มีสกอร์ของวอนี้ */
+    return (id&&o.id.has(String(id)))||o.nm.has(name);
+  };
+  const by={};
   (_attLog||[]).forEach(r=>{
     const n=String(r.member_name||'').trim(); if(!n)return;
-    (byName[n]=byName[n]||new Set()).add(r.date);
+    const o=by[n]=by[n]||{id:'',d:{}};
+    if(!o.id&&r.character_id)o.id=String(r.character_id).trim();
+    o.d[r.date]=String(r.status||'').trim().toUpperCase()==='NO_SHOW'?'NO_SHOW':'LEAVE';
   });
-  const rows=Object.keys(byName).map(n=>{
-    const ds=byName[n];
-    let c=0; rng.forEach(d=>{ if(ds.has(d))c++; });
-    if(!c)return null;
+  let camTot=0;
+  const rows=Object.keys(by).map(n=>{
+    const o=by[n];
+    let lv=0,lp=0,ns=0;
+    rng.forEach(d=>{
+      const s=o.d[d]; if(!s)return;
+      if(s==='NO_SHOW'){ ns++; return }
+      const came=camePlay(d,n,o.id);
+      if(came===true){ lp++ } else { lv++ }
+    });
+    if(!lv&&!lp&&!ns)return null;
+    camTot+=lp;
+    /* ลาติดกัน นับเฉพาะครั้งที่ไม่ได้เข้ามาเล่น */
     let st=0;
-    for(let i=wars.length-1;i>=0;i--){ if(ds.has(wars[i]))st++; else break; }
+    for(let i=wars.length-1;i>=0;i--){
+      const d=wars[i], s=o.d[d];
+      if(!s)break;
+      if(s!=='NO_SHOW'&&camePlay(d,n,o.id)===true)break;
+      st++;
+    }
     let last='';
-    for(let i=wars.length-1;i>=0;i--){ if(!ds.has(wars[i])){ last=wars[i]; break; } }
-    return {name:n,c:c,t:rng.length,st:st,last:last};
+    for(let i=wars.length-1;i>=0;i--){
+      const d=wars[i], s=o.d[d];
+      if(!s||(s!=='NO_SHOW'&&camePlay(d,n,o.id)===true)){ last=d; break; }
+    }
+    return {name:n,lv:lv,lp:lp,ns:ns,miss:lv+ns,t:rng.length,st:st,last:last};
   }).filter(Boolean);
-  rows.sort((a,b)=>b.c-a.c||b.st-a.st||String(a.name).localeCompare(String(b.name)));
-  return {rows:rows,total:rng.length,from:rng[0]||'',to:rng[rng.length-1]||''};
+  rows.sort((a,b)=>b.miss-a.miss||b.st-a.st||b.lp-a.lp||String(a.name).localeCompare(String(b.name)));
+  return {rows:rows,total:rng.length,from:rng[0]||'',to:rng[rng.length-1]||'',came:camTot};
 }
 function renderAbsence(){
   const box=document.getElementById('war-absence');
@@ -3641,16 +3683,20 @@ function renderAbsence(){
   if(!D.rows.length){ box.innerHTML=head+`<div class="abs2-sum">วอ <b>${D.total} นัด</b></div><div class="abs2-none">ช่วงนี้ไม่มีใครแจ้งลา</div>`; return; }
   const today=toDateStr(new Date());
   /* ลาครั้งเดียวและไม่ได้ลาติดกัน รวมไว้แถวเดียวท้ายสุด ไม่งั้นการ์ดยาวเกินจอ */
-  const main=D.rows.filter(r=>r.c>1||r.st>0);
-  const once=D.rows.filter(r=>!(r.c>1||r.st>0));
+  const main=D.rows.filter(r=>r.miss>1||r.st>0||r.ns>0||r.lp>0);
+  const once=D.rows.filter(r=>!(r.miss>1||r.st>0||r.ns>0||r.lp>0));
   const cards=main.map(r=>{
-    const p=r.t?Math.round(r.c*100/r.t):0;
+    const p=r.t?Math.round(r.miss*100/r.t):0;
     const tn=absTone_(p);
     const gap=absGap_(r.last,today);
     const lastTxt=r.last?(wDay_(r.last)+(gap>7?` · ${gap} วันก่อน`:'')):'ไม่มีข้อมูล';
     const stTxt=r.st?`${r.st}<i> วอ</i>`:'<span class="abs2-dim">ไม่มี</span>';
-    return `<div class="abs2-c ${tn}"><div class="abs2-h"><b>${esc_(r.name)}</b><span class="abs2-pc">${r.c}<i>/${r.t}</i></span></div>`
-      +`<span class="abs2-bararea"><i style="width:${Math.max(p,4)}%"></i></span>`
+    const w=x=>r.t?Math.round(x*100/r.t):0;
+    const seg=(r.lv?`<i class="s-lv" style="width:${w(r.lv)}%"></i>`:'')
+      +(r.ns?`<i class="s-ns" style="width:${w(r.ns)}%"></i>`:'')
+      +(r.lp?`<i class="s-lp" style="width:${w(r.lp)}%"></i>`:'');
+    return `<div class="abs2-c ${tn}"><div class="abs2-h"><b>${esc_(r.name)}</b><span class="abs2-pc">${r.miss}<i>/${r.t}</i></span></div>`
+      +`<span class="abs2-bararea">${seg}</span>`
       +`<div class="abs2-b"><div><span>ลาติดกัน</span><b>${stTxt}</b></div>`
       +`<div><span>มาล่าสุด</span><b class="sm">${lastTxt}</b></div></div></div>`;
   }).join('');
@@ -3658,11 +3704,17 @@ function renderAbsence(){
     ? `<div class="abs2-once"><div class="abs2-once-h">ลาครั้งเดียวในช่วงนี้ · ${once.length} คน</div>`
       +`<div class="abs2-once-l">${once.map(r=>`<span>${esc_(r.name)}</span>`).join('')}</div></div>`
     : '';
+  const lg='<div class="abs2-lg">'
+    +'<span><i class="s-lv"></i>ลาแล้วไม่มา</span>'
+    +'<span><i class="s-ns"></i>ขาดไม่แจ้ง</span>'
+    +'<span><i class="s-lp"></i>ลาแล้วยังมา</span></div>';
   box.innerHTML=head
-    +`<div class="abs2-sum">ช่วง ${wDay_(D.from)} – ${wDay_(D.to)} · วอ <b>${D.total} นัด</b> · มีคนลา <b>${D.rows.length} คน</b></div>`
+    +`<div class="abs2-sum">ช่วง ${wDay_(D.from)} – ${wDay_(D.to)} · วอ <b>${D.total} นัด</b> · มีคนลา <b>${D.rows.length} คน</b>`
+    +(D.came?` · แจ้งลาแล้วยังมา <b>${D.came} ครั้ง</b>`:'')+`</div>`
+    +lg
     +(cards?`<div class="abs2-g">${cards}</div>`:'<div class="abs2-none">ช่วงนี้ไม่มีใครลาเกินหนึ่งครั้ง</div>')
     +onceHtml
-    +`<div class="abs2-ft">เรียงจากคนที่ลามากสุดลงมา · ลาติดกันนับถอยจากวอล่าสุด เจอนัดที่มาแล้วหยุดนับ</div>`;
+    +`<div class="abs2-ft">เลขใหญ่คือวอที่ไม่ได้ลงจริง ไม่รวมครั้งที่แจ้งลาแล้วยังมา · วอที่ยังไม่ได้กรอกสกอร์จะถือว่าลาจริงไว้ก่อน</div>`;
 }
 
 const TH_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
