@@ -1949,7 +1949,7 @@ function capHelper_(){
   const mode=isX?('Cross-server · ผู้ช่วยได้สิทธิ์ประมูลล็อกหัววันละ 5 คน ผู้ช่วย 4 คนและ '+GH_FIXED)
     :isI?'Intra-server · สัปดาห์นี้ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกที่เหลือแทน'
     :'ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ';
-  return capTop_('helper',`สัปดาห์ ${wDay_(wk)} – ${wDay_(ghAddDays_(wk,6))} ${wk.slice(0,4)} · ช่วยเหลือ 21:00–22:00`,null,isX?'Cross-server':isI?'Intra-server':'')
+  return capTop_('helper',`${wRange_(wk,ghAddDays_(wk,6))} · ช่วยเหลือ 21:00–22:00`,null,isX?'Cross-server':isI?'Intra-server':'')
     +`<div class="cp-mode">${mode}</div><div class="cp-g2">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`
     +capFoot_(['Done ช่วยแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
 }
@@ -2987,7 +2987,7 @@ function populateDesignatedWeeks(){
   const cur=mondayOfDate(toDateStr(new Date()));
   const weeks=[...new Set(_aucHelpers.map(r=>r.week_start).filter(Boolean).concat([cur]))].sort().reverse();
   const keep=sel.value;
-  sel.innerHTML=weeks.map(w=>`<option value="${w}">Week ${wDay_(w)} – ${wDay_(ghAddDays_(w,6))} ${w.slice(0,4)}</option>`).join('');
+  sel.innerHTML=weeks.map(w=>`<option value="${w}">${wRange_(w,ghAddDays_(w,6))}</option>`).join('');
   sel.value=weeks.includes(keep)?keep:cur;
   renderDesignated();
 }
@@ -3506,6 +3506,15 @@ function swWarTab(t){
 const TH_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const wMonLbl_=ym=>{const p=ym.split('-');return `${TH_MON[+p[1]-1]} ${p[0]}`};
 const wDay_=d=>{const p=String(d||'').split('-');return p.length===3?`${+p[2]} ${TH_MON[+p[1]-1]}`:''};
+/* ช่วงสัปดาห์แบบอังกฤษ — 07-13 September 2026 · ถ้าคาบสองเดือนจะเป็น 27 July - 02 August 2026 */
+const EN_MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function wRange_(a,b){
+  const A=String(a||'').split('-'), B=String(b||'').split('-');
+  if(A.length!==3||B.length!==3)return '';
+  const mo=x=>EN_MON[+x[1]-1];
+  return A[1]===B[1]&&A[0]===B[0] ? `${A[2]}-${B[2]} ${mo(A)} ${A[0]}`
+    : `${A[2]} ${mo(A)} - ${B[2]} ${mo(B)} ${B[0]}`;
+}
 /* แถวประวัติ: ลีกกิลด์จาก GL_Log · โอเวอร์รันจาก War_Log — เฉพาะวันที่ไม่เกินวันนี้ */
 function warRows_(){
   const today=toDateStr(new Date());
