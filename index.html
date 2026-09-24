@@ -3260,6 +3260,14 @@ async function admAutoArchive_(){
     if(r&&r.dates&&r.dates.length){ toast('ย้ายรอบ '+r.dates.join(', ')+' เข้า Archive แล้ว ('+r.rows+' แถว)'); forceRefresh(); }
   }catch(e){ console.warn('auto archive',e); }
 }
+/* เปิดหน้าแอดมิน — คิวที่ค้างของคนที่ไม่อยู่ในกิลด์แล้ว ให้เป็น skipped อัตโนมัติ */
+async function admSkipLeavers_(){
+  if(!ADMIN)return;
+  try{
+    const r=await admCall('admSkipLeavers');
+    if(r&&r.n){ toast('ข้ามคิวของคนที่ออกกิลด์แล้ว '+r.n+' แถว · '+r.names.join(', ')); forceRefresh(); }
+  }catch(e){ console.warn('skip leavers',e); }
+}
 
 function qmKey_(r){ return {date:r.queue_date,pos:String(r.position),id:String(r.character_id||'').trim()}; }
 function qmAskSkip(i){ _qmSkipIdx=i; _qmReason='ออกกิลด์'; renderQueueManager(); }
@@ -3403,6 +3411,7 @@ function admInit_(){
     if(t)t.textContent='Admin · ออก';
     const rb=document.getElementById('adm-ribbon');
     setTimeout(admAutoArchive_,4000);
+    setTimeout(admSkipLeavers_,9000);
     if(rb)rb.innerHTML=`<div class="adm-rib"><span>🟢 <b>โหมดแอดมิน</b> · ${ADMIN.email||''}</span>
       <span style="color:var(--faint);font-size:12px">ทุกการแก้บันทึกลงชีท + เก็บประวัติใน _Admin_Log</span>
       <span class="sp"></span><a href="${SITE_URL}" target="_top" onclick="uiGo_(this,SITE_URL)">ออกจากโหมดแอดมิน</a></div>`;
