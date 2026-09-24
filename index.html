@@ -729,6 +729,81 @@ body.is-admin .wr-adm{display:inline-block}
 .in-key span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
 .in-key .p::before{background:var(--green)}.in-key .l::before{background:var(--amber)}.in-key .n::before{background:var(--red)}.in-key .x::before{background:var(--border2)}
 .in-note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.8}
+/* ── capture: ภาพผังตี้สำหรับแปะดิสคอร์ด ── */
+.cap-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cap-btn{background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange);border-radius:999px;padding:3px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.cap-btn:hover{background:var(--orange);color:#fff}
+.cap-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.72);display:none;flex-direction:column}
+.cap-tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--border)}
+.cap-b{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.cap-b.on{background:var(--orange-dim);border-color:var(--orange-border);color:var(--orange)}
+.cap-hint{font-size:12px;color:var(--muted);margin-left:auto;margin-right:auto}
+.cap-scroll{flex:1;overflow:auto;padding:16px;display:flex;justify-content:flex-start}
+.cap-sheet{width:1100px;flex:none;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px 20px 14px;margin:auto}
+.cp-top{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px}
+.cp-lg{width:34px;height:34px;border-radius:9px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:18px}
+.cp-t1{font-weight:800;font-size:16px}
+.cp-t2{color:var(--muted);font-size:12px}
+.cp-rt{margin-left:auto;text-align:right}
+.cp-rt b{font-size:14px}.cp-rt span{display:block;color:var(--muted);font-size:12px}
+.cp-f{display:flex;align-items:center;gap:8px;margin:14px 0 8px}
+.cp-f b{font-size:13px;letter-spacing:.05em}
+.cp-f i{font-style:normal;font-size:11px;color:var(--orange);border:1px solid var(--orange-border);background:var(--orange-dim);border-radius:999px;padding:1px 8px;font-weight:700}
+.cp-g{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.cp-c1{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 9px}
+.cp-h{display:flex;align-items:center;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px}
+.cp-h b{font-size:12.5px;color:var(--orange)}
+.cp-h span{margin-left:auto;font-size:11px;color:var(--muted)}
+.cp-m{display:flex;align-items:center;gap:6px;padding:2px 0}
+.cp-bar{width:3px;height:14px;border-radius:2px;flex:none;display:block}
+.cp-bar.bs{background:var(--green)}.cp-bar.ba{background:var(--amber)}.cp-bar.bd{background:var(--red)}
+.cp-n{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:105px}
+.cp-c{font-size:10.5px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.cp-ld{font-style:normal;color:var(--orange);font-size:11px}
+.cp-mn{font-style:normal;font-size:11px}
+.cp-m.lv .cp-n,.cp-m.lv .cp-c{opacity:.45;text-decoration:line-through}
+.cp-lg2{display:flex;flex-wrap:wrap;gap:14px;align-items:center;border-top:1px solid var(--border);margin-top:14px;padding-top:10px;font-size:11.5px;color:var(--muted)}
+.cp-lg2 span{display:flex;align-items:center;gap:5px}
+.cp-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
+.cp-ft{margin-left:auto;font-size:11px;color:var(--faint)}
+.cp-h small{color:var(--muted);font-size:11.5px;margin-left:6px}
+.cp-none{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+.cp-mode{background:var(--blue-dim);border:1px solid var(--blue-b);border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:12px}
+.cp-g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cp-g3{display:grid;grid-template-columns:1fr 1fr 290px;gap:12px;align-items:start}
+.cp-g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.cp-g5{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}
+.cp-g6{display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start}
+.cp-s{display:flex;align-items:center;gap:8px;padding:3px 0}
+.cp-sn{width:18px;height:18px;border-radius:5px;background:var(--card2);color:var(--muted);font-size:10.5px;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.cp-sm{font-size:13px;font-weight:600}.cp-sm.dim{color:var(--faint);font-weight:500}.cp-sm.fx{color:var(--blue)}
+.cp-tg{margin-left:auto;font-size:10px;font-weight:700;border-radius:999px;padding:1px 8px;border:1px solid;color:var(--muted);border-color:var(--border2)}
+.cp-tg.d{color:var(--green);border-color:var(--green-b);background:var(--green-dim)}
+.cp-tg.p{color:var(--amber);border-color:var(--amber-b);background:var(--amber-dim)}
+.cp-tg.r{color:var(--red);border-color:var(--red-b);background:var(--red-dim)}
+.cp-tg.x,.cp-tg.f{color:var(--blue);border-color:var(--blue-b);background:var(--blue-dim)}
+.cp-q{display:flex;align-items:center;gap:7px;padding:2.5px 0}
+.cp-qp{width:22px;text-align:right;font-size:11.5px;color:var(--muted)}
+.cp-qn{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-cut{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.cp-cut h4{margin:0 0 8px;font-size:12px;color:var(--orange);letter-spacing:.05em}
+.cp-cr{display:flex;gap:8px;padding:4px 0;border-bottom:1px dashed var(--border);font-size:12.5px}
+.cp-cr:last-child{border:0}.cp-cr b{margin-left:auto}
+.cp-dup{margin-top:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:12px;color:var(--muted)}
+.cp-dc{display:inline-block;background:var(--red-dim);border:1px solid var(--red-b);color:var(--red);border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+.cp-st{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.cp-st span{display:block;font-size:11px;color:var(--muted)}.cp-st b{font-size:17px}
+.cp-st.win b{color:var(--green)}.cp-st.lose b{color:var(--red)}
+.cp-st.c{text-align:center}
+.cp-sec{font-size:12.5px;letter-spacing:.04em;color:var(--orange);font-weight:800;margin:14px 0 7px}
+.cp-tb{width:100%;border-collapse:collapse;font-size:12.5px}
+.cp-tb th{text-align:left;font-size:11px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border2);padding:5px 6px}
+.cp-tb td{padding:4px 6px;border-bottom:1px solid var(--border)}
+.cp-tb td.n,.cp-tb th.n{text-align:right}
+.cp-tb td.mu{color:var(--muted);font-size:11.5px}
+.cp-lo{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.cp-lo h4{margin:0 0 6px;font-size:12px;color:var(--orange);letter-spacing:.05em}
+.cp-note{margin-top:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:12px}
 .mn-in{background:none;border:1px solid transparent;border-radius:7px;padding:3px 6px;font:inherit;font-size:13px;font-weight:600;color:var(--text);width:100%;max-width:190px}
 .mn-in:hover{border-color:var(--border2)}
 .mn-in:focus{border-color:var(--orange);outline:none;background:var(--card2)}
@@ -1193,7 +1268,7 @@ body.is-admin .wr-adm{display:inline-block}
     <button data-mode="GL" onclick="setMode('GL')">⚔ Guild League</button>
     <button data-mode="OR" onclick="setMode('OR')">🌐 Overrun</button>
   </div>
-  <div class="page-sub" id="party-sub"></div>
+  <div class="page-sub cap-row"><span id="party-sub"></span><button class="cap-btn" onclick="capOpen()">📸 Capture</button></div>
   <div id="party-content"><div class="loading">Loading...</div></div>
 </div>
 
@@ -1208,7 +1283,7 @@ body.is-admin .wr-adm{display:inline-block}
 
 <div id="page-auction" class="page">
   <div class="page-title">Guild Auction</div>
-  <div class="page-sub" id="auc-sub">คิวประมูลและการแจกของ</div>
+  <div class="page-sub cap-row"><span id="auc-sub">คิวประมูลและการแจกของ</span><button class="cap-btn" onclick="capOpen(capAucKind_())">📸 Capture</button></div>
   <div id="adm-ribbon"></div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Distribution</button>
@@ -1324,7 +1399,7 @@ body.is-admin .wr-adm{display:inline-block}
 
 <div id="page-war" class="page">
   <div class="page-title">Guild War</div>
-  <div class="page-sub">ผลวอ ประวัติ และรางวัล</div>
+  <div class="page-sub cap-row"><span>ผลวอ ประวัติ และรางวัล</span><button class="cap-btn" onclick="capOpen(capWarKind_())">📸 Capture</button></div>
   <div class="wr-kpis" id="wr-kpis"></div>
   <div class="au-tabs">
     <button class="au-tab wr-tab active" data-wt="hist" onclick="swWarTab('hist')">History</button>
@@ -1786,6 +1861,201 @@ function renderParty(){
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
     `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
     `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`+absPanel;
+}
+
+
+/* ══ CAPTURE ══ ภาพสำหรับแปะดิสคอร์ด — ทุกคนกดได้
+   5 หน้า party · helper · queue · war · rewards · แผ่นกว้างคงที่ 1100px แล้วแปลงเป็น PNG ด้วย html2canvas */
+let _capBusy=false,_capKind='party';
+const CAP_M={party:['⚔','Party'],helper:['🤝','Guild Helper'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards']};
+const capNow_=()=>{const d=new Date();return{day:d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}),hm:('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};};
+function capTop_(kind,sub,rb,rs){const m=CAP_M[kind]||['⚔',''],n=capNow_();
+  return `<div class="cp-top"><div class="cp-lg">${m[0]}</div><div><div class="cp-t1">WARMUP · ${m[1]}</div><div class="cp-t2">${sub||''}</div></div>
+    <div class="cp-rt"><b>${esc_(rb||n.day)}</b><span>${esc_(rs||'')}</span></div></div>`;}
+function capFoot_(lg){const n=capNow_();
+  return `<div class="cp-lg2">${(lg||[]).map(x=>`<span>${x}</span>`).join('')}<span class="cp-ft">warmup-rooc · ${n.day} ${n.hm}</span></div>`;}
+
+/* 1 · ผังตี้ */
+function capParty_(){
+  const pts={};members.forEach(m=>{if(!m.party)return;(pts[m.party]=pts[m.party]||[]).push(m)});
+  const keys=Object.keys(pts).sort((a,b)=>+a-+b);
+  const main=keys.filter(p=>+p<=8), sec=keys.filter(p=>+p>8);
+  const lead_=m=>(m.role||'')==='Leader'?0:1;
+  const tb_=t=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
+  const total=members.filter(m=>m.party).length;
+  const lv=members.filter(m=>m.party&&isLeaveNote(m)).length;
+  const grid=list=>list.map(p=>{
+    const ms=[...pts[p]].sort((a,b)=>lead_(a)-lead_(b)||nameCmp_(a.ign,b.ign));
+    const here=ms.filter(x=>!isLeaveNote(x)).length;
+    const rows=ms.map(m=>{const c=classOf(m),ab=isLeaveNote(m);
+      return `<div class="cp-m${ab?' lv':''}"><i class="cp-bar ${tb_(getType(c))}"></i><span class="cp-n">${esc_(m.ign)}</span><span class="cp-c">${esc_(c)}</span>${(m.role||'')==='Leader'?'<i class="cp-ld">★</i>':''}${ab?'<i class="cp-mn">🌙</i>':''}</div>`;}).join('');
+    return `<div class="cp-c1"><div class="cp-h"><b>Party ${p}</b><span>${here}/5</span></div>${rows}</div>`;}).join('');
+  const mode=_mode==='OR'?'Overrun':'Guild League';
+  const secLbl=sec.length?('Party 9–'+sec[sec.length-1]):'Party 9+';
+  return capTop_('party',`${mode} · ${total} คน · ${keys.length} ปาร์ตี้ · ลา ${lv}`,null,mode)
+    +`<div class="cp-f"><b>Elite</b><i>Party 1–8</i></div><div class="cp-g">${grid(main)}</div>
+      <div class="cp-f"><b>Sub-battle</b><i>${esc_(secLbl)}</i></div><div class="cp-g">${grid(sec)}</div>`
+    +capFoot_(['<i class="cp-ld">★</i> Leader','🌙 ลา',
+      '<i class="cp-dot" style="background:var(--green)"></i> Support',
+      '<i class="cp-dot" style="background:var(--amber)"></i> All Rounder',
+      '<i class="cp-dot" style="background:var(--red)"></i> Attack']);
+}
+
+/* 2 · ผู้ช่วยประจำสัปดาห์ */
+function capHelper_(){
+  const sel=document.getElementById('da-week'), wk=sel&&sel.value;
+  if(!wk)return '<div class="cp-none">ยังไม่มีข้อมูลผู้ช่วย</div>';
+  const cross=ghCross_(wk), isX=cross==='Y', isI=cross==='N';
+  const tag=r=>{const st=String(r.auction_status||'').toLowerCase().trim();
+    if(isI)return '<span class="cp-tg f">ได้เศษขนนก</span>';
+    return st==='done'?'<span class="cp-tg d">Done</span>':(st==='skipped'||st==='skip')?'<span class="cp-tg r">Skipped</span>':'<span class="cp-tg p">Pending</span>';};
+  const day=(dow,lb)=>{const date=ghAddDays_(wk,dow-1), rows=ghDayRows_(wk,dow), hp=rows.filter(r=>!ghIsFixed_(r)), sl=[];
+    for(let i=0;i<4;i++){const r=hp[i];
+      sl.push(r?`<div class="cp-s"><span class="cp-sn">${i+1}</span><span class="cp-sm">${esc_(r.member_name)}</span>${tag(r)}</div>`
+                :`<div class="cp-s"><span class="cp-sn">${i+1}</span><span class="cp-sm dim">ยังไม่มีชื่อ</span></div>`);}
+    hp.slice(4).forEach((r,i)=>sl.push(`<div class="cp-s"><span class="cp-sn">${i+5}</span><span class="cp-sm">${esc_(r.member_name)}</span>${tag(r)}</div>`));
+    if(!isI)sl.push(`<div class="cp-s"><span class="cp-sn">5</span><span class="cp-sm fx">${GH_FIXED}</span><span class="cp-tg x">Fixed</span></div>`);
+    return `<div class="cp-c1"><div class="cp-h"><b>${lb}</b><small>${wDay_(date)}</small><span>${hp.length+(isI?0:1)}/${isI?4:5}</span></div>${sl.join('')}</div>`;};
+  const mode=isX?('Cross-server · ผู้ช่วยได้สิทธิ์ประมูลล็อกหัววันละ 5 คน ผู้ช่วย 4 คนและ '+GH_FIXED)
+    :isI?'Intra-server · สัปดาห์นี้ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกที่เหลือแทน'
+    :'ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ';
+  return capTop_('helper',`สัปดาห์ ${wDay_(wk)} – ${wDay_(ghAddDays_(wk,6))} ${wk.slice(0,4)} · ช่วยเหลือ 21:00–22:00`,null,isX?'Cross-server':isI?'Intra-server':'')
+    +`<div class="cp-mode">${mode}</div><div class="cp-g2">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`
+    +capFoot_(['Done ช่วยแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
+}
+
+/* 3 · คิวประมูล */
+function capQueue_(){
+  const all=(_aucQueue||[]);
+  if(!all.length)return '<div class="cp-none">ยังไม่มีคิวประมูล</div>';
+  const sel=document.getElementById('qm-round');
+  const pick=sel&&/^\d{4}-\d{2}-\d{2}$/.test(sel.value)?sel.value:'';
+  const round=pick||[...new Set(all.map(r=>r.queue_date))].sort().reverse()[0];
+  const list=all.filter(r=>r.queue_date===round).sort((a,b)=>(+a.position||0)-(+b.position||0));
+  if(!list.length)return '<div class="cp-none">รอบนี้ยังไม่มีคิว</div>';
+  const st_=v=>{const s=String(v||'').toLowerCase();
+    return s==='done'?'<span class="cp-tg d">Done</span>':s==='skipped'||s==='skip'?'<span class="cp-tg r">Skipped</span>'
+      :s==='duplicate'?'<span class="cp-tg r">ซ้ำคิว</span>':'<span class="cp-tg p">Pending</span>';};
+  const tiers=(_aucFc&&_aucFc.tiers)||[];
+  const maxN=tiers.reduce((m,t)=>Math.max(m,+t.n||0),0);
+  const show=list.slice(0,Math.max(30,maxN));
+  const half=Math.ceil(show.length/2);
+  const col=a=>`<div class="cp-c1">${a.map(r=>`<div class="cp-q"><span class="cp-qp">${esc_(r.position)}</span><span class="cp-qn">${esc_(r.member_name||'')}</span>${st_(r.status)}</div>`).join('')}</div>`;
+  const cut=tiers.length?`<div class="cp-cut"><h4>เส้นตัดตามผล</h4>${tiers.map(t=>`<div class="cp-cr">${esc_(t.lb)}<b>ถึงคิว ${t.n}</b></div>`).join('')}</div>`:'';
+  let dup=[]; try{dup=auDuplicateQueue_()||[]}catch(e){}
+  const dupH=dup.length?`<div class="cp-dup">เลื่อนไปรอบหน้า เพราะถือคิวที่ยังไม่ได้ประมูลอยู่แล้ว<br>${dup.map(r=>`<span class="cp-dc">${esc_(r.member_name||'')}</span>`).join('')}</div>`:'';
+  const rw=getRewardValues();
+  const sub=[(_aucFc&&_aucFc.ev)||(rw&&rw.event_name)||'',(rw&&rw.rank)||'',rw?('การ์ด '+rw.card+' ใบ'):''].filter(Boolean).join(' · ');
+  return capTop_('queue',sub,null,'รอบคิว '+round)
+    +`<div class="cp-g3">${col(show.slice(0,half))}${col(show.slice(half))}<div>${cut}${dupH}</div></div>`
+    +capFoot_(['Done ดึงแล้ว','Pending รอคิว']);
+}
+
+/* 4 · ผลวอและสกอร์ */
+function capWar_(){
+  const dates=[...new Set((_glScore||[]).map(r=>r.date))].sort().reverse();
+  let gl=[]; try{gl=warRows_().filter(r=>r.type==='Guild League')}catch(e){}
+  const d=dates[0]||(gl[0]&&gl[0].date);
+  if(!d)return '<div class="cp-none">ยังไม่มีผลวอที่บันทึกสกอร์รายคน</div>';
+  const w=gl.find(r=>r.date===d)||{};
+  const league=w.league||'';
+  const res=String(w.status||'').toLowerCase();
+  const stat=(l,v,c)=>`<div class="cp-st${c?' '+c:''}"><span>${l}</span><b>${v}</b></div>`;
+  const head=`<div class="cp-g4">${stat('ผล',res==='win'?'ชนะ':res==='lose'?'แพ้':'—',res==='win'?'win':res==='lose'?'lose':'')}
+    ${stat('คะแนนเรา',esc_(w.our||'—'))}${stat('คะแนนศัตรู',esc_(w.their||'—'))}${stat('Tier',esc_(w.rank||'—'))}</div>`;
+  const vale=league==='Vale of Clash';
+  const sec=f=>{
+    const rs=(_glScore||[]).filter(r=>r.date===d&&r.field===f)
+      .sort((a,b)=>(wNum_(b.score)||0)-(wNum_(a.score)||0)).slice(0,5);
+    if(!rs.length)return '';
+    let cs=giCols_(league,f); if(giBoss_(league,f))cs=cs.concat([['boss','Boss']]);
+    const n=(_glScore||[]).filter(r=>r.date===d&&r.field===f).length;
+    const hd=cs.map(c=>`<th class="n">${c[1]}</th>`).join('');
+    const body=rs.map((r,i)=>`<tr><td class="n">${wNum_(r.list_rank)||i+1}</td><td><b>${esc_(r.member_name)}</b></td>
+      <td class="mu">${esc_(r.class_played||'')}</td>${vale?`<td class="mu">${esc_(r.title||'')}</td>`:''}
+      ${cs.map(c=>`<td class="n">${esc_(r[c[0]]||'')}</td>`).join('')}</tr>`).join('');
+    return `<div class="cp-sec">${esc_(giFieldLbl_(league,f))} · ${Math.min(5,n)} อันดับแรก จาก ${n} คน</div>
+      <table class="cp-tb"><thead><tr><th class="n">#</th><th>Name</th><th>Class</th>${vale?'<th>Title</th>':''}${hd}</tr></thead><tbody>${body}</tbody></table>`;};
+  const note=String((_glLog.find(r=>r.date===d)||{}).note||'').trim();
+  return capTop_('war',[league,w.cross==='Y'?'ข้ามเซิร์ฟ':w.cross==='N'?'ในเซิร์ฟ':'',w.opp?('เจอ '+w.opp):''].filter(Boolean).join(' · '),wDay_(d)+' '+d.slice(0,4),esc_(w.rank||''))
+    +head+sec('Elite')+sec('Sub-battle')
+    +(note?`<div class="cp-note">หมายเหตุ · ${esc_(note)}</div>`:'')
+    +capFoot_(vale?['S A B คือฐานที่มั่นใหญ่ กลาง เล็ก']:[]);
+}
+
+/* 5 · การแจกรางวัล */
+function capRewards_(){
+  let dist=null,rw=null;
+  try{dist=computeDistribution();rw=getRewardValues();}catch(e){}
+  if(!dist||!rw)return '<div class="cp-none">รอบนี้ยังไม่มีข้อมูลการแจกของ</div>';
+  const box=(l,v)=>`<div class="cp-st c"><span>${l}</span><b>${v}</b></div>`;
+  const cards=box('Card',rw.card)+box('Feather white',rw.white)+box('Feather red/black',rw.red)+box('Light/Dark',rw.limWhite)+box('Time/Space',rw.limRed);
+  const body=dist.rows.map((r,i)=>{const c=_toPageBox(r.cardSlot);
+    return `<tr><td class="n">${i+1}</td><td><b>${esc_(r.name)}</b></td><td class="mu">Page${c.page}(${c.box})</td>
+      <td class="n">${esc_(fmtSlots(r.wStart,r.white))}</td><td class="n">${esc_(fmtSlots(r.rStart,r.red))}</td>
+      <td class="n">${r.done?'ดึงแล้ว':'รอ'}</td></tr>`;}).join('');
+  const lo=document.getElementById('lo-body');
+  const loRows=lo&&!/class="empty"|au-empty2/.test(lo.innerHTML)?lo.innerHTML.replace(/<button[\s\S]*?<\/button>/g,''):'';
+  const loH=loRows?`<div class="cp-lo"><h4>Leftover</h4><table class="cp-tb"><thead><tr><th>Name</th><th class="n">White</th><th class="n">Red / Black</th></tr></thead><tbody>${loRows}</tbody></table></div>`:'';
+  const w=_aucAutoWar||{};
+  return capTop_('rewards',[rw.event_name,rw.rank,'แจก '+dist.n+' คน'].filter(Boolean).join(' · '),w.date?wDay_(w.date)+' '+String(w.date).slice(0,4):null,'ขาว '+dist.pW+'/คน · ดำแดง '+dist.pR+'/คน')
+    +`<div class="cp-g5">${cards}</div>`
+    +`<div class="cp-g6"><table class="cp-tb"><thead><tr><th class="n">คิว</th><th>Name</th><th>Card Slot</th><th class="n">White</th><th class="n">Red / Black</th><th class="n">Status</th></tr></thead><tbody>${body}</tbody></table>${loH}</div>`
+    +capFoot_(['เพดานต่อคนมาจาก Rewards_Ref']);
+}
+
+const CAP_B={party:capParty_,helper:capHelper_,queue:capQueue_,war:capWar_,rewards:capRewards_};
+/* หน้า Guild Auction กับ Guild War มีหลายแท็บ — ดูว่าอยู่แท็บไหนแล้วแคปของแท็บนั้น */
+function capAucKind_(){const b=document.querySelector('#page-auction .au-tab.active');
+  const t=b?b.dataset.tab:'calc'; return t==='designated'?'helper':t==='manage'?'queue':'rewards';}
+function capWarKind_(){return _warTab==='rewards'?'rewards':'war';}
+function capOpen(kind){
+  _capKind=CAP_B[kind]?kind:'party';
+  let ov=document.getElementById('cap-ov');
+  if(!ov){ov=document.createElement('div');ov.id='cap-ov';ov.className='cap-ov';document.body.appendChild(ov);}
+  let inner='';
+  try{inner=CAP_B[_capKind]();}catch(e){inner='<div class="cp-none">สร้างภาพไม่ได้ · '+esc_(e&&e.message||e)+'</div>';}
+  const canCopy=!!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
+  ov.innerHTML=`<div class="cap-tb"><button class="cap-b on" onclick="capPng('dl')">⬇ Download PNG</button>`+
+    (canCopy?`<button class="cap-b" onclick="capPng('copy')">📋 Copy</button>`:'')+
+    `<span class="cap-hint" id="cap-msg">ภาพที่ได้จะเป็นตามแผ่นด้านล่าง</span>
+     <button class="cap-b" onclick="capClose()">✕ Close</button></div>
+     <div class="cap-scroll"><div id="cap-sheet" class="cap-sheet">${inner}</div></div>`;
+  ov.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function capClose(){const ov=document.getElementById('cap-ov');if(ov)ov.style.display='none';document.body.style.overflow='';}
+function capLib_(){
+  if(window.html2canvas)return Promise.resolve(window.html2canvas);
+  return new Promise((res,rej)=>{const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=()=>window.html2canvas?res(window.html2canvas):rej(new Error('โหลดไม่สำเร็จ'));
+    s.onerror=()=>rej(new Error('โหลดตัวสร้างภาพไม่ได้ ต้องต่อเน็ต'));
+    document.head.appendChild(s);});
+}
+async function capPng(how){
+  if(_capBusy)return; _capBusy=true;
+  const set=t=>{const e=document.getElementById('cap-msg');if(e)e.textContent=t;};
+  try{
+    set('กำลังสร้างภาพ...');
+    const h2c=await capLib_();
+    const node=document.getElementById('cap-sheet');
+    const bg=getComputedStyle(document.body).backgroundColor;
+    const cv=await h2c(node,{backgroundColor:bg,scale:2,useCORS:true,logging:false});
+    const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+    if(!blob)throw new Error('แปลงภาพไม่สำเร็จ');
+    const name='warmup-'+_capKind+'-'+new Date().toISOString().slice(0,10)+'.png';
+    if(how==='copy'){
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+      set('ก๊อปภาพแล้ว วางในดิสคอร์ดได้เลย');
+    }else{
+      const url=URL.createObjectURL(blob), a=document.createElement('a');
+      a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      set('บันทึกแล้ว · '+name);
+    }
+  }catch(e){ set('ไม่สำเร็จ · '+((e&&e.message)||e)); }
+  finally{ _capBusy=false; }
 }
 
 /* ── ประวัติวอรายคน — ทุกคนดูได้ ──
