@@ -716,6 +716,19 @@ body.is-admin .wr-adm{display:inline-block}
 .ns-f{display:flex;gap:10px;align-items:center;padding:12px 18px;flex-wrap:wrap}
 .ns-f .sp{flex:1;font-size:12px;color:var(--faint)}
 .ns-lv{background:var(--card2);border-radius:10px;padding:8px 11px;font-size:12.5px;color:var(--muted);line-height:1.8}
+.in-sp{display:flex;gap:2px;align-items:center}
+.in-sp i{width:8px;height:14px;border-radius:2px;display:block;background:var(--border2)}
+.in-sp i.p{background:var(--green)}.in-sp i.l{background:var(--amber)}.in-sp i.n{background:var(--red)}
+.in-fl{font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 8px;border:1px solid;white-space:nowrap}
+.in-fl.bad{color:var(--red);border-color:var(--red)}
+.in-fl.warn{color:var(--amber);border-color:var(--amber)}
+.in-fl.good{color:var(--green);border-color:var(--green)}
+.in-fl.mute{color:var(--muted);border-color:var(--border2)}
+.in-tb td.n,.in-tb th.n{text-align:right}
+.in-key{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}
+.in-key span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.in-key .p::before{background:var(--green)}.in-key .l::before{background:var(--amber)}.in-key .n::before{background:var(--red)}.in-key .x::before{background:var(--border2)}
+.in-note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.8}
 .mn-in{background:none;border:1px solid transparent;border-radius:7px;padding:3px 6px;font:inherit;font-size:13px;font-weight:600;color:var(--text);width:100%;max-width:190px}
 .mn-in:hover{border-color:var(--border2)}
 .mn-in:focus{border-color:var(--orange);outline:none;background:var(--card2)}
@@ -1316,11 +1329,13 @@ body.is-admin .wr-adm{display:inline-block}
   <div class="au-tabs">
     <button class="au-tab wr-tab active" data-wt="hist" onclick="swWarTab('hist')">History</button>
     <button class="au-tab wr-tab" data-wt="stats" onclick="swWarTab('stats')">Stats</button>
+    <button class="au-tab wr-tab" data-wt="insight" onclick="swWarTab('insight')">Insights</button>
     <button class="au-tab wr-tab" data-wt="rewards" onclick="swWarTab('rewards')">Rewards</button>
     <button class="au-tab wr-tab wr-adm" data-wt="glin" onclick="swWarTab('glin')">Guild League Input</button>
     <button class="au-tab wr-tab wr-adm" data-wt="orin" onclick="swWarTab('orin')">Overrun Input</button>
   </div>
   <div id="war-stats" style="display:none"></div>
+  <div id="war-insight" style="display:none"></div>
   <div id="war-glin" style="display:none"></div>
   <div id="war-orin" style="display:none"></div>
   <div id="war-hist">
@@ -1619,9 +1634,10 @@ function renderMembers(){
 
 /* ── admin: เปลี่ยนอาชีพ (หน้า Members) ── */
 const CE_CLASSES=Object.keys(CLASS_TYPE).sort();
-/* ── admin: สถานะสมาชิก (ACTIVE ⇄ ARCHIVED) ──
-   คนที่ออกกิลด์แล้วไม่อยู่ใน Web_Members จึงต้องดึงรายชื่อทุกสถานะมาเพิ่มเฉพาะโหมดแอดมิน */
-const MS_ST=['ACTIVE','ARCHIVED'];
+/* ── admin: สถานะสมาชิก (ACTIVE / WAITLIST / ARCHIVED) ──
+   คนที่ออกกิลด์แล้วไม่อยู่ใน Web_Members จึงต้องดึงรายชื่อทุกสถานะมาเพิ่มเฉพาะโหมดแอดมิน
+   ABSENT เป็นสถานะที่คำนวณจากโน้ตการลา ไม่ได้เลือกเอง */
+const MS_ST=['ACTIVE','WAITLIST','ARCHIVED'];
 let _msAll=null,_ms={},_msBusy=false;
 const msStatusOf=m=>{const st=String(m.status||'').trim().toUpperCase();
   if(st==='ARCHIVED'||st==='WAITLIST')return st;
@@ -1670,13 +1686,12 @@ function ceSet(name,k,v){
   if(!Object.keys(_ce[name]).length)delete _ce[name];
   renderMembers();
 }
-/* ช่อง Status — แอดมินเปลี่ยน Active ⇄ Archived ได้ · Waitlist ดูได้อย่างเดียว */
+/* ช่อง Status — แอดมินเปลี่ยนได้ทั้ง Active / Waitlist / Archived · Absent คำนวณจากโน้ตการลา */
 function msCell_(m){
   const st=msStatusOf(m), lbl={ACTIVE:'Active',ABSENT:'Absent',ARCHIVED:'Archived',WAITLIST:'Waitlist'};
   const badge=k=>`<span class="st-att ${k==='ABSENT'?'lv':k==='ACTIVE'?'ok':'ar'} en">${lbl[k]}</span>`;
   if(!ADMIN)return badge(st==='ABSENT'?'ABSENT':'ACTIVE');
-  if(st==='WAITLIST')return badge('WAITLIST');
-  const cur=_ms[m.ign]||(st==='ARCHIVED'?'ARCHIVED':'ACTIVE');
+  const cur=_ms[m.ign]||(st==='ARCHIVED'||st==='WAITLIST'?st:'ACTIVE');
   const nq=esc_(m.ign).replace(/'/g,"\\'");
   const sel=`<select class="ce-sel${_ms[m.ign]?' chg':''}" onchange="msSet('${nq}',this.value)">${MS_ST.map(v=>`<option value="${v}"${v===cur?' selected':''}>${lbl[v]}</option>`).join('')}</select>`;
   return st==='ABSENT'?sel+' '+badge('ABSENT'):sel;
@@ -3160,7 +3175,8 @@ function swWarTab(t){
   if((t==='glin'||t==='orin')&&!ADMIN)t='hist';
   _warTab=t;
   document.querySelectorAll('.wr-tab').forEach(b=>b.classList.toggle('active',b.dataset.wt===t));
-  ['hist','stats','rewards','glin','orin'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
+  ['hist','stats','rewards','insight','glin','orin'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
+  if(t==='insight')renderInsights();
   if(t==='glin')giOpen_();
   if(t==='orin')oiOpen_();
 }
@@ -3267,6 +3283,85 @@ function renderWarHistory(){
 }
 
 
+
+/* ══ INSIGHTS ══ แนวโน้มการมาและสกอร์ — ทุกคนดูได้
+   รอบที่นับ = นัดลีกกิลด์ที่มีสกอร์รายคนบันทึกไว้แล้วเท่านั้น (นัดที่ยังไม่กรอกไม่นับให้ใครเสีย %) */
+let _insTab='att',_insRange=12;
+function insSet(k,v){ if(k==='tab')_insTab=v; else _insRange=+v; renderInsights(); }
+function insRounds_(){
+  const dates=[...new Set(_glScore.map(r=>r.date))].sort((a,b)=>b.localeCompare(a));
+  return _insRange>0?dates.slice(0,_insRange):dates;
+}
+function insAttend_(rounds){
+  const byId={};
+  _glScore.forEach(r=>{const k=String(r.character_id||'').trim()||String(r.member_name||'').trim().toLowerCase();
+    (byId[k]=byId[k]||{})[r.date]='PRESENT';});
+  _attLog.forEach(r=>{const k=String(r.character_id||'').trim()||String(r.member_name||'').trim().toLowerCase();
+    const st=String(r.status||'').trim().toUpperCase();
+    byId[k]=byId[k]||{}; if(byId[k][r.date]!=='PRESENT')byId[k][r.date]=st;});
+  return members.map(m=>{
+    const k=String(m.char_id||'').trim()||String(m.ign||'').trim().toLowerCase();
+    const map=byId[k]||{};
+    const seq=rounds.map(d=>map[d]||'');
+    const n=s=>seq.filter(x=>x===s).length;
+    const p=n('PRESENT'),l=n('LEAVE'),ns=n('NO_SHOW');
+    return {m,seq,present:p,leave:l,noshow:ns,pct:rounds.length?Math.round(p/rounds.length*100):0};
+  }).filter(x=>x.present+x.leave+x.noshow>0)
+    .sort((a,b)=>b.noshow-a.noshow||b.leave-a.leave||a.pct-b.pct);
+}
+function insScores_(rounds){
+  const set=new Set(rounds), rows={};
+  _glScore.filter(r=>set.has(r.date)).forEach(r=>{
+    const k=String(r.character_id||'').trim()||String(r.member_name||'').trim().toLowerCase();
+    const o=rows[k]=rows[k]||{name:r.member_name||'',n:0,score:0,kill:0,death:0,assist:0,last:0,cls:{}};
+    o.name=r.member_name||o.name; o.n++;
+    o.score+=wNum_(r.score)||0; o.kill+=wNum_(r.kill)||0; o.death+=wNum_(r.death)||0; o.assist+=wNum_(r.assist)||0;
+    const rk=wNum_(r.list_rank); if(rk!=null&&rk>=36)o.last++;
+    const c=String(r.class_played||'').trim(); if(c)o.cls[c]=(o.cls[c]||0)+1;
+  });
+  const list=Object.keys(rows).map(k=>{const o=rows[k];
+    const cls=Object.keys(o.cls).sort((a,b)=>o.cls[b]-o.cls[a])[0]||'';
+    return {name:o.name,n:o.n,cls,avg:Math.round(o.score/o.n),kill:+(o.kill/o.n).toFixed(1),death:+(o.death/o.n).toFixed(1),assist:+(o.assist/o.n).toFixed(1),last:o.last};});
+  const clsAvg={};
+  list.forEach(x=>{ if(!x.cls)return; (clsAvg[x.cls]=clsAvg[x.cls]||[]).push(x.avg); });
+  Object.keys(clsAvg).forEach(c=>{const a=clsAvg[c];clsAvg[c]=Math.round(a.reduce((s,v)=>s+v,0)/a.length);});
+  list.forEach(x=>{x.base=x.cls?clsAvg[x.cls]:null; x.diff=x.base!=null?x.avg-x.base:null;});
+  return list.sort((a,b)=>b.avg-a.avg);
+}
+function renderInsights(){
+  const box=document.getElementById('war-insight'); if(!box)return;
+  const rounds=insRounds_();
+  const seg=(arr,cur,k)=>`<div class="wi-seg">${arr.map(([v,t])=>`<button class="${String(v)===String(cur)?'on':''}" onclick="insSet('${k}','${v}')">${t}</button>`).join('')}</div>`;
+  const head=`<div class="wi-row" style="align-items:flex-end">
+    <div class="wi-f"><span>View</span>${seg([['att','Attendance'],['score','Scores']],_insTab,'tab')}</div>
+    <div class="wi-f"><span>Range</span>${seg([[12,'12 นัดล่าสุด'],[6,'6 นัดล่าสุด'],[0,'ทั้งหมด']],_insRange,'range')}</div>
+    <span class="wi-st">นับจากนัดที่มีสกอร์รายคนแล้ว ${rounds.length} นัด</span></div>`;
+  if(!rounds.length){ box.innerHTML=head+'<div class="empty">ยังไม่มีนัดที่บันทึกสกอร์รายคน</div>'; return; }
+  if(_insTab==='att'){
+    const rows=insAttend_(rounds);
+    const dot=x=>`<i class="${x==='PRESENT'?'p':x==='LEAVE'?'l':x==='NO_SHOW'?'n':'x'}"></i>`;
+    const flag=r=>r.noshow>=3?'<span class="in-fl bad">ไม่แจ้งลา '+r.noshow+' ครั้ง</span>'
+      :r.noshow>0?'<span class="in-fl warn">ไม่แจ้งลา '+r.noshow+' ครั้ง</span>'
+      :r.leave>=3?'<span class="in-fl mute">ลาบ่อยแต่แจ้งทุกครั้ง</span>'
+      :r.pct===100?'<span class="in-fl good">มาครบ</span>':'';
+    box.innerHTML=head+`<div class="tbl-wrap"><table class="rtbl in-tb">
+      <thead><tr><th>Name</th><th>${rounds.length} นัดล่าสุด</th><th class="n">Present</th><th class="n">Leave</th><th class="n">No-show</th><th class="n">Attend %</th><th>Flag</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td><b>${esc_(r.m.ign)}</b></td>
+        <td><div class="in-sp">${[...r.seq].reverse().map(dot).join('')}</div></td>
+        <td class="n">${r.present}</td><td class="n">${r.leave}</td><td class="n">${r.noshow}</td>
+        <td class="n">${r.pct}%</td><td>${flag(r)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="in-key"><span class="p">Present</span><span class="l">Leave</span><span class="n">No-show</span><span class="x">ไม่มีข้อมูล</span></div>`;
+  } else {
+    const rows=insScores_(rounds);
+    const dv=x=>x.diff==null?'':`<span class="in-fl ${x.diff>=0?'good':'warn'}">${x.diff>=0?'+':'−'}${wFmt_(x.diff)}</span>`;
+    box.innerHTML=head+`<div class="tbl-wrap"><table class="rtbl in-tb">
+      <thead><tr><th>Name</th><th>Class</th><th class="n">นัด</th><th class="n">Avg score</th><th class="n">Kill</th><th class="n">Assist</th><th class="n">Death</th><th class="n">ท้ายตาราง</th><th>เทียบอาชีพเดียวกัน</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr><td><b>${esc_(x.name)}</b></td><td class="en">${esc_(x.cls)}</td>
+        <td class="n">${x.n}</td><td class="n">${wFmt_(x.avg)}</td><td class="n">${x.kill}</td><td class="n">${x.assist}</td><td class="n">${x.death}</td>
+        <td class="n">${x.last||''}</td><td>${dv(x)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="in-note">ท้ายตาราง = จำนวนนัดที่อยู่อันดับ 36 ขึ้นไปของสนาม · ช่องขวาสุดเทียบกับค่าเฉลี่ยของคนที่เล่นอาชีพเดียวกันในช่วงเดียวกัน สายซัพพอร์ตคะแนนน้อยกว่าสายตีเป็นปกติ</div>`;
+  }
+}
 
 /* ══ GUILD RULES ══ แก้กฎได้ที่ GR_DATA ที่เดียว
    tag: 'new' = ข้อใหม่ · 'chg' = เปลี่ยน · was = ข้อความเดิม (ขีดฆ่าไว้ให้เห็นว่าเปลี่ยนจากอะไร)
