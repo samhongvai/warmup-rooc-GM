@@ -716,6 +716,13 @@ body.is-admin .wr-adm{display:inline-block}
 .ns-f{display:flex;gap:10px;align-items:center;padding:12px 18px;flex-wrap:wrap}
 .ns-f .sp{flex:1;font-size:12px;color:var(--faint)}
 .ns-lv{background:var(--card2);border-radius:10px;padding:8px 11px;font-size:12.5px;color:var(--muted);line-height:1.8}
+.wh-st{font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px;border:1px solid;white-space:nowrap}
+.wh-st.p{color:var(--green);border-color:var(--green)}
+.wh-st.l{color:var(--amber);border-color:var(--amber)}
+.wh-st.n{color:var(--red);border-color:var(--red)}
+.wh-op{font-size:10.5px;color:var(--faint)}
+.wh-tb td{vertical-align:top}
+.wh-tb th:last-child,.wh-tb td:last-child{padding-left:12px}
 .wh-miss{margin-top:3px;font-size:10.5px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-b);border-radius:8px;padding:2px 7px;display:inline-block;line-height:1.5;white-space:normal}
 .wi-box select.wi-cls{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:4px 5px;font:inherit;font-size:11.5px;min-width:104px;max-width:128px}
 .wi-ttl{display:flex;gap:3px;flex-wrap:nowrap}.wi-ttl button{font:inherit;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 7px;border:1px solid var(--border2);background:none;color:var(--faint);cursor:pointer;white-space:nowrap}.wi-ttl button.on{background:var(--orange-dim);border-color:var(--orange);color:var(--orange)}
@@ -1374,10 +1381,10 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
    gviz คืนเฉพาะแถวที่มองเห็น แถวที่ถูกกรองจะหายจากเว็บ — ใช้ Filter views แทน (2026-09-22) */
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
-               Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT};
+               Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT};
 /* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
-const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q'};
+const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H'};
 
 /* ══ ADMIN ══
    โหมดแอดมิน = หน้าเว็บนี้ถูกเปิดผ่าน Apps Script (Admin.gs ใน Warmup Members)
@@ -1746,6 +1753,44 @@ function renderParty(){
     `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`+absPanel;
 }
 
+/* ── ประวัติวอรายคน — ทุกคนดูได้ ──
+   รวมสกอร์จาก GL_Score กับสถานะการมาจาก Attend_Log แล้วเรียงวันใหม่ไปเก่า */
+const WH_PAGE=8;
+let _whMore={};
+function whPlayerRows_(m){
+  const id=String(m.char_id||'').trim(), nm=String(m.ign||'').trim();
+  const mine=r=>{const ri=String(r.character_id||'').trim();
+    return (id&&ri&&ri===id)||(!ri&&String(r.member_name||'').trim().toLowerCase()===nm.toLowerCase())
+      ||(String(r.member_name||'').trim().toLowerCase()===nm.toLowerCase()&&!id);};
+  const byDate={};
+  _glScore.filter(mine).forEach(r=>{byDate[r.date]={date:r.date,field:r.field||'',cls:r.class_played||'',rank:r.list_rank||'',score:r.score||'',title:r.title||'',st:'PRESENT'};});
+  _attLog.filter(r=>mine(r)).forEach(r=>{
+    const st=String(r.status||'').trim().toUpperCase();
+    if(byDate[r.date])byDate[r.date].st=byDate[r.date].st==='PRESENT'?'PRESENT':st; else byDate[r.date]={date:r.date,field:'',cls:'',rank:'',score:'',title:'',st};
+  });
+  return Object.values(byDate).sort((a,b)=>b.date.localeCompare(a.date));
+}
+function whMore(k){_whMore[k]=(_whMore[k]||WH_PAGE)+WH_PAGE; if(_histDraw)_histDraw();}
+function whPlayer_(m){
+  if(!_warLoaded)return '<div class="loading" style="padding:8px 0">Loading...</div>';
+  const rows=whPlayerRows_(m);
+  if(!rows.length)return '<div class="pf-empty en">No war history</div>';
+  const k=String(m.char_id||m.ign||''), show=_whMore[k]||WH_PAGE;
+  const lg=d=>{const r=_glLog.find(x=>x.date===d);return r?[r.league,r.opponent].filter(Boolean).map(esc_).join(' · '):'';};
+  const stTag={PRESENT:'<span class="wh-st p en">Present</span>',LEAVE:'<span class="wh-st l en">Leave</span>',NO_SHOW:'<span class="wh-st n en">No-show</span>'};
+  const fld=(f,d)=>{const r=_glLog.find(x=>x.date===d); const vale=r&&r.league==='Vale of Clash';
+    return f==='Elite'?(vale?'Main-Field':'Elite'):f==='Sub-battle'?(vale?'Sub-Field':'Sub-battle'):'';};
+  const body=rows.slice(0,show).map(r=>`<tr>
+    <td style="color:var(--muted);white-space:nowrap">${r.date}<div class="wh-op">${lg(r.date)}</div></td>
+    <td class="en">${esc_(fld(r.field,r.date))}</td>
+    <td class="en">${esc_(r.cls)}</td>
+    <td class="num" style="text-align:right">${r.rank?'#'+esc_(r.rank):''}</td>
+    <td class="num" style="text-align:right">${esc_(r.score)}</td>
+    <td>${stTag[r.st]||''}</td></tr>`).join('');
+  const rest=Math.max(0,rows.length-show);
+  const btn=rest?`<button class="hist-more" onclick="whMore(${JSON.stringify(k).replace(/"/g,'&quot;')})">ดูเพิ่ม <b>${Math.min(WH_PAGE,rest)}</b> นัด <span>(เหลือ ${rest})</span></button>`:'';
+  return `<table class="hist wh-tb"><thead><tr><th class="en">Date</th><th class="en">Field</th><th class="en">Class</th><th class="en" style="text-align:right">Rank</th><th class="en" style="text-align:right">Score</th><th class="en">Status</th></tr></thead><tbody>${body}</tbody></table>`+btn;
+}
 let _searchHistMap={},_searchQueueRows=[],_searchLatestDate='',_searchCacheLoaded=false;
 let _histShow={},_histDraw=null;
 const HIST_PAGE=5;
@@ -1834,6 +1879,8 @@ async function searchMain(){
         </tr>`}).join('')}</tbody></table>`+hBtn
       :'<div class="pf-empty en">No auction history</div>';
 
+    const warHtml=whPlayer_(m);
+
     const meta=[cls?`<span class="en">${cls}</span>`:'',
       m.char_id?`<i class="dot"></i><span class="num">${m.char_id}</span>`:'',
       m.discord?`<i class="dot"></i><span class="en">${m.discord}</span>`:'',
@@ -1848,6 +1895,7 @@ async function searchMain(){
       ${tiles}
       <div class="pf-sec"><div class="pf-lbl en">Party &amp; Teammates</div>${mateHtml}</div>
       <div class="pf-sec"><div class="pf-lbl en">Current Queue</div>${queueHtml}</div>
+      <div class="pf-sec"><div class="pf-lbl en">Guild War History</div>${warHtml}</div>
       <div class="pf-sec" id="hist-${m.ign.replace(/[^a-zA-Z0-9]/g,'_')}">
         <div class="pf-lbl en">Auction History</div>${histHtml}</div>
     </div>`;
@@ -1880,6 +1928,7 @@ async function searchMain(){
     await preloadSearchCache();   // โหลดคิวปัจจุบัน + ประวัติทั้งหมดจาก Queue_Archive
     draw();                       // วาดใหม่ทั้งการ์ด ให้ทั้งอันดับคิวและประวัติเป็นข้อมูลสดพร้อมกัน
   }
+  if(!_warLoaded){ await loadWarData(); draw(); }   // ประวัติวอรายคน
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3054,7 +3103,7 @@ function admInit_(){
    ลีกกิลด์อ่าน GL_Log (คู่แข่ง/ส่วนต่าง/ผล) · โอเวอร์รันอ่าน War_Log (อันดับ/กลุ่ม) + OR_Rank (กิลด์ทั้งหมดในรอบ)
    ช่องที่กรอก "n/a" = ไม่รู้ข้อมูล → ถือเป็นช่องว่าง ไม่แสดง */
 const WAR_GUILD='Warmup';   /* ต้องตรงกับ Config › guild_name ในไฟล์ Warmup Event */
-let _warLoaded=false,_warLoadPromise=null,_glLog=[],_orRank=[],_glScore=[],_whOpen={};
+let _warLoaded=false,_warLoadPromise=null,_glLog=[],_orRank=[],_glScore=[],_attLog=[],_whOpen={};
 const naV_=v=>{const x=String(v==null?'':v).trim();return x.toLowerCase()==='n/a'?'':x};
 const naRow_=r=>{const o={};Object.keys(r).forEach(k=>o[k]=naV_(r[k]));return o};
 const wNum_=v=>{const n=Number(String(v||'').replace(/,/g,''));return String(v||'').trim()!==''&&isFinite(n)?n:null};
@@ -3068,8 +3117,9 @@ async function loadWarData(){
       try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
       catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
     };
-    const [gl,orr,gs]=await Promise.all([get('GL_Log'),get('OR_Rank'),ADMIN?get('GL_Score'):Promise.resolve([])]);
+    const [gl,orr,gs,at]=await Promise.all([get('GL_Log'),get('OR_Rank'),get('GL_Score'),get('Attend_Log')]);
     _glScore=gs.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
+    _attLog=at.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     _glLog=gl.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     _orRank=orr.map(naRow_).map(r=>({...r,date:normDate(r.war_date)})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     _warLoaded=true;_warLoadPromise=null;
@@ -4165,7 +4215,7 @@ async function forceRefresh(){
   _aucQueue=[];_aucHelpers=[];_aucRewardsRef=[];_warLog=[];
   _aucQueueArchive=[];_aucArchiveLoaded=false;_aucArchiveLoadPromise=null;
   _aucQueueRows=[];
-  _searchHistMap={};_searchQueueRows=[];_searchLatestDate='';_searchCacheLoaded=false;
+  _searchHistMap={};_searchQueueRows=[];_searchLatestDate='';_searchCacheLoaded=false;_attLog=[];
   _calEventsRaw=[];_calEventsLoaded=false;_calEventsPromise=null;
   Object.keys(_calCache).forEach(k=>delete _calCache[k]);
   Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
