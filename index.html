@@ -212,33 +212,47 @@ input[type=checkbox]{accent-color:var(--orange)}
 .srch-hist tr:last-child td{border-bottom:none}
 .srch-pos{font-size:10px;font-family:var(--font-pixel);padding:2px 6px;border-radius:4px;background:var(--card2);border:1px solid var(--border)}
 .si{width:14px;height:14px;color:var(--faint);flex-shrink:0}
-.cal-wrap{display:flex;border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;overflow-y:auto;max-height:600px;box-shadow:var(--shadow-out-sm)}
-.cal-time-axis{width:44px;flex-shrink:0;background:var(--card2);border-right:1px solid var(--border)}
-.cal-time-head{height:44px;border-bottom:1px solid var(--border)}
-.cal-time-slot{height:24px;display:flex;align-items:flex-start;padding:2px 4px 0;border-bottom:1px solid var(--soft)}
-.cal-time-slot span{font-size:9px;color:var(--faint);line-height:1;white-space:nowrap;font-family:var(--font-pixel)}
-.cal-day-cols{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));flex:1}
-@media(max-width:760px){.cal-day-cols{grid-template-columns:repeat(3,1fr)}}
-.cal-dcol{border-right:1px solid var(--soft);display:flex;flex-direction:column}
-.cal-dcol:last-child{border-right:none}
-.cal-dhead{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid var(--border);background:var(--card2);position:sticky;top:0;z-index:1}
-.cal-dname{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.cal-dnum{font-size:16px;font-weight:700;color:var(--orange-l);line-height:1.2}
-.cal-dcol.today-day .cal-dhead{background:var(--orange-dim);border-bottom:2px solid var(--orange-border)}
-.cal-dcol.today-day .cal-dname{color:var(--orange-l)}
-.cal-dcol.today-day .cal-dnum{color:var(--orange)}
-.cal-dgrid{position:relative;height:1728px}
-.cal-grid-line{position:absolute;left:0;right:0;height:1px;background:var(--soft)}
-.cal-grid-line.hour{height:1px;background:var(--border)}
-.cal-hour-band{position:absolute;left:0;right:0;background:var(--soft);pointer-events:none}
-.cal-evt-block{position:absolute;border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;overflow:hidden;line-height:1.4;background:var(--card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:5px}
-.cal-evt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:2px}
-.cal-evt-body{min-width:0;flex:1}
-.cal-evt-title{display:block;color:var(--text);font-weight:600;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-evt-time{font-size:9px;color:var(--faint);display:block;font-weight:500;margin-top:1px;font-family:var(--font-pixel)}
-.cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:.7;margin-top:2px}
-.cal-evt-block.is-narrow .evt-title-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-evt-block.is-narrow .evt-time{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+#page-calendar{max-width:780px}
+.cal-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.cal-seg{display:inline-flex;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:3px;gap:3px}
+.cal-seg button{font:inherit;font-size:12.5px;font-weight:700;padding:5px 15px;border-radius:999px;color:var(--muted);background:none;border:none;cursor:pointer;line-height:1.4}
+.cal-seg button.on{background:var(--orange);color:#fff}
+.cal-nav{margin-left:auto;display:flex;align-items:center;gap:6px}
+.cal-nav button{height:32px;min-width:32px;padding:0 10px;border-radius:9px;border:1px solid var(--border2);background:var(--card);color:var(--text);font:inherit;font-size:12.5px;cursor:pointer}
+.cal-nav button:hover{border-color:var(--orange-border)}
+.cal-per{font-size:14.5px;font-weight:700;margin-bottom:10px;font-family:var(--font-pixel)}
+.cal-per small{color:var(--muted);font-weight:500;margin-left:8px;font-size:12px;font-family:inherit}
+.cal-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+.cal-sd{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:7px 0 6px;text-align:center;min-height:58px;color:var(--text);cursor:pointer;font:inherit}
+.cal-sd span{display:block;font-size:10.5px;color:var(--muted)}
+.cal-sd b{display:block;font-size:15px;line-height:1.3;font-family:var(--font-pixel)}
+.cal-sd i{display:block;width:5px;height:5px;border-radius:50%;margin:4px auto 0;background:transparent}
+.cal-sd.on{border-color:var(--orange-border);background:var(--orange-dim)}
+.cal-sd.on b{color:var(--orange)}
+.cal-sd.now b{color:var(--orange-l)}
+.cal-mg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.cal-mh{font-size:10.5px;color:var(--muted);text-align:center;padding-bottom:2px;font-weight:700}
+.cal-mc{aspect-ratio:1/1;border-radius:10px;background:var(--card);border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:13px;color:var(--text);cursor:pointer;font-family:var(--font-pixel)}
+.cal-mc.dim{background:transparent;color:var(--faint);cursor:default}
+.cal-mc.now{border-color:var(--orange-border)}
+.cal-mc.sel{background:var(--orange);color:#fff;font-weight:800;border-color:var(--orange)}
+.cal-dots{display:flex;gap:3px;height:5px}
+.cal-dots i{width:5px;height:5px;border-radius:50%;display:block}
+.cal-mc.sel .cal-dots i{background:#fff!important}
+.cal-dh{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.cal-dh b{color:var(--text);font-size:14.5px}
+.cal-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--muted);border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow-out-sm)}
+.cal-card-t{display:flex;align-items:center;gap:8px}
+.cal-card-t b{font-size:14px}
+.cal-card>span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.6}
+.cal-pill{margin-left:auto;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px;border:1px solid;white-space:nowrap;font-family:var(--font-pixel)}
+.cal-k-gl{border-left-color:var(--orange)}.cal-k-gl .cal-pill{color:var(--orange);border-color:var(--orange-border);background:var(--orange-dim)}
+.cal-k-or{border-left-color:var(--blue)}.cal-k-or .cal-pill{color:var(--blue);border-color:var(--blue-b);background:var(--blue-dim)}
+.cal-k-hp{border-left-color:var(--green)}.cal-k-hp .cal-pill{color:var(--green);border-color:var(--green-b);background:var(--green-dim)}
+.cal-k-au{border-left-color:var(--amber)}.cal-k-au .cal-pill{color:var(--amber);border-color:var(--amber-b);background:var(--amber-dim)}
+.cal-k-ot .cal-pill{color:var(--muted);border-color:var(--border2);background:var(--card2)}
+.cal-empty{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:420px){.cal-strip{gap:3px}.cal-sd{min-height:54px}.cal-sd b{font-size:14px}.cal-mg{gap:3px}.cal-mc{font-size:12px}}
 .gh-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
 .helper-strip{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow-out-sm)}
 .helper-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -1473,23 +1487,25 @@ body.is-admin .wr-adm{display:inline-block}
 
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar</div>
-  <div style="margin-bottom:14px">
-    <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;min-height:20px;font-family:var(--font-pixel)" id="cal-week-label">Loading...</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-ghost" onclick="calNavWeek(-1)">◀</button>
-      <button class="btn btn-ghost" onclick="calGoToday()">This week</button>
-      <button class="btn btn-ghost" onclick="calNavWeek(1)">▶</button>
-      <button class="btn btn-ghost" id="cal-refresh-btn" onclick="calRefresh()" title="Refresh">🔄</button>
+  <div class="cal-bar">
+    <div class="cal-seg">
+      <button id="cal-seg-week" class="on" onclick="calSetView('week')">Week</button>
+      <button id="cal-seg-month" onclick="calSetView('month')">Month</button>
+    </div>
+    <div class="cal-nav">
+      <button onclick="calNav(-1)" title="ก่อนหน้า">◀</button>
+      <button onclick="calToday()">วันนี้</button>
+      <button onclick="calNav(1)" title="ถัดไป">▶</button>
+      <button id="cal-refresh-btn" onclick="calRefresh()" title="โหลดใหม่">🔄</button>
     </div>
   </div>
+  <div class="cal-per" id="cal-per">Loading...</div>
+  <div id="cal-body"></div>
+  <div class="cal-legend" id="cal-legend"></div>
+  <div id="cal-day"></div>
   <div class="helper-strip" id="cal-helper-strip">
     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">🤝 Guild Helper this week</div>
-    <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">None listed</span></div>
-  </div>
-  <div class="cal-legend" id="cal-legend"></div>
-  <div class="cal-wrap" id="cal-wrap">
-    <div class="cal-time-axis" id="cal-time-axis"><div class="cal-time-head"></div></div>
-    <div class="cal-day-cols" id="cal-day-cols"></div>
+    <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">Loading...</span></div>
   </div>
 </div>
 
@@ -4184,45 +4200,15 @@ function remainingQueueRank_(qRow){
 }
 
 
-const CAL_DAYS_SHORT=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
-const SLOT_MINS=15;
-const SLOT_H=24;
-let _calTotalSlots=24;
-let TIME_START=18;
-const TIME_START_DEFAULT=18, TIME_END_DEFAULT=21;
+/* ══ CALENDAR ══ มุมมองสัปดาห์และเดือนในหน้าเดียว · กดวันเพื่อดูรายละเอียดด้านล่าง ══ */
+const CAL_DOW_S=['จ','อ','พ','พฤ','ศ','ส','อา'];
+const CAL_DOW_F=['จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์','อาทิตย์'];
+const CAL_MON_F=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let _calView='week';
+let _calSel='';
+let _calMonth='';
 let _calWeekStart='';
-let _calAnchorDate='';
-let _calLastMobileState=null;
 let _calSpecialEvents=[];
-const CAL_MOBILE_BREAKPOINT=760;
-function isCalMobileView(){return window.innerWidth<=CAL_MOBILE_BREAKPOINT}
-
-function getCalVisibleDates(){
-  if(isCalMobileView()){
-    const anchor=new Date(_calAnchorDate+'T00:00:00');
-    const dates=[];
-    for(let i=-1;i<=1;i++){
-      const d=new Date(anchor);d.setDate(anchor.getDate()+i);
-      dates.push(toDateStr(d));
-    }
-    return dates;
-  }
-  _calWeekStart=mondayOfDate(_calWeekStart);
-  const mon=new Date(_calWeekStart+'T00:00:00');
-  const dates=[];
-  for(let i=0;i<7;i++){
-    const d=new Date(mon);d.setDate(mon.getDate()+i);
-    dates.push(toDateStr(d));
-  }
-  return dates;
-}
-
-function mondayOfDate(dateStr){
-  const d=new Date(dateStr+'T00:00:00');
-  const dow=(d.getDay()+6)%7;
-  d.setDate(d.getDate()-dow);
-  return toDateStr(d);
-}
 
 function toDateStr(d){
   const y=d.getFullYear();
@@ -4230,90 +4216,19 @@ function toDateStr(d){
   const day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
-
-function hexToEventStyle(hex){
-  const h=(hex||'#6B6661').replace('#','');
-  return `background:#${h};color:#fff`;
+function mondayOfDate(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const dow=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-dow);
+  return toDateStr(d);
 }
-
-function timeToTop(timeStr){
-  if(!timeStr||timeStr==='allday')return null;
-  const [h,m]=(timeStr).split(':').map(Number);
-  const offsetMins=(h*60+m)-(TIME_START*60);
-  if(offsetMins<0)return null;
-  return Math.round(offsetMins/SLOT_MINS*SLOT_H);
-}
-
-function computeTimeRange(){
-  const allTimed=[];
-  _calSpecialEvents.forEach(e=>{if(e.time&&e.time!=='allday')allTimed.push({start:e.time,end:e.end_time&&e.end_time!=='allday'?e.end_time:e.time})});
-  if(!allTimed.length){TIME_START=TIME_START_DEFAULT;_calTotalSlots=(TIME_END_DEFAULT-TIME_START_DEFAULT)*(60/SLOT_MINS);return}
-  const toMins=t=>{const [h,m]=t.split(':').map(Number);return h*60+(m||0)};
-  let minStart=Infinity,maxEnd=-Infinity;
-  allTimed.forEach(({start,end})=>{
-    const s=toMins(start),e=toMins(end);
-    if(s<minStart)minStart=s;
-    if(e>maxEnd)maxEnd=e;
-    if(s>maxEnd)maxEnd=s;
-  });
-  let startH=Math.floor(minStart/60);
-  let endMins=Math.ceil(maxEnd/SLOT_MINS)*SLOT_MINS+30;
-  let endH=Math.ceil(endMins/60);
-  if(endH<=startH)endH=startH+1;
-  TIME_START=startH;
-  _calTotalSlots=(endH-startH)*(60/SLOT_MINS);
-}
-
-function getWeekMondayFromDate(d){
-  const dt=new Date(d||Date.now());
-  const day=dt.getDay();
-  const diff=dt.getDate()-(day===0?6:day-1);
-  dt.setDate(diff);return toDateStr(dt);
-}
-
-async function initCalendarPage(){
-  if(!_calWeekStart)_calWeekStart=getWeekMondayFromDate();
-  if(!_calAnchorDate)_calAnchorDate=toDateStr(new Date());
-  _calLastMobileState=isCalMobileView();
-  buildTimeAxis();
-  await loadCalendarWeek();
-}
-
-function buildTimeAxis(){
-  const axis=document.getElementById('cal-time-axis');
-  while(axis.children.length>1)axis.removeChild(axis.lastChild);
-  const adRow=document.createElement('div');
-  adRow.style.cssText='height:28px;display:flex;align-items:center;padding:0 3px;border-bottom:0.5px solid rgba(var(--tint-rgb),0.1);font-size:8px;color:rgba(90,95,101,0.5)';
-  adRow.textContent='ทั้งวัน';
-  axis.appendChild(adRow);
-  const slotsPerHour=60/SLOT_MINS;
-  for(let i=0;i<_calTotalSlots;i++){
-    const div=document.createElement('div');
-    div.className='cal-time-slot';
-    const totalMins=TIME_START*60+i*SLOT_MINS;
-    const h=String(Math.floor(totalMins/60)).padStart(2,'0');
-    const m=String(totalMins%60).padStart(2,'0');
-    if(i%slotsPerHour===0) div.innerHTML=`<span>${h}:${m}</span>`;
-    axis.appendChild(div);
-  }
-}
+function calAdd_(dateStr,n){const d=new Date(dateStr+'T00:00:00');d.setDate(d.getDate()+n);return toDateStr(d);}
+function calDow_(dateStr){return (new Date(dateStr+'T00:00:00').getDay()+6)%7;}
 
 const _calCache={};
 const _calHelperCache={};
-const CAL_CACHE_TTL=0;
-
-async function calRefresh(){
-  _bust=String(Date.now());
-  _calEventsLoaded=false;
-  Object.keys(_calCache).forEach(k=>delete _calCache[k]);
-  Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
-  const btn=document.getElementById('cal-refresh-btn');
-  if(btn){btn.textContent='⏳';btn.disabled=true}
-  await loadCalendarWeek();
-  if(btn){btn.textContent='🔄';btn.disabled=false}
-}
-
 let _calEventsRaw=[],_calEventsLoaded=false,_calEventsPromise=null;
+
 const TAG_COLOR={GUILDWAR:'#B23410',AUCTION:'#7A5010',HELPER:'#2A7A48',PERSONAL:'#5A6B8C',SPECIAL:'#9A2020'};
 function colorForTag(tag){return TAG_COLOR[String(tag||'').trim().toUpperCase()]||'#6A5756'}
 
@@ -4339,67 +4254,100 @@ function normTime(v){
   return s;
 }
 
-function expandEventsForWeek(weekStart){
+/* ประเภทนัด: gl = ลีกกิลด์ · or = โอเวอร์รัน · hp = ช่วยเหลือ · au = ประมูล · ot = อื่นๆ */
+function calKind_(ev,dateStr){
+  const tag=String(ev.tag||'').trim().toUpperCase();
+  const t=String(ev.title||'');
+  if(/overrun|emperium/i.test(t))return 'or';
+  if(tag==='HELPER')return 'hp';
+  if(tag==='AUCTION')return 'au';
+  if(tag==='GUILDWAR')return new Date(dateStr+'T00:00:00').getDay()===0?'or':'gl';
+  return 'ot';
+}
+const CAL_KIND_SUB={
+  gl:'สนามหลักและสนามรอง · ดูคะแนนได้ที่หน้า Guild War',
+  or:'ชิงป้อมปราการรวมทุกกิลด์ · ดูอันดับได้ที่หน้า Guild War',
+  hp:'ลงดันช่วยเพื่อนในกิลด์',
+  au:'ดูคิวและของที่ได้ที่หน้า Guild Auction',
+  ot:''
+};
+
+/* กิจกรรมของวันนั้น อ่านจากแท็บ Events แบบทำซ้ำทุกสัปดาห์ */
+function calEventsOn_(dateStr){
+  const dow=calDow_(dateStr)+1;
   const out=[];
-  const monday=new Date(weekStart+'T00:00:00');
-  _calEventsRaw.forEach(ev=>{
+  (_calEventsRaw||[]).forEach(ev=>{
     const days=String(ev.day_of_week||'').split(',').map(d=>parseInt(String(d).trim(),10)).filter(d=>d>=1&&d<=7);
-    if(!days.length)return;
+    if(days.indexOf(dow)===-1)return;
     const anchor=normDate(ev.anchor_date);
-    days.forEach(dow=>{
-      const d=new Date(monday); d.setDate(monday.getDate()+(dow-1));
-      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      if(anchor&&dateStr<anchor)return;
-      out.push({
-        event_id:ev.event_id||'',
-        day_of_week:dow,
-        title:ev.title||'',
-        time:normTime(ev.time),
-        end_time:normTime(ev.end_time),
-        tag:ev.tag||'',
-        color:colorForTag(ev.tag)
-      });
+    if(anchor&&dateStr<anchor)return;
+    out.push({
+      event_id:ev.event_id||'',
+      title:ev.title||'',
+      time:normTime(ev.time),
+      end_time:normTime(ev.end_time),
+      tag:ev.tag||'',
+      kind:calKind_(ev,dateStr),
+      color:colorForTag(ev.tag),
+      date:dateStr
     });
   });
-  return out;
+  return out.sort((a,b)=>String(a.time||'zz').localeCompare(String(b.time||'zz')));
 }
 
-async function loadCalendarWeek(){
-  const visibleDates=getCalVisibleDates();
-  const helperWeekStart=mondayOfDate(visibleDates[0]);
-  const weeksNeeded=Array.from(new Set(visibleDates.map(mondayOfDate)));
+function calTimeText_(e){
+  if(e.time==='allday')return 'ทั้งวัน';
+  if(!e.time)return 'ยังไม่ระบุเวลา';
+  const end=e.end_time&&e.end_time!=='allday'?e.end_time:'';
+  return end?`${e.time} – ${end} น.`:`${e.time} น.`;
+}
 
-  const weeksMissing=weeksNeeded.filter(ws=>!_calCache[ws]);
-  const helperMissing=!_calHelperCache[helperWeekStart];
+function calSetView(v){
+  if(_calView===v)return;
+  _calView=v;
+  const w=document.getElementById('cal-seg-week'), m=document.getElementById('cal-seg-month');
+  if(w)w.className=v==='week'?'on':'';
+  if(m)m.className=v==='month'?'on':'';
+  calRender_();
+}
 
-  await Promise.all([
-    loadCalEvents(),
-    helperMissing?loadAuctionData():Promise.resolve()
-  ]);
-  if(helperMissing) _calHelperCache[helperWeekStart]=_aucHelpers.filter(r=>r.week_start===helperWeekStart);
-  weeksMissing.forEach(ws=>{ _calCache[ws]=expandEventsForWeek(ws) });
+function calNav(dir){
+  if(_calView==='week'){
+    _calWeekStart=calAdd_(_calWeekStart,dir*7);
+    const off=Math.min(6,Math.max(0,calDow_(_calSel)));
+    _calSel=calAdd_(_calWeekStart,off);
+  }else{
+    const [y,m]=_calMonth.split('-').map(Number);
+    const d=new Date(y,m-1+dir,1);
+    _calMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const day=Math.min(+_calSel.slice(8),new Date(d.getFullYear(),d.getMonth()+1,0).getDate());
+    _calSel=`${_calMonth}-${String(day).padStart(2,'0')}`;
+    _calWeekStart=mondayOfDate(_calSel);
+  }
+  calSyncHelper_().then(calRender_);
+}
 
-  renderHelperStrip(_calHelperCache[helperWeekStart]||[]);
-  const merged=[];
-  const seen=new Set();
-  const visibleSet=new Set(visibleDates);
-  weeksNeeded.forEach((ws,idx)=>{
-    const rows=_calCache[ws]||[];
-    const weekMon=new Date(ws+'T00:00:00');
-    rows.forEach(ev=>{
-      const d=new Date(weekMon);d.setDate(weekMon.getDate()+(ev.day_of_week-1));
-      const dateStr=toDateStr(d);
-      if(!visibleSet.has(dateStr))return;
-      const key=ev.event_id+'|'+dateStr;
-      if(seen.has(key))return;
-      seen.add(key);
-      merged.push({...ev,date:dateStr});
-    });
-  });
-  _calSpecialEvents=merged;
-  computeTimeRange();
-  buildTimeAxis();
-  renderCalGrid();
+function calToday(){
+  const t=toDateStr(new Date());
+  _calSel=t;_calWeekStart=mondayOfDate(t);_calMonth=t.slice(0,7);
+  calSyncHelper_().then(calRender_);
+}
+
+function calPick(dateStr){
+  _calSel=dateStr;
+  _calWeekStart=mondayOfDate(dateStr);
+  _calMonth=dateStr.slice(0,7);
+  calSyncHelper_().then(calRender_);
+}
+
+/* ผู้ช่วยของสัปดาห์ที่เลือก — โหลดครั้งเดียวแล้วเก็บไว้ */
+async function calSyncHelper_(){
+  const wk=mondayOfDate(_calSel||toDateStr(new Date()));
+  if(!_calHelperCache[wk]){
+    if(!_aucHelpers||!_aucHelpers.length)await loadAuctionData();
+    _calHelperCache[wk]=(_aucHelpers||[]).filter(r=>r.week_start===wk);
+  }
+  return _calHelperCache[wk];
 }
 
 function classToTier(className){
@@ -4409,7 +4357,6 @@ function classToTier(className){
   if(t==='All Rounder')return 'ar';
   return 'dps';
 }
-
 function getHelperClass(name,sheetClass){
   if(sheetClass) return classToTier(sheetClass);
   const norm=s=>String(s||'').trim().toLowerCase();
@@ -4418,10 +4365,10 @@ function getHelperClass(name,sheetClass){
   if(!m)return 'unknown';
   return classToTier(m.class);
 }
-
 function renderHelperStrip(rows){
   const el=document.getElementById('cal-helper-chips');
-  const helpers=rows.filter(r=>r.member_name&&r.member_name!=='Ficelle'&&r.member_name!=='');
+  if(!el)return;
+  const helpers=(rows||[]).filter(r=>r.member_name&&r.member_name!=='Ficelle');
   if(!helpers.length){el.innerHTML='<span style="font-size:11.5px;color:var(--muted)">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</span>';return}
   el.innerHTML=helpers.map(r=>{
     const cls=getHelperClass(r.member_name,r.class);
@@ -4432,141 +4379,102 @@ function renderHelperStrip(rows){
 function renderCalLegend(){
   const el=document.getElementById('cal-legend');
   if(!el)return;
-  const seen=new Map();
-  _calSpecialEvents.forEach(e=>{
-    const tag=(e.tag||'').trim();
-    if(!tag)return;
-    const key=tag.toLowerCase();
-    if(!seen.has(key))seen.set(key,{label:tag,color:e.color||'#8A7860'});
-  });
-  if(!seen.size){el.innerHTML='';return}
-  el.innerHTML=Array.from(seen.values()).map(({label,color})=>
-    `<div class="cal-leg"><div class="cal-leg-dot" style="background:${color}"></div>${label}</div>`
-  ).join('');
+  el.innerHTML=_calView==='month'
+    ? '<div class="cal-leg"><div class="cal-leg-dot" style="background:var(--orange)"></div>Guild League</div>'
+      +'<div class="cal-leg"><div class="cal-leg-dot" style="background:var(--blue)"></div>Overrun</div>'
+    : '';
 }
 
-function renderCalGrid(){
+/* จุดใต้วันที่ในกริดเดือน — เฉพาะวันที่มีวอ */
+function calDots_(dateStr){
+  const k={};
+  calEventsOn_(dateStr).forEach(e=>{ if(e.kind==='gl'||e.kind==='or')k[e.kind]=1 });
+  return Object.keys(k);
+}
+const CAL_DOT_C={gl:'var(--orange)',or:'var(--blue)'};
+
+function calRender_(){
   renderCalLegend();
-  const visibleDates=getCalVisibleDates();
-  const mon=new Date(visibleDates[0]+'T00:00:00');
-  const end=new Date(visibleDates[visibleDates.length-1]+'T00:00:00');
-  const fmt=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('cal-week-label').textContent=`กิจกรรมประจำสัปดาห์: ${fmt(mon)} – ${fmt(end)}`;
-  const todayStr=toDateStr(new Date());
-  const cols=document.getElementById('cal-day-cols');
-  cols.innerHTML='';
-  const gridH=_calTotalSlots*SLOT_H;
-  visibleDates.forEach(dateStr=>{
-    const dt=new Date(dateStr+'T00:00:00');
-    const dayIdx=(dt.getDay()+6)%7;
-    const isToday=dateStr===todayStr;
-    const dayEvts=_calSpecialEvents.filter(e=>e.date===dateStr);
-    const allEvts=dayEvts;
-    const alldayEvts=allEvts.filter(e=>e.time==='allday'||!e.time);
-    const timedEvts=allEvts.filter(e=>e.time&&e.time!=='allday');
-    const col=document.createElement('div');
-    col.className='cal-dcol'+(isToday?' today-day':'');
-    col.innerHTML=`<div class="cal-dhead">
-      <div class="cal-dname">${CAL_DAYS_SHORT[dayIdx]}</div>
-      <div class="cal-dnum">${dt.getDate()}</div>
-    </div>`;
-    const adStrip=document.createElement('div');
-    adStrip.style.cssText='min-height:28px;padding:2px 3px;border-bottom:0.5px solid rgba(var(--tint-rgb),0.1);display:flex;flex-direction:column;gap:2px;background:rgba(var(--tint-rgb),0.04)';
-    alldayEvts.forEach(e=>{
-      const pill=document.createElement('div');
-      pill.className='cal-evt-block';
-      pill.style.cssText=`position:static;margin:0;font-size:8px;padding:2px 5px;${hexToEventStyle(e.color)}`;
-      pill.textContent=e.title;
-      adStrip.appendChild(pill);
-    });
-    col.appendChild(adStrip);
-    const grid=document.createElement('div');
-    grid.className='cal-dgrid';
-    grid.style.height=gridH+'px';
-    const slotsPerHourLine=60/SLOT_MINS;
-    const totalHours=Math.ceil(_calTotalSlots/slotsPerHourLine);
-    for(let hr=0;hr<totalHours;hr++){
-      if(hr%2!==0)continue;
-      const band=document.createElement('div');
-      band.className='cal-hour-band';
-      band.style.top=(hr*slotsPerHourLine*SLOT_H)+'px';
-      band.style.height=(Math.min(slotsPerHourLine,_calTotalSlots-hr*slotsPerHourLine)*SLOT_H)+'px';
-      grid.appendChild(band);
-    }
-    for(let s=0;s<_calTotalSlots;s++){
-      const line=document.createElement('div');
-      line.className='cal-grid-line'+(s%slotsPerHourLine===0?' hour':'');
-      line.style.top=(s*SLOT_H)+'px';
-      grid.appendChild(line);
-    }
-    const placed=[];
-    timedEvts.forEach(e=>{
-      const top=timeToTop(e.time);
-      if(top===null)return;
-      const endTime=e.end&&e.end!=='allday'?e.end:(e.end_time&&e.end_time!=='allday'?e.end_time:null);
-      let h=SLOT_H;
-      if(endTime){
-        const [sh,sm]=e.time.split(':').map(Number);
-        const [eh,em]=endTime.split(':').map(Number);
-        const durMins=(eh*60+em)-(sh*60+sm);
-        if(durMins>0)h=Math.max(20,Math.round(durMins/SLOT_MINS*SLOT_H));
-      }
-      let col_idx=0;
-      for(const p of placed){if(top<p.top+p.h&&top+h>p.top)col_idx=Math.max(col_idx,p.col+1)}
-      placed.push({top,h,col:col_idx,e,endTime});
-    });
-    placed.forEach(item=>{
-      const {top,h,col:col_idx,e,endTime}=item;
-      const totalCols=Math.max(1,placed.filter(p=>top<p.top+p.h&&top+h>p.top).length);
-      const colWidth=totalCols>1?`calc(${100/totalCols}% - 8px)`:'calc(100% - 8px)';
-      const leftPct=totalCols>1?`calc(${col_idx*(100/totalCols)}% + 4px)`:'4px';
-      const block=document.createElement('div');
-      block.className='cal-evt-block'+(totalCols>1?' is-narrow':'');
-      block.style.cssText=`top:${top}px;height:calc(${h}px - 2px);left:${leftPct};width:${colWidth};background:var(--card);border:1px solid ${e.color?e.color+'55':'var(--border)'}`;
-      const timeLabel=endTime?`${e.time} - ${endTime}`:e.time;
-      block.title=endTime?`${e.title} (${e.time} - ${endTime})`:`${e.title} (${e.time})`;
-      const dot=document.createElement('div');dot.className='cal-evt-dot';dot.style.background=e.color||'var(--muted)';
-      const body=document.createElement('div');body.className='cal-evt-body';
-      const titleEl=document.createElement('span');titleEl.className='cal-evt-title';titleEl.textContent=e.title;
-      const timeEl=document.createElement('span');timeEl.className='cal-evt-time';timeEl.textContent=endTime?`${e.time} – ${endTime}`:e.time;
-      body.appendChild(titleEl);body.appendChild(timeEl);
-      block.appendChild(dot);block.appendChild(body);
-      grid.appendChild(block);
-    });
-    col.appendChild(grid);
-    cols.appendChild(col);
-  });
-}
+  const today=toDateStr(new Date());
+  const body=document.getElementById('cal-body');
+  const per=document.getElementById('cal-per');
+  if(!body||!per)return;
 
-let _calResizeTimer=null;
-window.addEventListener('resize',()=>{
-  if(_currentPage!=='calendar')return;
-  clearTimeout(_calResizeTimer);
-  _calResizeTimer=setTimeout(()=>{
-    const nowMobile=isCalMobileView();
-    if(_calLastMobileState!==null&&nowMobile!==_calLastMobileState){
-      _calLastMobileState=nowMobile;
-      loadCalendarWeek();
-    }else{
-      _calLastMobileState=nowMobile;
+  if(_calView==='week'){
+    const end=calAdd_(_calWeekStart,6);
+    const thisWk=mondayOfDate(today)===_calWeekStart?'<small>สัปดาห์นี้</small>':'';
+    per.innerHTML=wRange_(_calWeekStart,end)+thisWk;
+    let h='<div class="cal-strip">';
+    for(let i=0;i<7;i++){
+      const ds=calAdd_(_calWeekStart,i);
+      const dots=calDots_(ds);
+      const dot=dots.length?`<i style="background:${CAL_DOT_C[dots[0]]}"></i>`:'<i></i>';
+      h+=`<button class="cal-sd${ds===_calSel?' on':''}${ds===today?' now':''}" onclick="calPick('${ds}')"><span>${CAL_DOW_S[i]}</span><b>${+ds.slice(8)}</b>${dot}</button>`;
     }
-  },200);
-});
-
-function calNavWeek(dir){
-  if(isCalMobileView()){
-    const d=new Date(_calAnchorDate+'T00:00:00');d.setDate(d.getDate()+dir);
-    _calAnchorDate=toDateStr(d);
+    body.innerHTML=h+'</div>';
   }else{
-    const d=new Date(_calWeekStart+'T00:00:00');d.setDate(d.getDate()+dir*7);
-    _calWeekStart=toDateStr(d);
+    const [y,m]=_calMonth.split('-').map(Number);
+    const first=`${_calMonth}-01`;
+    const gridStart=mondayOfDate(first);
+    const nWar=(()=>{let g=0,o=0;for(let i=1;i<=new Date(y,m,0).getDate();i++){const ds=`${_calMonth}-${String(i).padStart(2,'0')}`;const d=calDots_(ds);if(d.indexOf('gl')>=0)g++;if(d.indexOf('or')>=0)o++}return {g,o}})();
+    per.innerHTML=`${CAL_MON_F[m-1]} ${y}<small>ลีกกิลด์ ${nWar.g} นัด · โอเวอร์รัน ${nWar.o} นัด</small>`;
+    let h='<div class="cal-mg">'+CAL_DOW_S.map(d=>`<div class="cal-mh">${d}</div>`).join('');
+    for(let i=0;i<42;i++){
+      const ds=calAdd_(gridStart,i);
+      if(i>=35&&ds.slice(0,7)!==_calMonth)break;
+      const inMon=ds.slice(0,7)===_calMonth;
+      const dots=calDots_(ds).map(k=>`<i style="background:${CAL_DOT_C[k]}"></i>`).join('');
+      if(!inMon){ h+=`<div class="cal-mc dim"><span>${+ds.slice(8)}</span><div class="cal-dots"></div></div>`; continue }
+      h+=`<div class="cal-mc${ds===_calSel?' sel':''}${ds===today&&ds!==_calSel?' now':''}" onclick="calPick('${ds}')"><span>${+ds.slice(8)}</span><div class="cal-dots">${dots}</div></div>`;
+    }
+    body.innerHTML=h+'</div>';
   }
-  loadCalendarWeek();
+  calRenderDay_();
+  renderHelperStrip(_calHelperCache[mondayOfDate(_calSel)]||[]);
 }
-function calGoToday(){
-  _calWeekStart=getWeekMondayFromDate();
-  _calAnchorDate=toDateStr(new Date());
-  loadCalendarWeek();
+
+function calRenderDay_(){
+  const box=document.getElementById('cal-day');
+  if(!box)return;
+  const ds=_calSel, today=toDateStr(new Date());
+  const dow=calDow_(ds);
+  const head=`<div class="cal-dh"><b>${CAL_DOW_F[dow]} ${+ds.slice(8)} ${EN_MON[+ds.slice(5,7)-1]}</b>${ds===today?' · วันนี้':''}</div>`;
+  const evts=calEventsOn_(ds);
+  /* ชื่อผู้ช่วยของวันนั้น: อังคารใช้ลำดับ 1–5 · พฤหัสใช้ลำดับ 6–10 */
+  const hRows=(dow===1||dow===3)?ghDayRows_(mondayOfDate(ds),dow===1?2:4).filter(r=>!ghIsFixed_(r)):[];
+  const hNames=hRows.map(r=>esc_(String(r.member_name).trim())).join(' · ');
+  let hUsed=false;
+  const cards=evts.map(e=>{
+    let sub=CAL_KIND_SUB[e.kind]||'';
+    if(e.kind==='hp'){ hUsed=true; sub=hNames||'สัปดาห์นี้ไม่มีคิวช่วยเหลือ'; }
+    return `<div class="cal-card cal-k-${e.kind}"><div class="cal-card-t"><b>${esc_(e.title)}</b><span class="cal-pill">${calTimeText_(e)}</span></div>${sub?`<span>${sub}</span>`:''}</div>`;
+  });
+  if(!hUsed&&hRows.length){
+    cards.push(`<div class="cal-card cal-k-hp"><div class="cal-card-t"><b>Guild Helper</b><span class="cal-pill">${hRows.length} คน</span></div><span>${hNames}</span></div>`);
+  }
+  box.innerHTML=head+(cards.length?cards.join(''):'<div class="cal-empty">วันนี้ไม่มีกิจกรรมของกิลด์</div>');
+}
+
+async function initCalendarPage(){
+  if(!_calSel){
+    const t=toDateStr(new Date());
+    _calSel=t;_calWeekStart=mondayOfDate(t);_calMonth=t.slice(0,7);
+  }
+  await Promise.all([loadCalEvents(),calSyncHelper_()]);
+  calRender_();
+}
+
+async function calRefresh(){
+  _bust=String(Date.now());
+  _calEventsLoaded=false;_calEventsRaw=[];_calEventsPromise=null;
+  Object.keys(_calCache).forEach(k=>delete _calCache[k]);
+  Object.keys(_calHelperCache).forEach(k=>delete _calHelperCache[k]);
+  const btn=document.getElementById('cal-refresh-btn');
+  if(btn){btn.textContent='⏳';btn.disabled=true}
+  await loadAuctionData();
+  await Promise.all([loadCalEvents(),calSyncHelper_()]);
+  calRender_();
+  if(btn){btn.textContent='🔄';btn.disabled=false}
 }
 
 /* ══ ตั้งค่าหน้าจอให้เหมือนกันทั้ง 2 โหมด ══
