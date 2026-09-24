@@ -187,7 +187,9 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pm-bar.bs{background:var(--green)}.pm-bar.ba{background:var(--amber)}.pm-bar.bd{background:var(--red)}
 .pm-info{display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
 .pm-name{color:var(--text);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pm-cls-label{font-size:10px;color:var(--muted);margin-top:1px;font-weight:500}
+.pm-cls-label{font-size:10px;color:var(--muted);margin-top:1px;font-weight:500;display:flex;align-items:center;gap:5px}
+.jic{display:inline-flex;align-items:center;justify-content:center;border-radius:5px;border:1px solid;flex:none;vertical-align:middle}
+.jic-x{background:var(--card2);border-color:var(--border2)}
 .pm-note{font-size:10px;color:var(--muted);font-weight:600}
 .pm-note-leave{font-size:10px;color:var(--muted);font-weight:600}
 .nf{text-align:center;color:var(--muted);font-size:13px;padding:2rem}
@@ -606,6 +608,54 @@ input[type=checkbox]{accent-color:var(--teal)}
 .dd-act button.u{border-color:var(--border2);color:var(--muted)}
 .dd-act button.u:hover{background:var(--card2);color:var(--text)}
 /* ── admin: party edit ── */
+.cp-ccg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.cp-ccc{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 10px}
+.cp-ccn{font-size:12.5px;font-weight:700;min-width:92px}
+.cp-ccp{display:flex;align-items:center;gap:5px;font-size:11.5px}
+.cp-ccp.ok span{color:var(--green);font-weight:600}
+.cp-cca{color:var(--faint);font-size:12px}
+.cp-ccok{background:var(--green-dim);border:1px solid var(--green-b);border-radius:10px;padding:14px;text-align:center;color:var(--green);font-size:12.5px;font-weight:700}
+.cc-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.cc-bar h3{font-size:16px;margin:0;font-weight:800}
+.cc-f{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.cc-f select{min-width:130px}
+.cc-bar .cap-btn{margin-left:auto}
+.cc-sum{font-size:12px;color:var(--muted);margin-bottom:12px}
+.cc-sum b{color:var(--text)}
+.cc-g{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cc-c{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;box-shadow:var(--shadow-out-sm);flex-wrap:wrap}
+.cc-n{font-size:14px;font-weight:700;min-width:104px}
+.cc-n small{display:block;font-size:10.5px;color:var(--faint);font-weight:500}
+.cc-p{display:flex;align-items:center;gap:6px;font-size:12.5px}
+.cc-p b{font-weight:600}
+.cc-p .cc-lb{font-size:10px;color:var(--faint);margin-right:1px}
+.cc-p.ok b{color:var(--green)}
+.cc-ar{color:var(--faint);font-size:14px}
+.cc-ok{background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:16px;text-align:center;color:var(--green);font-size:13px;font-weight:700}
+.cc-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
+.cc-ft{margin-top:10px;font-size:11.5px;color:var(--faint)}
+@media(max-width:620px){.cc-g{grid-template-columns:1fr}}
+.dk-st{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:16px}
+.dk-c{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:var(--radius-sm);padding:9px 12px;box-shadow:var(--shadow-out-sm)}
+.dk-c b{display:block;font-size:13px}
+.dk-c span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.dk-c.ok{border-left-color:var(--green)}.dk-c.ok b{color:var(--green)}
+.dk-c.wait{border-left-color:var(--amber)}.dk-c.wait b{color:var(--amber)}
+.dk-c.non{border-left-color:var(--border2)}
+.dk-sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:0 0 14px;margin-bottom:14px;overflow:hidden}
+.dk-h{background:var(--card2);border-bottom:1px solid var(--border);padding:10px 15px;margin-bottom:13px}
+.dk-h b{font-size:14.5px;display:block}
+.dk-h span{font-size:11.5px;color:var(--muted)}
+.dk-in{padding:0 15px}
+.ed-bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 13px;margin-bottom:10px;font-size:13px;cursor:pointer;user-select:none}
+.ed-bar.on{background:var(--green-dim);border-color:var(--green-b)}
+.ed-bar b{font-size:13px}
+.ed-bar.on b{color:var(--green)}
+.ed-sw{width:36px;height:20px;border-radius:999px;background:var(--card2);border:1px solid var(--border2);position:relative;flex:none;transition:background .15s}
+.ed-sw i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--faint);display:block;transition:left .15s,background .15s}
+.ed-bar.on .ed-sw{background:var(--green);border-color:var(--green)}
+.ed-bar.on .ed-sw i{left:19px;background:#10201B}
+.ed-note{margin-left:auto;font-size:11.5px;color:var(--muted);text-align:right}
 .pe-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:9px 14px;margin-bottom:10px;font-size:13px}
 .pe-bar b{color:var(--green)}.pe-bar .sp{flex:1}
 .pe-chg{color:var(--orange);font-weight:700}
@@ -1334,6 +1384,7 @@ body.is-admin .wr-adm{display:inline-block}
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Guild Auction</span><span class="nav-tip">Guild Auction</span></div>
+  <div class="nav-item wr-adm" onclick="sw('desk');closeSidebar()"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label">Guild Desk</span><span class="nav-tip">Guild Desk</span></div>
   <div class="nav-sep"></div>
   <div class="nav-item" id="gear" title="Settings"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label en">Settings</span><span class="nav-tip">Settings</span></div>
   <div class="nav-item" id="refresh-btn" onclick="forceRefresh()" title="Refresh"><span class="ni"><svg><use href="#i-refresh"/></svg></span><span class="nav-label"><b class="en">Refresh</b> <i id="upd" class="num">(--:--)</i></span><span class="nav-tip">Refresh</span></div>
@@ -1499,6 +1550,12 @@ body.is-admin .wr-adm{display:inline-block}
   </div>
 
 </div>
+<div id="page-desk" class="page">
+  <div class="page-title">Guild Desk</div>
+  <div class="page-sub">งานกรอกและงานตั้งค่าของรอบวอ รวมไว้ที่เดียว</div>
+  <div id="desk-status" class="dk-st"></div>
+  <div id="desk-body"></div>
+</div>
 <div id="page-rules" class="page">
   <div class="page-title">Guild Rules</div>
   <div class="page-sub">กฎการอยู่ร่วมกัน · อัปเดตล่าสุด <span id="gr-date"></span></div>
@@ -1514,13 +1571,13 @@ body.is-admin .wr-adm{display:inline-block}
     <button class="au-tab wr-tab" data-wt="stats" onclick="swWarTab('stats')">Stats</button>
     <button class="au-tab wr-tab" data-wt="insight" onclick="swWarTab('insight')">Insights</button>
     <button class="au-tab wr-tab" data-wt="absence" onclick="swWarTab('absence')">Absence</button>
+    <button class="au-tab wr-tab" data-wt="cls" onclick="swWarTab('cls')">Class check</button>
     <button class="au-tab wr-tab" data-wt="rewards" onclick="swWarTab('rewards')">Rewards</button>
-    <button class="au-tab wr-tab wr-adm" data-wt="glin" onclick="swWarTab('glin')">Guild League Input</button>
-    <button class="au-tab wr-tab wr-adm" data-wt="orin" onclick="swWarTab('orin')">Overrun Input</button>
   </div>
   <div id="war-stats" style="display:none"></div>
   <div id="war-insight" style="display:none"></div>
   <div id="war-absence" style="display:none"></div>
+  <div id="war-cls" style="display:none"></div>
   <div id="war-glin" style="display:none"></div>
   <div id="war-orin" style="display:none"></div>
   <div id="war-hist">
@@ -1597,6 +1654,21 @@ const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H'};
    Admin.gs แปะ window.__WARMUP_ADMIN__ ไว้ต้น <head> — บน GitHub Pages ตัวแปรนี้ไม่มี ปุ่มแก้ไขจึงไม่โผล่
    ความปลอดภัยจริงอยู่ที่ deployment "Only myself" + ตรวจอีเมลซ้ำใน Admin.gs */
 const ADMIN=window.__WARMUP_ADMIN__||null;
+/* โหมดแก้ไข — ปิดไว้เสมอตอนเปิดหน้า ปิดอยู่แล้วหน้าตาเท่ากับที่สมาชิกเห็น */
+let _edit=false;
+const EDIT=()=>!!(ADMIN&&_edit);
+function edSwitch_(note){
+  if(!ADMIN)return '';
+  return `<div class="ed-bar${_edit?' on':''}" onclick="edToggle()">
+    <span class="ed-sw"><i></i></span><b>Edit mode</b>
+    <span class="ed-note">${_edit?esc_(note||'เปิดอยู่ · แก้ไขได้'):'ปิดอยู่ · เห็นเหมือนที่สมาชิกเห็น'}</span></div>`;
+}
+function edToggle(){
+  _edit=!_edit;
+  if(_edit&&_currentPage==='members'&&typeof msLoad_==='function')msLoad_();
+  if(_currentPage==='party')renderParty();
+  else if(_currentPage==='members')renderMembers();
+}
 const ADMIN_URL='https://script.google.com/macros/s/AKfycbzTho04o8jKR9SsNH5iHUVFiplgZCxuYq9BTj7bFyYKuGQxhB6_9YrJIgVFp3toCgCb/exec';
 const SITE_URL='https://samhongvai.github.io/warmup-rooc-GM/';
 function admCall(fn){
@@ -1641,6 +1713,32 @@ function getFieldCode(f){if(!f)return '';const t=String(f).trim();
 function getFieldLabel(f){return f||''}
 function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
 /* Minstrel กับ Gypsy นับรวมกันเสมอ — ใช้ตอนสรุปจำนวน ไม่ได้แก้อาชีพจริงในชีท */
+/* ══ ไอคอนอาชีพ ══ วาดเอง อิงสัญลักษณ์กับโทนสีที่เห็นในเกม ใช้ในหน้า Party */
+const JOB_IC={
+ 'High Priest':   ['#3E8F6B','#8FE8C2','M9 3h6v6h6v6h-6v6H9v-6H3V9h6z',1],
+ 'Gypsy':         ['#A98232','#F3D488','M5 3c7 0 12 6 14 18M8 4v14M11 6v12M14 9v9M17 13v5',0],
+ 'Minstrel':      ['#A98232','#F3D488','M9 18a3 3 0 1 1-2-2.8V6l10-3v10.2A3 3 0 1 1 15 13V8l-6 1.8z',1],
+ 'Professor':     ['#3D6FB5','#9CC4FF','M4 4h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4zM20 4h-7v13h7z',0],
+ 'Summoner':      ['#C2547E','#FFB3CD','M8 9c0-3-1-6 .5-6S10 6 10 9m4 0c0-3 1-6 2.5-6S16 6 16 9M12 9.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z',0],
+ 'Biochemist':    ['#A55A22','#F0A868','M10 3h4v5l4.5 8.5A3 3 0 0 1 15.8 21H8.2a3 3 0 0 1-2.7-4.5L10 8z',0],
+ 'Lord Knight':   ['#A83246','#FF9AA8','M14 3h6v6l-8 8-4-4zM7 15l2 2-4 4-2-2z',0],
+ 'Paladin':       ['#B0446B','#FFA9C4','M12 3l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z',0],
+ 'High Wizard':   ['#3D6FB5','#9CC4FF','M6 21L18 6M16 4l4 4',0],
+ 'Sniper':        ['#8E7A2E','#EBD98A','M6 3c8 2 12 8 12 18M5 12h14',0],
+ 'Rebellion':     ['#3A3A42','#D8C88A','M3 8h13v4h-3l-3 6H7l1-6H3zM16 8h5v3h-5z',0],
+ 'Stalker':       ['#6A4A96','#C9A8F0','M12 2l3 9-3 4-3-4zM8 15h8M11 17h2v5h-2z',0],
+ 'Assassin Cross':['#5A3A78','#BB9AE0','M5 20c2-8 5-12 5-17M10 20c1-8 3-12 3-17M15 20c0-8 2-11 3-16',0],
+ 'Mastersmith':   ['#96601F','#F0BE74','M4 20l8-8M13 4l7 7-3 3-7-7z',0]
+};
+function jobIcon_(cls,size){
+  const k=String(cls||'').trim(), j=JOB_IC[k];
+  const n=size||18;
+  if(!j)return `<span class="jic jic-x" style="width:${n}px;height:${n}px"></span>`;
+  const [bg,fg,d,fill]=j;
+  const inner=fill?`<path d="${d}" fill="${fg}"/>`:`<path d="${d}" fill="none" stroke="${fg}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  return `<span class="jic" title="${esc_(k)}" style="width:${n}px;height:${n}px;background:${bg}33;border-color:${bg}">`
+    +`<svg viewBox="0 0 24 24" width="${n-6}" height="${n-6}">${inner}</svg></span>`;
+}
 const CLS_MERGE={'Minstrel':'Bard / Gypsy','Gypsy':'Bard / Gypsy'};
 const clsLabel_=c=>CLS_MERGE[String(c||'').trim()]||String(c||'').trim();
 /* {ป้ายอาชีพ: {n, t}} เรียงตามสาย Support → All Rounder → DPS แล้วตามจำนวน */
@@ -1670,6 +1768,54 @@ function closeSidebar(){
 }
 
 function swAdmin(t){sw(t)}
+/* ══ GUILD DESK ══ ย้ายกล่องงานของแอดมินมาไว้หน้าเดียว โดยย้าย element จริง
+   ฟังก์ชันเดิมยังอ้าง id เดิมได้ทั้งหมด ไม่ต้องเขียน UI ใหม่ */
+const DESK_SEC=[
+  {id:'war-glin',  t:'Guild League Input', d:'กรอกสกอร์รายคนของสนามหลักและสนามรอง', open:()=>{try{giOpen_()}catch(e){}}},
+  {id:'war-orin',  t:'Overrun Input',      d:'กรอกอันดับและกลุ่มของรอบโอเวอร์รัน',   open:()=>{try{oiOpen_()}catch(e){}}},
+  {id:'adm-aucbar',t:'Reward setup',       d:'เลือกวันวอ แล้วบันทึกตัวคูณกับจำนวนของรางวัล', open:null},
+  {id:'adm-qbar',  t:'Queue manager',      d:'สุ่มคิวรอบใหม่ และบันทึกว่าประมูลถึงคิวไหนแล้ว', open:null}
+];
+function deskMove_(){
+  const host=document.getElementById('desk-body'); if(!host)return;
+  DESK_SEC.forEach(sec=>{
+    const el=document.getElementById(sec.id); if(!el)return;
+    let box=document.getElementById('dk-'+sec.id);
+    if(!box){
+      box=document.createElement('div'); box.id='dk-'+sec.id; box.className='dk-sec';
+      box.innerHTML=`<div class="dk-h"><b>${sec.t}</b><span>${sec.d}</span></div><div class="dk-in"></div>`;
+      host.appendChild(box);
+    }
+    const inner=box.querySelector('.dk-in');
+    if(el.parentNode!==inner){ el.style.display=''; inner.appendChild(el); }
+  });
+}
+function deskStatus_(){
+  const el=document.getElementById('desk-status'); if(!el)return;
+  const today=toDateStr(new Date());
+  const wars=(typeof warRows_==='function'?warRows_():[]).map(r=>r.date).filter(Boolean).sort();
+  const last=wars[wars.length-1]||'';
+  const scored=new Set((_glScore||[]).map(r=>r.date));
+  const q=(typeof auUpcomingQueue_==='function'?auUpcomingQueue_():[]);
+  const wk=(typeof mondayOfDate==='function')?mondayOfDate(today):'';
+  const hp=(_aucHelpers||[]).filter(r=>r.week_start===wk);
+  const hpDone=hp.filter(r=>String(r.status||'').toLowerCase()==='done').length;
+  const c=(cls,b,sp)=>`<div class="dk-c ${cls}"><b>${b}</b><span>${sp}</span></div>`;
+  el.innerHTML=
+    c(last&&scored.has(last)?'ok':'wait', last?wDay_(last):'—', last&&scored.has(last)?'สกอร์วอล่าสุดกรอกแล้ว':'สกอร์วอล่าสุดยังไม่ได้กรอก')
+   +c(q.length?'wait':'non', q.length?q.length+' คน':'—', 'คิวประมูลที่ยังไม่ได้ดึง')
+   +c(hp.length?(hpDone>=hp.length?'ok':'wait'):'non', hp.length?hpDone+'/'+hp.length:'—', 'คิวช่วยเหลือสัปดาห์นี้ที่ลงดันแล้ว');
+}
+async function initDeskPage(){
+  if(!ADMIN)return;
+  try{ await loadWarData(); }catch(e){}
+  try{ await loadAuctionData(); }catch(e){}
+  deskMove_();
+  deskStatus_();
+  DESK_SEC.forEach(x=>{ if(x.open)x.open(); });
+  if(typeof renderAdmAucBar_==='function')try{renderAdmAucBar_()}catch(e){}
+  if(typeof renderQueueManager==='function')try{renderQueueManager()}catch(e){}
+}
 function sw(t){
   _currentPage=t;
   document.querySelectorAll('.nav-item').forEach(el=>{
@@ -1686,6 +1832,7 @@ function sw(t){
   if(t==='war')initWarPage();
   if(t==='rules')renderRules();
   if(t==='calendar')initCalendarPage();
+  if(t==='desk')initDeskPage();
 }
 let _currentPage='';
 
@@ -1795,8 +1942,8 @@ function nameCmp_(a,b){const x=nameBucket_(a),y=nameBucket_(b);
   return String(a||'').localeCompare(String(b||''),['en','th'],{sensitivity:'base',numeric:true});}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
-  const fsEl=document.getElementById('fs'); if(fsEl)fsEl.style.display=ADMIN?'':'none';
-  const fs=ADMIN&&fsEl?fsEl.value:'';
+  const fsEl=document.getElementById('fs'); if(fsEl)fsEl.style.display=EDIT()?'':'none';
+  const fs=EDIT()&&fsEl?fsEl.value:'';
   let f=msRows_().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;if(fs&&msStatusOf(m)!==fs)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
@@ -1809,7 +1956,7 @@ function renderMembers(){
       ?`<span style="color:var(--muted)">${clsGl}</span>`
       :`<span style="color:var(--orange-l);font-weight:600">${clsOr}</span>`;
     const fld=m.field||'';
-    if(ADMIN){ const nq=esc_(m.ign).replace(/'/g,"\\'"), ch=_ce[m.ign]||{};
+    if(EDIT()){ const nq=esc_(m.ign).replace(/'/g,"\\'"), ch=_ce[m.ign]||{};
       const selH=(k,cur)=>{const v=ch[k]!=null?ch[k]:cur; const opts=CE_CLASSES.includes(v)||!v?CE_CLASSES:[v,...CE_CLASSES];
         return `<select class="ce-sel${ch[k]!=null?' chg':''}" onchange="ceSet('${nq}','${k}',this.value)">${v?'':'<option value="">—</option>'}${opts.map(c=>`<option${c===v?' selected':''}>${c}</option>`).join('')}</select>`;};
       var clsGlCell=selH('gl',m.class_gl||''), clsOrCell=selH('or',m.class_or||m.class_gl||'');
@@ -1817,9 +1964,9 @@ function renderMembers(){
     const gfBadge=fld?`<span class="gf gf-${fld==='Elite'?'e':'s'}">${fld}</span>`:'<span style="color:var(--faint)">—</span>';
     return`<tr>
       <td class="m-num">${i+1}</td>
-      <td style="font-weight:600">${ADMIN?mnCell_(m):m.ign}</td>
-      <td style="font-size:12px;color:var(--text)">${ADMIN?clsGlCell:clsGl}</td>
-      <td style="font-size:12px">${ADMIN?clsOrCell:orHtml}</td>
+      <td style="font-weight:600">${EDIT()?mnCell_(m):m.ign}</td>
+      <td style="font-size:12px;color:var(--text)">${EDIT()?clsGlCell:clsGl}</td>
+      <td style="font-size:12px">${EDIT()?clsOrCell:orHtml}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
       <td>${gfBadge}</td>
       <td>${msCell_(m)}</td>
@@ -1842,7 +1989,7 @@ const msStatusOf=m=>{const st=String(m.status||'').trim().toUpperCase();
 function msRows_(){
   const vis=m=>{const st=String(m.status||'').trim().toUpperCase();return st!=='ARCHIVED'&&st!=='WAITLIST';};
   const base=getCountedMembers();
-  if(!ADMIN)return base.filter(vis);
+  if(!EDIT())return base.filter(vis);
   if(!_msAll)return base;
   const has=new Set(base.map(m=>m.ign));
   const extra=_msAll.filter(r=>r.character_name&&!has.has(r.character_name)).map(r=>({
@@ -1887,7 +2034,7 @@ function ceSet(name,k,v){
 function msCell_(m){
   const st=msStatusOf(m), lbl={ACTIVE:'Active',ABSENT:'Absent',ARCHIVED:'Archived',WAITLIST:'Waitlist'};
   const badge=k=>`<span class="st-att ${k==='ABSENT'?'lv':k==='ACTIVE'?'ok':'ar'} en">${lbl[k]}</span>`;
-  if(!ADMIN)return badge(st==='ABSENT'?'ABSENT':'ACTIVE');
+  if(!EDIT())return badge(st==='ABSENT'?'ABSENT':'ACTIVE');
   const cur=_ms[m.ign]||(st==='ARCHIVED'||st==='WAITLIST'?st:'ACTIVE');
   const nq=esc_(m.ign).replace(/'/g,"\\'");
   const sel=`<select class="ce-sel${_ms[m.ign]?' chg':''}" onchange="msSet('${nq}',this.value)">${MS_ST.map(v=>`<option value="${v}"${v===cur?' selected':''}>${lbl[v]}</option>`).join('')}</select>`;
@@ -1898,10 +2045,11 @@ function ceBar_(){
   let bar=document.getElementById('ce-bar');
   if(!ADMIN){ if(bar)bar.remove(); return; }
   if(!bar){bar=document.createElement('div');bar.id='ce-bar';tw.parentNode.insertBefore(bar,tw);}
+  if(!EDIT()){ bar.innerHTML=edSwitch_(); return; }
   const list=Object.keys(_ce).flatMap(n=>Object.keys(_ce[n]).map(k=>`${esc_(n)} ${k==='gl'?'GL':'OR'} → ${esc_(_ce[n][k])}`))
     .concat(Object.keys(_ms).map(n=>`${esc_(n)} → ${_ms[n]==='ARCHIVED'?'Archived':'Active'}`))
     .concat(Object.keys(_mn).map(n=>`${esc_(n)} → ${esc_(_mn[n])}`));
-  bar.innerHTML=`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพที่ช่อง Class และเปลี่ยนสถานะที่ช่อง Status<span class="sp"></span>
+  bar.innerHTML=edSwitch_('เปิดอยู่ · แก้อาชีพและสถานะได้')+`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพที่ช่อง Class และเปลี่ยนสถานะที่ช่อง Status<span class="sp"></span>
     ${list.length?`<span class="pe-chg">แก้ไว้ ${list.length} ช่อง ยังไม่บันทึก</span><button class="adm-btn" onclick="ceCancel()">Cancel</button>`:''}
     <button class="adm-btn pri" onclick="ceSave()"${list.length?'':' disabled'}>💾 Save${list.length?' ('+list.length+')':''}</button></div>
     ${list.length?`<div class="pe-hint">${list.join(' · ')}</div>`:''}`;
@@ -1968,19 +2116,19 @@ function renderParty(){
         :sub?'<span class="pm-tag alt en">Alt</span>'
         :isLead?'<span class="pm-tag lead en">Leader</span>':'';
       const nmq=esc_(m.ign).replace(/'/g,"\\'");
-      const ed=ADMIN?peRowAttr_(m):'';
-      const acts=ADMIN?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
-      return`<div class="pm${leave?' pm-absent':''}${ed}" ${ADMIN?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${cls||''}</div></div>${mark}${acts}</div>`;
+      const ed=EDIT()?peRowAttr_(m):'';
+      const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
+      return`<div class="pm${leave?' pm-absent':''}${ed}" ${EDIT()?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${jobIcon_(m.class)}<span>${cls||''}</span></div></div>${mark}${acts}</div>`;
     }).join('');
     const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
-    const noLead=ADMIN&&!pts[p].some(x=>(x.role||'')==='Leader');
-    const empties=ADMIN?Array.from({length:Math.max(0,5-pts[p].length)},()=>`<div class="pe-empty${_pe.sel?' pe-cand':''}" onclick="peTapEmpty('${p}')">${_pe.sel?'+ ย้ายมาช่องนี้':'ช่องว่าง'}</div>`).join(''):'';
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here===5?'full':''}">${here}/5</span>${ADMIN?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}</div></div>`;
+    const noLead=EDIT()&&!pts[p].some(x=>(x.role||'')==='Leader');
+    const empties=EDIT()?Array.from({length:Math.max(0,5-pts[p].length)},()=>`<div class="pe-empty${_pe.sel?' pe-cand':''}" onclick="peTapEmpty('${p}')">${_pe.sel?'+ ย้ายมาช่องนี้':'ช่องว่าง'}</div>`).join(''):'';
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here===5?'full':''}">${here}/5</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
   const editBtn='';
-  const peTop=ADMIN?peTop_():'';
+  const peTop=edSwitch_('เปิดอยู่ · แก้หัวตี้ ลา และย้ายคนได้')+(EDIT()?peTop_():'');
   const absList=sorted.map(p=>({p,names:pts[p].filter(isLeaveNote).map(x=>x.ign)})).filter(x=>x.names.length);
   const absTotal=absList.reduce((a,x)=>a+x.names.length,0);
   const absPanel=`<div class="abs-panel"><div class="abs-head"><span class="abs-ic">🌙</span><span class="abs-title">ลาวันนี้</span><span class="abs-count">${absTotal} คน</span></div>`+
@@ -1996,7 +2144,7 @@ function renderParty(){
 /* ══ CAPTURE ══ ภาพสำหรับแปะดิสคอร์ด — ทุกคนกดได้
    5 หน้า party · helper · queue · war · rewards · แผ่นกว้างคงที่ 1100px แล้วแปลงเป็น PNG ด้วย html2canvas */
 let _capBusy=false,_capKind='party';
-const CAP_M={party:['⚔','Party'],helper:['🤝','Guild Helper'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards']};
+const CAP_M={party:['⚔','Party'],helper:['🤝','Guild Helper'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards'],cls:['🧭','Class check']};
 const capNow_=()=>{const d=new Date();return{day:d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}),hm:('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};};
 function capTop_(kind,sub,rb,rs){const m=CAP_M[kind]||['⚔',''],n=capNow_();
   return `<div class="cp-top"><div class="cp-lg">${m[0]}</div><div><div class="cp-t1">WARMUP · ${m[1]}</div><div class="cp-t2">${sub||''}</div></div>
@@ -2150,7 +2298,22 @@ function capRewards_(){
     +capFoot_(['เพดานต่อคนมาจาก Rewards_Ref']);
 }
 
-const CAP_B={party:capParty_,helper:capHelper_,queue:capQueue_,war:capWar_,rewards:capRewards_};
+/* 6 · อาชีพที่ไม่ตรงกับทะเบียน */
+function capCls_(){
+  const D=(typeof ccData_==='function')?ccData_():{dates:[],rows:[],total:0};
+  if(!D.dates.length)return '<div class="cp-none">ยังไม่มีวอไหนที่กรอกอาชีพไว้</div>';
+  const sub='เทียบ '+D.total+' คนที่ลงวอ · ไม่ตรง '+D.rows.length+' คน';
+  const body=D.rows.length
+    ? '<div class="cp-ccg">'+D.rows.map(r=>
+        `<div class="cp-ccc"><div class="cp-ccn">${esc_(r.name)}</div>`
+        +`<div class="cp-ccp">${jobIcon_(r.reg,18)}<span>${esc_(clsLabel_(r.reg)||'ยังไม่ได้ตั้ง')}</span></div>`
+        +`<div class="cp-cca">→</div>`
+        +`<div class="cp-ccp ok">${jobIcon_(r.played,18)}<span>${esc_(clsLabel_(r.played))}</span></div></div>`).join('')+'</div>'
+    : '<div class="cp-ccok">อาชีพในทะเบียนตรงกับที่เล่นจริงทุกคน</div>';
+  return capTop_('cls',sub,null,'วอ '+wDay_(D.date))+body
+    +capFoot_(['ซ้ายคืออาชีพในทะเบียน ขวาคืออาชีพที่เล่นจริง','ใครมีชื่อในภาพช่วยแจ้งกลับเพื่อแก้ทะเบียน']);
+}
+const CAP_B={party:capParty_,helper:capHelper_,queue:capQueue_,war:capWar_,rewards:capRewards_,cls:capCls_};
 /* หน้า Guild Auction กับ Guild War มีหลายแท็บ — ดูว่าอยู่แท็บไหนแล้วแคปของแท็บนั้น */
 function capAucKind_(){const b=document.querySelector('#page-auction .au-tab.active');
   const t=b?b.dataset.tab:'calc'; return t==='designated'?'helper':t==='manage'?'queue':'rewards';}
@@ -3605,14 +3768,56 @@ async function initWarPage(){
 }
 let _warTab='hist';
 function swWarTab(t){
-  if((t==='glin'||t==='orin')&&!ADMIN)t='hist';
+  if(t==='glin'||t==='orin')t='hist';
   _warTab=t;
   document.querySelectorAll('.wr-tab').forEach(b=>b.classList.toggle('active',b.dataset.wt===t));
-  ['hist','stats','rewards','insight','absence','glin','orin'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
+  ['hist','stats','rewards','insight','absence','cls'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
   if(t==='insight')renderInsights();
   if(t==='absence')renderAbsence();
-  if(t==='glin')giOpen_();
-  if(t==='orin')oiOpen_();
+  if(t==='cls')renderClsCheck();
+}
+/* ══ CLASS CHECK ══ เทียบอาชีพที่ลงทะเบียนไว้กับอาชีพที่กรอกไว้ตอนวอ
+   ใช้สำหรับแคปโพสต์ให้เจ้าตัวมาอัปเดตทะเบียนให้ตรง */
+let _ccDate='';
+function ccDates_(){ return [...new Set((_glScore||[]).filter(r=>String(r.class_played||'').trim()).map(r=>r.date))].sort().reverse(); }
+function ccData_(){
+  const ds=ccDates_();
+  if(!ds.length)return {dates:[],rows:[],date:'',total:0};
+  if(!_ccDate||ds.indexOf(_ccDate)<0)_ccDate=ds[0];
+  const reg={};
+  (members||[]).forEach(m=>{ const k=String(m.ign||'').trim().toLowerCase(); if(k)reg[k]={gl:m.class||'',or:m.class_or||'',ign:m.ign}; });
+  const seen={}, rows=[];
+  (_glScore||[]).filter(r=>r.date===_ccDate).forEach(r=>{
+    const nm=String(r.member_name||'').trim(); if(!nm)return;
+    const played=String(r.class_played||'').trim(); if(!played)return;
+    const k=nm.toLowerCase(); if(seen[k])return; seen[k]=1;
+    const m=reg[k]; if(!m)return;                       /* ไม่อยู่ในกิลด์แล้ว ข้ามไป */
+    if(clsLabel_(m.gl)===clsLabel_(played))return;      /* ตรงกันแล้ว */
+    rows.push({name:m.ign||nm, reg:m.gl||'', played:played, field:r.field||''});
+  });
+  rows.sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const total=Object.keys(seen).length;
+  return {dates:ds,rows:rows,date:_ccDate,total:total};
+}
+function ccPick(v){ _ccDate=v||''; renderClsCheck(); }
+function renderClsCheck(){
+  const box=document.getElementById('war-cls'); if(!box)return;
+  const D=ccData_();
+  if(!D.dates.length){
+    box.innerHTML='<div class="cc-none">ยังไม่มีวอไหนที่กรอกอาชีพไว้ · กรอกช่อง Class ในหน้า Guild Desk แล้วค่อยกลับมาดู</div>';
+    return;
+  }
+  const sel=`<select id="cc-date" onchange="ccPick(this.value)">${D.dates.map(d=>`<option value="${d}"${d===D.date?' selected':''}>${wDay_(d)}</option>`).join('')}</select>`;
+  const head=`<div class="cc-bar"><h3>Class check</h3><label class="cc-f"><span>วอ</span>${sel}</label>`
+    +`<button class="cap-btn" onclick="capOpen('cls')">📸 Capture</button></div>`
+    +`<div class="cc-sum">เทียบ <b>${D.total} คน</b> ที่ลงวอวันนั้น · ไม่ตรง <b>${D.rows.length} คน</b></div>`;
+  if(!D.rows.length){ box.innerHTML=head+'<div class="cc-ok">อาชีพในทะเบียนตรงกับที่เล่นจริงทุกคน</div>'; return; }
+  box.innerHTML=head+'<div class="cc-g">'+D.rows.map(r=>
+    `<div class="cc-c"><div class="cc-n">${esc_(r.name)}<small>${esc_(r.field||'')}</small></div>`
+    +`<div class="cc-p"><span class="cc-lb">ในทะเบียน</span>${jobIcon_(r.reg,20)}<b>${esc_(clsLabel_(r.reg)||'ยังไม่ได้ตั้ง')}</b></div>`
+    +`<div class="cc-ar">→</div>`
+    +`<div class="cc-p ok"><span class="cc-lb">เล่นจริง</span>${jobIcon_(r.played,20)}<b>${esc_(clsLabel_(r.played))}</b></div></div>`).join('')+'</div>'
+    +'<div class="cc-ft">แคปภาพนี้โพสต์ให้เจ้าตัวมาแก้อาชีพในทะเบียนให้ตรง</div>';
 }
 /* ══ ABSENCE ══ ใครลาเยอะในช่วงที่เลือก · ลารวม · ลาติดกัน · วอล่าสุดที่มา
    Attend_Log เก็บเฉพาะคนที่ลา ฉะนั้น "มา" คือวอที่ไม่มีแถวลาของคนนั้น */
