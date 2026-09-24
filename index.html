@@ -114,6 +114,8 @@ input[type=checkbox]{accent-color:var(--orange)}
 .ov-bar-wrap{height:5px;border-radius:4px;background:var(--soft);overflow:hidden;margin:6px 0 8px}
 .ov-bar{height:100%;border-radius:4px}
 .ov-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.field-sum{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 12px}
+.field-sum .fs-total{font-size:11px;color:var(--muted);margin-left:2px}
 .ov-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;border:1px solid;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;flex-shrink:0}
 @media(max-width:600px){.ov-chips{flex-wrap:wrap;overflow:visible}.ov-chip{font-size:10px}}
 .ov-chip .cn{font-weight:600}.ov-chip .cc{font-weight:800;font-family:var(--font-pixel)}
@@ -1560,6 +1562,19 @@ function getFieldCode(f){if(!f)return '';const t=String(f).trim();
   if(t==='Elite')return 'E';if(t==='Sub-battle')return 'S';return t.charAt(0)}
 function getFieldLabel(f){return f||''}
 function getType(c){return CLASS_TYPE[c]||'Attack (DPS)'}
+/* Minstrel กับ Gypsy นับรวมกันเสมอ — ใช้ตอนสรุปจำนวน ไม่ได้แก้อาชีพจริงในชีท */
+const CLS_MERGE={'Minstrel':'Bard / Gypsy','Gypsy':'Bard / Gypsy'};
+const clsLabel_=c=>CLS_MERGE[String(c||'').trim()]||String(c||'').trim();
+/* {ป้ายอาชีพ: {n, t}} เรียงตามสาย Support → All Rounder → DPS แล้วตามจำนวน */
+function clsCount_(list,pick){
+  const by={};
+  list.forEach(m=>{const c=(pick?pick(m):m.class)||''; if(!c)return;
+    const l=clsLabel_(c); (by[l]=by[l]||{n:0,t:getType(c)}).n++;});
+  const ord={'Support':0,'All Rounder':1,'Attack (DPS)':2};
+  return Object.keys(by).map(l=>({l,n:by[l].n,t:by[l].t}))
+    .sort((x,y)=>(ord[x.t]-ord[y.t])||(y.n-x.n)||x.l.localeCompare(y.l));
+}
+const clsChips_=rows=>rows.map(x=>`<span class="ov-chip ${getTypeCls(x.t)}"><span class="cn">${esc_(x.l)}</span><span class="cc">${x.n}</span></span>`).join('');
 function getTypeCls(t){return t==='Support'?'b-s':t==='All Rounder'?'b-a':'b-d'}
 function getTypeDot(t){return t==='Support'?'td-s':t==='All Rounder'?'td-a':'td-d'}
 function getTypeLabel(t){const c=t==='Support'?'var(--green)':t==='All Rounder'?'var(--amber)':'var(--red)';return`<span style="font-size:10px;color:${c}">${t==='Attack (DPS)'?'DPS':t}</span>`}
@@ -1666,11 +1681,8 @@ function renderStats(){
   const pct=(n)=>total>0?Math.round(n/total*100):0;
   const byType={Support:[],'All Rounder':[],'Attack (DPS)':[]};
   counted.forEach(m=>{const t=getType(m.class);if(byType[t])byType[t].push(m)});
-  const byClass={};
-  counted.forEach(m=>{byClass[m.class]=(byClass[m.class]||0)+1});
-  const mkChips=(type)=>Object.entries(byClass)
-    .filter(([cls])=>getType(cls)===type).sort((a,b)=>b[1]-a[1])
-    .map(([cls,n])=>`<span class="ov-chip ${getTypeCls(type)}"><span class="cn">${cls}</span><span class="cc">${n}</span></span>`).join('');
+  const allCls=clsCount_(counted);
+  const mkChips=(type)=>clsChips_(allCls.filter(x=>x.t===type));
   const supC=byType['Support'].length,arC=byType['All Rounder'].length,dpsC=byType['Attack (DPS)'].length;
   const freeSlots=Math.max(0,_guildCap-total);
   const el=document.getElementById('class-overview');
@@ -1839,6 +1851,13 @@ async function ceSave(){
   finally{ admBusy_(false); }
 }
 
+/* สรุปอาชีพของสนามนั้น — Minstrel กับ Gypsy นับรวมเป็น Bard / Gypsy */
+function fieldSum_(list,pts){
+  const ms=[]; list.forEach(p=>(pts[p]||[]).forEach(m=>ms.push(m)));
+  if(!ms.length)return '';
+  const rows=clsCount_(ms,m=>classOf(m));
+  return `<div class="field-sum">${clsChips_(rows)}<span class="fs-total">${ms.length} คน</span></div>`;
+}
 function renderParty(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
@@ -1891,8 +1910,8 @@ function renderParty(){
              :`<div class="abs-empty">ไม่มีใครลา</div>`)+`</div>`;
   document.getElementById('party-content').innerHTML=peTop+
     `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">${editBtn}</div>`+
-    `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div><div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
-    `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div><div class="party-grid">${mkSection(secPts,false)}</div></div>`+absPanel;
+    `<div class="field-section"><div class="field-head"><h4>Elite</h4><span class="field-tag ft-main">Party 1–8</span></div>${fieldSum_(mainPts,pts)}<div class="party-grid">${mkSection(mainPts,true)}</div></div>`+
+    `<div class="field-section"><div class="field-head"><h4>Sub-battle</h4><span class="field-tag ft-sec">${secLabel}</span></div>${fieldSum_(secPts,pts)}<div class="party-grid">${mkSection(secPts,false)}</div></div>`+absPanel;
 }
 
 
@@ -3651,7 +3670,7 @@ function insScores_(rounds){
     o.name=r.member_name||o.name; o.n++;
     o.score+=wNum_(r.score)||0; o.kill+=wNum_(r.kill)||0; o.death+=wNum_(r.death)||0; o.assist+=wNum_(r.assist)||0;
     const rk=wNum_(r.list_rank); if(rk!=null&&rk>=36)o.last++;
-    const c=String(r.class_played||'').trim(); if(c)o.cls[c]=(o.cls[c]||0)+1;
+    const c=clsLabel_(r.class_played); if(c)o.cls[c]=(o.cls[c]||0)+1;
   });
   const list=Object.keys(rows).map(k=>{const o=rows[k];
     const cls=Object.keys(o.cls).sort((a,b)=>o.cls[b]-o.cls[a])[0]||'';
