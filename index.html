@@ -1965,27 +1965,18 @@ function capQueue_(){
       grp:mul==null?'one':(mul>=2?'win':(mul>1?'close':'lose'))};
   }).filter(t=>t.n>0).sort((a,b)=>a.n-b.n);
   if(!tiers.length)return '<div class="cp-none">ยังไม่รู้เพดานรางวัลของนัดถัดไป</div>';
-  /* รวม tier ที่ผลเดียวกันเป็นคอลัมน์เดียว เส้นย่อยข้างในบอกตัวคูณที่ต่างกัน */
-  const cols=[]; let prev=0;
-  tiers.forEach(t=>{
-    const last=cols[cols.length-1];
-    if(last&&last.grp===t.grp){ last.inner.push({at:last.to,lb:last.lastLb}); last.to=t.n; last.lastLb=t.lb; }
-    else cols.push({grp:t.grp,from:prev+1,to:t.n,inner:[],lastLb:t.lb});
-    prev=t.n;
-  });
-  const TL={lose:['แพ้','ตัวคูณ ×1'],close:['แพ้สูสี','×1.5 · ×1.7'],win:['ชนะ','ตัวคูณ ×2'],one:['ได้รางวัล','ไม่มีตัวคูณ']};
-  const mulOf=lb=>String(lb).replace(/^[^×]*/,'')||lb;
+  /* คอลัมน์ละหนึ่งตัวคูณ — แพ้ ×1 · แพ้สูสี ×1.5 · แพ้สูสี ×1.7 · ชนะ ×2 */
+  const TL={lose:'แพ้',close:'แพ้สูสี',win:'ชนะ',one:'ได้รางวัล'};
+  let prev=0;
+  const cols=tiers.map(t=>{const c={grp:t.grp,from:prev+1,to:t.n,mul:String(t.lb).replace(/^[^×]*/,'')||''};prev=t.n;return c;});
   const html=cols.map(c=>{
     const rows=[];
     for(let i=c.from;i<=Math.min(c.to,list.length);i++){
       const r=list[i-1];
       rows.push(`<div class="cp-q"><span class="cp-qp">${i}</span><span class="cp-qn">${esc_(r.member_name||'')}</span></div>`);
-      const inn=c.inner.filter(x=>x.at===i)[0];
-      if(inn)rows.push(`<div class="cp-sub">${esc_(mulOf(inn.lb))} — ถึงคิว ${inn.at}</div>`);
     }
-    const t=TL[c.grp]||TL.one;
     const n=Math.max(0,Math.min(c.to,list.length)-c.from+1);
-    return `<div class="cp-qc ${c.grp}"><div class="cp-qh"><b>${esc_(t[0])}</b><span>${esc_(t[1])}</span>
+    return `<div class="cp-qc ${c.grp}"><div class="cp-qh"><b>${esc_(TL[c.grp]||TL.one)}</b><span>${esc_(c.mul||'ไม่มีตัวคูณ')}</span>
       <i>คิว ${c.from}–${c.to} · ${n} คน</i></div>${rows.join('')||'<div class="cp-none2">ไม่มีใครอยู่ช่วงนี้</div>'}</div>`;
   }).join('');
   const rw=getRewardValues();
