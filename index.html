@@ -1660,7 +1660,9 @@ function renderParty(){
   };
   const mkSection=(list,isMain)=>list.map(p=>{
     const isM=isMain;
-    const sortedMembers=[...pts[p]].sort((a,b)=>nameCmp_(a.ign,b.ign));
+    /* หัวตี้อยู่บนสุด ที่เหลือเรียงชื่อ A–Z */
+    const isLead_=m=>(m.role||'')==='Leader'?0:1;
+    const sortedMembers=[...pts[p]].sort((a,b)=>isLead_(a)-isLead_(b)||nameCmp_(a.ign,b.ign));
     const pmHtml=sortedMembers.map(m=>{
       const cls=classOf(m);const type=getType(cls),tb=typeBar(type);
       const sub=isAlt(m);const leave=isLeaveNote(m);
