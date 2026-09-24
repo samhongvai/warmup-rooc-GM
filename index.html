@@ -239,6 +239,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cal-evt-block .evt-sub{font-size:9px;font-weight:500;opacity:.7;margin-top:2px}
 .cal-evt-block.is-narrow .evt-title-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-evt-block.is-narrow .evt-time{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.gh-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
 .helper-strip{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow-out-sm)}
 .helper-chips{display:flex;flex-wrap:wrap;gap:6px}
 .hchip{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
@@ -1960,6 +1961,7 @@ function capHelper_(){
   const tag=r=>{const st=String(r.auction_status||'').toLowerCase().trim();
     if(isI)return '<span class="cp-tg f">ได้เศษขนนก</span>';
     return st==='done'?'<span class="cp-tg d">Done</span>':(st==='skipped'||st==='skip')?'<span class="cp-tg r">Skipped</span>':'<span class="cp-tg p">Pending</span>';};
+  const total=_aucHelpers.filter(r=>r.week_start===wk&&String(r.member_name||'').trim()&&!ghIsFixed_(r)).length;
   const day=(dow,lb)=>{const date=ghAddDays_(wk,dow-1), rows=ghDayRows_(wk,dow), hp=rows.filter(r=>!ghIsFixed_(r)), sl=[];
     for(let i=0;i<4;i++){const r=hp[i];
       sl.push(r?`<div class="cp-s"><span class="cp-sn">${i+1}</span><span class="cp-sm">${esc_(r.member_name)}</span>${tag(r)}</div>`
@@ -1971,7 +1973,8 @@ function capHelper_(){
     :isI?'Intra-server · สัปดาห์นี้ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกที่เหลือแทน'
     :'ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ';
   return capTop_('helper',`${wRange_(wk,ghAddDays_(wk,6))} · ช่วยเหลือ 21:00–22:00`,null,isX?'Cross-server':isI?'Intra-server':'')
-    +`<div class="cp-mode">${mode}</div><div class="cp-g2">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`
+    +`<div class="cp-mode">${mode}</div>`
+    +(total?`<div class="cp-g2">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`:'<div class="cp-none">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</div>')
     +capFoot_(['Done ช่วยแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
 }
 
@@ -3036,6 +3039,7 @@ function renderDesignated(){
     const n=helpers.length+(isI?0:1), max=isI?4:5;
     return `<div class="gh-day"><div class="gh-dh">${label}<small>${wDay_(date)}</small><span class="sp"></span><span class="gh-cnt">${n}/${max}</span></div>${slots.join('')}</div>`;
   };
+  if(!all){ box.innerHTML=mode+'<div class="gh-none">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</div>'; return; }
   box.innerHTML=mode+`<div class="gh-days">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`;
 }
 
@@ -4418,7 +4422,7 @@ function getHelperClass(name,sheetClass){
 function renderHelperStrip(rows){
   const el=document.getElementById('cal-helper-chips');
   const helpers=rows.filter(r=>r.member_name&&r.member_name!=='Ficelle'&&r.member_name!=='');
-  if(!helpers.length){el.innerHTML='<span style="font-size:11px;color:var(--faint)">ยังไม่มีรายชื่อสัปดาห์นี้</span>';return}
+  if(!helpers.length){el.innerHTML='<span style="font-size:11.5px;color:var(--muted)">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</span>';return}
   el.innerHTML=helpers.map(r=>{
     const cls=getHelperClass(r.member_name,r.class);
     return `<span class="hchip hchip-${cls}">${r.member_name}</span>`;
