@@ -801,9 +801,6 @@ body.is-admin .wr-adm{display:inline-block}
 .cp-tg.p{color:var(--amber);border-color:var(--amber-b);background:var(--amber-dim)}
 .cp-tg.r{color:var(--red);border-color:var(--red-b);background:var(--red-dim)}
 .cp-tg.x,.cp-tg.f{color:var(--blue);border-color:var(--blue-b);background:var(--blue-dim)}
-.cp-q{display:flex;align-items:center;gap:7px;padding:2.5px 0}
-.cp-qp{width:22px;text-align:right;font-size:11.5px;color:var(--muted)}
-.cp-qn{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cp-cut{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
 .cp-cut h4{margin:0 0 8px;font-size:12px;color:var(--orange);letter-spacing:.05em}
 .cp-cr{display:flex;gap:8px;padding:4px 0;border-bottom:1px dashed var(--border);font-size:12.5px}
@@ -840,16 +837,29 @@ body.is-admin .wr-adm{display:inline-block}
 .cp-rc.lose{border-left-color:var(--red)}.cp-rc.lose .cp-rt2{color:var(--red)}
 .cp-rc.close{border-left-color:var(--amber)}.cp-rc.close .cp-rt2{color:var(--amber)}
 .cp-rc.win{border-left-color:var(--green)}.cp-rc.win .cp-rt2{color:var(--green)}
-.cp-qg{display:grid;gap:10px;align-items:start}
-.cp-qc{background:var(--card);border:1px solid var(--border);border-top-width:3px;border-radius:10px;padding:8px 10px}
-.cp-qc.lose{border-top-color:var(--red)}.cp-qc.close{border-top-color:var(--amber)}
-.cp-qc.win,.cp-qc.one{border-top-color:var(--green)}
-.cp-qh{border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px}
-.cp-qh b{font-size:13.5px}
-.cp-qh span{font-size:11px;color:var(--muted);margin-left:6px}
-.cp-qh i{display:block;font-style:normal;font-size:11px;color:var(--faint);margin-top:1px}
-.cp-qc.lose .cp-qh b{color:var(--red)}.cp-qc.close .cp-qh b{color:var(--amber)}
-.cp-qc.win .cp-qh b,.cp-qc.one .cp-qh b{color:var(--green)}
+.cp-qgrp{padding:11px 0 9px;border-bottom:1px solid var(--border2)}
+.cp-qgrp:last-child{border-bottom:none;padding-bottom:2px}
+.cp-qgrp:first-child{padding-top:4px}
+.cp-qhd{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.cp-qhd b{font-size:14.5px;font-weight:800}
+.cp-qhd span{font-size:12.5px;font-weight:800;font-family:var(--font-pixel)}
+.cp-qhd i{margin-left:auto;font-style:normal;font-size:11px;color:var(--muted);font-weight:600}
+.cp-qrow{display:flex;flex-wrap:wrap;gap:6px}
+.cp-qchip{display:flex;align-items:stretch;border:1px solid var(--border2);border-radius:999px;overflow:hidden;background:var(--card)}
+.cp-qchip i{font-style:normal;font-family:var(--font-pixel);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;min-width:25px;padding:0 5px;background:var(--card2);color:var(--muted)}
+.cp-qchip em{font-style:normal;font-size:12.5px;font-weight:600;padding:4px 12px 4px 9px;white-space:nowrap}
+.cp-qgrp.lose .cp-qhd b,.cp-qgrp.lose .cp-qhd span{color:var(--red)}
+.cp-qgrp.lose .cp-qchip{border-color:var(--red-b)}
+.cp-qgrp.lose .cp-qchip i{background:var(--red-dim);color:var(--red)}
+.cp-qgrp.close .cp-qhd b,.cp-qgrp.close .cp-qhd span{color:var(--amber)}
+.cp-qgrp.close .cp-qchip{border-color:var(--amber-b)}
+.cp-qgrp.close .cp-qchip i{background:var(--amber-dim);color:var(--amber)}
+.cp-qgrp.close2 .cp-qhd b,.cp-qgrp.close2 .cp-qhd span{color:var(--orange)}
+.cp-qgrp.close2 .cp-qchip{border-color:var(--orange-border)}
+.cp-qgrp.close2 .cp-qchip i{background:var(--orange-dim);color:var(--orange)}
+.cp-qgrp.win .cp-qhd b,.cp-qgrp.win .cp-qhd span,.cp-qgrp.one .cp-qhd b,.cp-qgrp.one .cp-qhd span{color:var(--green)}
+.cp-qgrp.win .cp-qchip,.cp-qgrp.one .cp-qchip{border-color:var(--green-b)}
+.cp-qgrp.win .cp-qchip i,.cp-qgrp.one .cp-qchip i{background:var(--green-dim);color:var(--green)}
 .cp-sub{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:10.5px;font-weight:800;color:var(--amber)}
 .cp-sub::after{content:'';flex:1;height:1px;background:var(--amber-b)}
 .cp-none2{font-size:12px;color:var(--faint);padding:6px 0}
@@ -1994,7 +2004,7 @@ function capHelper_(){
     +capFoot_(['Done ช่วยแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
 }
 
-/* 3 · คิวประมูล — เฉพาะคนที่ยังไม่ได้ดึง เรียงใหม่ตั้งแต่ 1 · แยกคอลัมน์ตามผล แพ้ · แพ้สูสี · ชนะ */
+/* 3 · คิวประมูล — เฉพาะคนที่ยังไม่ได้ดึง เรียงใหม่ตั้งแต่ 1 · แบ่งกลุ่มบนลงล่างตามตัวคูณ แพ้ · แพ้สูสี · ชนะ */
 function capQueue_(){
   const list=(typeof auUpcomingQueue_==='function')?auUpcomingQueue_():[];
   if(!list.length)return '<div class="cp-none">ไม่มีคิวที่รอประมูล</div>';
@@ -2008,23 +2018,31 @@ function capQueue_(){
   /* คอลัมน์ละหนึ่งตัวคูณ — แพ้ ×1 · แพ้สูสี ×1.5 · แพ้สูสี ×1.7 · ชนะ ×2 */
   const TL={lose:'แพ้',close:'แพ้สูสี',win:'ชนะ',one:'ได้รางวัล'};
   let prev=0;
-  const cols=tiers.map(t=>{const c={grp:t.grp,from:prev+1,to:t.n,mul:String(t.lb).replace(/^[^×]*/,'')||''};prev=t.n;return c;});
+  let seenClose=0;
+  const cols=tiers.map(t=>{
+    let cls=t.grp;
+    if(t.grp==='close'){ seenClose++; if(seenClose>1)cls='close2'; }
+    const c={grp:t.grp,cls:cls,from:prev+1,to:t.n,mul:String(t.lb).replace(/^[^×]*/,'')||''};prev=t.n;return c;
+  });
   const html=cols.map(c=>{
-    const rows=[];
+    const chips=[];
     for(let i=c.from;i<=Math.min(c.to,list.length);i++){
       const r=list[i-1];
-      rows.push(`<div class="cp-q"><span class="cp-qp">${i}</span><span class="cp-qn">${esc_(r.member_name||'')}</span></div>`);
+      chips.push(`<span class="cp-qchip"><i>${i}</i><em>${esc_(r.member_name||'')}</em></span>`);
     }
     const n=Math.max(0,Math.min(c.to,list.length)-c.from+1);
-    return `<div class="cp-qc ${c.grp}"><div class="cp-qh"><b>${esc_(TL[c.grp]||TL.one)}</b><span>${esc_(c.mul||'ไม่มีตัวคูณ')}</span>
-      <i>คิว ${c.from}–${c.to} · ${n} คน</i></div>${rows.join('')||'<div class="cp-none2">ไม่มีใครอยู่ช่วงนี้</div>'}</div>`;
+    const rng=n>1?`คิว ${c.from}–${c.from+n-1} · ${n} คน`:(n===1?`คิว ${c.from} · 1 คน`:'ยังไม่มีใครอยู่ช่วงนี้');
+    return `<div class="cp-qgrp ${c.cls}"><div class="cp-qhd"><b>${esc_(TL[c.grp]||TL.one)}</b><span>${esc_(c.mul||'ไม่มีตัวคูณ')}</span>`
+      +`<i>${rng}</i></div>`
+      +(chips.length?`<div class="cp-qrow">${chips.join('')}</div>`:'<div class="cp-none2">ยังไม่มีใครอยู่ช่วงนี้</div>')
+      +`</div>`;
   }).join('');
   const rw=getRewardValues();
   const sub=[(_aucFc&&_aucFc.ev)||(rw&&rw.event_name)||'',(_aucFc&&_aucFc.sub)||(rw&&rw.rank)||'',
     (_aucFc?('การ์ดฐาน '+_aucFc.card+' ใบ'):''),'รอประมูล '+list.length+' คน'].filter(Boolean).join(' · ');
   const round=[...new Set(list.slice(0,tiers[tiers.length-1].n).map(r=>r.queue_date))].sort()[0]||'';
   return capTop_('queue',sub,null,round?('รอบคิว '+round):'')
-    +`<div class="cp-qg" style="grid-template-columns:repeat(${cols.length},1fr)">${html}</div>`
+    +`<div class="cp-qs">${html}</div>`
     +capFoot_(['ทุกคนในภาพยังไม่ได้ดึง','เลขคือลำดับที่จะได้ดึงจริง','คิวหลังเส้นสุดท้ายรอรอบถัดไป']);
 }
 
