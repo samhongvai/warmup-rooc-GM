@@ -3410,7 +3410,20 @@ function renderGlInput(){
       <button class="btn btn-ghost" onclick="giLoad_(_gi.date);renderGlInput()">Cancel</button>
       <button class="btn wi-save" ${G.busy?'disabled':''} onclick="giSave()">${G.busy?'Saving…':'💾 Save'}</button></div></div>`;
 }
-function giPick_(k,v){ if(k==='status')_gi.stAuto=false; if(k==='cross'&&_gi.cross!==v)_gi.rank=''; _gi[k]=v; renderGlInput(); }
+function giPick_(k,v){ if(k==='status')_gi.stAuto=false; if(k==='cross'&&_gi.cross!==v)_gi.rank=''; _gi[k]=v;
+  if(k==='status'&&v)giPullRoster_();
+  renderGlInput(); }
+/* กรอกผลแพ้ชนะแล้วดึงรายชื่อจากตี้ปัจจุบันมาตั้งต้นให้ — เฉพาะสนามย่อยที่ยังไม่มีสกอร์เดิมและยังไม่ได้พิมพ์อะไร */
+function giPullRoster_(){
+  const done=[];
+  ['Elite','Sub-battle'].forEach(f=>{
+    const s=_gi.sc[f]; if(s.had||s.touched)return;
+    const keys=giKeys_(_gi.league,f);
+    if(s.rows.some(r=>giHasData_(r,keys)))return;
+    s.rows=giRoster_(f); done.push(giFieldLbl_(_gi.league,f)+' '+s.rows.length+' คน');
+  });
+  if(done.length)toast('ดึงรายชื่อจากตี้ปัจจุบันแล้ว · '+done.join(' · '));
+}
 async function giSave(){
   const G=_gi; if(!G||G.busy)return;
   const scores=['Elite','Sub-battle'].filter(f=>G.sc[f].touched).map(f=>{
