@@ -924,6 +924,7 @@ body.is-admin .wr-adm{display:inline-block}
 .st-att{font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;white-space:nowrap}
 .st-att.ok{background:var(--t-mint);color:var(--t-mint-i)}
 .st-att.lv{background:var(--t-peach);color:var(--t-peach-i)}
+.st-att.ar{background:var(--card2);color:var(--faint);border:1px solid var(--border2)}
 .pc-cnt{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;
   background:var(--t-peach);color:var(--t-peach-i)}
 .pc-cnt.full{background:var(--t-mint);color:var(--t-mint-i)}
@@ -1144,6 +1145,7 @@ body.is-admin .wr-adm{display:inline-block}
     <select id="fc" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All classes</option></select>
     <select id="ft" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
     <select id="fp" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All party</option></select>
+    <select id="fs" onchange="renderMembers()" style="flex:1;min-width:110px;display:none"><option value="">All status</option><option value="ACTIVE">Active</option><option value="ABSENT">Absent</option><option value="ARCHIVED">Archived</option><option value="WAITLIST">Waitlist</option></select>
     <label class="alt-toggle"><input type="checkbox" id="hide-alts" checked onchange="toggleHideAlts()"> <span class="en">Hide Alts</span></label>
   </div>
   <div class="tbl-wrap"><table class="mtbl">
@@ -1154,7 +1156,7 @@ body.is-admin .wr-adm{display:inline-block}
       <th id="th-classor" onclick="sortM('class_or')">Class (OR) ↕</th>
       <th id="th-party" onclick="sortM('party')">Party ↕</th>
       <th id="th-gf" onclick="sortM('field')">Field ↕</th>
-      <th class="en">Today</th>
+      <th class="en">Status</th>
     </tr></thead>
     <tbody id="m-tbody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
   </table></div>
@@ -1452,6 +1454,7 @@ function sw(t){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
+  if(t==='members'&&ADMIN)msLoad_();
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
   if(t==='war')initWarPage();
@@ -1569,7 +1572,9 @@ function nameCmp_(a,b){const x=nameBucket_(a),y=nameBucket_(b);
   return String(a||'').localeCompare(String(b||''),['en','th'],{sensitivity:'base',numeric:true});}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
-  let f=getCountedMembers().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;return true});
+  const fsEl=document.getElementById('fs'); if(fsEl)fsEl.style.display=ADMIN?'':'none';
+  const fs=ADMIN&&fsEl?fsEl.value:'';
+  let f=msRows_().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;if(fs&&msStatusOf(m)!==fs)return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
   if(!f.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
@@ -1594,7 +1599,7 @@ function renderMembers(){
       <td style="font-size:12px">${ADMIN?clsOrCell:orHtml}</td>
       <td style="font-family:var(--font-pixel);font-size:11px;color:var(--orange-l)">${m.party||'—'}</td>
       <td>${gfBadge}</td>
-      <td><span class="st-att ${isLeaveNote(m)?'lv':'ok'} en">${isLeaveNote(m)?'ABSENT':'ACTIVE'}</span></td>
+      <td>${msCell_(m)}</td>
     </tr>`;
   }).join('');
   ceBar_();
@@ -1603,6 +1608,36 @@ function renderMembers(){
 
 /* ── admin: เปลี่ยนอาชีพ (หน้า Members) ── */
 const CE_CLASSES=Object.keys(CLASS_TYPE).sort();
+/* ── admin: สถานะสมาชิก (ACTIVE ⇄ ARCHIVED) ──
+   คนที่ออกกิลด์แล้วไม่อยู่ใน Web_Members จึงต้องดึงรายชื่อทุกสถานะมาเพิ่มเฉพาะโหมดแอดมิน */
+const MS_ST=['ACTIVE','ARCHIVED'];
+let _msAll=null,_ms={},_msBusy=false;
+const msStatusOf=m=>{const st=String(m.status||'').trim().toUpperCase();
+  if(st==='ARCHIVED'||st==='WAITLIST')return st;
+  return isLeaveNote(m)?'ABSENT':'ACTIVE';};
+function msRows_(){
+  const vis=m=>{const st=String(m.status||'').trim().toUpperCase();return st!=='ARCHIVED'&&st!=='WAITLIST';};
+  const base=getCountedMembers();
+  if(!ADMIN)return base.filter(vis);
+  if(!_msAll)return base;
+  const has=new Set(base.map(m=>m.ign));
+  const extra=_msAll.filter(r=>r.character_name&&!has.has(r.character_name)).map(r=>({
+    ign:r.character_name,char_id:r.character_id||'',class:r.class_gl||'',class_gl:r.class_gl||'',class_or:r.class_or||'',
+    party:'',field:'',role:'',status:r.status||'',attend:r.attend||'',tag:r.tag||'',discord:''}));
+  return base.concat(extra);
+}
+async function msLoad_(){
+  if(!ADMIN||_msAll||_msBusy)return;
+  _msBusy=true;
+  try{ _msAll=await admCall('admAllMembers'); renderMembers(); }
+  catch(e){ _msAll=[]; }
+  finally{ _msBusy=false; }
+}
+function msSet(name,v){
+  const m=msRows_().find(x=>x.ign===name); if(!m)return;
+  if(String(m.status||'').trim().toUpperCase()===v)delete _ms[name]; else _ms[name]=v;
+  renderMembers();
+}
 let _ce={};
 function ceSet(name,k,v){
   const m=peFind_(name); if(!m)return;
@@ -1612,30 +1647,45 @@ function ceSet(name,k,v){
   if(!Object.keys(_ce[name]).length)delete _ce[name];
   renderMembers();
 }
+/* ช่อง Status — แอดมินเปลี่ยน Active ⇄ Archived ได้ · Waitlist ดูได้อย่างเดียว */
+function msCell_(m){
+  const st=msStatusOf(m), lbl={ACTIVE:'Active',ABSENT:'Absent',ARCHIVED:'Archived',WAITLIST:'Waitlist'};
+  const badge=k=>`<span class="st-att ${k==='ABSENT'?'lv':k==='ACTIVE'?'ok':'ar'} en">${lbl[k]}</span>`;
+  if(!ADMIN)return badge(st==='ABSENT'?'ABSENT':'ACTIVE');
+  if(st==='WAITLIST')return badge('WAITLIST');
+  const cur=_ms[m.ign]||(st==='ARCHIVED'?'ARCHIVED':'ACTIVE');
+  const nq=esc_(m.ign).replace(/'/g,"\\'");
+  const sel=`<select class="ce-sel${_ms[m.ign]?' chg':''}" onchange="msSet('${nq}',this.value)">${MS_ST.map(v=>`<option value="${v}"${v===cur?' selected':''}>${lbl[v]}</option>`).join('')}</select>`;
+  return st==='ABSENT'?sel+' '+badge('ABSENT'):sel;
+}
 function ceBar_(){
   const tw=document.getElementById('m-tbody').closest('.tbl-wrap'); if(!tw)return;
   let bar=document.getElementById('ce-bar');
   if(!ADMIN){ if(bar)bar.remove(); return; }
   if(!bar){bar=document.createElement('div');bar.id='ce-bar';tw.parentNode.insertBefore(bar,tw);}
-  const list=Object.keys(_ce).flatMap(n=>Object.keys(_ce[n]).map(k=>`${esc_(n)} ${k==='gl'?'GL':'OR'} → ${esc_(_ce[n][k])}`));
-  bar.innerHTML=`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพได้จากช่อง Class<span class="sp"></span>
+  const list=Object.keys(_ce).flatMap(n=>Object.keys(_ce[n]).map(k=>`${esc_(n)} ${k==='gl'?'GL':'OR'} → ${esc_(_ce[n][k])}`))
+    .concat(Object.keys(_ms).map(n=>`${esc_(n)} → ${_ms[n]==='ARCHIVED'?'Archived':'Active'}`));
+  bar.innerHTML=`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพที่ช่อง Class และเปลี่ยนสถานะที่ช่อง Status<span class="sp"></span>
     ${list.length?`<span class="pe-chg">แก้ไว้ ${list.length} ช่อง ยังไม่บันทึก</span><button class="adm-btn" onclick="ceCancel()">Cancel</button>`:''}
     <button class="adm-btn pri" onclick="ceSave()"${list.length?'':' disabled'}>💾 Save${list.length?' ('+list.length+')':''}</button></div>
     ${list.length?`<div class="pe-hint">${list.join(' · ')}</div>`:''}`;
 }
-function ceCancel(){_ce={};renderMembers();}
+function ceCancel(){_ce={};_ms={};renderMembers();}
 async function ceSave(){
   const ch=Object.keys(_ce).map(n=>({name:n,gl:_ce[n].gl||'',or:_ce[n].or||''}));
-  if(!ch.length)return;
+  const st=Object.keys(_ms).map(n=>({name:n,status:_ms[n]}));
+  if(!ch.length&&!st.length)return;
   admBusy_(true); toast('กำลังบันทึก… (10–20 วินาที)');
   try{
-    const res=await admCall('admClassSave',ch);
+    let res={log:[],warn:[]};
+    if(st.length){ const r1=await admCall('admStatusSave',st); res={log:r1.log||[],warn:r1.warn||[],members:r1.members}; if(r1.all)_msAll=r1.all; }
+    if(ch.length){ const r2=await admCall('admClassSave',ch); res={log:res.log.concat(r2.log||[]),warn:res.warn.concat(r2.warn||[]),members:r2.members||res.members}; }
     if(res.members&&res.members.length){
       members=res.members.map(peFromWeb_).filter(m=>m.ign);
       _peLocal=members.map(m=>({...m})); _peHold=Date.now()+5*60*1000;
     }
-    _ce={}; applyMode(); renderMembers(); try{renderParty();renderStats();}catch(e){}
-    toast('บันทึกแล้ว · '+res.log.length+' ช่อง'+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''),null,(res.warn||[]).length>0);
+    _ce={}; _ms={}; applyMode(); renderMembers(); try{renderParty();renderStats();}catch(e){}
+    toast('บันทึกแล้ว · '+res.log.length+' รายการ'+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''),null,(res.warn||[]).length>0);
   }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
   finally{ admBusy_(false); }
 }
@@ -1737,7 +1787,7 @@ async function searchMain(){
       <div class="pf-tile${remain&&remain.rank===1?' good':''}"><div class="k en">Queue</div>
         <div class="v num">${qRow?'#'+qRow.position:'\u2014'}</div>
         <div class="h">${qRow?(remain?(remain.rank===1?'คิวถัดไปคือคุณ':'อีก '+(remain.rank-1)+' คน'):qsInfo_(qRow.status).short):'ยังไม่มีคิว'}</div></div>
-      <div class="pf-tile${absent?' warn':''}"><div class="k en">Today</div>
+      <div class="pf-tile${absent?' warn':''}"><div class="k en">Status</div>
         <div class="v en" style="font-size:19px">${absent?'ABSENT':'ACTIVE'}</div>
         <div class="h">${absent?'แจ้งลารอบนี้':'พร้อมลงวอ'}</div></div>
     </div>`;
