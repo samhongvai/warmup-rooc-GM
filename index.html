@@ -1833,7 +1833,7 @@ function sw(t){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
-  if(t==='members'&&ADMIN)msLoad_();
+  if(t==='members'){ if(ADMIN)msLoad_(); renderMembers(); }   /* วาดใหม่ทุกครั้ง ไม่งั้นสวิตช์ Edit mode ที่เปิดจากหน้าอื่นจะไม่ติด */
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
   if(t==='war')initWarPage();
@@ -2007,7 +2007,7 @@ function msRows_(){
 async function msLoad_(){
   if(!ADMIN||_msAll||_msBusy)return;
   _msBusy=true;
-  try{ _msAll=await admCall('admAllMembers'); renderMembers(); }
+  try{ const r=await admCall('admAllMembers'); _msAll=Array.isArray(r)?r:[]; renderMembers(); }
   catch(e){ _msAll=[]; }
   finally{ _msBusy=false; }
 }
@@ -3283,8 +3283,7 @@ function renderDesignated(){
     if(isI)return '<span class="gh-fe">ได้เศษขนนก</span>';
     const done=st==='done';
     if(!EDIT())return `<span class="gh-tag${done?' done':''}">${done?'Done':'Pending'}</span>`;
-    const k=`${wk}|${r.position}|${String(r.character_id||'').trim()}|${esc_(String(r.member_name||'').trim())}`;
-    return `<span class="gh-tag hit${done?' done':''}" onclick="ghTap(this,'${k}',${done?0:1})">${done?'Done':'Pending'}</span>`;};
+    return `<span class="gh-tag hit${done?' done':''}" data-wk="${wk}" data-pos="${esc_(r.position)}" data-id="${esc_(String(r.character_id||'').trim())}" data-nm="${esc_(String(r.member_name||'').trim())}" onclick="ghTap(this,${done?0:1})">${done?'Done':'Pending'}</span>`;};
   const day=(dow,label)=>{
     const date=ghAddDays_(wk,dow-1), rows=ghDayRows_(wk,dow);
     const helpers=rows.filter(r=>!ghIsFixed_(r)), fixed=rows.find(ghIsFixed_);
@@ -3303,9 +3302,9 @@ function renderDesignated(){
 }
 
 /** แตะป้ายสถานะคิวช่วยเหลือ — pending ↔ done · ล็อกหัวปลดไม่ได้ จึงไม่มี skipped */
-async function ghTap(el,k,toDone){
+async function ghTap(el,toDone){
   if(!EDIT())return;
-  const [week,pos,id,name]=k.split('|');
+  const week=el.dataset.wk, pos=el.dataset.pos, id=el.dataset.id, name=el.dataset.nm;
   const want=toDone?'done':'pending';
   el.classList.add('busy');
   try{
@@ -3815,17 +3814,18 @@ function ccData_(){
   if(!_ccDate||ds.indexOf(_ccDate)<0)_ccDate=ds[0];
   const reg={};
   (members||[]).forEach(m=>{ const k=String(m.ign||'').trim().toLowerCase(); if(k)reg[k]={gl:m.class||'',or:m.class_or||'',ign:m.ign}; });
-  const seen={}, rows=[];
+  const seen={}, cmp={}, rows=[];
   (_glScore||[]).filter(r=>r.date===_ccDate).forEach(r=>{
     const nm=String(r.member_name||'').trim(); if(!nm)return;
     const played=String(r.class_played||'').trim(); if(!played)return;
     const k=nm.toLowerCase(); if(seen[k])return; seen[k]=1;
     const m=reg[k]; if(!m)return;                       /* ไม่อยู่ในกิลด์แล้ว ข้ามไป */
+    cmp[k]=1;                                           /* นับเฉพาะคนที่ยังอยู่ในทะเบียน */
     if(clsLabel_(m.gl)===clsLabel_(played))return;      /* ตรงกันแล้ว */
     rows.push({name:m.ign||nm, reg:m.gl||'', played:played, field:r.field||''});
   });
   rows.sort((a,b)=>String(a.name).localeCompare(String(b.name)));
-  const total=Object.keys(seen).length;
+  const total=Object.keys(cmp).length;
   return {dates:ds,rows:rows,date:_ccDate,total:total};
 }
 function ccPick(v){ _ccDate=v||''; renderClsCheck(); }
