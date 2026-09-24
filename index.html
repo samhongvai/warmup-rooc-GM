@@ -804,6 +804,23 @@ body.is-admin .wr-adm{display:inline-block}
 .cp-lo{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
 .cp-lo h4{margin:0 0 6px;font-size:12px;color:var(--orange);letter-spacing:.05em}
 .cp-note{margin-top:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:12px}
+.cp-cut{display:flex;align-items:center;margin:5px 0;font-size:10.5px;font-weight:800}
+.cp-cut span{border-radius:999px;padding:1px 9px;border:1px solid;white-space:nowrap}
+.cp-cut::after{content:'';flex:1;height:1px;margin-left:8px}
+.cp-cut.lose span{color:var(--red);border-color:var(--red-b);background:var(--red-dim)}
+.cp-cut.lose::after{background:var(--red-b)}
+.cp-cut.close span{color:var(--amber);border-color:var(--amber-b);background:var(--amber-dim)}
+.cp-cut.close::after{background:var(--amber-b)}
+.cp-cut.win span,.cp-cut.one span{color:var(--green);border-color:var(--green-b);background:var(--green-dim)}
+.cp-cut.win::after,.cp-cut.one::after{background:var(--green-b)}
+.cp-side{display:flex;flex-direction:column;gap:9px}
+.cp-rc{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:10px;padding:9px 12px}
+.cp-rc .cp-rt2{display:block;font-size:12px;font-weight:800}
+.cp-rc b{font-size:20px;line-height:1.3;display:block}
+.cp-rc small{display:block;font-size:11px;color:var(--muted)}
+.cp-rc.lose{border-left-color:var(--red)}.cp-rc.lose .cp-rt2{color:var(--red)}
+.cp-rc.close{border-left-color:var(--amber)}.cp-rc.close .cp-rt2{color:var(--amber)}
+.cp-rc.win{border-left-color:var(--green)}.cp-rc.win .cp-rt2{color:var(--green)}
 .mn-in{background:none;border:1px solid transparent;border-radius:7px;padding:3px 6px;font:inherit;font-size:13px;font-weight:600;color:var(--text);width:100%;max-width:190px}
 .mn-in:hover{border-color:var(--border2)}
 .mn-in:focus{border-color:var(--orange);outline:none;background:var(--card2)}
@@ -1924,31 +1941,37 @@ function capHelper_(){
     +capFoot_(['Done ช่วยแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
 }
 
-/* 3 · คิวประมูล */
+/* 3 · คิวประมูล — เฉพาะคนที่ยังไม่ได้ดึง เรียงใหม่ตั้งแต่ 1 · เส้นตัดแยกเป็น แพ้ · แพ้สูสี · ชนะ */
 function capQueue_(){
-  const all=(_aucQueue||[]);
-  if(!all.length)return '<div class="cp-none">ยังไม่มีคิวประมูล</div>';
-  const sel=document.getElementById('qm-round');
-  const pick=sel&&/^\d{4}-\d{2}-\d{2}$/.test(sel.value)?sel.value:'';
-  const round=pick||[...new Set(all.map(r=>r.queue_date))].sort().reverse()[0];
-  const list=all.filter(r=>r.queue_date===round).sort((a,b)=>(+a.position||0)-(+b.position||0));
-  if(!list.length)return '<div class="cp-none">รอบนี้ยังไม่มีคิว</div>';
-  const st_=v=>{const s=String(v||'').toLowerCase();
-    return s==='done'?'<span class="cp-tg d">Done</span>':s==='skipped'||s==='skip'?'<span class="cp-tg r">Skipped</span>'
-      :s==='duplicate'?'<span class="cp-tg r">ซ้ำคิว</span>':'<span class="cp-tg p">Pending</span>';};
-  const tiers=(_aucFc&&_aucFc.tiers)||[];
-  const maxN=tiers.reduce((m,t)=>Math.max(m,+t.n||0),0);
-  const show=list.slice(0,Math.max(30,maxN));
-  const half=Math.ceil(show.length/2);
-  const col=a=>`<div class="cp-c1">${a.map(r=>`<div class="cp-q"><span class="cp-qp">${esc_(r.position)}</span><span class="cp-qn">${esc_(r.member_name||'')}</span>${st_(r.status)}</div>`).join('')}</div>`;
-  const cut=tiers.length?`<div class="cp-cut"><h4>เส้นตัดตามผล</h4>${tiers.map(t=>`<div class="cp-cr">${esc_(t.lb)}<b>ถึงคิว ${t.n}</b></div>`).join('')}</div>`:'';
-  let dup=[]; try{dup=auDuplicateQueue_()||[]}catch(e){}
-  const dupH=dup.length?`<div class="cp-dup">เลื่อนไปรอบหน้า เพราะถือคิวที่ยังไม่ได้ประมูลอยู่แล้ว<br>${dup.map(r=>`<span class="cp-dc">${esc_(r.member_name||'')}</span>`).join('')}</div>`:'';
+  const list=(typeof auUpcomingQueue_==='function')?auUpcomingQueue_():[];
+  if(!list.length)return '<div class="cp-none">ไม่มีคิวที่รอประมูล</div>';
+  const tiers=((_aucFc&&_aucFc.tiers)||[]).map(t=>{
+    const m=String(t.lb||'').match(/×\s*([\d.]+)/);
+    const mul=m?parseFloat(m[1]):null;
+    return {n:+t.n||0,lb:String(t.lb||''),mul:mul,
+      grp:mul==null?'one':(mul>=2?'win':(mul>1?'close':'lose'))};
+  }).filter(t=>t.n>0).sort((a,b)=>a.n-b.n);
+  const cut={}; tiers.forEach(t=>{cut[t.n]=t;});
+  const maxN=tiers.reduce((m,t)=>Math.max(m,t.n),0);
+  const items=list.slice(0,Math.max(30,maxN)).map((r,i)=>({r,i:i+1}));
+  const mulOf=t=>t.lb.replace(/^[^×]*/,'');
+  const mark=t=>`<div class="cp-cut ${t.grp}"><span>${esc_(t.grp==='lose'?'แพ้':t.grp==='close'?('แพ้สูสี '+mulOf(t)):t.grp==='win'?'ชนะ':t.lb)} — ถึงคิว ${t.n}</span></div>`;
+  const col=a=>`<div class="cp-c1">${a.map(x=>`<div class="cp-q"><span class="cp-qp">${x.i}</span><span class="cp-qn">${esc_(x.r.member_name||'')}</span><span class="cp-tg p">Pending</span></div>`+(cut[x.i]?mark(cut[x.i]):'')).join('')}</div>`;
+  const half=Math.ceil(items.length/2);
+  const gl=g=>tiers.filter(t=>t.grp===g);
+  const card=(title,sub,arr,cls)=>arr.length?`<div class="cp-rc ${cls}"><span class="cp-rt2">${esc_(title)}</span><b>${arr.map(t=>t.n).join(' · ')}</b><small>${esc_(sub)}</small></div>`:'';
+  const side=gl('one').length
+    ? card('ได้รางวัลถึงคิว','อันดับเดียว ไม่มีตัวคูณ',gl('one'),'win')
+    : card('แพ้','ตัวคูณ ×1',gl('lose'),'lose')
+      +card('แพ้สูสี',gl('close').map(mulOf).join(' · '),gl('close'),'close')
+      +card('ชนะ','ตัวคูณ ×2',gl('win'),'win');
   const rw=getRewardValues();
-  const sub=[(_aucFc&&_aucFc.ev)||(rw&&rw.event_name)||'',(rw&&rw.rank)||'',rw?('การ์ด '+rw.card+' ใบ'):''].filter(Boolean).join(' · ');
-  return capTop_('queue',sub,null,'รอบคิว '+round)
-    +`<div class="cp-g3">${col(show.slice(0,half))}${col(show.slice(half))}<div>${cut}${dupH}</div></div>`
-    +capFoot_(['Done ดึงแล้ว','Pending รอคิว']);
+  const sub=[(_aucFc&&_aucFc.ev)||(rw&&rw.event_name)||'',(_aucFc&&_aucFc.sub)||(rw&&rw.rank)||'',
+    (_aucFc?('การ์ดฐาน '+_aucFc.card+' ใบ'):''),'รอประมูล '+list.length+' คน'].filter(Boolean).join(' · ');
+  const round=[...new Set(items.map(x=>x.r.queue_date))].sort()[0]||'';
+  return capTop_('queue',sub,null,round?('รอบคิว '+round):'')
+    +`<div class="cp-g3">${col(items.slice(0,half))}${col(items.slice(half))}<div class="cp-side">${side}</div></div>`
+    +capFoot_(['ทุกคนในภาพยังไม่ได้ดึง','เลขคือลำดับที่จะได้ดึงจริง']);
 }
 
 /* 4 · ผลวอและสกอร์ */
