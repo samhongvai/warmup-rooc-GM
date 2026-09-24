@@ -131,6 +131,16 @@ input[type=checkbox]{accent-color:var(--orange)}
 .alt-toggle{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;margin-left:auto}
 .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow-x:auto;overflow-y:hidden;box-shadow:var(--shadow-out-sm);-webkit-overflow-scrolling:touch}
 .mtbl{min-width:560px}
+/* มือถือ: ซ่อนเลขลำดับ ตรึงคอลัมน์ชื่อไว้ซ้าย ให้อ่านชื่อได้ตลอดเวลาเลื่อนตาราง */
+@media(max-width:640px){
+  .mtbl{min-width:520px}
+  .mtbl th.m-num,.mtbl td.m-num{display:none}
+  .mtbl th,.mtbl td{padding:7px 9px}
+  .mtbl th:nth-child(2),.mtbl td:nth-child(2){position:sticky;left:0;z-index:2;background:var(--card);box-shadow:1px 0 0 var(--border);min-width:122px;max-width:122px}
+  .mtbl thead th:nth-child(2){background:var(--card2);z-index:3}
+  .mtbl tr:hover td:nth-child(2){background:var(--soft)}
+  .mn-in{max-width:none;width:100%;font-size:12.5px}
+}
 .mtbl,.au-tbl,.rtbl,.sum-tbl{width:100%;border-collapse:collapse}
 .mtbl th,.au-tbl th,.rtbl th,.sum-tbl th{text-align:left;padding:9px 13px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.8px;background:var(--card2);cursor:pointer}
 .mtbl td,.au-tbl td,.rtbl td,.sum-tbl td{padding:6px 13px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px}
@@ -3636,11 +3646,20 @@ function absData_(){
     const o=played[d]; if(!o)return null;            /* ยังไม่มีสกอร์ของวอนี้ */
     return (id&&o.id.has(String(id)))||o.nm.has(name);
   };
+  /* เฉพาะคนที่ยังอยู่ในกิลด์ — คนที่ออกไปแล้วไม่ต้องขึ้น */
+  const memId=new Set(), memNm=new Set();
+  (members||[]).forEach(m=>{
+    const mid=m.char_id||m.character_id; if(mid)memId.add(String(mid).trim());
+    if(m.ign)memNm.add(String(m.ign).trim().toLowerCase());
+  });
+  const inGuild=(n,id)=>(id&&memId.has(String(id)))||memNm.has(String(n).trim().toLowerCase());
   const by={};
   (_attLog||[]).forEach(r=>{
     const n=String(r.member_name||'').trim(); if(!n)return;
+    const id=String(r.character_id||'').trim();
+    if(!inGuild(n,id))return;
     const o=by[n]=by[n]||{id:'',d:{}};
-    if(!o.id&&r.character_id)o.id=String(r.character_id).trim();
+    if(!o.id&&id)o.id=id;
     o.d[r.date]=String(r.status||'').trim().toUpperCase()==='NO_SHOW'?'NO_SHOW':'LEAVE';
   });
   let camTot=0;
