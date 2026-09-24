@@ -1119,8 +1119,8 @@ body.is-admin .wr-adm{display:inline-block}
       <button id="li" title="+"><svg><use href="#i-plus2"/></svg></button>
     </div>
   </div>
-<div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <div class="app" id="app-root">
+<div class="sidebar-overlay" id="sov" onclick="closeSidebar()"></div>
 <nav class="sidebar" id="sidebar-el">
   <div class="logo-area">
     <div class="logo-img-wrap"><div class="logo-img"><svg style="width:20px;height:20px"><use href="#m-sun"/></svg></div></div>
@@ -4128,10 +4128,13 @@ function onZoomSlider(v){
   _zoomLevel=Math.min(ZOOM_MAX,Math.max(ZOOM_MIN,Math.round(+v||100)));
   const scale=_zoomLevel/100;
   const app=document.getElementById('app-root');
-  app.style.transform='scale('+scale+')';
-  app.style.transformOrigin='top left';
-  app.style.width=(100/scale)+'%';
-  app.style.height=(100/scale)+'%';
+  if(scale===1){ app.style.transform=''; app.style.transformOrigin=''; app.style.width=''; app.style.height=''; }
+  else{
+    app.style.transform='scale('+scale+')';
+    app.style.transformOrigin='top left';
+    app.style.width=(100/scale)+'%';
+    app.style.height=(100/scale)+'%';
+  }
   const lbl=document.getElementById('zoom-lbl');
   if(lbl)lbl.textContent=_zoomLevel+'%';
   try{localStorage.setItem('warmup_zoom',_zoomLevel)}catch(e){}
