@@ -4834,7 +4834,7 @@ function renderGlInput(){
       <span class="wi-st">${S.had?'● มีสกอร์เดิม':'รายชื่อดึงจากหน้าปาร์ตี้'}${S.touched?' · แก้แล้ว':''}</span></div>
     ${G.league?'':'<div class="wi-warn">เลือกสนามก่อน ช่องกรอกจะเปลี่ยนตามสนาม</div>'}
     ${G.league==='Vigrid Avenge'?'<div class="wi-warn">Vigrid Avenge ยังไม่รู้หัวคอลัมน์เฉพาะสนาม — กรอกได้แค่ ฆ่า · ช่วย · ตาย · คะแนน</div>':''}
-    ${G.date<GL_SCORE_FROM&&!S.had?`<div class="wi-warn">วอนัดนี้เก่ากว่า ${GL_SCORE_FROM} — ในเกมดูประวัติรายคนย้อนหลังไม่ได้แล้ว กรอกเท่าที่มีหรือข้ามไปได้</div>`:''}
+    ${G.date<GL_SCORE_FROM?`<div class="wi-warn">วอนัดนี้เก่ากว่า ${GL_SCORE_FROM} — บันทึกเฉพาะสกอร์ ไม่แตะประวัติการมา เพราะผังตี้กับสถานะลาเป็นของวันนี้ ไม่ใช่ของวันนั้น</div>`:''}
     ${vale?'<div class="wi-calc" style="margin:0 0 8px">กรอกเรียงตามอันดับในเกม · Title กดเลือกได้หลายอัน · Stronghold = ฐานที่มั่น S ใหญ่ / A กลาง / B เล็ก (เลข 5/10/1 ในเกม = S 5 · A 10 · B 1)</div>':''}
     <div style="overflow-x:auto"><table class="wi-tbl"><thead>${vale
       ?`<tr><th rowspan="2">#</th><th rowspan="2">Name</th><th rowspan="2">Class</th><th rowspan="2">Title</th><th colspan="3" class="wi-grp">Stronghold</th>${cols.slice(3).map(c=>`<th rowspan="2">${c[1]}</th>`).join('')}<th rowspan="2"></th></tr><tr>${cols.slice(0,3).map(c=>`<th>${c[1]}</th>`).join('')}</tr>`
@@ -4912,8 +4912,11 @@ async function giSave(){
   if(both.length){toast(`ชื่อซ้ำทั้ง ${giFieldLbl_(G.league,'Elite')} และ ${giFieldLbl_(G.league,'Sub-battle')}: `+both.join(', '),null,true);return;}
   const emptied=scores.find(x=>!x.rows.length&&G.sc[x.field].had);
   if(emptied){toast(giFieldLbl_(G.league,emptied.field)+' ไม่มีสกอร์เหลือเลย — ถ้าจะลบสกอร์ของสนามนี้ทั้งหมดให้ลบในชีท GL_Score',null,true);return;}
-  /* ใครไม่มีชื่อในตารางและไม่ได้แจ้งลา = ไม่แจ้งลา (No-show) · คนแจ้งลาแต่มีสกอร์ ถือว่ามา ไม่บันทึก */
-  const attend=await giAttendConfirm_(G,scores);
+  /* ใครไม่มีชื่อในตารางและไม่ได้แจ้งลา = ไม่แจ้งลา (No-show) · คนแจ้งลาแต่มีสกอร์ ถือว่ามา ไม่บันทึก
+     วอเก่าที่กรอกย้อนหลัง ข้ามขั้นนี้ไปเลย — ผังตี้กับสถานะลาเป็นของวันนี้ ไม่ใช่ของวันนั้น
+     เอามาตัดสินว่าใครไม่มาในวอเมื่อเดือนก่อนไม่ได้ */
+  const backfill=G.date<GL_SCORE_FROM;
+  const attend=backfill?[]:await giAttendConfirm_(G,scores);
   if(attend===null)return;
   G.busy=true;renderGlInput();admBusy_(true);
   try{
