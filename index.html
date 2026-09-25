@@ -655,6 +655,52 @@ input[type=checkbox]{accent-color:var(--teal)}
 .cc-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
 .cc-ft{margin-top:10px;font-size:11.5px;color:var(--faint)}
 @media(max-width:620px){.cc-g{grid-template-columns:1fr}}
+/* ── Leftover: เลือกคนและกดปิดเองได้ ── */
+.lo-sel{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:6px 9px;
+  color:var(--text);font:inherit;font-size:12.5px;font-weight:700;outline:none}
+.lo-sel.empty{color:var(--faint);font-weight:400;border-style:dashed}
+.lo-st,.lo-stth{text-align:right;white-space:nowrap}
+.lo-row td{border-bottom:0}
+.lo-warn td{padding-top:0}
+
+/* ── Match Result บนแท็บ Guild Auction ── */
+.wr-adm3{display:none}
+body.is-admin .wr-adm3{display:block}
+.mr-row{display:flex;gap:11px;flex-wrap:wrap;align-items:flex-end;margin-bottom:11px}
+.mr-f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mr-f > span{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;font-family:var(--font-pixel)}
+.mr-f input,.mr-f select{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:7px 10px;color:var(--text);font:inherit;font-size:13px;outline:none;width:100%}
+.mr-f input:focus,.mr-f select:focus{border-color:var(--orange-border)}
+.mr-seg{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;flex-wrap:wrap}
+.mr-seg button{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;
+  padding:5px 11px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.mr-seg button.on{background:var(--orange);color:#fff}
+.mr-sc{display:flex;align-items:center;gap:7px}
+.mr-sc input{width:96px;text-align:center;font-family:var(--font-pixel);font-weight:700}
+.mr-sc b{color:var(--faint)}
+.mr-rw{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}
+.mr-rb{border:1px dashed var(--border2);border-radius:12px;padding:11px;text-align:center}
+.mr-rb b{display:block;font-size:20px;font-family:var(--font-pixel);color:var(--orange-l);line-height:1.25}
+.mr-rb span{font-size:11px;color:var(--faint)}
+.mr-note{font-size:12px;color:var(--muted);margin-top:9px}
+.mr-note b{color:var(--text)}
+.mr-act{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:13px}
+.mr-hint{flex:1;min-width:170px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.mr-w1{width:168px}.mr-w2{width:190px}.mr-wf{flex:1;min-width:150px}
+@media(max-width:640px){.mr-rw{grid-template-columns:1fr}}
+/* จอแคบ: ทุกช่องเต็มบรรทัด ปุ่มแบ่งกันเอง ไม่มีอะไรล้นขอบ */
+@media(max-width:560px){
+  .mr-row{gap:9px}
+  .mr-f,.mr-w1,.mr-w2,.mr-wf{flex:1 1 100%;width:auto;min-width:0}
+  .mr-seg{width:100%}
+  .mr-seg button{flex:1 1 0;min-width:0;padding:5px 4px;font-size:11.5px;overflow:hidden;text-overflow:ellipsis}
+  .mr-sc{width:100%}
+  .mr-sc input{flex:1 1 0;width:auto;min-width:0}
+  .mr-act{gap:8px}
+  .mr-act .adm-btn{width:100%}
+}
+
 /* ── History: ช่องของที่ยังไม่ได้กรอก + ปุ่มปากกา ── */
 .wr-adm2{display:none}
 body.is-admin .wr-adm2{display:table-cell}
@@ -1489,12 +1535,21 @@ body.is-admin .wr-adm{display:inline-block}
   <div class="page-sub cap-row"><span id="auc-sub">คิวประมูลและการแจกของ</span><button class="cap-btn" onclick="capOpen(capAucKind_())">📸 Capture</button></div>
   <div id="adm-ribbon"></div>
   <div class="au-tabs">
-    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Distribution</button>
+    <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
     <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Guild Helper</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
   </div>
 
   <div id="auc-calc">
+
+    <div class="au-sec wr-adm3" id="au-mr" style="display:none">
+      <div class="au-sec-h ct" onclick="augTog('au-mr')">
+        <svg class="au-cv"><use href="#i-caret2"/></svg>
+        <b>Match Result</b><div class="sp"></div>
+        <span class="au-fc-tag" id="mr-tag">—</span>
+      </div>
+      <div class="au-sec-b"><div id="mr-body"></div></div>
+    </div>
 
     <div class="au-sec" id="au-s0" style="display:none">
       <div class="au-sec-h ct" onclick="augTog('au-s0')">
@@ -1555,8 +1610,8 @@ body.is-admin .wr-adm{display:inline-block}
           <label class="au-mini"><span class="k">Red / Black</span><input id="lo-r" type="number" min="0" value="0" oninput="renderLeftover()"></label>
         </div>
         <div class="au-tblx" style="margin-top:14px"><table class="au-tbl">
-          <thead><tr><th>Name</th><th>White</th><th>Red / Black</th></tr></thead>
-          <tbody id="lo-body"><tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr></tbody>
+          <thead><tr><th style="width:190px">Name</th><th>White</th><th>Red / Black</th><th class="lo-stth">Status</th></tr></thead>
+          <tbody id="lo-body"><tr><td colspan="4" class="empty">ไม่มีของเหลือ</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -2741,6 +2796,7 @@ async function initAuctionPage(){
   renderDistribution();
   populateQueueRounds();
   populateDesignatedWeeks();
+  if(ADMIN){ try{ await loadWarData(); mrOpen_(); }catch(e){} }
 }
 
 function populateAucEventTypes(){
@@ -3287,20 +3343,40 @@ function spreadN_(total,count,cap){
   return per;
 }
 
+/* เศษขนนก — ไม่เก็บลงชีท เป็นของแถมท้ายรอบ เลือกคนกับกด Done ได้ในหน้าเว็บ รีเฟรชแล้วเริ่มใหม่ */
+var LO_DEFAULT=['Ficelle','ไข่เน่า','JOKER888'];
+var _loPick={}, _loDone={};
+function loPick(k,v){ _loPick[k]=v||''; renderLeftover(); }
+function loTap(k){ _loDone[k]=!_loDone[k]; renderLeftover(); }
+/* ชื่อที่เลือกได้ = คนที่ยังอยู่ในกิลด์ เรียงแบบเดียวกับหน้า Members */
+function loNameOpts_(cur){
+  var names=(members||[]).map(function(m){return String(m.ign||'').trim()}).filter(Boolean);
+  if(cur&&names.indexOf(cur)<0)names.push(cur);
+  names.sort(nameCmp_);
+  return '<option value="">เลือกสมาชิก…</option>'+names.map(function(n){
+    return '<option value="'+esA_(n)+'"'+(n===cur?' selected':'')+'>'+esc_(n)+'</option>';}).join('');
+}
+/* คนนี้ได้ขนนกจากคิวประมูลรอบนี้ไปแล้วเท่าไหร่ — ใช้กันไม่ให้รวมกับเศษแล้วเกินเพดานเกม */
+function loGot_(dist,name){
+  if(!dist||!name)return null;
+  var hit=(dist.rows||[]).some(function(r){return String(r.name||'').trim().toLowerCase()===name.trim().toLowerCase()});
+  return hit?{w:dist.pW||0,r:dist.pR||0}:null;
+}
 function renderLeftover(){
   var body=document.getElementById('lo-body');
   if(!body)return;
-  if(_aucMode==='wait'||_aucMode==='done'){body.innerHTML='<tr><td colspan="3" class="au-empty2">'+(_aucMode==='done'?'ประมูลรอบนี้ครบแล้ว':'รอกรอกผลวอก่อน')+'</td></tr>';return}
+  var COLS=4;
+  if(_aucMode==='wait'||_aucMode==='done'){body.innerHTML='<tr><td colspan="'+COLS+'" class="au-empty2">'+(_aucMode==='done'?'ประมูลรอบนี้ครบแล้ว':'รอกรอกผลวอก่อน')+'</td></tr>';return}
   var dist=computeDistribution();
   var wN=Math.max(0,+(document.getElementById('lo-w')||{}).value||0);
   var rN=Math.max(0,+(document.getElementById('lo-r')||{}).value||0);
-  if(!wN&&!rN){body.innerHTML='<tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr>';return}
+  if(!wN&&!rN){body.innerHTML='<tr><td colspan="'+COLS+'" class="empty">ไม่มีของเหลือ</td></tr>';return}
   var rw=getRewardValues();
   var capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
   var n=Math.max(Math.ceil(wN/capW),Math.ceil(rN/capR));
-  if(!n){body.innerHTML='<tr><td colspan="3" class="empty">ไม่มีของเหลือ</td></tr>';return}
+  if(!n){body.innerHTML='<tr><td colspan="'+COLS+'" class="empty">ไม่มีของเหลือ</td></tr>';return}
   var W=spreadN_(wN,n,capW), R=spreadN_(rN,n,capR);
-  /* วันในเซิร์ฟ: เศษขนนกแจกให้ Guild Helper ของวันนั้นตามลำดับ · เกินจำนวนผู้ช่วยค่อยเป็น #n */
+  /* วันในเซิร์ฟ: เศษแจกให้ Guild Helper ของวันนั้นก่อน · ไม่งั้นใช้ชื่อตั้งต้น */
   var loNames=(_aucAutoWar&&String(_aucAutoWar.cross_server||'').trim()==='N')?ghHelpersForDate_(_aucAutoWar.date):[];
   var wp=(dist?dist.n*dist.pW:0)+1;
   var rp=(dist?dist.white+dist.n*dist.pR:0)+1;
@@ -3308,11 +3384,33 @@ function renderLeftover(){
   for(var k=0;k<n;k++){
     var wq=W[k],rq=R[k];
     if(!wq&&!rq)continue;
+    var name=(_loPick[k]!=null)?_loPick[k]:(loNames[k]||LO_DEFAULT[k]||'');
+    /* ตัดเศษไม่ให้รวมกับของที่ได้จากคิวแล้วเกินเพดานของอันดับนี้ */
+    var got=loGot_(dist,name), warn='';
+    var wShow=wq, rShow=rq;
+    if(got){
+      var okW=Math.max(0,capW-got.w), okR=Math.max(0,capR-got.r);
+      if(wq>okW||rq>okR){
+        var msg=[];
+        if(wq>okW)msg.push('White '+got.w+'+'+wq+' เกินเพดาน '+capW+' — ตัดเหลือ '+okW);
+        if(rq>okR)msg.push('Red / Black '+got.r+'+'+rq+' เกินเพดาน '+capR+' — ตัดเหลือ '+okR);
+        warn='<tr class="lo-warn"><td colspan="'+COLS+'"><span class="wh-miss">'+esc_(name)+' อยู่ในคิวรอบนี้ · '+msg.join(' · ')+'</span></td></tr>';
+        wShow=Math.min(wq,okW); rShow=Math.min(rq,okR);
+      }
+    }
     var ws=wp,rs=rp; wp+=wq; rp+=rq;
-    out.push('<tr><td style="font-weight:700">'+(loNames[k]?esc_(loNames[k]):'#'+(k+1))+'</td>'
-      +'<td>'+(wq?fmtSlots(ws,wq):'—')+'</td><td>'+(rq?fmtSlots(rs,rq):'—')+'</td></tr>');
+    var done=!!_loDone[k];
+    var sel=ADMIN
+      ? '<select class="lo-sel'+(name?'':' empty')+'" onchange="loPick('+k+',this.value)">'+loNameOpts_(name)+'</select>'
+      : '<b>'+(name?esc_(name):'#'+(k+1))+'</b>';
+    var st=ADMIN
+      ? '<span class="gh-tag hit'+(done?' done':'')+'" onclick="loTap('+k+')">'+sb_(done?'done':'pending',done?'Done':'Pending')+'</span>'
+      : '<span class="gh-tag'+(done?' done':'')+'">'+sb_(done?'done':'pending',done?'Done':'Pending')+'</span>';
+    out.push('<tr'+(warn?' class="lo-row"':'')+'><td>'+sel+'</td>'
+      +'<td>'+(wShow?fmtSlots(ws,wShow):'—')+'</td><td>'+(rShow?fmtSlots(rs,rShow):'—')+'</td>'
+      +'<td class="lo-st">'+st+'</td></tr>'+warn);
   }
-  body.innerHTML=out.join('')||'<tr><td colspan="3" class="empty">—</td></tr>';
+  body.innerHTML=out.join('')||'<tr><td colspan="'+COLS+'" class="empty">—</td></tr>';
 }
 
 
@@ -3489,6 +3587,97 @@ function qmCuts_(){
   if(_aucFc&&_aucFc.tiers){ _aucFc.tiers.forEach(t=>{ if(t.n>0)out[t.n]=t.lb; }); return out; }
   const rw=getRewardValues(); if(rw&&rw.card)out[rw.card]='ได้รางวัลวันนี้';
   return out;
+}
+
+/* ══ MATCH RESULT ══ บันทึกผลวอแบบเร็วจากหน้าประมูล
+   ตอนประมูลเร่งรีบ กรอกแค่พอให้ประมูลเริ่มได้ แล้วค่อยกดปากกาในหน้า Guild War มาใส่รายละเอียด
+   ใช้ admGlSave ตัวเดียวกับแผงกรอกเต็ม ส่ง scores/attend ว่าง ฝั่งสคริปต์กรองทิ้ง ไม่ไปลบสกอร์รายคน */
+let _mr=null;
+function mrLoad_(date){
+  const r=_glLog.find(x=>x.date===date)||{};
+  const prev=[..._glLog].filter(x=>x.date<date).sort((a,b)=>a.date.localeCompare(b.date)).pop()||{};
+  const g=k=>naV_(r[k]);
+  _mr={date,exists:!!r.date,
+    league:g('league')||naV_(prev.league)||'',
+    cross:g('cross_server')||naV_(prev.cross_server)||'',
+    rank:g('rank')||naV_(prev.rank)||'',
+    opp:g('opponent'),our:g('our_score'),their:g('opp_score'),
+    status:g('status'),busy:false};
+}
+function mrDefaultDate_(){
+  const t=toDateStr(new Date());
+  const w=(_warLog||[]).filter(x=>x.event_type==='Guild League'&&x.date<=t).map(x=>x.date).sort().pop();
+  return w||t;
+}
+function mrOpen_(){
+  if(!ADMIN)return;
+  const sec=document.getElementById('au-mr'); if(sec)sec.style.display='';
+  if(!_mr)mrLoad_(mrDefaultDate_());
+  renderMatchResult();
+}
+function mrSet(k,v){ _mr[k]=v; if(k==='our'||k==='their')mrAuto_(); renderMatchResult(); }
+function mrPick(k,v){ _mr[k]=v; if(k==='cross')_mr.rank=''; renderMatchResult(); }
+function mrDate(v){ if(/^\d{4}-\d{2}-\d{2}$/.test(v)){ mrLoad_(v); renderMatchResult(); } }
+/* สกอร์ครบแล้วเดาผลให้ ถ้าเจ้าของยังไม่ได้เลือกเอง */
+function mrAuto_(){
+  const a=wNum_(_mr.our), b=wNum_(_mr.their);
+  if(a!=null&&b!=null&&a!==b)_mr.status=a>b?'Win':'Lose';
+}
+function renderMatchResult(){
+  const box=document.getElementById('mr-body'); if(!box)return;
+  if(!ADMIN){box.innerHTML='';return}
+  const G=_mr; if(!G){box.innerHTML='';return}
+  const tag=document.getElementById('mr-tag');
+  if(tag)tag.textContent=G.exists?('มีนัดนี้แล้ว · '+auThai_(G.date)):('นัดใหม่ · '+auThai_(G.date));
+  const tiers=_aucRewardsRef.filter(r=>r.event_type==='Guild League'&&(!G.cross||r.cross_server===G.cross)).map(r=>r.rank);
+  const seg=(arr,cur,fn)=>`<div class="mr-seg">`+arr.map(([v,t])=>
+    `<button class="${String(v)===String(cur)?'on':''}" onclick="${fn(v)}">${esc_(t)}</button>`).join('')+`</div>`;
+  const rw=getRewardValues();
+  const mul=_aucGlobalMul||1;
+  const boxes=rw?`<div class="mr-rw">`
+      +`<div class="mr-rb"><b>${wFmt_(rw.card)}</b><span>Card Slot</span></div>`
+      +`<div class="mr-rb"><b>${wFmt_(rw.white)}</b><span>White Feather</span></div>`
+      +`<div class="mr-rb"><b>${wFmt_(rw.red)}</b><span>Red / Black</span></div></div>`
+      +`<div class="mr-note">คูณ ${mul} แล้ว · ปรับตัวคูณกับจำนวนของได้ที่ Guild League Reward ข้างล่าง</div>`
+    :'<div class="mr-note">ยังคิดของรางวัลไม่ได้ — เลือกสนามกับอันดับให้ครบก่อน</div>';
+  const a=wNum_(G.our), b=wNum_(G.their);
+  const diff=(a!=null&&b!=null)?`ส่วนต่าง <b>${a-b>0?'+':a-b<0?'−':''}${wFmt_(Math.abs(a-b))}</b>`:'';
+  box.innerHTML=`
+    <div class="mr-row">
+      <label class="mr-f mr-w1"><span>Date</span><input type="date" value="${esA_(G.date)}" onchange="mrDate(this.value)"></label>
+      <div class="mr-f"><span>League</span>${seg(GL_LEAGUES.map(l=>[l,l]),G.league,v=>`mrPick('league','${v}')`)}</div>
+      <div class="mr-f"><span>Server Type</span>${seg([['Y','Cross-server'],['N','Intra-server']],G.cross,v=>`mrPick('cross','${v}')`)}</div>
+    </div>
+    <div class="mr-row">
+      <label class="mr-f mr-w2"><span>Tier</span><select onchange="mrSet('rank',this.value)">
+        <option value="">—</option>${tiers.map(t=>`<option${t===G.rank?' selected':''}>${esA_(t)}</option>`).join('')}</select></label>
+      <label class="mr-f mr-wf"><span>Opponent</span><input value="${esA_(G.opp)}" oninput="mrSet('opp',this.value)"></label>
+      <div class="mr-f"><span>Score (Us : Them)</span>
+        <div class="mr-sc"><input inputmode="numeric" value="${esA_(G.our)}" oninput="mrSet('our',this.value)"><b>:</b><input inputmode="numeric" value="${esA_(G.their)}" oninput="mrSet('their',this.value)"></div></div>
+      <div class="mr-f"><span>Result</span>${seg([['Win','Win'],['Lose','Lose'],['','Unknown']],G.status,v=>`mrPick('status','${v}')`)}</div>
+    </div>
+    ${diff?`<div class="mr-note">${diff}</div>`:''}
+    ${boxes}
+    <div class="mr-act">
+      <span class="mr-hint">กรอกแค่นี้ก่อนก็เริ่มประมูลได้ · รายละเอียดรายคนไปกดปากกาในหน้า Guild War</span>
+      <button class="adm-btn pri" onclick="mrSave()"${G.busy?' disabled':''}>${G.busy?'กำลังบันทึก…':'💾 Save'}</button>
+    </div>`;
+}
+async function mrSave(){
+  const G=_mr; if(!G||G.busy)return;
+  if(!G.league){toast('เลือกสนามก่อน',null,true);return}
+  G.busy=true; renderMatchResult(); admBusy_(true);
+  try{
+    await admCall('admGlSave',{date:G.date,league:G.league,cross:G.cross,rank:G.rank,opp:G.opp,
+      our:G.our,their:G.their,status:G.status,note:'',scores:[],attend:[]});
+    toast('บันทึกผลวอแล้ว · '+auThai_(G.date));
+    _warLoaded=false;_warLoadPromise=null;
+    try{ await loadWarData(); }catch(e){}
+    mrLoad_(G.date);
+    applyAutoWar(); renderRewardInputs(); renderDistribution();
+    if(typeof renderAdmAucBar_==='function')renderAdmAucBar_();
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+((e&&e.message)||e),null,true); }
+  finally{ G.busy=false; admBusy_(false); renderMatchResult(); }
 }
 
 /* ── admin: แถบบนแท็บ Queue ── */
