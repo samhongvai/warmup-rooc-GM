@@ -4527,7 +4527,7 @@ function renderInsights(){
     const dv=x=>x.diff==null?'':`<span class="in-fl ${x.diff>=0?'good':'warn'}">${x.diff>=0?'+':'−'}${wFmt_(x.diff)}</span>`;
     box.innerHTML=head+`<div class="tbl-wrap"><table class="rtbl in-tb">
       <thead><tr><th>Name</th><th>Class</th><th class="n">นัด</th><th class="n">Avg score</th><th class="n">Kill</th><th class="n">Assist</th><th class="n">Death</th><th class="n">ท้ายตาราง</th><th>เทียบอาชีพเดียวกัน</th></tr></thead>
-      <tbody>${rows.map(x=>`<tr><td><b>${esc_(x.name)}</b></td><td class="en">${esc_(x.cls)}</td>
+      <tbody>${rows.map(x=>`<tr><td><b>${esc_(x.name)}</b>${mFind_(x.name,'')?'':'<span class="wi-tag">ออกแล้ว</span>'}</td><td class="en">${esc_(x.cls)}</td>
         <td class="n">${x.n}</td><td class="n">${wFmt_(x.avg)}</td><td class="n">${x.kill}</td><td class="n">${x.assist}</td><td class="n">${x.death}</td>
         <td class="n">${x.last||''}</td><td>${dv(x)}</td></tr>`).join('')}</tbody></table></div>
       <div class="in-note">ท้ายตาราง = จำนวนนัดที่อยู่อันดับ 36 ขึ้นไปของสนาม · ช่องขวาสุดเทียบกับค่าเฉลี่ยของคนที่เล่นอาชีพเดียวกันในช่วงเดียวกัน สายซัพพอร์ตคะแนนน้อยกว่าสายตีเป็นปกติ</div>`;
