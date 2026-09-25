@@ -4925,7 +4925,7 @@ async function giSave(){
   /* ใครไม่มีชื่อในตารางและไม่ได้แจ้งลา = ไม่แจ้งลา (No-show) · คนแจ้งลาแต่มีสกอร์ ถือว่ามา ไม่บันทึก
      วอเก่าที่กรอกย้อนหลัง ข้ามขั้นนี้ไปเลย — ผังตี้กับสถานะลาเป็นของวันนี้ ไม่ใช่ของวันนั้น
      เอามาตัดสินว่าใครไม่มาในวอเมื่อเดือนก่อนไม่ได้ */
-  const backfill=G.date<GL_SCORE_FROM;
+  const backfill=G.date<GL_SCORE_FROM||G.date<toDateStr(new Date(Date.now()-7*864e5));
   const attend=backfill?[]:await giAttendConfirm_(G,scores);
   if(attend===null)return;
   G.busy=true;renderGlInput();admBusy_(true);
