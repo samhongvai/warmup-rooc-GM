@@ -897,6 +897,8 @@ body.is-admin .wr-adm{display:inline-block}
 .wi-tbl tr.me td{background:var(--orange-dim)}
 .wi-tbl input{padding:5px 6px!important}
 .wi-nm{white-space:nowrap}
+.wi-ta{width:100%;min-height:150px;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;
+  background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;resize:vertical}
 .wi-tag{font-size:10.5px;font-weight:700;color:var(--muted);border:1px solid var(--border2);border-radius:999px;padding:1px 7px;margin-left:6px}
 .wi-tag.bad{color:var(--red);border-color:var(--red)}
 .wi-rk{font-family:var(--font-pixel);color:var(--faint);text-align:center;width:30px}
@@ -4755,6 +4757,33 @@ function giMove(i){const f=_gi.field, o=f==='Elite'?'Sub-battle':'Elite'; const 
   _gi.sc[o].rows.push(r); _gi.sc[f].touched=true; _gi.sc[o].touched=true; toast(`ย้าย ${r.name||'แถวนี้'} ไป ${giFieldLbl_(_gi.league,o)}`); renderGlInput();}
 function giClear(){const s=_gi.sc[_gi.field]; s.rows=[giBlankRow_()]; s.touched=true; renderGlInput();}
 function giRefill(){const s=_gi.sc[_gi.field]; s.rows=giRoster_(_gi.field); s.touched=true; renderGlInput();}
+/* ══ วางข้อมูลทีเดียวทั้งตาราง ══
+   ตารางผลวอในเกมมีได้ถึง 40 คน ถ้ากรอกทีละช่องคือหลายร้อยครั้ง
+   วางเป็นข้อความแล้วเติมให้เอง · คั่นด้วย Tab หรือ | หรือเว้นวรรคติดกันสองที่ขึ้นไป
+   ชื่อที่วางเข้ามาจะถูกแปลงเป็นชื่อในทะเบียนให้เองถ้าจับคู่ได้ */
+let _giPaste=false;
+function giPasteTog(){ _giPaste=!_giPaste; renderGlInput(); }
+const giPasteHint_=()=>['#','Name'].concat(giCols_(_gi.league,_gi.field).map(c=>c[1])).join('  ·  ');
+function giPasteDo(){
+  const ta=document.getElementById('gi-paste'); if(!ta)return;
+  const keys=giCols_(_gi.league,_gi.field).map(c=>c[0]);
+  const out=[];
+  ta.value.split('\n').forEach(line=>{
+    const t=line.split(/\t|\||\s{2,}/).map(x=>x.trim()).filter(x=>x!=='');
+    if(!t.length)return;
+    if(/^\d+$/.test(t[0])&&t.length>keys.length+1)t.shift();   /* เลขอันดับนำหน้า ตัดทิ้ง */
+    const nm=t.shift()||''; if(!nm)return;
+    const r=giBlankRow_(mShow_(nm,''));
+    keys.forEach((k,i)=>{ r[k]=t[i]==null?'':String(t[i]).replace(/,/g,'').trim(); });
+    out.push(r);
+  });
+  if(!out.length){ toast('ไม่พบข้อมูลในช่องที่วาง',null,true); return; }
+  const sc=_gi.sc[_gi.field];
+  sc.rows=out; sc.touched=true; _giPaste=false;
+  const miss=out.filter(r=>!mFind_(r.name,'')).length;
+  renderGlInput();
+  toast('เติม '+out.length+' แถวแล้ว'+(miss?' · ไม่พบในทะเบียน '+miss+' ชื่อ ติดป้ายไว้ให้แล้ว':''));
+}
 /* รายชื่อให้เลือก: สมาชิกปัจจุบัน + คนที่เคยมีสกอร์ (รวมคนที่ออกกิลด์ไปแล้ว) */
 function giNames_(){
   const cur=new Set(members.map(m=>m.ign).filter(Boolean)), past=new Set();
@@ -4810,7 +4839,12 @@ function renderGlInput(){
     <div style="overflow-x:auto"><table class="wi-tbl"><thead>${vale
       ?`<tr><th rowspan="2">#</th><th rowspan="2">Name</th><th rowspan="2">Class</th><th rowspan="2">Title</th><th colspan="3" class="wi-grp">Stronghold</th>${cols.slice(3).map(c=>`<th rowspan="2">${c[1]}</th>`).join('')}<th rowspan="2"></th></tr><tr>${cols.slice(0,3).map(c=>`<th>${c[1]}</th>`).join('')}</tr>`
       :`<tr><th>#</th><th>Name</th><th>Class</th>${cols.map(c=>`<th>${c[1]}</th>`).join('')}${boss?'<th title="ลาสบอสตัวสุดท้าย">💀</th>':''}<th></th></tr>`}</thead><tbody>${rows}</tbody></table></div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px">${dl}<button class="btn btn-ghost" onclick="giAddRow()">+ Add player</button><button class="btn btn-ghost" onclick="giRefill()">↺ Current party</button><button class="btn btn-ghost" onclick="giClear()">Clear</button><span class="wi-calc">รวมฆ่า <b id="gi-kill">${giKill_()}</b> — เทียบกับยอด "เอาชนะ" ท้ายตารางในเกม</span></div>
+    ${_giPaste?`<div class="wi-box" style="margin-top:10px">
+      <div class="wi-h"><span class="n">⇩</span>Paste</div>
+      <div class="wi-calc" style="margin:0 0 8px">บรรทัดละคน · คั่นด้วย Tab หรือ | · เรียงตามนี้ <b>${esc_(giPasteHint_())}</b> · เลขอันดับนำหน้าจะใส่หรือไม่ใส่ก็ได้ · ของเดิมในตารางจะถูกแทนที่</div>
+      <textarea class="wi-ta" id="gi-paste" placeholder="1 | Ficelle | 16 | 0 | 0 | 109 | 9 | 698"></textarea>
+      <div style="display:flex;gap:10px;margin-top:8px"><button class="btn wi-save" onclick="giPasteDo()">เติมลงตาราง</button><button class="btn btn-ghost" onclick="giPasteTog()">ยกเลิก</button></div></div>`:''}
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px">${dl}<button class="btn btn-ghost" onclick="giPasteTog()">⇩ Paste</button><button class="btn btn-ghost" onclick="giAddRow()">+ Add player</button><button class="btn btn-ghost" onclick="giRefill()">↺ Current party</button><button class="btn btn-ghost" onclick="giClear()">Clear</button><span class="wi-calc">รวมฆ่า <b id="gi-kill">${giKill_()}</b> — เทียบกับยอด "เอาชนะ" ท้ายตารางในเกม</span></div>
     <div class="wi-foot"><span class="sp">คนที่ไม่มีตัวเลขเลยจะไม่ถูกบันทึก</span>
       <button class="btn btn-ghost" onclick="giLoad_(_gi.date);renderGlInput()">Cancel</button>
       <button class="btn wi-save" ${G.busy?'disabled':''} onclick="giSave()">${G.busy?'Saving…':'💾 Save'}</button></div></div>`;
