@@ -4382,6 +4382,11 @@ function renderWarKpis(){
 }
 function whToggle(d){_whOpen[d]=!_whOpen[d];renderWarHistory();}
 /* ช่องที่ยังไม่ได้กรอกของแต่ละนัด — เห็นเฉพาะแอดมิน เพื่อให้รู้ว่าต้องไปเติมอะไร */
+/* ในเกมดูประวัติย้อนหลังได้จำกัด — ของที่เลยหน้าต่างนี้ไปแล้วกรอกเพิ่มไม่ได้ ไม่ต้องเตือนค้างไว้
+   Guild League  ดูสกอร์รายคนย้อนได้ถึงวันนี้เท่านั้น · เกมขยับหน้าต่างเมื่อไหร่ก็มาแก้วันที่ตรงนี้
+   Overrun       ดูได้เฉพาะแมตช์ล่าสุด เป็นวีคต่อวีค ย้อนไม่ได้เลย */
+const GL_SCORE_FROM='2026-08-25';
+const orLatest_=()=>{const d=(_warLog||[]).filter(x=>x.event_type==='Overrun').map(x=>x.date).filter(Boolean).sort();return d.length?d[d.length-1]:'';};
 function whMiss_(r){
   if(!ADMIN)return [];
   const m=[];
@@ -4393,14 +4398,14 @@ function whMiss_(r){
     if(!String(r.our||'').trim()||!String(r.their||'').trim())m.push('Score');
     if(!r.status)m.push('Result');
     const vale=r.league==='Vale of Clash';
-    ['Elite','Sub-battle'].forEach(f=>{
+    if(r.date>=GL_SCORE_FROM)['Elite','Sub-battle'].forEach(f=>{
       if(!_glScore.some(x=>x.date===r.date&&x.field===f))
         m.push((vale?(f==='Elite'?'Main-Field':'Sub-Field'):f)+' scores');
     });
   }else{
     if(!r.group)m.push('Group');
     if(!r.rank)m.push('Our rank');
-    if(!orGuilds_(r.date).length)m.push('Guild list');
+    if(!orGuilds_(r.date).length&&r.date===orLatest_())m.push('Guild list');
   }
   return m;
 }
@@ -4800,6 +4805,7 @@ function renderGlInput(){
       <span class="wi-st">${S.had?'● มีสกอร์เดิม':'รายชื่อดึงจากหน้าปาร์ตี้'}${S.touched?' · แก้แล้ว':''}</span></div>
     ${G.league?'':'<div class="wi-warn">เลือกสนามก่อน ช่องกรอกจะเปลี่ยนตามสนาม</div>'}
     ${G.league==='Vigrid Avenge'?'<div class="wi-warn">Vigrid Avenge ยังไม่รู้หัวคอลัมน์เฉพาะสนาม — กรอกได้แค่ ฆ่า · ช่วย · ตาย · คะแนน</div>':''}
+    ${G.date<GL_SCORE_FROM&&!S.had?`<div class="wi-warn">วอนัดนี้เก่ากว่า ${GL_SCORE_FROM} — ในเกมดูประวัติรายคนย้อนหลังไม่ได้แล้ว กรอกเท่าที่มีหรือข้ามไปได้</div>`:''}
     ${vale?'<div class="wi-calc" style="margin:0 0 8px">กรอกเรียงตามอันดับในเกม · Title กดเลือกได้หลายอัน · Stronghold = ฐานที่มั่น S ใหญ่ / A กลาง / B เล็ก (เลข 5/10/1 ในเกม = S 5 · A 10 · B 1)</div>':''}
     <div style="overflow-x:auto"><table class="wi-tbl"><thead>${vale
       ?`<tr><th rowspan="2">#</th><th rowspan="2">Name</th><th rowspan="2">Class</th><th rowspan="2">Title</th><th colspan="3" class="wi-grp">Stronghold</th>${cols.slice(3).map(c=>`<th rowspan="2">${c[1]}</th>`).join('')}<th rowspan="2"></th></tr><tr>${cols.slice(0,3).map(c=>`<th>${c[1]}</th>`).join('')}</tr>`
