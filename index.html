@@ -171,6 +171,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .ft-main{background:var(--orange-dim);color:var(--orange-l);border:1px solid var(--orange-border)}
 .ft-sec{background:var(--soft);color:var(--muted);border:1px solid var(--border2)}
 .party-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
+@media(max-width:2100px){.party-grid{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:1500px){.party-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:700px){.party-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.party-grid{grid-template-columns:1fr}.pm-name{font-size:13px}}
@@ -188,6 +189,25 @@ input[type=checkbox]{accent-color:var(--orange)}
 .pm-info{display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
 .pm-name{color:var(--text);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pm-cls-label{font-size:10px;color:var(--muted);margin-top:1px;font-weight:500;display:flex;align-items:center;gap:5px}
+.cp-nx{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.cp-nxb{border:1px dashed var(--border2);border-radius:11px;padding:9px;text-align:center}
+.cp-nxb b{display:block;font-size:19px;font-family:var(--font-pixel);color:var(--orange-l);line-height:1.25}
+.cp-nxb span{font-size:10.5px;color:var(--faint)}
+.msf{position:relative;flex:1;min-width:120px}
+.msf-btn{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font:inherit;font-size:13px;text-align:left;cursor:pointer;outline:none}
+.msf-btn.on{border-color:var(--orange);color:var(--orange-l);font-weight:700}
+.msf-pop{display:none;position:absolute;z-index:40;top:calc(100% + 5px);left:0;min-width:172px;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);box-shadow:var(--shadow-out);padding:7px}
+.msf.open .msf-pop{display:block}
+.msf-pop label{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;font-size:13px;cursor:pointer}
+.msf-pop label:hover{background:var(--card2)}
+.msf-pop input{accent-color:var(--orange);width:15px;height:15px}
+.msf-clr{width:100%;margin-top:5px;border:0;border-top:1px solid var(--border);background:none;color:var(--muted);font:inherit;font-size:12px;padding:7px 0 3px;cursor:pointer}
+.msf-clr:hover{color:var(--orange)}
+/* ป้ายสถานะแบบยุบได้ — จอกว้างเห็นข้อความ จอแคบเหลือไอคอนอย่างเดียว ไม่มีข้อความตกบรรทัด */
+.sb{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;max-width:100%}
+.sb > i{font-style:normal;line-height:1;flex:none}
+.sb > span{overflow:hidden;text-overflow:ellipsis}
+@media(max-width:820px){.sb > span{display:none}.sb{gap:0}}
 .jic{display:inline-flex;align-items:center;justify-content:center;border-radius:5px;border:1px solid;flex:none;vertical-align:middle}
 .jic-x{background:var(--card2);border-color:var(--border2)}
 .pm-note{font-size:10px;color:var(--muted);font-weight:600}
@@ -635,18 +655,28 @@ input[type=checkbox]{accent-color:var(--teal)}
 .cc-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
 .cc-ft{margin-top:10px;font-size:11.5px;color:var(--faint)}
 @media(max-width:620px){.cc-g{grid-template-columns:1fr}}
-.dk-st{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:16px}
-.dk-c{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:var(--radius-sm);padding:9px 12px;box-shadow:var(--shadow-out-sm)}
-.dk-c b{display:block;font-size:13px}
-.dk-c span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
-.dk-c.ok{border-left-color:var(--green)}.dk-c.ok b{color:var(--green)}
-.dk-c.wait{border-left-color:var(--amber)}.dk-c.wait b{color:var(--amber)}
-.dk-c.non{border-left-color:var(--border2)}
-.dk-sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:0 0 14px;margin-bottom:14px;overflow:hidden}
-.dk-h{background:var(--card2);border-bottom:1px solid var(--border);padding:10px 15px;margin-bottom:13px}
-.dk-h b{font-size:14.5px;display:block}
-.dk-h span{font-size:11.5px;color:var(--muted)}
-.dk-in{padding:0 15px}
+/* ── History: ช่องของที่ยังไม่ได้กรอก + ปุ่มปากกา ── */
+.wr-adm2{display:none}
+body.is-admin .wr-adm2{display:table-cell}
+.wh-ms{width:210px}
+.wh-ok{font-size:11px;color:var(--faint)}
+.wh-pen{text-align:right;white-space:nowrap}
+.pen{width:28px;height:28px;border-radius:9px;border:1px solid var(--border2);background:var(--card);color:var(--muted);
+     display:inline-grid;place-items:center;cursor:pointer;padding:0;font:inherit;font-size:13px;line-height:1}
+.pen:hover{border-color:var(--orange);color:var(--orange)}
+.pen.todo{border-color:var(--amber-b);color:var(--amber);background:var(--amber-dim)}
+.wh-ms-in{display:none}
+/* จอแคบ: ยุบช่อง Missing กลับไปไว้ใต้ Type เหลือแต่ปากกาที่ขวาสุด */
+@media(max-width:900px){
+  body.is-admin .wh-ms{display:none}
+  .wh-ms-in{display:block;margin-top:3px}
+}
+/* ── แถบหัวแผงกรอกที่เปิดจากปากกา ── */
+.win-h{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);
+       border-left:3px solid var(--orange);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:12px}
+.win-h b{font-size:14px}
+.win-h span{font-size:11.5px;color:var(--muted)}
+.win-h .sp{flex:1}
 .ed-bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 13px;margin-bottom:10px;font-size:13px;cursor:pointer;user-select:none}
 .ed-bar.on{background:var(--green-dim);border-color:var(--green-b)}
 .ed-bar b{font-size:13px}
@@ -661,9 +691,9 @@ input[type=checkbox]{accent-color:var(--teal)}
 .pe-chg{color:var(--orange);font-weight:700}
 .pe-hint{background:var(--blue-dim);border:1px solid var(--blue-b);color:var(--blue);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:12.5px}
 .pe-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:0 0 10px}
-.pe-acts{display:flex;gap:3px;margin-left:6px;flex:0 0 auto}
+.pe-acts{display:flex;gap:2px;margin-left:4px;flex:0 0 auto}
 body.is-admin #party-content .pm .pm-tag{display:none}
-.pe-ic{width:24px;height:24px;border-radius:7px;border:1px solid var(--border2);background:var(--card);display:grid;place-items:center;font-size:11.5px;cursor:pointer;color:var(--muted);padding:0;font-family:inherit}
+.pe-ic{width:22px;height:22px;border-radius:7px;border:1px solid var(--border2);background:var(--card);display:grid;place-items:center;font-size:11.5px;cursor:pointer;color:var(--muted);padding:0;font-family:inherit}
 .pe-ic:hover{border-color:var(--orange);color:var(--orange)}
 .pe-ic.on{background:var(--orange);border-color:var(--orange);color:#fff}
 .pe-ic.moon.on{background:#475569;border-color:#475569}
@@ -858,6 +888,12 @@ body.is-admin .wr-adm{display:inline-block}
 .cap-b{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
 .cap-b.on{background:var(--orange-dim);border-color:var(--orange-border);color:var(--orange)}
 .cap-hint{font-size:12px;color:var(--muted);margin-left:auto;margin-right:auto}
+.cap-b.pri{background:var(--orange);border-color:var(--orange);color:#fff}
+.cap-sel{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 10px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;outline:none}
+.cap-seg{display:inline-flex;gap:3px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:3px}
+.cap-seg button{border:0;background:none;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:6px;cursor:pointer}
+.cap-seg button.on{background:var(--orange);color:#fff}
+@media(max-width:640px){.cap-hint{display:none}.cap-tb{gap:6px;padding:9px 11px}.cap-sel{flex:1;min-width:0}}
 .cap-scroll{flex:1;overflow:auto;padding:16px;display:flex;justify-content:flex-start}
 .cap-sheet{width:1100px;flex:none;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px 20px 14px;margin:auto}
 .cp-top{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px}
@@ -1390,7 +1426,6 @@ body.is-admin .wr-adm{display:inline-block}
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Guild Auction</span><span class="nav-tip">Guild Auction</span></div>
-  <div class="nav-item wr-adm" onclick="sw('desk');closeSidebar()"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label">Guild Desk</span><span class="nav-tip">Guild Desk</span></div>
   <div class="nav-sep"></div>
   <div class="nav-item" id="gear" title="Settings"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label en">Settings</span><span class="nav-tip">Settings</span></div>
   <div class="nav-item" id="refresh-btn" onclick="forceRefresh()" title="Refresh"><span class="ni"><svg><use href="#i-refresh"/></svg></span><span class="nav-label"><b class="en">Refresh</b> <i id="upd" class="num">(--:--)</i></span><span class="nav-tip">Refresh</span></div>
@@ -1409,8 +1444,11 @@ body.is-admin .wr-adm{display:inline-block}
     <select id="fc" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All classes</option></select>
     <select id="ft" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All types</option><option value="Support">Support</option><option value="All Rounder">All Rounder</option><option value="Attack (DPS)">Attack (DPS)</option></select>
     <select id="fp" onchange="renderMembers()" style="flex:1;min-width:110px"><option value="">All party</option></select>
-    <select id="fs" onchange="renderMembers()" style="flex:1;min-width:110px;display:none"><option value="">All status</option><option value="ACTIVE">Active</option><option value="ABSENT">Absent</option><option value="ARCHIVED">Archived</option><option value="WAITLIST">Waitlist</option></select>
-    <label class="alt-toggle"><input type="checkbox" id="hide-alts" checked onchange="toggleHideAlts()"> <span class="en">Hide Alts</span></label>
+    <div class="msf" id="fs-wrap"><button type="button" class="msf-btn" id="fs-btn" onclick="fsTog(event)">All status</button>
+      <div class="msf-pop" id="fs-pop"></div></div>
+    <select id="fa" onchange="faSet(this.value)" style="flex:1;min-width:120px">
+      <option value="main">Main only</option><option value="all">All accounts</option><option value="alt">Alt only</option>
+    </select>
   </div>
   <div class="tbl-wrap"><table class="mtbl">
     <thead><tr>
@@ -1494,7 +1532,9 @@ body.is-admin .wr-adm{display:inline-block}
     </div>
 
     <div class="au-sec" id="au-s2">
-      <div class="au-sec-h"><b>Distribution</b><div class="sp"></div>
+      <div class="au-sec-h ct" onclick="augTog('au-s2')">
+        <svg class="au-cv"><use href="#i-caret2"/></svg>
+        <b>Distribution</b><div class="sp"></div>
         <span class="au-hint" id="auc-per-person-summary">—</span></div>
       <div class="au-sec-b">
         <div class="au-tblx"><table class="au-tbl">
@@ -1535,6 +1575,7 @@ body.is-admin .wr-adm{display:inline-block}
   </div>
 
   <div id="auc-manage" style="display:none">
+    <div id="adm-qbar"></div>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:170px">
         <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Round</label>
@@ -1548,19 +1589,12 @@ body.is-admin .wr-adm{display:inline-block}
       </div>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="qm-count">—</div>
-    <div id="adm-qbar"></div>
     <div class="tbl-wrap"><table class="rtbl">
       <thead><tr><th style="width:44px">#</th><th>Name</th><th style="width:118px">Status</th><th style="width:130px" id="qm-th4">Auction Date</th><th class="adm-only" style="width:150px;text-align:right">Action</th></tr></thead>
       <tbody id="qm-tbody"><tr><td colspan="4" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
 
-</div>
-<div id="page-desk" class="page">
-  <div class="page-title">Guild Desk</div>
-  <div class="page-sub">งานกรอกและงานตั้งค่าของรอบวอ รวมไว้ที่เดียว</div>
-  <div id="desk-status" class="dk-st"></div>
-  <div id="desk-body"></div>
 </div>
 <div id="page-rules" class="page">
   <div class="page-title">Guild Rules</div>
@@ -1594,7 +1628,7 @@ body.is-admin .wr-adm{display:inline-block}
       <select id="wh-filter-month" onchange="renderWarHistory()" style="flex:1;min-width:150px"><option value="">All months</option></select>
     </div>
     <div class="tbl-wrap"><table class="rtbl wr-tbl">
-      <thead><tr><th style="width:96px">Date</th><th style="width:170px">Type</th><th>Rank</th><th>Opponent</th><th style="width:130px">Result</th></tr></thead>
+      <thead><tr><th style="width:96px">Date</th><th style="width:170px">Type</th><th>Rank</th><th>Opponent</th><th style="width:130px">Result</th><th class="wr-adm2 wh-ms">Missing</th><th class="wr-adm2" style="width:46px"></th></tr></thead>
       <tbody id="wh-tbody"><tr><td colspan="5" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
@@ -1775,53 +1809,41 @@ function closeSidebar(){
 }
 
 function swAdmin(t){sw(t)}
-/* ══ GUILD DESK ══ ย้ายกล่องงานของแอดมินมาไว้หน้าเดียว โดยย้าย element จริง
-   ฟังก์ชันเดิมยังอ้าง id เดิมได้ทั้งหมด ไม่ต้องเขียน UI ใหม่ */
-const DESK_SEC=[
-  {id:'war-glin',  t:'Guild League Input', d:'กรอกสกอร์รายคนของสนามหลักและสนามรอง', open:()=>{try{giOpen_()}catch(e){}}},
-  {id:'war-orin',  t:'Overrun Input',      d:'กรอกอันดับและกลุ่มของรอบโอเวอร์รัน',   open:()=>{try{oiOpen_()}catch(e){}}},
-  {id:'adm-aucbar',t:'Reward setup',       d:'เลือกวันวอ แล้วบันทึกตัวคูณกับจำนวนของรางวัล', open:null},
-  {id:'adm-qbar',  t:'Queue manager',      d:'สุ่มคิวรอบใหม่ และบันทึกว่าประมูลถึงคิวไหนแล้ว', open:null}
-];
-function deskMove_(){
-  const host=document.getElementById('desk-body'); if(!host)return;
-  DESK_SEC.forEach(sec=>{
-    const el=document.getElementById(sec.id); if(!el)return;
-    let box=document.getElementById('dk-'+sec.id);
-    if(!box){
-      box=document.createElement('div'); box.id='dk-'+sec.id; box.className='dk-sec';
-      box.innerHTML=`<div class="dk-h"><b>${sec.t}</b><span>${sec.d}</span></div><div class="dk-in"></div>`;
-      host.appendChild(box);
-    }
-    const inner=box.querySelector('.dk-in');
-    if(el.parentNode!==inner){ el.style.display=''; inner.appendChild(el); }
-  });
+/* ══ แผงกรอกผลวอ ══ เปิดจากปุ่มปากกาในตาราง History เท่านั้น
+   ชนิดไหนกดมาก็เปิดแผงนั้นแผงเดียว จะได้ไม่ต้องเดาว่าอันไหนของอันไหน */
+let _winPanel='';
+function winClose(){
+  _winPanel='';
+  ['war-glin','war-orin'].forEach(id=>{const el=document.getElementById(id); if(el)el.style.display='none';});
+  const h=document.getElementById('war-hist'); if(h&&_warTab==='hist')h.style.display='';
+  renderWarHistory();
 }
-function deskStatus_(){
-  const el=document.getElementById('desk-status'); if(!el)return;
-  const today=toDateStr(new Date());
-  const wars=(typeof warRows_==='function'?warRows_():[]).map(r=>r.date).filter(Boolean).sort();
-  const last=wars[wars.length-1]||'';
-  const scored=new Set((_glScore||[]).map(r=>r.date));
-  const q=(typeof auUpcomingQueue_==='function'?auUpcomingQueue_():[]);
-  const wk=(typeof mondayOfDate==='function')?mondayOfDate(today):'';
-  const hp=(_aucHelpers||[]).filter(r=>r.week_start===wk);
-  const hpDone=hp.filter(r=>String(r.status||'').toLowerCase()==='done').length;
-  const c=(cls,b,sp)=>`<div class="dk-c ${cls}"><b>${b}</b><span>${sp}</span></div>`;
-  el.innerHTML=
-    c(last&&scored.has(last)?'ok':'wait', last?wDay_(last):'—', last&&scored.has(last)?'สกอร์วอล่าสุดกรอกแล้ว':'สกอร์วอล่าสุดยังไม่ได้กรอก')
-   +c(q.length?'wait':'non', q.length?q.length+' คน':'—', 'คิวประมูลที่ยังไม่ได้ดึง')
-   +c(hp.length?(hpDone>=hp.length?'ok':'wait'):'non', hp.length?hpDone+'/'+hp.length:'—', 'คิวช่วยเหลือสัปดาห์นี้ที่ลงดันแล้ว');
+/* แถบหัวแผง บอกว่ากำลังแก้นัดไหน พร้อมทางกลับไปตาราง */
+function winHead_(id,title,date){
+  const el=document.getElementById(id); if(!el)return;
+  if(el.querySelector('.win-h'))el.querySelector('.win-h').remove();
+  const h=document.createElement('div'); h.className='win-h';
+  h.innerHTML=`<b>${esc_(title)}</b><span>${esc_(date||'')}</span><span class="sp"></span>`
+    +`<button class="btn btn-ghost" onclick="winClose()">← กลับไปตาราง</button>`;
+  el.insertBefore(h,el.firstChild);
 }
-async function initDeskPage(){
+/* date = วันของแถวที่กดปากกา · type = Guild League หรือ Overrun */
+async function winOpen(date,type){
   if(!ADMIN)return;
+  const gl=type!=='Overrun';
+  _winPanel=gl?'glin':'orin';
   try{ await loadWarData(); }catch(e){}
   try{ await loadAuctionData(); }catch(e){}
-  deskMove_();
-  deskStatus_();
-  DESK_SEC.forEach(x=>{ if(x.open)x.open(); });
-  if(typeof renderAdmAucBar_==='function')try{renderAdmAucBar_()}catch(e){}
-  if(typeof renderQueueManager==='function')try{renderQueueManager()}catch(e){}
+  ['hist','stats','rewards','insight','absence','cls'].forEach(k=>{
+    const el=document.getElementById('war-'+k); if(el)el.style.display='none';});
+  const show=gl?'war-glin':'war-orin', hide=gl?'war-orin':'war-glin';
+  const hd=document.getElementById(hide); if(hd)hd.style.display='none';
+  const el=document.getElementById(show); if(el)el.style.display='';
+  try{ gl?giLoad_(date):oiLoad_(date); }catch(e){}
+  try{ gl?renderGlInput():renderOrInput(); }catch(e){}
+  winHead_(show,gl?'Guild League Input':'Overrun Input',date);
+  const top=document.getElementById(show);
+  if(top&&top.scrollIntoView)top.scrollIntoView({block:'start',behavior:'smooth'});
 }
 function sw(t){
   _currentPage=t;
@@ -1839,7 +1861,6 @@ function sw(t){
   if(t==='war')initWarPage();
   if(t==='rules')renderRules();
   if(t==='calendar')initCalendarPage();
-  if(t==='desk')initDeskPage();
 }
 let _currentPage='';
 
@@ -1894,6 +1915,31 @@ function buildFilters(){
 }
 
 let _hideAlts=true;
+/* ตัวกรองสถานะแบบติ๊กหลายอัน · ว่าง = ไม่กรอง · ตัวกรองบัญชี main = ซ่อน Alt เหมือนติ๊กถูกเดิม */
+const MSF_ALL=[['ACTIVE','Active'],['ABSENT','Absent'],['ARCHIVED','Archived'],['WAITLIST','Waitlist']];
+let _fStatus=new Set(), _fAcct='main';
+function fsOpts_(){ return EDIT()?MSF_ALL:MSF_ALL.slice(0,2); }
+function fsLabel_(){
+  const on=fsOpts_().filter(([v])=>_fStatus.has(v));
+  if(!on.length)return 'All status';
+  return on.length===1?on[0][1]:(on[0][1]+' +'+(on.length-1));
+}
+function fsDraw_(){
+  const pop=document.getElementById('fs-pop'), btn=document.getElementById('fs-btn');
+  if(!pop||!btn)return;
+  btn.textContent=fsLabel_();
+  btn.classList.toggle('on',_fStatus.size>0);
+  pop.innerHTML=fsOpts_().map(([v,t])=>
+    `<label><input type="checkbox" value="${v}"${_fStatus.has(v)?' checked':''} onchange="fsPick('${v}',this.checked)"> ${t}</label>`).join('')
+    +`<button type="button" class="msf-clr" onclick="fsClear()">ล้างตัวกรอง</button>`;
+}
+function fsPick(v,on){ on?_fStatus.add(v):_fStatus.delete(v); fsDraw_(); renderMembers(); }
+function fsClear(){ _fStatus.clear(); fsDraw_(); renderMembers(); }
+function fsTog(ev){ if(ev)ev.stopPropagation();
+  const w=document.getElementById('fs-wrap'); if(w)w.classList.toggle('open'); }
+document.addEventListener('click',e=>{const w=document.getElementById('fs-wrap');
+  if(w&&w.classList.contains('open')&&!w.contains(e.target))w.classList.remove('open');});
+function faSet(v){ _fAcct=v; _hideAlts=(v==='main'); renderStats(); renderMembers(); }
 let _guildCap=80;
 const isAlt=(m)=>{const n=(m.status||'').toLowerCase().trim();return n==='alt'};
 const isLeaveNote=(m)=>{const a=(m.attend||'').toLowerCase().trim();if(a)return a==='absent';const n=(m.status||'').toLowerCase().trim();return n==='absent'};
@@ -1905,7 +1951,6 @@ function noteLabel(s){
   return '';
 }
 function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
-function toggleHideAlts(){_hideAlts=document.getElementById('hide-alts').checked;renderStats();renderMembers()}
 
 function renderStats(){
   const counted=getCountedMembers();
@@ -1949,9 +1994,10 @@ function nameCmp_(a,b){const x=nameBucket_(a),y=nameBucket_(b);
   return String(a||'').localeCompare(String(b||''),['en','th'],{sensitivity:'base',numeric:true});}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
-  const fsEl=document.getElementById('fs'); if(fsEl)fsEl.style.display=EDIT()?'':'none';
-  const fs=EDIT()&&fsEl?fsEl.value:'';
-  let f=msRows_().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;if(fs&&msStatusOf(m)!==fs)return false;return true});
+  /* Archived กับ Waitlist เลือกได้เฉพาะตอนเปิด Edit mode — ปิดแล้วต้องล้างทิ้ง ไม่งั้นค้างกรองแบบมองไม่เห็น */
+  if(!EDIT()&&(_fStatus.has('ARCHIVED')||_fStatus.has('WAITLIST'))){_fStatus.delete('ARCHIVED');_fStatus.delete('WAITLIST');}
+  fsDraw_();
+  let f=msRows_().filter(m=>{if(q&&!(m.ign.toLowerCase().includes(q)||(m.char_id&&m.char_id.toLowerCase().includes(q))||(m.discord&&m.discord.toLowerCase().includes(q))))return false;if(fc&&m.class!==fc)return false;if(ft&&getType(m.class)!==ft)return false;if(fp&&String(m.party)!==fp)return false;if(_fStatus.size&&!_fStatus.has(msStatusOf(m)))return false;if(_fAcct==='alt'&&!isAlt(m))return false;return true});
   f.sort((a,b)=>{let av,bv;if(mSortKey==='type'){av=getType(a.class);bv=getType(b.class)}else{av=a[mSortKey]||'';bv=b[mSortKey]||''};if(mSortKey==='party'){av=+av||999;bv=+bv||999;return(av-bv)*mSortDir};return String(av).localeCompare(String(bv))*mSortDir});
   const tbody=document.getElementById('m-tbody');
   if(!f.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No members found</td></tr>';document.getElementById('m-count').textContent='';return}
@@ -1980,7 +2026,9 @@ function renderMembers(){
     </tr>`;
   }).join('');
   ceBar_();
-  document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members${_hideAlts?` (${members.filter(isAlt).length} alts hidden)`:''}`;
+  const nAlt=members.filter(isAlt).length;
+  document.getElementById('m-count').textContent=`Showing ${f.length} of ${getCountedMembers().length} members`
+    +(_fAcct==='main'&&nAlt?` · ซ่อน Alt ${nAlt} คน`:'')+(_fAcct==='alt'?' · เฉพาะ Alt':'');
 }
 
 /* ── admin: เปลี่ยนอาชีพ (หน้า Members) ── */
@@ -2040,7 +2088,7 @@ function ceSet(name,k,v){
 /* ช่อง Status — แอดมินเปลี่ยนได้ทั้ง Active / Waitlist / Archived · Absent คำนวณจากโน้ตการลา */
 function msCell_(m){
   const st=msStatusOf(m), lbl={ACTIVE:'Active',ABSENT:'Absent',ARCHIVED:'Archived',WAITLIST:'Waitlist'};
-  const badge=k=>`<span class="st-att ${k==='ABSENT'?'lv':k==='ACTIVE'?'ok':'ar'} en">${lbl[k]}</span>`;
+  const badge=k=>`<span class="st-att ${k==='ABSENT'?'lv':k==='ACTIVE'?'ok':'ar'} en">${sb_(k,lbl[k])}</span>`;
   if(!EDIT())return badge(st==='ABSENT'?'ABSENT':'ACTIVE');
   const cur=_ms[m.ign]||(st==='ARCHIVED'||st==='WAITLIST'?st:'ACTIVE');
   const nq=esc_(m.ign).replace(/'/g,"\\'");
@@ -2125,7 +2173,7 @@ function renderParty(){
       const nmq=esc_(m.ign).replace(/'/g,"\\'");
       const ed=EDIT()?peRowAttr_(m):'';
       const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
-      return`<div class="pm${leave?' pm-absent':''}${ed}" ${EDIT()?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${jobIcon_(m.class)}<span>${cls||''}</span></div></div>${mark}${acts}</div>`;
+      return`<div class="pm${leave?' pm-absent':''}${ed}" ${EDIT()?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${EDIT()?'':jobIcon_(m.class)}<span>${cls||''}</span></div></div>${mark}${acts}</div>`;
     }).join('');
     const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
     const noLead=EDIT()&&!pts[p].some(x=>(x.role||'')==='Leader');
@@ -2150,7 +2198,8 @@ function renderParty(){
 
 /* ══ CAPTURE ══ ภาพสำหรับแปะดิสคอร์ด — ทุกคนกดได้
    5 หน้า party · helper · queue · war · rewards · แผ่นกว้างคงที่ 1100px แล้วแปลงเป็น PNG ด้วย html2canvas */
-let _capBusy=false,_capKind='party';
+let _capBusy=false,_capKind='party',_capFmt='png';
+function capFmt(f){_capFmt=f;capOpen(_capKind);}
 const CAP_M={party:['⚔','Party'],helper:['🤝','Guild Helper'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards'],cls:['🧭','Class check']};
 const capNow_=()=>{const d=new Date();return{day:d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}),hm:('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};};
 function capTop_(kind,sub,rb,rs){const m=CAP_M[kind]||['⚔',''],n=capNow_();
@@ -2247,7 +2296,12 @@ function capQueue_(){
   const sub=[(_aucFc&&_aucFc.ev)||(rw&&rw.event_name)||'',(_aucFc&&_aucFc.sub)||(rw&&rw.rank)||'',
     (_aucFc?('การ์ดฐาน '+_aucFc.card+' ใบ'):''),'รอประมูล '+list.length+' คน'].filter(Boolean).join(' · ');
   const round=[...new Set(list.slice(0,tiers[tiers.length-1].n).map(r=>r.queue_date))].sort()[0]||'';
+  const fcBox=_aucFc?`<div class="cp-nx">`
+      +`<div class="cp-nxb"><b>${_aucFc.card}</b><span>Card Slot</span></div>`
+      +`<div class="cp-nxb"><b>${_aucFc.white}</b><span>White Feather</span></div>`
+      +`<div class="cp-nxb"><b>${_aucFc.red}</b><span>Red / Black</span></div></div>`:'';
   return capTop_('queue',sub,null,round?('รอบคิว '+round):'')
+    +fcBox
     +`<div class="cp-qs">${html}</div>`
     +capFoot_(['ทุกคนในภาพยังไม่ได้ดึง','เลขคือลำดับที่จะได้ดึงจริง','คิวหลังเส้นสุดท้ายรอรอบถัดไป']);
 }
@@ -2332,9 +2386,18 @@ function capOpen(kind){
   let inner='';
   try{inner=CAP_B[_capKind]();}catch(e){inner='<div class="cp-none">สร้างภาพไม่ได้ · '+esc_(e&&e.message||e)+'</div>';}
   const canCopy=!!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
-  ov.innerHTML=`<div class="cap-tb"><button class="cap-b on" onclick="capPng('dl')">⬇ Download PNG</button>`+
+  const canShare=!!(navigator.canShare&&navigator.share);
+  const pick=`<select class="cap-sel" onchange="capOpen(this.value)">`
+    +Object.keys(CAP_M).map(k=>`<option value="${k}"${k===_capKind?' selected':''}>${CAP_M[k][0]} ${CAP_M[k][1]}</option>`).join('')
+    +`</select>`;
+  const fmt=`<span class="cap-seg">`
+    +['png','jpeg'].map(f=>`<button class="${f===_capFmt?'on':''}" onclick="capFmt('${f}')">${f.toUpperCase()}</button>`).join('')
+    +`</span>`;
+  ov.innerHTML=`<div class="cap-tb">${pick}${fmt}`+
+    (canShare?`<button class="cap-b pri" onclick="capPng('share')">⬆ Share</button>`:'')+
+    `<button class="cap-b" onclick="capPng('dl')">⬇ Download</button>`+
     (canCopy?`<button class="cap-b" onclick="capPng('copy')">📋 Copy</button>`:'')+
-    `<span class="cap-hint" id="cap-msg">ภาพที่ได้จะเป็นตามแผ่นด้านล่าง</span>
+    `<span class="cap-hint" id="cap-msg">${canShare?'กด Share แล้วเลือกบันทึกรูปภาพ จะลงอัลบั้มในเครื่อง':'ภาพที่ได้จะเป็นตามแผ่นด้านล่าง'}</span>
      <button class="cap-b" onclick="capClose()">✕ Close</button></div>
      <div class="cap-scroll"><div id="cap-sheet" class="cap-sheet">${inner}</div></div>`;
   ov.style.display='flex';
@@ -2358,12 +2421,20 @@ async function capPng(how){
     const node=document.getElementById('cap-sheet');
     const bg=getComputedStyle(document.body).backgroundColor;
     const cv=await h2c(node,{backgroundColor:bg,scale:2,useCORS:true,logging:false});
-    const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+    /* คลิปบอร์ดรับแต่ png · ปุ่มอื่นใช้ตามที่เลือกไว้ */
+    const jpg=_capFmt==='jpeg'&&how!=='copy';
+    const type=jpg?'image/jpeg':'image/png';
+    const blob=await new Promise(r=>jpg?cv.toBlob(r,'image/jpeg',0.92):cv.toBlob(r,'image/png'));
     if(!blob)throw new Error('แปลงภาพไม่สำเร็จ');
-    const name='warmup-'+_capKind+'-'+new Date().toISOString().slice(0,10)+'.png';
+    const name='warmup-'+_capKind+'-'+new Date().toISOString().slice(0,10)+(jpg?'.jpg':'.png');
     if(how==='copy'){
       await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
       set('ก๊อปภาพแล้ว วางในดิสคอร์ดได้เลย');
+    }else if(how==='share'){
+      const file=new File([blob],name,{type:type});
+      if(!(navigator.canShare&&navigator.canShare({files:[file]})))throw new Error('เครื่องนี้แชร์ไฟล์ไม่ได้ ใช้ปุ่ม Download แทน');
+      try{ await navigator.share({files:[file]}); set('ส่งไปแผงแชร์แล้ว เลือกบันทึกรูปภาพเพื่อลงอัลบั้ม'); }
+      catch(e){ if(e&&e.name==='AbortError')set('ยกเลิกแล้ว'); else throw e; }
     }else{
       const url=URL.createObjectURL(blob), a=document.createElement('a');
       a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
@@ -2808,6 +2879,14 @@ function computeDistribution(){
 
 function augTog(id){const e=document.getElementById(id);if(e)e.classList.toggle('closed')}
 
+/* ดึงครบทุกคนแล้วยุบ Distribution ให้เอง — ยุบครั้งเดียว ถ้าเจ้าของกางเองไม่ไปยุบซ้ำ */
+var _distFolded=false;
+function distAutoFold_(allDone){
+  var e=document.getElementById('au-s2'); if(!e)return;
+  if(allDone){ if(!_distFolded){ _distFolded=true; e.classList.add('closed'); } }
+  else { if(_distFolded){ _distFolded=false; e.classList.remove('closed'); } }
+}
+
 var _aucAutoWar=null;
 function aucResetAuto(){
   _aucUserEdited=false;_aucAppliedKey=null;
@@ -3174,13 +3253,14 @@ function renderDistribution(){
   }
   const nDone=dist.rows.filter(r=>r.done).length;
   if(perSum)perSum.textContent=`ดึงแล้ว ${nDone}/${dist.n} · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
+  distAutoFold_(nDone>0&&nDone>=dist.n);
   _distRows=dist.rows;
   const nextI=dist.rows.findIndex(r=>!r.done);
   tbody.innerHTML=dist.rows.map((r,i)=>{
     const card=_toPageBox(r.cardSlot), nx=i===nextI&&nDone>0;
     const act=ADMIN
-      ?(r.done?`<button class="u" title="ย้อนเป็นรอ" onclick="distDone(${i},false)">↺</button>`:`<button onclick="distDone(${i},true)">✓ Done</button>`)
-      :(r.done?'<span class="dd-st y">✓ ดึงแล้ว</span>':'<span class="dd-st">รอ</span>');
+      ?(r.done?`<button class="u" title="ย้อนเป็นรอ" onclick="distDone(${i},false)">↺</button>`:`<button onclick="distDone(${i},true)">${sb_('done','Done')}</button>`)
+      :(r.done?`<span class="dd-st y">${sb_('done','ดึงแล้ว')}</span>`:`<span class="dd-st">${sb_('pending','รอ')}</span>`);
     return `<tr class="${r.done?'dd-done':''}${nx?' dd-next':''}">
       <td style="color:var(--faint);font-size:11px">${i+1}</td>
       <td class="dd-nm" style="font-weight:500"><span>${r.name}</span>${r.done&&ADMIN?'<em class="dd-ok">✓ ดึงแล้ว</em>':''}${nx?'<span class="dd-nx">คนถัดไป</span>':''}</td>
@@ -3282,8 +3362,8 @@ function renderDesignated(){
   const tag=r=>{const st=String(r.auction_status||'').toLowerCase().trim();
     if(isI)return '<span class="gh-fe">ได้เศษขนนก</span>';
     const done=st==='done';
-    if(!EDIT())return `<span class="gh-tag${done?' done':''}">${done?'Done':'Pending'}</span>`;
-    return `<span class="gh-tag hit${done?' done':''}" data-wk="${wk}" data-pos="${esc_(r.position)}" data-id="${esc_(String(r.character_id||'').trim())}" data-nm="${esc_(String(r.member_name||'').trim())}" onclick="ghTap(this,${done?0:1})">${done?'Done':'Pending'}</span>`;};
+    if(!EDIT())return `<span class="gh-tag${done?' done':''}">${sb_(done?'done':'pending',done?'Done':'Pending')}</span>`;
+    return `<span class="gh-tag hit${done?' done':''}" data-wk="${wk}" data-pos="${esc_(r.position)}" data-id="${esc_(String(r.character_id||'').trim())}" data-nm="${esc_(String(r.member_name||'').trim())}" onclick="ghTap(this,${done?0:1})">${sb_(done?'done':'pending',done?'Done':'Pending')}</span>`;};
   const day=(dow,label)=>{
     const date=ghAddDays_(wk,dow-1), rows=ghDayRows_(wk,dow);
     const helpers=rows.filter(r=>!ghIsFixed_(r)), fixed=rows.find(ghIsFixed_);
@@ -3292,7 +3372,7 @@ function renderDesignated(){
       slots.push(r?`<div class="gh-s"><span class="gh-n">${i+1}</span><span class="gh-nm">${esc_(r.member_name)}</span><span class="sp"></span>${tag(r)}</div>`
                 :`<div class="gh-s empty"><span class="gh-n">${i+1}</span><span class="gh-nm">ยังไม่มีชื่อ</span></div>`);}
     helpers.slice(4).forEach((r,i)=>slots.push(`<div class="gh-s"><span class="gh-n">${i+5}</span><span class="gh-nm">${esc_(r.member_name)}</span><span class="sp"></span>${tag(r)}</div>`));
-    if(!isI)slots.push(`<div class="gh-s fix"><span class="gh-n">5</span><span class="gh-nm">${GH_FIXED}</span><span class="sp"></span><span class="gh-tag fix">Fixed</span></div>`);
+    if(!isI)slots.push(`<div class="gh-s fix"><span class="gh-n">5</span><span class="gh-nm">${GH_FIXED}</span><span class="sp"></span><span class="gh-tag fix">${sb_('fixed','Fixed')}</span></div>`);
     const n=helpers.length+(isI?0:1), max=isI?4:5;
     return `<div class="gh-day"><div class="gh-dh">${label}<small>${wDay_(date)}</small><span class="sp"></span><span class="gh-cnt">${n}/${max}</span></div>${slots.join('')}</div>`;
   };
@@ -3319,12 +3399,18 @@ async function ghTap(el,toDone){
   }
 }
 
+/* ไอคอนประจำสถานะ — ใช้ชุดเดียวกันทั้งเว็บ */
+const SB_IC={done:'✓',pending:'⏳',skipped:'⏭',duplicate:'🔁',fixed:'📌',absent:'⏳',active:'✓',archived:'✕',waitlist:'⏳'};
+function sb_(kind,text,title){
+  const ic=SB_IC[String(kind||'').toLowerCase()]||'•';
+  return `<span class="sb" title="${esc_(title||text)}"><i>${ic}</i><span>${esc_(text)}</span></span>`;
+}
 function statusBadge(s){
   const v=String(s||'').toLowerCase().trim();
-  if(v==='done')   return '<span class="gf" style="background:var(--green-dim);color:var(--green);border-color:var(--green-b)">✅ done</span>';
-  if(v==='skipped'||v==='skip') return '<span class="gf" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">⏭ skipped</span>';
-  if(v==='pending')return '<span class="gf" style="background:var(--amber-dim);color:var(--amber);border-color:var(--amber-b)">⏳ pending</span>';
-  if(v==='duplicate')return '<span class="gf">🔁 ซ้ำคิว</span>';
+  if(v==='done')   return `<span class="gf" style="background:var(--green-dim);color:var(--green);border-color:var(--green-b)">${sb_('done','done')}</span>`;
+  if(v==='skipped'||v==='skip') return `<span class="gf" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">${sb_('skipped','skipped')}</span>`;
+  if(v==='pending')return `<span class="gf" style="background:var(--amber-dim);color:var(--amber);border-color:var(--amber-b)">${sb_('pending','pending')}</span>`;
+  if(v==='duplicate')return `<span class="gf">${sb_('duplicate','ซ้ำคิว')}</span>`;
   return `<span style="color:var(--faint)">—</span>`;
 }
 
@@ -3375,7 +3461,7 @@ function renderQueueManager(){
     const lost=ADMIN&&live&&r.character_id&&!inGuild.has(String(r.character_id).trim());
     const why=st==='skipped'?(String(r.note||'').match(/skip:\s*([^·]*)/)||[])[1]:'';
     const act=!ADMIN?'':(live
-      ?`<button class="ok" onclick="qmSet(${i},'done')">✓ Done</button><button class="sk" onclick="qmAskSkip(${i})">⏭ Skip</button>`
+      ?`<button class="ok" onclick="qmSet(${i},'done')">${sb_('done','Done')}</button><button class="sk" onclick="qmAskSkip(${i})">${sb_('skipped','Skip')}</button>`
       :(gone?`<button onclick="qmSet(${i},'pending')">↺ คืน</button>`:'<span style="color:var(--faint)">—</span>'));
     let h=`<tr class="${gone?'qm-gone':''}${lost?' qm-warn':''}">
       <td class="m-num">${line?(i+1):(r.position||'—')}</td>
@@ -4047,6 +4133,16 @@ function whMiss_(r){
   }
   return m;
 }
+/* สองช่องขวาสุดของตาราง History — เห็นเฉพาะแอดมิน
+   ปากกาพาไปแผงกรอกของชนิดนั้นโดยตรง Guild League ไม่เด้ง Overrun มาให้งง */
+function whPenCells_(r){
+  if(!ADMIN)return '';
+  const m=whMiss_(r), todo=m.length>0;
+  const d=esc_(r.date), t=r.type==='Overrun'?'Overrun':'Guild League';
+  return `<td class="wr-adm2 wh-ms">${todo?whMissHtml_(r):'<span class="wh-ok">ครบแล้ว</span>'}</td>`
+    +`<td class="wr-adm2 wh-pen"><button class="pen${todo?' todo':''}" title="${todo?'ยังขาด: '+m.map(esc_).join(' · '):'แก้รายละเอียด'}" `
+    +`onclick="event.stopPropagation();winOpen('${d}','${t}')">✎</button></td>`;
+}
 const whMissHtml_=r=>{const m=whMiss_(r);return m.length?`<div class="wh-miss">ยังไม่มี: ${m.map(esc_).join(' · ')}</div>`:'';};
 function renderWarHistory(){
   const tb=document.getElementById('wh-tbody'); if(!tb)return;
@@ -4064,20 +4160,20 @@ function renderWarHistory(){
       const stH=st==='win'?'<span class="wr-b W">Win</span>':st==='lose'?'<span class="wr-b L">Lose</span>':'';
       const dH=r.diff!=null&&r.diff!==0?` <span class="wr-f">${r.diff>0?'+':'−'}${wFmt_(r.diff)}</span>`:'';
       const sub=[r.league,r.cross==='Y'?'Cross-server':r.cross==='N'?'Intra-server':''].filter(Boolean).map(esc_).join(' · ');
-      return `<tr>${date}<td>Guild League${sub?`<div class="wr-f">${sub}</div>`:''}${whMissHtml_(r)}</td>
+      return `<tr>${date}<td>Guild League${sub?`<div class="wr-f">${sub}</div>`:''}<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
         <td><b>${r.rank?esc_(r.rank):''}</b>${r.rank?'':dash}</td>
         <td>${r.opp?`<b>${esc_(r.opp)}</b>`:dash}</td>
-        <td>${stH||dash}${stH?dH:''}</td></tr>`;
+        <td>${stH||dash}${stH?dH:''}</td>${whPenCells_(r)}</tr>`;
     }
     const gs=orGuilds_(r.date), open=!!_whOpen[r.date];
-    const main=`<tr${gs.length?` class="wr-click" onclick="whToggle('${r.date}')"`:''}>${date}<td>Overrun${r.group?`<div class="wr-f">${esc_(r.group)}</div>`:''}${whMissHtml_(r)}</td>
+    const main=`<tr${gs.length?` class="wr-click" onclick="whToggle('${r.date}')"`:''}>${date}<td>Overrun${r.group?`<div class="wr-f">${esc_(r.group)}</div>`:''}<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
       <td>${r.rank?`<b>${esc_(r.rank)}</b>${gs.length?` <span class="wr-f">/ ${orTotal_(gs)} กิลด์</span>`:''}`:dash}</td>
-      <td>${gs.length?`<span class="wr-lnk">${open?'▾':'▸'} All guilds</span>`:dash}</td><td>${dash}</td></tr>`;
+      <td>${gs.length?`<span class="wr-lnk">${open?'▾':'▸'} All guilds</span>`:dash}</td><td>${dash}</td>${whPenCells_(r)}</tr>`;
     if(!gs.length||!open)return main;
     const me=g=>String(g.guild_name||'').trim().toLowerCase()===WAR_GUILD.toLowerCase();
     const hasSrv=gs.some(g=>g.server), hasSc=gs.some(g=>g.score);
     const inner=gs.map(g=>`<tr${me(g)?' class="me"':''}><td>${esc_(g.rank)}</td><td>${g.guild_name?`<b>${esc_(g.guild_name)}</b>`:''}${me(g)?' <span class="wr-me">เรา</span>':''}</td>${hasSrv?`<td>${esc_(g.server)}</td>`:''}${hasSc?`<td class="n">${wNum_(g.score)!=null?wFmt_(wNum_(g.score)):esc_(g.score)}</td>`:''}</tr>`).join('');
-    return main+`<tr class="wr-sub"><td colspan="5"><table class="wr-in"><thead><tr><th>#</th><th>Guild</th>${hasSrv?'<th>Server</th>':''}${hasSc?'<th class="n">Score</th>':''}</tr></thead><tbody>${inner}</tbody></table></td></tr>`;
+    return main+`<tr class="wr-sub"><td colspan="${ADMIN?7:5}"><table class="wr-in"><thead><tr><th>#</th><th>Guild</th>${hasSrv?'<th>Server</th>':''}${hasSc?'<th class="n">Score</th>':''}</tr></thead><tbody>${inner}</tbody></table></td></tr>`;
   }).join('');
 }
 
