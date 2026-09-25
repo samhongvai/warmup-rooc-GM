@@ -4632,13 +4632,15 @@ async function warReload_(){
 
 /* ── Overrun ── */
 let _oi=null;
-function oiBlank_(){return {guild:'',server:'',score:'',c3:'',c2:'',c1:''};}
+function oiBlank_(){return {guild:'',server:'',score:'',c3:'',c2:'',c1:'',b3:'',b2:'',b1:''};}
 function oiLoad_(date){
   const rows=_orRank.filter(r=>r.date===date).sort((a,b)=>(wNum_(a.rank)??99)-(wNum_(b.rank)??99));
   const n=Math.max(8,rows.reduce((m,r)=>Math.max(m,wNum_(r.rank)||0),0));
   const out=[];for(let i=0;i<n;i++)out.push(oiBlank_());
   rows.forEach(r=>{const i=(wNum_(r.rank)||0)-1; if(i<0||i>=n)return;
-    out[i]={guild:r.guild_name||'',server:r.server||'',score:r.score||'',c3:r.castle_3||'',c2:r.castle_2||'',c1:r.castle_1||''};});
+    out[i]={guild:r.guild_name||'',server:r.server||'',score:r.score||'',
+      c3:r.castle_3||'',c2:r.castle_2||'',c1:r.castle_1||'',
+      b3:r.bounty_3||'',b2:r.bounty_2||'',b1:r.bounty_1||''};});
   const wl=_warLog.find(r=>r.event_type==='Overrun'&&r.date===date);
   const lastG=[..._warLog].reverse().find(r=>r.event_type==='Overrun'&&r.group);
   _oi={date,group:(wl&&naV_(wl.group))||(lastG&&lastG.group)||'Advanced',rows:out,exists:!!(rows.length||wl),busy:false};
@@ -4657,15 +4659,16 @@ function renderOrInput(keepFocus){
   const inp=(i,k,w,num)=>`<input class="wi${num?' num':''}" style="width:${w}" value="${esA_(_oi.rows[i][k])}" oninput="oiSet(${i},'${k}',this.value)"${num?' inputmode="numeric"':''}>`;
   const rows=_oi.rows.map((r,i)=>`<tr data-i="${i}"${String(r.guild).trim().toLowerCase()===WAR_GUILD.toLowerCase()?' class="me"':''}><td class="wi-rk">${i+1}</td>
     <td>${inp(i,'guild','100%')}</td><td>${inp(i,'server','70px')}</td><td>${inp(i,'score','100px',1)}</td>
-    <td>${inp(i,'c3','60px',1)}</td><td>${inp(i,'c2','60px',1)}</td><td>${inp(i,'c1','60px',1)}</td></tr>`).join('');
+    <td>${inp(i,'c3','56px',1)}</td><td>${inp(i,'c2','56px',1)}</td><td>${inp(i,'c1','56px',1)}</td>
+    <td>${inp(i,'b3','56px',1)}</td><td>${inp(i,'b2','56px',1)}</td><td>${inp(i,'b1','56px',1)}</td></tr>`).join('');
   box.innerHTML=`<div class="wi-box">
     <div class="wi-row"><label class="wi-f"><span>Date</span><input type="date" value="${_oi.date}" onchange="oiDate(this.value)"></label>
       <div class="wi-f"><span>Group</span><div class="wi-seg">${['Normal','Advanced'].map(g=>`<button class="${g===_oi.group?'on':''}" onclick="oiGroup('${g}')">${g}</button>`).join('')}</div></div>
       <span class="wi-st">${_oi.exists?'● มีข้อมูลรอบนี้แล้ว — กำลังแก้':'○ รอบใหม่'}</span></div>
-    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th style="min-width:150px">Guild</th><th>Server</th><th>Score</th><th>Castle 3</th><th>Castle 2</th><th>Castle 1</th></tr></thead>
+    <div style="overflow-x:auto"><table class="wi-tbl"><thead><tr><th>#</th><th style="min-width:150px">Guild</th><th>Server</th><th>Score</th><th>Castle 3</th><th>Castle 2</th><th>Castle 1</th><th>Bounty 3</th><th>Bounty 2</th><th>Bounty 1</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
     ${_oi.rows.length<12?'<div style="text-align:center;margin-top:8px"><button class="btn btn-ghost" onclick="oiAdd()">+ Add row</button></div>':''}
-    <div class="wi-foot"><span class="sp">อันดับ = เลขแถว · แถวของ ${WAR_GUILD} คืออันดับเรา · แถวว่างทั้งแถวไม่บันทึก</span>
+    <div class="wi-foot"><span class="sp">อันดับ = เลขแถว · แถวของ ${WAR_GUILD} คืออันดับเรา · แถวว่างทั้งแถวไม่บันทึก · Castle กับ Bounty เรียงระดับ 3 / 2 / 1 เหมือนในเกม</span>
       <button class="btn btn-ghost" onclick="oiLoad_(_oi.date);renderOrInput()">Cancel</button>
       <button class="btn wi-save" ${_oi.busy?'disabled':''} onclick="oiSave()">${_oi.busy?'Saving…':'💾 Save'}</button></div></div>`;
 }
