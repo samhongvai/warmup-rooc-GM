@@ -1683,7 +1683,7 @@ body.is-admin .wr-adm{display:inline-block}
       <select id="wh-filter-month" onchange="renderWarHistory()" style="flex:1;min-width:150px"><option value="">All months</option></select>
     </div>
     <div class="tbl-wrap"><table class="rtbl wr-tbl">
-      <thead><tr><th style="width:96px">Date</th><th style="width:170px">Type</th><th>Rank</th><th>Opponent</th><th style="width:130px">Result</th><th class="wr-adm2 wh-ms">Missing</th><th class="wr-adm2" style="width:46px"></th></tr></thead>
+      <thead><tr><th style="width:96px">Date</th><th style="width:120px">Type</th><th>Rank</th><th>Opponent</th><th style="width:130px">Result</th><th class="wr-adm2 wh-ms">Missing</th><th class="wr-adm2" style="width:46px"></th></tr></thead>
       <tbody id="wh-tbody"><tr><td colspan="5" class="empty">กำลังโหลด...</td></tr></tbody>
     </table></div>
   </div>
@@ -2054,11 +2054,15 @@ function mIdx_(){
 function mFind_(name,id){
   const X=mIdx_(), i=String(id==null?'':id).trim();
   if(i&&X.byId[i])return X.byId[i];
+  if(i&&X.alId[i]&&X.byId[X.alId[i]])return X.byId[X.alId[i]];   /* Alias: รหัสเก่า → รหัสปัจจุบัน */
+  const k=nmk_(name);
+  if(k&&X.alNm[k]&&X.byId[X.alNm[k]])return X.byId[X.alNm[k]];   /* Alias: ชื่อเก่า — คนกรอกไว้เอง เชื่อก่อนเสมอ */
+  /* แถวที่มีรหัสตัวละครจริง แต่รหัสนั้นไม่อยู่ในทะเบียนและไม่มีใน Alias = ตัวละครที่เลิกใช้แล้ว
+     ห้ามถอยไปจับด้วยชื่อ เพราะชื่ออาจซ้ำกับตัวที่ใช้อยู่ตอนนี้ (leod 569266 กับ LEOD 403665 คนละตัว)
+     รหัสที่ไม่ใช่ตัวเลข เช่น #REF! ไม่นับ ปล่อยให้ไปจับด้วยชื่อตามเดิม */
+  if(/^\d+$/.test(i))return null;
   const lc=nmLc_(name); if(lc&&X.byLc[lc])return X.byLc[lc];
-  const k=nmk_(name); if(k&&X.byK[k]&&!X.dupK[k])return X.byK[k];
-  /* ยังไม่เจอ — ลองแท็บ Alias: รหัสเก่าก่อน แล้วค่อยชื่อเก่า */
-  if(i&&X.alId[i]&&X.byId[X.alId[i]])return X.byId[X.alId[i]];
-  if(k&&X.alNm[k]&&X.byId[X.alNm[k]])return X.byId[X.alNm[k]];
+  if(k&&X.byK[k]&&!X.dupK[k])return X.byK[k];
   return null;
 }
 const mShow_=(name,id)=>{const m=mFind_(name,id);return m?m.ign:String(name==null?'':name).trim()};
@@ -4426,15 +4430,14 @@ function renderWarHistory(){
       const st=r.status.toLowerCase();
       const stH=st==='win'?'<span class="wr-b W">Win</span>':st==='lose'?'<span class="wr-b L">Lose</span>':'';
       const dH=r.diff!=null&&r.diff!==0?` <span class="wr-f">${r.diff>0?'+':'−'}${wFmt_(r.diff)}</span>`:'';
-      /* ไม่ต้องบอกข้ามเซิร์ฟหรือในเซิร์ฟ — ชื่อ Rank บอกอยู่แล้ว เหลือแค่ชื่อสนาม */
-      const sub=esc_(r.league||'');
-      return `<tr>${date}<td>Guild League${sub?`<div class="wr-f">${sub}</div>`:''}<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
+      /* คอลัมน์ Type บอกแค่ชนิดวอ — ชื่อสนามกับข้ามเซิร์ฟหรือไม่ ไปดูที่หน้า Stats กับชื่อ Rank ได้ */
+      return `<tr>${date}<td>Guild League<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
         <td><b>${r.rank?esc_(r.rank):''}</b>${r.rank?'':dash}</td>
         <td>${r.opp?`<b>${esc_(r.opp)}</b>`:dash}</td>
         <td>${stH||dash}${stH?dH:''}</td>${whPenCells_(r)}</tr>`;
     }
     const gs=orGuilds_(r.date), open=!!_whOpen[r.date];
-    const main=`<tr${gs.length?` class="wr-click" onclick="whToggle('${r.date}')"`:''}>${date}<td>Overrun${r.group?`<div class="wr-f">${esc_(r.group)}</div>`:''}<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
+    const main=`<tr${gs.length?` class="wr-click" onclick="whToggle('${r.date}')"`:''}>${date}<td>Overrun<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
       <td>${r.rank?`<b>${esc_(r.rank)}</b>${gs.length?` <span class="wr-f">/ ${orTotal_(gs)} กิลด์</span>`:''}`:dash}</td>
       <td>${gs.length?`<span class="wr-lnk">${open?'▾':'▸'} All guilds</span>`:dash}</td><td>${dash}</td>${whPenCells_(r)}</tr>`;
     if(!gs.length||!open)return main;
