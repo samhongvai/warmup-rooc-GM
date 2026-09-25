@@ -2038,9 +2038,10 @@ let _mIdx=null,_mIdxN='';
 function mIdx_(){
   const stamp=(members||[]).length+'/'+(_alias||[]).length;
   if(_mIdx&&_mIdxN===stamp)return _mIdx;
-  const byId={},byLc={},byK={},dupK={},alNm={},alId={};
+  const byId={},byEx={},byLc={},byK={},dupK={},alNm={},alId={};
   (members||[]).forEach(m=>{
     const id=String(m.char_id||'').trim(); if(id&&!byId[id])byId[id]=m;
+    const ex=String(m.ign==null?'':m.ign).trim(); if(ex&&!byEx[ex])byEx[ex]=m;
     const lc=nmLc_(m.ign); if(lc&&!byLc[lc])byLc[lc]=m;
     const k=nmk_(m.ign); if(k){ if(byK[k]&&byK[k]!==m)dupK[k]=1; else if(!byK[k])byK[k]=m; }
   });
@@ -2050,15 +2051,21 @@ function mIdx_(){
     const k=nmk_(a.old); if(k&&!alNm[k])alNm[k]=to;
     const oid=String(a.id||'').trim(); if(oid&&oid!==to&&!alId[oid])alId[oid]=to;
   });
-  _mIdx={byId,byLc,byK,dupK,alNm,alId}; _mIdxN=stamp;
+  _mIdx={byId,byEx,byLc,byK,dupK,alNm,alId}; _mIdxN=stamp;
   return _mIdx;
 }
 function mFind_(name,id){
   const X=mIdx_(), i=String(id==null?'':id).trim();
   if(i&&X.byId[i])return X.byId[i];
   if(i&&X.alId[i]&&X.byId[X.alId[i]])return X.byId[X.alId[i]];   /* Alias: รหัสเก่า → รหัสปัจจุบัน */
+  const nx=String(name==null?'':name).trim();
+  /* ชื่อที่สะกดตรงเป๊ะกับคนในทะเบียน = คนนั้น มาก่อน Alias เสมอ (LEOD ต้องเป็น LEOD) */
+  if(nx&&X.byEx[nx])return X.byEx[nx];
   const k=nmk_(name);
-  if(k&&X.alNm[k]&&X.byId[X.alNm[k]])return X.byId[X.alNm[k]];   /* Alias: ชื่อเก่า — คนกรอกไว้เอง เชื่อก่อนเสมอ */
+  /* Alias: ชื่อเก่า — คนกรอกไว้เอง เชื่อก่อนเสมอ
+     ถ้าชี้ไปที่รหัสที่ไม่มีในทะเบียนแล้ว = ตัวละครที่เลิกใช้ ให้จบตรงนี้ ห้ามถอยไปจับด้วยชื่อ
+     (leod ชี้ 569266 ที่ลบไปแล้ว ต้องไม่กลายเป็น LEOD 403665) */
+  if(k&&X.alNm[k])return X.byId[X.alNm[k]]||null;
   /* แถวที่มีรหัสตัวละครจริง แต่รหัสนั้นไม่อยู่ในทะเบียนและไม่มีใน Alias = ตัวละครที่เลิกใช้แล้ว
      ห้ามถอยไปจับด้วยชื่อ เพราะชื่ออาจซ้ำกับตัวที่ใช้อยู่ตอนนี้ (leod 569266 กับ LEOD 403665 คนละตัว)
      รหัสที่ไม่ใช่ตัวเลข เช่น #REF! ไม่นับ ปล่อยให้ไปจับด้วยชื่อตามเดิม */
