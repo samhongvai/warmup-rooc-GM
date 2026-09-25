@@ -1748,7 +1748,12 @@ const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H'};
    โหมดแอดมิน = หน้าเว็บนี้ถูกเปิดผ่าน Apps Script (Admin.gs ใน Warmup Members)
    Admin.gs แปะ window.__WARMUP_ADMIN__ ไว้ต้น <head> — บน GitHub Pages ตัวแปรนี้ไม่มี ปุ่มแก้ไขจึงไม่โผล่
    ความปลอดภัยจริงอยู่ที่ deployment "Only myself" + ตรวจอีเมลซ้ำใน Admin.gs */
-const ADMIN=window.__WARMUP_ADMIN__||null;
+/* Admin.gs แปะธงมาเป็นข้อความ JSON — ต้องแปลงก่อน ไม่งั้น ADMIN.prefs กับ ADMIN.email เป็น undefined
+   ผลคือค่า zoom / ขนาดตัวอังกฤษ / ธีม ที่ส่งมากับลิงก์ถูกทิ้ง หน้าแอดมินจึงเล็กกว่าหน้าเว็บปกติ */
+const ADMIN=(()=>{const v=window.__WARMUP_ADMIN__; if(!v)return null;
+  if(typeof v==='object')return v;
+  try{const o=JSON.parse(v); return (o&&typeof o==='object')?o:{email:'',prefs:{}};}
+  catch(e){return {email:'',prefs:{}};}})();
 /* โหมดแก้ไข — ปิดไว้เสมอตอนเปิดหน้า ปิดอยู่แล้วหน้าตาเท่ากับที่สมาชิกเห็น */
 let _edit=false;
 const EDIT=()=>!!(ADMIN&&_edit);
@@ -2006,6 +2011,42 @@ function noteLabel(s){
   return '';
 }
 function getCountedMembers(){return _hideAlts?members.filter(m=>!isAlt(m)):members}
+
+/* ══ จับคู่ชื่อกับทะเบียน ══
+   ชีทเก่าบันทึกคนเดียวกันไว้หลายแบบ — ตัวพิมพ์ใหญ่เล็กไม่ตรง (Dxstealth / DxStealth · JoKER888 / JOKER888)
+   ชื่อในเกมถูกตัดสั้น (ANSS / ANSSSSSSSS) หรือมีอักขระตกแต่งติดมา
+   ลำดับการจับคู่: รหัสตัวละคร → ชื่อแบบไม่สนตัวพิมพ์ → ชื่อแบบตัดอักขระตกแต่ง (ต้องเหลือตรงตัวเดียว)
+   ไม่แปลงเลขศูนย์กับตัว O ให้กัน เพราะ J0KER888 กับ JOKER888 เป็นคนละคนจริง
+   ชื่อที่เอาไปแสดงใช้ชื่อในทะเบียนเสมอ ทั้งเว็บจึงเรียกคนเดียวกันด้วยชื่อเดียว */
+const nmLc_=s=>String(s==null?'':s).trim().replace(/\s+/g,' ').toLowerCase();
+const nmk_=s=>{try{return nmLc_(s).replace(/[^\p{L}\p{N}]/gu,'')}catch(e){return nmLc_(s).replace(/[^a-z0-9฀-๿]/g,'')}};
+let _mIdx=null,_mIdxN=-1;
+function mIdx_(){
+  if(_mIdx&&_mIdxN===(members||[]).length)return _mIdx;
+  const byId={},byLc={},byK={},dupK={};
+  (members||[]).forEach(m=>{
+    const id=String(m.char_id||'').trim(); if(id&&!byId[id])byId[id]=m;
+    const lc=nmLc_(m.ign); if(lc&&!byLc[lc])byLc[lc]=m;
+    const k=nmk_(m.ign); if(k){ if(byK[k]&&byK[k]!==m)dupK[k]=1; else if(!byK[k])byK[k]=m; }
+  });
+  _mIdx={byId,byLc,byK,dupK}; _mIdxN=(members||[]).length;
+  return _mIdx;
+}
+function mFind_(name,id){
+  const X=mIdx_(), i=String(id==null?'':id).trim();
+  if(i&&X.byId[i])return X.byId[i];
+  const lc=nmLc_(name); if(lc&&X.byLc[lc])return X.byLc[lc];
+  const k=nmk_(name); if(k&&X.byK[k]&&!X.dupK[k])return X.byK[k];
+  return null;
+}
+const mShow_=(name,id)=>{const m=mFind_(name,id);return m?m.ign:String(name==null?'':name).trim()};
+/* คีย์รวมสถิติ — คนเดียวกันได้คีย์เดียวกันไม่ว่าชีทบันทึกชื่อไว้แบบไหน */
+function mKey_(name,id){
+  const m=mFind_(name,id);
+  if(m)return 'id:'+(String(m.char_id||'').trim()||nmk_(m.ign));
+  const i=String(id==null?'':id).trim();
+  return i?('x:'+i):('n:'+nmk_(name));
+}
 
 function renderStats(){
   const counted=getCountedMembers();
@@ -2648,19 +2689,17 @@ async function searchMain(){
     </div>`;
   };
 
-  const keyOf=m=>String(m.char_id||'').trim()||String(m.ign||'').trim();
+  const keyOf=m=>mKey_(m.ign,m.char_id);
   const draw=()=>{
     const byOrder=(a,b)=>String(a.queue_date).localeCompare(String(b.queue_date))||((+a.position||0)-(+b.position||0));
     el.innerHTML=found.map(m=>{
       const k=keyOf(m), nm=String(m.ign||'').trim();
-      const mine=_searchQueueRows.filter(r=>(String(r.character_id||'').trim()||String(r.member_name||'').trim())===k).sort(byOrder);
+      const mine=_searchQueueRows.filter(r=>mKey_(r.member_name,r.character_id)===k).sort(byOrder);
       /* คิวที่รออยู่เก่าสุดคือคิวที่จะได้จริง — ไม่มีคิวรอ ค่อยโชว์แถวล่าสุด */
       const qRow=mine.find(r=>String(r.status).toLowerCase()==='pending')||mine[mine.length-1];
       let hist=null;
       if(_searchCacheLoaded){
-        hist=(_searchHistMap[k]||[]).slice();
-        /* แถวเก่าที่ยังไม่มี character_id ถูกเก็บด้วยชื่อ — รวมเข้ามาด้วย */
-        if(nm&&nm!==k)hist=hist.concat(_searchHistMap[nm]||[]);
+        hist=(_searchHistMap[k]||[]).slice();   /* mKey_ รวมแถวที่มีและไม่มีรหัสตัวละครเข้าด้วยกันแล้ว */
         hist.sort((a,b)=>String(b.queue_date).localeCompare(String(a.queue_date))||((+b.position||0)-(+a.position||0)));
       }
       return renderCard(m,qRow,hist);
@@ -3344,22 +3383,47 @@ function spreadN_(total,count,cap){
 }
 
 /* เศษขนนก — ไม่เก็บลงชีท เป็นของแถมท้ายรอบ เลือกคนกับกด Done ได้ในหน้าเว็บ รีเฟรชแล้วเริ่มใหม่ */
+/* สามอันดับแรกล็อกตามตำแหน่งในกิลด์ ไม่สุ่ม — ลดความวุ่นวาย ให้คนที่ช่วยงานกิลด์บริหารต่อได้ง่าย
+   #1 Ficelle = Guild Master · #2 ไข่เน่า = Commander (Elite) · #3 JOKER888 = Commander Subbattle
+   ผูกด้วยรหัสตัวละคร เพราะในทะเบียนมี JOKER888 กับ J0KER888 (เลขศูนย์) ที่หน้าตาเกือบเหมือนกัน */
+var LO_DEFAULT_ID=['277423','535453','290526'];
 var LO_DEFAULT=['Ficelle','ไข่เน่า','JOKER888'];
+function loDefault_(k){
+  var id=LO_DEFAULT_ID[k]; if(!id)return LO_DEFAULT[k]||'';
+  var m=mIdx_().byId[id];
+  return (m&&m.ign)||LO_DEFAULT[k]||'';
+}
 var _loPick={}, _loDone={};
 function loPick(k,v){ _loPick[k]=v||''; renderLeftover(); }
 function loTap(k){ _loDone[k]=!_loDone[k]; renderLeftover(); }
 /* ชื่อที่เลือกได้ = คนที่ยังอยู่ในกิลด์ เรียงแบบเดียวกับหน้า Members */
+/* ชื่อที่อ่านผิดกันได้ (JOKER888 / J0KER888 · l กับ 1) ให้ต่อท้ายด้วยอาชีพ เพื่อเลือกไม่ผิดตัว */
+function loConfuse_(){
+  var c={},out={};
+  (members||[]).forEach(function(m){
+    var k=nmLc_(m.ign).replace(/0/g,'o').replace(/1/g,'l');
+    if(!k)return; c[k]=(c[k]||0)+1;
+  });
+  (members||[]).forEach(function(m){
+    var k=nmLc_(m.ign).replace(/0/g,'o').replace(/1/g,'l');
+    if(c[k]>1)out[String(m.ign||'').trim()]=String(m.class_gl||m.class||'').trim();
+  });
+  return out;
+}
 function loNameOpts_(cur){
   var names=(members||[]).map(function(m){return String(m.ign||'').trim()}).filter(Boolean);
   if(cur&&names.indexOf(cur)<0)names.push(cur);
   names.sort(nameCmp_);
+  var cf=loConfuse_();
   return '<option value="">เลือกสมาชิก…</option>'+names.map(function(n){
-    return '<option value="'+esA_(n)+'"'+(n===cur?' selected':'')+'>'+esc_(n)+'</option>';}).join('');
+    var lb=cf[n]?(n+' · '+cf[n]):n;
+    return '<option value="'+esA_(n)+'"'+(n===cur?' selected':'')+'>'+esc_(lb)+'</option>';}).join('');
 }
 /* คนนี้ได้ขนนกจากคิวประมูลรอบนี้ไปแล้วเท่าไหร่ — ใช้กันไม่ให้รวมกับเศษแล้วเกินเพดานเกม */
 function loGot_(dist,name){
   if(!dist||!name)return null;
-  var hit=(dist.rows||[]).some(function(r){return String(r.name||'').trim().toLowerCase()===name.trim().toLowerCase()});
+  var k=mKey_(name,'');
+  var hit=(dist.rows||[]).some(function(r){return mKey_(r.name,'')===k});
   return hit?{w:dist.pW||0,r:dist.pR||0}:null;
 }
 function renderLeftover(){
@@ -3384,7 +3448,7 @@ function renderLeftover(){
   for(var k=0;k<n;k++){
     var wq=W[k],rq=R[k];
     if(!wq&&!rq)continue;
-    var name=(_loPick[k]!=null)?_loPick[k]:(loNames[k]||LO_DEFAULT[k]||'');
+    var name=(_loPick[k]!=null)?_loPick[k]:(loNames[k]||loDefault_(k));
     /* ตัดเศษไม่ให้รวมกับของที่ได้จากคิวแล้วเกินเพดานของอันดับนี้ */
     var got=loGot_(dist,name), warn='';
     var wShow=wq, rShow=rq;
@@ -3550,20 +3614,19 @@ function renderQueueManager(){
 
   const tb=document.getElementById('qm-tbody');
   if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">ไม่พบข้อมูล</td></tr>';return}
-  const inGuild=new Set(members.map(m=>String(m.char_id||'').trim()));
   const cuts=line?qmCuts_():{};
   tb.innerHTML=rows.map((r,i)=>{
     const st=String(r.status||'').toLowerCase();
     const live=st==='pending';
     const gone=st==='done'||st==='skipped';
-    const lost=ADMIN&&live&&r.character_id&&!inGuild.has(String(r.character_id).trim());
+    const lost=ADMIN&&live&&!mFind_(r.member_name,r.character_id);
     const why=st==='skipped'?(String(r.note||'').match(/skip:\s*([^·]*)/)||[])[1]:'';
     const act=!ADMIN?'':(live
       ?`<button class="ok" onclick="qmSet(${i},'done')">${sb_('done','Done')}</button><button class="sk" onclick="qmAskSkip(${i})">${sb_('skipped','Skip')}</button>`
       :(gone?`<button onclick="qmSet(${i},'pending')">↺ คืน</button>`:'<span style="color:var(--faint)">—</span>'));
     let h=`<tr class="${gone?'qm-gone':''}${lost?' qm-warn':''}">
       <td class="m-num">${line?(i+1):(r.position||'—')}</td>
-      <td style="font-weight:600">${r.member_name||'—'}${lost?'<span class="qm-flag">ไม่อยู่ในรายชื่อกิลด์</span>':''}${cuts[i+1]?`<span class="qm-cut">${cuts[i+1]} ถึงแค่นี้</span>`:''}</td>
+      <td style="font-weight:600">${esc_(mShow_(r.member_name,r.character_id))||'—'}${lost?'<span class="qm-flag">ไม่อยู่ในรายชื่อกิลด์</span>':''}${cuts[i+1]?`<span class="qm-cut">${cuts[i+1]} ถึงแค่นี้</span>`:''}</td>
       <td>${statusBadge(r.status)}${why?`<span class="qm-why">${why.trim()}</span>`:''}</td>
       <td style="font-size:11px;color:var(--muted)">${line?('รอบ '+fmtShort(r.queue_date)+' · คิว '+(r.position||'—')):fmtShort(r.drawn_date)}</td>
       <td class="adm-only qm-act">${act}</td>
@@ -4087,14 +4150,13 @@ function ccData_(){
   const ds=ccDates_();
   if(!ds.length)return {dates:[],rows:[],date:'',total:0};
   if(!_ccDate||ds.indexOf(_ccDate)<0)_ccDate=ds[0];
-  const reg={};
-  (members||[]).forEach(m=>{ const k=String(m.ign||'').trim().toLowerCase(); if(k)reg[k]={gl:m.class||'',or:m.class_or||'',ign:m.ign}; });
   const seen={}, cmp={}, rows=[];
   (_glScore||[]).filter(r=>r.date===_ccDate).forEach(r=>{
     const nm=String(r.member_name||'').trim(); if(!nm)return;
     const played=String(r.class_played||'').trim(); if(!played)return;
-    const k=nm.toLowerCase(); if(seen[k])return; seen[k]=1;
-    const m=reg[k]; if(!m)return;                       /* ไม่อยู่ในกิลด์แล้ว ข้ามไป */
+    const mm=mFind_(nm,r.character_id); if(!mm)return;   /* ไม่อยู่ในกิลด์แล้ว ข้ามไป */
+    const k=mKey_(nm,r.character_id); if(seen[k])return; seen[k]=1;
+    const m={gl:mm.class||'',or:mm.class_or||'',ign:mm.ign};
     cmp[k]=1;                                           /* นับเฉพาะคนที่ยังอยู่ในทะเบียน */
     if(clsLabel_(m.gl)===clsLabel_(played))return;      /* ตรงกันแล้ว */
     rows.push({name:m.ign||nm, reg:m.gl||'', played:played, field:r.field||''});
@@ -4139,9 +4201,9 @@ function absPlayed_(){
   const by={};
   (_glScore||[]).forEach(r=>{
     const d=r.date; if(!d)return;
-    const k=String(r.character_id||'').trim(), n=String(r.member_name||'').trim();
     const o=by[d]=by[d]||{id:new Set(),nm:new Set()};
-    if(k)o.id.add(k); if(n)o.nm.add(n);
+    o.id.add(mKey_(r.member_name,r.character_id));
+    const n=String(r.member_name||'').trim(); if(n)o.nm.add(nmLc_(n));
   });
   return by;
 }
@@ -4153,27 +4215,21 @@ function absData_(){
   const played=absPlayed_();
   const camePlay=(d,name,id)=>{
     const o=played[d]; if(!o)return null;            /* ยังไม่มีสกอร์ของวอนี้ */
-    return (id&&o.id.has(String(id)))||o.nm.has(name);
+    return o.id.has(mKey_(name,id))||o.nm.has(nmLc_(name));
   };
-  /* เฉพาะคนที่ยังอยู่ในกิลด์ — คนที่ออกไปแล้วไม่ต้องขึ้น */
-  const memId=new Set(), memNm=new Set();
-  (members||[]).forEach(m=>{
-    const mid=m.char_id||m.character_id; if(mid)memId.add(String(mid).trim());
-    if(m.ign)memNm.add(String(m.ign).trim().toLowerCase());
-  });
-  const inGuild=(n,id)=>(id&&memId.has(String(id)))||memNm.has(String(n).trim().toLowerCase());
+  /* เฉพาะคนที่ยังอยู่ในกิลด์ — คนที่ออกไปแล้วไม่ต้องขึ้น
+     รวมแถวลาของคนเดียวกันเข้าคีย์เดียว แม้ชีทจะบันทึกชื่อไว้คนละแบบ */
   const by={};
   (_attLog||[]).forEach(r=>{
-    const n=String(r.member_name||'').trim(); if(!n)return;
-    const id=String(r.character_id||'').trim();
-    if(!inGuild(n,id))return;
-    const o=by[n]=by[n]||{id:'',d:{}};
-    if(!o.id&&id)o.id=id;
+    const nm=String(r.member_name||'').trim(); if(!nm)return;
+    const m=mFind_(nm,r.character_id); if(!m)return;
+    const k=mKey_(nm,r.character_id);
+    const o=by[k]=by[k]||{id:String(m.char_id||'').trim(),nm:m.ign||nm,d:{}};
     o.d[r.date]=String(r.status||'').trim().toUpperCase()==='NO_SHOW'?'NO_SHOW':'LEAVE';
   });
   let camTot=0;
-  const rows=Object.keys(by).map(n=>{
-    const o=by[n];
+  const rows=Object.keys(by).map(k0=>{
+    const o=by[k0], n=o.nm;
     let lv=0,lp=0,ns=0;
     rng.forEach(d=>{
       const s=o.d[d]; if(!s)return;
@@ -4378,13 +4434,13 @@ function insRounds_(){
 }
 function insAttend_(rounds){
   const byId={};
-  _glScore.forEach(r=>{const k=String(r.character_id||'').trim()||String(r.member_name||'').trim().toLowerCase();
+  _glScore.forEach(r=>{const k=mKey_(r.member_name,r.character_id);
     (byId[k]=byId[k]||{})[r.date]='PRESENT';});
-  _attLog.forEach(r=>{const k=String(r.character_id||'').trim()||String(r.member_name||'').trim().toLowerCase();
+  _attLog.forEach(r=>{const k=mKey_(r.member_name,r.character_id);
     const st=String(r.status||'').trim().toUpperCase();
     byId[k]=byId[k]||{}; if(byId[k][r.date]!=='PRESENT')byId[k][r.date]=st;});
   return members.map(m=>{
-    const k=String(m.char_id||'').trim()||String(m.ign||'').trim().toLowerCase();
+    const k=mKey_(m.ign,m.char_id);
     const map=byId[k]||{};
     const seq=rounds.map(d=>map[d]||'');
     const n=s=>seq.filter(x=>x===s).length;
@@ -4396,9 +4452,9 @@ function insAttend_(rounds){
 function insScores_(rounds){
   const set=new Set(rounds), rows={};
   _glScore.filter(r=>set.has(r.date)).forEach(r=>{
-    const k=String(r.character_id||'').trim()||String(r.member_name||'').trim().toLowerCase();
-    const o=rows[k]=rows[k]||{name:r.member_name||'',n:0,score:0,kill:0,death:0,assist:0,last:0,cls:{}};
-    o.name=r.member_name||o.name; o.n++;
+    const k=mKey_(r.member_name,r.character_id);
+    const o=rows[k]=rows[k]||{name:mShow_(r.member_name,r.character_id),n:0,score:0,kill:0,death:0,assist:0,last:0,cls:{}};
+    o.name=mShow_(r.member_name,r.character_id)||o.name; o.n++;
     o.score+=wNum_(r.score)||0; o.kill+=wNum_(r.kill)||0; o.death+=wNum_(r.death)||0; o.assist+=wNum_(r.assist)||0;
     const rk=wNum_(r.list_rank); if(rk!=null&&rk>=36)o.last++;
     const c=clsLabel_(r.class_played); if(c)o.cls[c]=(o.cls[c]||0)+1;
@@ -4620,7 +4676,7 @@ function giTitle(i,t){const s=_gi.sc[_gi.field], r=s.rows[i], cur=giTitles_(r.ti
   r.title=GI_TITLES.filter(x=>nx.indexOf(x)>=0).join(', '); s.touched=true; renderGlInput();}
 function giBoss_(league,field){return league==='Stellar Clash'&&field==='Elite';}
 /* อาชีพที่ลงเล่นจริงในนัดนั้น — เก็บแยกจากชีท Members เพราะบางคนเปลี่ยนอาชีพโดยไม่แจ้ง */
-const giClassOf_=name=>{const m=members.find(x=>x.ign===name);return m?(m.class_gl||''):'';};
+const giClassOf_=name=>{const m=mFind_(name,'');return m?(m.class_gl||''):'';};
 function giBlankRow_(name){return {name:name||'',fort:'',minion:'',boss:'',kill:'',assist:'',death:'',score:'',title:'',base_s:'',base_a:'',base_b:'',cls:giClassOf_(name)};}
 function giRoster_(field){
   return members.filter(m=>(m.field_gl||'')===field&&String(m.status||'').toUpperCase()!=='ARCHIVED')
@@ -4632,7 +4688,7 @@ function giLoad_(date){
   const sc={};
   ['Elite','Sub-battle'].forEach(f=>{
     const rows=_glScore.filter(x=>x.date===date&&x.field===f).sort((a,b)=>(wNum_(a.list_rank)??999)-(wNum_(b.list_rank)??999));
-    sc[f]={had:rows.length>0,touched:false,rows:rows.length?rows.map(x=>({name:x.member_name||'',fort:x.fort||'',minion:x.minion||'',boss:x.boss||'',kill:x.kill||'',assist:x.assist||'',death:x.death||'',score:x.score||'',title:x.title||'',base_s:x.base_s||'',base_a:x.base_a||'',base_b:x.base_b||'',cls:x.class_played||giClassOf_(x.member_name||'')})):giRoster_(f)};
+    sc[f]={had:rows.length>0,touched:false,rows:rows.length?rows.map(x=>({name:mShow_(x.member_name,x.character_id),fort:x.fort||'',minion:x.minion||'',boss:x.boss||'',kill:x.kill||'',assist:x.assist||'',death:x.death||'',score:x.score||'',title:x.title||'',base_s:x.base_s||'',base_a:x.base_a||'',base_b:x.base_b||'',cls:x.class_played||giClassOf_(mShow_(x.member_name,x.character_id))})):giRoster_(f)};
   });
   const g=k=>naV_(r?r[k]:'');
   _gi={date,exists:!!r,league:g('league')||naV_(prev.league)||'',cross:g('cross_server')||naV_(prev.cross_server)||'',
@@ -4668,14 +4724,13 @@ function giRefill(){const s=_gi.sc[_gi.field]; s.rows=giRoster_(_gi.field); s.to
 /* รายชื่อให้เลือก: สมาชิกปัจจุบัน + คนที่เคยมีสกอร์ (รวมคนที่ออกกิลด์ไปแล้ว) */
 function giNames_(){
   const cur=new Set(members.map(m=>m.ign).filter(Boolean)), past=new Set();
-  _glScore.forEach(r=>{const n=String(r.member_name||'').trim(); if(n&&!cur.has(n))past.add(n);});
+  _glScore.forEach(r=>{const n=mShow_(r.member_name,r.character_id); if(n&&!cur.has(n))past.add(n);});
   return {cur,past};
 }
 function giNameTag_(name){
   const n=String(name||'').trim(); if(!n)return '';
-  const {cur,past}=giNames_();
-  if(cur.has(n))return '';
-  return past.has(n)?'<span class="wi-tag">ออกแล้ว</span>':'<span class="wi-tag bad">ไม่พบชื่อ</span>';
+  if(mFind_(n,''))return '';                 /* อยู่ในทะเบียน — ไม่ต้องติดป้าย */
+  return giNames_().past.has(n)?'<span class="wi-tag">ออกแล้ว</span>':'<span class="wi-tag bad">ไม่พบชื่อ</span>';
 }
 function giField(f){_gi.field=f;renderGlInput();}
 /* ช่องที่ใช้จริงของสนามนั้น — ช่องที่ซ่อนอยู่ (เช่นเปลี่ยนสนามหลังกรอก) จะไม่ถูกส่ง */
@@ -4683,7 +4738,7 @@ const giKeys_=(league,field)=>giCols_(league,field).map(c=>c[0]).concat(giBoss_(
 /* อาชีพอย่างเดียวไม่นับว่ากรอกแล้ว — ไม่งั้นทุกคนในรายชื่อจะถูกบันทึกหมด */
 /* คนที่แจ้งลาไว้ในหน้าปาร์ตี้ของสนามนั้น */
 const giLeaveOf_=field=>members.filter(m=>(m.field_gl||'')===field&&isLeaveNote(m)).map(m=>m.ign);
-const giPartyOf_=name=>{const m=members.find(x=>x.ign===name);return m?String(m.party||''):'';};
+const giPartyOf_=name=>{const m=mFind_(name,'');return m?String(m.party||''):'';};
 const giHasData_=(r,keys)=>(keys||['fort','minion','boss','kill','assist','death','score','title','base_s','base_a','base_b']).filter(k=>k!=='cls').some(k=>String(r[k]||'').trim()!=='');
 function renderGlInput(){
   const box=document.getElementById('war-glin'); if(!box||!_gi)return;
@@ -4871,8 +4926,7 @@ async function preloadSearchCache(){
   allQueueRows_().forEach(r=>{
     /* จับคู่ด้วย character_id เป็นหลัก — เสถียรแม้เปลี่ยนชื่อตัวละคร
        ถ้าแถวนั้นไม่มี id (เช่นคนที่ออกกิลด์ไปแล้ว หา alias ไม่เจอ) ค่อย fallback ไปใช้ชื่อ */
-    const id  = String(r.character_id||'').trim();
-    const key = id || String(r.member_name||'').trim();
+    const key = mKey_(r.member_name,r.character_id);
     if(!key)return;
     if(!_searchHistMap[key])_searchHistMap[key]=[];
     _searchHistMap[key].push(r);
