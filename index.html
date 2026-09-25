@@ -4763,7 +4763,7 @@ function giRefill(){const s=_gi.sc[_gi.field]; s.rows=giRoster_(_gi.field); s.to
    ชื่อที่วางเข้ามาจะถูกแปลงเป็นชื่อในทะเบียนให้เองถ้าจับคู่ได้ */
 let _giPaste=false;
 function giPasteTog(){ _giPaste=!_giPaste; renderGlInput(); }
-const giPasteHint_=()=>['#','Name'].concat(giCols_(_gi.league,_gi.field).map(c=>c[1])).join('  ·  ');
+const giPasteHint_=()=>['#','Name'].concat(giCols_(_gi.league,_gi.field).map(c=>c[1])).concat(['Class (ใส่หรือไม่ใส่ก็ได้)']).join('  ·  ');
 function giPasteDo(){
   const ta=document.getElementById('gi-paste'); if(!ta)return;
   const keys=giCols_(_gi.league,_gi.field).map(c=>c[0]);
@@ -4775,6 +4775,9 @@ function giPasteDo(){
     const nm=t.shift()||''; if(!nm)return;
     const r=giBlankRow_(mShow_(nm,''));
     keys.forEach((k,i)=>{ r[k]=t[i]==null?'':String(t[i]).replace(/,/g,'').trim(); });
+    /* ช่องเกินท้ายบรรทัด = อาชีพที่ลงวอจริง · ต้องตรงกับรายการอาชีพในระบบถึงจะติด */
+    const extra=(t[keys.length]||'').trim();
+    if(extra){ const hit=CE_CLASSES.find(c=>c.toLowerCase()===extra.toLowerCase()); if(hit)r.cls=hit; }
     out.push(r);
   });
   if(!out.length){ toast('ไม่พบข้อมูลในช่องที่วาง',null,true); return; }
