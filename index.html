@@ -4426,7 +4426,8 @@ function renderWarHistory(){
       const st=r.status.toLowerCase();
       const stH=st==='win'?'<span class="wr-b W">Win</span>':st==='lose'?'<span class="wr-b L">Lose</span>':'';
       const dH=r.diff!=null&&r.diff!==0?` <span class="wr-f">${r.diff>0?'+':'−'}${wFmt_(r.diff)}</span>`:'';
-      const sub=[r.league,r.cross==='Y'?'Cross-server':r.cross==='N'?'Intra-server':''].filter(Boolean).map(esc_).join(' · ');
+      /* ไม่ต้องบอกข้ามเซิร์ฟหรือในเซิร์ฟ — ชื่อ Rank บอกอยู่แล้ว เหลือแค่ชื่อสนาม */
+      const sub=esc_(r.league||'');
       return `<tr>${date}<td>Guild League${sub?`<div class="wr-f">${sub}</div>`:''}<span class="wh-ms-in">${whMissHtml_(r)}</span></td>
         <td><b>${r.rank?esc_(r.rank):''}</b>${r.rank?'':dash}</td>
         <td>${r.opp?`<b>${esc_(r.opp)}</b>`:dash}</td>
