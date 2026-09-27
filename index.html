@@ -658,6 +658,7 @@ input[type=checkbox]{accent-color:var(--teal)}
 .cc-ar{color:var(--faint);font-size:14px}
 .cc-ok{background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:16px;text-align:center;color:var(--green);font-size:13px;font-weight:700}
 .cc-none{background:var(--card);border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
+.cc-old{font-size:12px;color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-b);border-radius:var(--radius-sm);padding:7px 11px;margin:8px 0 2px}
 .cc-ft{margin-top:10px;font-size:11.5px;color:var(--faint)}
 @media(max-width:620px){.cc-g{grid-template-columns:1fr}}
 /* ── Leftover: เลือกคนและกดปิดเองได้ ── */
@@ -1279,6 +1280,7 @@ body.is-admin .wr-adm{display:inline-block}
 .st-att.ar{background:var(--card2);color:var(--faint);border:1px solid var(--border2)}
 .pc-cnt{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;
   background:var(--t-peach);color:var(--t-peach-i)}
+.pc-away{font-style:normal;margin-left:5px;font-size:10px;opacity:.85}
 .pc-cnt.full{background:var(--t-mint);color:var(--t-mint-i)}
 .pc-head{gap:8px}
 @media(max-width:1024px){
@@ -2311,10 +2313,13 @@ function renderParty(){
       const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
       return`<div class="pm${leave?' pm-absent':''}${ed}" ${EDIT()?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${EDIT()?'':jobIcon_(m.class)}<span>${cls||''}</span></div></div>${mark}${acts}</div>`;
     }).join('');
-    const here=sortedMembers.filter(x=>!isLeaveNote(x)).length;
+    /* ป้ายต้องบอกจำนวน "ช่องที่ถูกใช้" เพราะฝั่งชีทนับแบบนั้น — เดิมนับเฉพาะคนที่มา
+       ตี้ที่มี 5 คนแต่ลา 1 จึงขึ้น 4/5 ทั้งที่ย้ายคนเข้าไม่ได้ กดแล้วเด้ง "เต็มแล้ว" */
+    const here=pts[p].length;
+    const away=sortedMembers.filter(x=>isLeaveNote(x)).length;
     const noLead=EDIT()&&!pts[p].some(x=>(x.role||'')==='Leader');
     const empties=EDIT()?Array.from({length:Math.max(0,5-pts[p].length)},()=>`<div class="pe-empty${_pe.sel?' pe-cand':''}" onclick="peTapEmpty('${p}')">${_pe.sel?'+ ย้ายมาช่องนี้':'ช่องว่าง'}</div>`).join(''):'';
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here===5?'full':''}">${here}/5</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}</div></div>`;
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here>=5?'full':''}">${here}/5${away?`<i class="pc-away" title="ลาวันนี้ ${away} คน">🌙${away}</i>`:''}</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
@@ -3889,6 +3894,11 @@ function peTap(name){
 function peTapEmpty(p){
   if(!_pe.sel)return;
   const a=peFind_(_pe.sel); if(!a)return;
+  /* เช็กตอนกดเลย ไม่ปล่อยให้ไปเด้ง "เต็มแล้ว" ตอน Save แล้วทิ้งรายการที่แก้ไว้ทั้งชุด */
+  if(String(a.party||'')!==String(p)){
+    const n=(typeof members!=='undefined'?members:[]).filter(m=>String(m.party||'')===String(p)).length;
+    if(n>=5){ toast('Party '+p+' เต็มแล้ว · ย้ายคนออกก่อนหรือใช้ปุ่ม ⇄ สลับตัวแทน',null,true); _pe.sel=null; renderParty(); return; }
+  }
   peBegin_();
   if(a.role==='Leader'&&a.party)toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
   a.party=String(p); a.role='Member'; _pe.dirty.add(a.ign);
@@ -4206,6 +4216,12 @@ function ccData_(){
   return {dates:ds,rows:rows,date:_ccDate,total:total};
 }
 function ccPick(v){ _ccDate=v||''; renderClsCheck(); }
+/* วอเก่ากว่าหนึ่งสัปดาห์ อาชีพอาจเปลี่ยนไปแล้ว — เตือนก่อนเอาไปโพสต์ให้คนมาแก้ทะเบียน */
+function ccOld_(d){
+  if(!d)return '';
+  const n=Math.floor((Date.parse(d+'T00:00:00')-Date.parse(toDateStr(new Date())+'T00:00:00'))/-864e5);
+  return n>7?`<div class="cc-old">วอนี้ผ่านมา ${n} วันแล้ว · อาชีพที่เล่นวันนั้นอาจไม่ใช่อาชีพตอนนี้ ตรวจก่อนเอาไปโพสต์</div>`:'';
+}
 function renderClsCheck(){
   const box=document.getElementById('war-cls'); if(!box)return;
   const D=ccData_();
@@ -4216,7 +4232,8 @@ function renderClsCheck(){
   const sel=`<select id="cc-date" onchange="ccPick(this.value)">${D.dates.map(d=>`<option value="${d}"${d===D.date?' selected':''}>${wDay_(d)}</option>`).join('')}</select>`;
   const head=`<div class="cc-bar"><h3>Class check</h3><label class="cc-f"><span>วอ</span>${sel}</label>`
     +`<button class="cap-btn" onclick="capOpen('cls')">📸 Capture</button></div>`
-    +`<div class="cc-sum">เทียบ <b>${D.total} คน</b> ที่ลงวอวันนั้น · ไม่ตรง <b>${D.rows.length} คน</b></div>`;
+    +`<div class="cc-sum">เทียบ <b>${D.total} คน</b> ที่ลงวอวันนั้น · ไม่ตรง <b>${D.rows.length} คน</b></div>`
+    +ccOld_(D.date);
   if(!D.rows.length){ box.innerHTML=head+'<div class="cc-ok">อาชีพในทะเบียนตรงกับที่เล่นจริงทุกคน</div>'; return; }
   box.innerHTML=head+'<div class="cc-g">'+D.rows.map(r=>
     `<div class="cc-c"><div class="cc-n">${esc_(r.name)}<small>${esc_(r.field||'')}</small></div>`
@@ -4405,6 +4422,8 @@ function whMiss_(r){
   if(!ADMIN)return [];
   const m=[];
   if(r.type==='Guild League'){
+    /* เก่ากว่าหน้าต่างเวลาที่เกมให้ดูย้อนหลัง = หาข้อมูลมากรอกไม่ได้แล้ว ไม่ต้องเตือนค้างไว้ */
+    if(r.date<GL_SCORE_FROM)return m;
     if(!r.league)m.push('League');
     if(!r.cross)m.push('Server type');
     if(!r.rank)m.push('Tier');
