@@ -3775,7 +3775,17 @@ function renderMatchResult(){
   const tySeg=`<div class="mr-f"><span>Type</span>${seg([['gl','Guild League'],['or','Overrun']],G.type,v=>`mrType('${v}')`)}</div>`;
   if(G.type==='or'){
     const grp=G.group||'Advanced';
-    const orRanks=_aucRewardsRef.filter(r=>r.event_type==='Overrun'&&(r.group||'')===grp).map(r=>r.rank);
+    const orRows=_aucRewardsRef.filter(r=>r.event_type==='Overrun'&&(r.group||'')===grp);
+    const orRanks=orRows.map(r=>r.rank);
+    /* รางวัลของ Overrun มาจากกลุ่ม + อันดับที่เลือกในฟอร์มนี้ ไม่ใช่ของวอที่ระบบประมูลกำลังใช้อยู่
+       และ Overrun ไม่มีตัวคูณ จึงไม่ต้องเอาตัวคูณของ Guild League มาคิด */
+    const orRw=orRows.find(r=>String(r.rank)===String(G.rank));
+    const orBoxes=orRw?`<div class="mr-rw">`
+        +`<div class="mr-rb"><b>${wFmt_(orRw.card)}</b><span>Card Slot</span></div>`
+        +`<div class="mr-rb"><b>${wFmt_(orRw.feather_white)}</b><span>White Feather</span></div>`
+        +`<div class="mr-rb"><b>${wFmt_(orRw.feather_red_black)}</b><span>Red / Black</span></div></div>`
+        +`<div class="mr-note">อันดับ ${esc_(G.rank)} · ${esc_(grp)} · Overrun ไม่มีตัวคูณ</div>`
+      :'<div class="mr-note">เลือกอันดับแล้วจะคิดของรางวัลให้</div>';
     box.innerHTML=`
       <div class="mr-row">
         <label class="mr-f mr-w1"><span>Date</span><input type="date" value="${esA_(G.date)}" onchange="mrDate(this.value)"></label>
@@ -3787,9 +3797,9 @@ function renderMatchResult(){
           <option value="">—</option>${orRanks.map(t=>`<option${String(t)===String(G.rank)?' selected':''}>${esA_(t)}</option>`).join('')}</select></label>
         <label class="mr-f mr-w2"><span>คะแนน</span><input inputmode="numeric" value="${esA_(G.our)}" oninput="mrSet('our',this.value)"></label>
       </div>
-      ${boxes}
+      ${orBoxes}
       <div class="mr-act">
-        <span class="mr-hint">Overrun ไม่มีตัวคูณ · ตารางกิลด์ทั้งหมดไปกรอกที่ Guild War → ปากกา</span>
+        <span class="mr-hint">ตารางกิลด์ทั้งหมดไปกรอกทีหลังที่ Guild War → ปากกา</span>
         <button class="adm-btn pri" onclick="mrSave()"${G.busy?' disabled':''}>${G.busy?'กำลังบันทึก…':'💾 Save'}</button>
       </div>`;
     return;
