@@ -4010,7 +4010,14 @@ async function peSave(){
     _pe={ops:[],sel:null,snap:null,dirty:new Set(),swp:null};
     applyMode(); renderParty(); try{renderMembers();renderStats();}catch(e){}
     toast('บันทึกแล้ว · '+res.log.length+' รายการ'+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''), null, (res.warn||[]).length>0);
-  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
+  }catch(e){
+    /* เซิร์ฟเวอร์ยกเลิกทั้งชุดเมื่อมีข้อผิดพลาด หน้าเว็บต้องย้อนตามให้ตรงกัน
+       ของเดิมทิ้งรายการที่แก้ไว้ค้าง กด Save อีกกี่ครั้งก็เด้งข้อความเดิม */
+    if(_pe.snap)members=_pe.snap;
+    _pe={ops:[],sel:null,snap:null,dirty:new Set(),swp:null};
+    applyMode(); renderParty(); try{renderMembers();renderStats();}catch(e2){}
+    toast('บันทึกไม่สำเร็จ · ย้อนรายการที่แก้ไว้กลับแล้ว · '+e,null,true);
+  }
   finally{ admBusy_(false); }
 }
 
