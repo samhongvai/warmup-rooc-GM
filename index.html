@@ -3701,11 +3701,30 @@ function qmCuts_(){
    ตอนประมูลเร่งรีบ กรอกแค่พอให้ประมูลเริ่มได้ แล้วค่อยกดปากกาในหน้า Guild War มาใส่รายละเอียด
    ใช้ admGlSave ตัวเดียวกับแผงกรอกเต็ม ส่ง scores/attend ว่าง ฝั่งสคริปต์กรองทิ้ง ไม่ไปลบสกอร์รายคน */
 let _mr=null;
-function mrLoad_(date){
+/* วันไหนเป็นวออะไร — ดูจาก War_Log ก่อน ถ้ายังไม่มีแถวค่อยเดาจากวันในสัปดาห์
+   Guild League = อังคาร กับ พฤหัส · Overrun = อาทิตย์ */
+function mrTypeOf_(d){
+  const r=(_warLog||[]).find(x=>x.date===d);
+  if(r)return r.event_type==='Overrun'?'or':'gl';
+  const p=String(d||'').split('-');
+  if(p.length!==3)return 'gl';
+  const dw=new Date(+p[0],+p[1]-1,+p[2]).getDay();   /* 0 = อาทิตย์ */
+  return dw===0?'or':'gl';
+}
+function mrLoadOr_(date){
+  const rows=(_warLog||[]).filter(x=>x.event_type==='Overrun');
+  const r=rows.find(x=>x.date===date)||{};
+  const prev=rows.filter(x=>x.date<date).sort((a,b)=>a.date.localeCompare(b.date)).pop()||{};
+  _mr={type:'or',date,exists:!!r.date,
+    group:naV_(r.group)||naV_(prev.group)||'Advanced',
+    rank:naV_(r.rank),our:'',busy:false};
+}
+function mrLoad_(date,type){
+  if((type||mrTypeOf_(date))==='or')return mrLoadOr_(date);
   const r=_glLog.find(x=>x.date===date)||{};
   const prev=[..._glLog].filter(x=>x.date<date).sort((a,b)=>a.date.localeCompare(b.date)).pop()||{};
   const g=k=>naV_(r[k]);
-  _mr={date,exists:!!r.date,
+  _mr={type:'gl',date,exists:!!r.date,
     league:g('league')||naV_(prev.league)||'',
     cross:g('cross_server')||naV_(prev.cross_server)||'',
     rank:g('rank')||naV_(prev.rank)||'',
@@ -3714,7 +3733,10 @@ function mrLoad_(date){
 }
 function mrDefaultDate_(){
   const t=toDateStr(new Date());
-  const w=(_warLog||[]).filter(x=>x.event_type==='Guild League'&&x.date<=t).map(x=>x.date).sort().pop();
+  /* วันนี้มีนัดอยู่แล้วใช้วันนี้เลย ไม่งั้นถอยไปนัดล่าสุดที่ผ่านมา — ดูทุกชนิดวอ ไม่ใช่เฉพาะ Guild League */
+  if((_warLog||[]).some(x=>x.date===t))return t;
+  if(mrTypeOf_(t)!=='gl'||new Date().getDay()===2||new Date().getDay()===4)return t;
+  const w=(_warLog||[]).filter(x=>x.date<=t).map(x=>x.date).sort().pop();
   return w||t;
 }
 function mrOpen_(){
@@ -3726,6 +3748,7 @@ function mrOpen_(){
 function mrSet(k,v){ _mr[k]=v; if(k==='our'||k==='their')mrAuto_(); renderMatchResult(); }
 function mrPick(k,v){ _mr[k]=v; if(k==='cross')_mr.rank=''; renderMatchResult(); }
 function mrDate(v){ if(/^\d{4}-\d{2}-\d{2}$/.test(v)){ mrLoad_(v); renderMatchResult(); } }
+function mrType(t){ if(_mr&&_mr.type!==t){ mrLoad_(_mr.date,t); renderMatchResult(); } }
 /* สกอร์ครบแล้วเดาผลให้ ถ้าเจ้าของยังไม่ได้เลือกเอง */
 function mrAuto_(){
   const a=wNum_(_mr.our), b=wNum_(_mr.their);
@@ -3748,11 +3771,35 @@ function renderMatchResult(){
       +`<div class="mr-rb"><b>${wFmt_(rw.red)}</b><span>Red / Black</span></div></div>`
       +`<div class="mr-note">คูณ ${mul} แล้ว · ปรับตัวคูณกับจำนวนของได้ที่ Guild League Reward ข้างล่าง</div>`
     :'<div class="mr-note">ยังคิดของรางวัลไม่ได้ — เลือกสนามกับอันดับให้ครบก่อน</div>';
+  /* แถบเลือกชนิดวอ — เลือกให้เองตามวัน กดเปลี่ยนเองได้ถ้าตารางไม่ตรง */
+  const tySeg=`<div class="mr-f"><span>Type</span>${seg([['gl','Guild League'],['or','Overrun']],G.type,v=>`mrType('${v}')`)}</div>`;
+  if(G.type==='or'){
+    const grp=G.group||'Advanced';
+    const orRanks=_aucRewardsRef.filter(r=>r.event_type==='Overrun'&&(r.group||'')===grp).map(r=>r.rank);
+    box.innerHTML=`
+      <div class="mr-row">
+        <label class="mr-f mr-w1"><span>Date</span><input type="date" value="${esA_(G.date)}" onchange="mrDate(this.value)"></label>
+        ${tySeg}
+        <div class="mr-f"><span>Group</span>${seg([['Normal','Normal'],['Advanced','Advanced']],grp,v=>`mrPick('group','${v}')`)}</div>
+      </div>
+      <div class="mr-row">
+        <label class="mr-f mr-w2"><span>อันดับเรา</span><select onchange="mrSet('rank',this.value)">
+          <option value="">—</option>${orRanks.map(t=>`<option${String(t)===String(G.rank)?' selected':''}>${esA_(t)}</option>`).join('')}</select></label>
+        <label class="mr-f mr-w2"><span>คะแนน</span><input inputmode="numeric" value="${esA_(G.our)}" oninput="mrSet('our',this.value)"></label>
+      </div>
+      ${boxes}
+      <div class="mr-act">
+        <span class="mr-hint">Overrun ไม่มีตัวคูณ · ตารางกิลด์ทั้งหมดไปกรอกที่ Guild War → ปากกา</span>
+        <button class="adm-btn pri" onclick="mrSave()"${G.busy?' disabled':''}>${G.busy?'กำลังบันทึก…':'💾 Save'}</button>
+      </div>`;
+    return;
+  }
   const a=wNum_(G.our), b=wNum_(G.their);
   const diff=(a!=null&&b!=null)?`ส่วนต่าง <b>${a-b>0?'+':a-b<0?'−':''}${wFmt_(Math.abs(a-b))}</b>`:'';
   box.innerHTML=`
     <div class="mr-row">
       <label class="mr-f mr-w1"><span>Date</span><input type="date" value="${esA_(G.date)}" onchange="mrDate(this.value)"></label>
+      ${tySeg}
       <div class="mr-f"><span>League</span>${seg(GL_LEAGUES.map(l=>[l,l]),G.league,v=>`mrPick('league','${v}')`)}</div>
       <div class="mr-f"><span>Server Type</span>${seg([['Y','Cross-server'],['N','Intra-server']],G.cross,v=>`mrPick('cross','${v}')`)}</div>
     </div>
@@ -3773,9 +3820,13 @@ function renderMatchResult(){
 }
 async function mrSave(){
   const G=_mr; if(!G||G.busy)return;
-  if(!G.league){toast('เลือกสนามก่อน',null,true);return}
+  if(G.type==='or'&&!G.rank){toast('เลือกอันดับก่อน',null,true);return}
+  if(G.type!=='or'&&!G.league){toast('เลือกสนามก่อน',null,true);return}
   G.busy=true; renderMatchResult(); admBusy_(true);
   try{
+    if(G.type==='or'){
+      await admCall('admOrQuick',{date:G.date,group:G.group||'Advanced',rank:G.rank,score:G.our});
+    }else
     await admCall('admGlSave',{date:G.date,league:G.league,cross:G.cross,rank:G.rank,opp:G.opp,
       our:G.our,their:G.their,status:G.status,note:'',scores:[],attend:[]});
     toast('บันทึกผลวอแล้ว · '+auThai_(G.date));
