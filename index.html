@@ -692,6 +692,7 @@ body.is-admin .wr-adm3{display:block}
 .mr-note{font-size:12px;color:var(--muted);margin-top:9px}
 .mr-note b{color:var(--text)}
 .mr-act{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:13px}
+.mr-ty{display:flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:700;font-family:var(--font-pixel);background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border);white-space:nowrap}
 .mr-hint{flex:1;min-width:170px;font-size:11.5px;color:var(--faint);line-height:1.6}
 .mr-w1{width:168px}.mr-w2{width:190px}.mr-wf{flex:1;min-width:150px}
 @media(max-width:640px){.mr-rw{grid-template-columns:1fr}}
@@ -3703,13 +3704,32 @@ function qmCuts_(){
 let _mr=null;
 /* วันไหนเป็นวออะไร — ดูจาก War_Log ก่อน ถ้ายังไม่มีแถวค่อยเดาจากวันในสัปดาห์
    Guild League = อังคาร กับ พฤหัส · Overrun = อาทิตย์ */
+/* ตารางวอประจำสัปดาห์ — เลข 1=จันทร์ … 7=อาทิตย์ (ตรงกับคอลัมน์ day_of_week ในแท็บ Events)
+   Guild League = อังคาร กับ พฤหัส
+   Overrun = ศุกร์ (เจ้าของแจ้ง 27 ก.ย.) และ อาทิตย์ (ตารางเดิม · แท็บ Events กับผลวอย้อนหลังเป็นวันอาทิตย์ทั้งหมด)
+   เก็บไว้ทั้งสองวันจนกว่าจะยืนยันว่าย้ายวันถาวรแล้ว · วันอื่นที่แท็บ Events ตั้ง Overrun ไว้ก็นับด้วย */
+var MR_GL_DAYS=[2,4], MR_OR_DAYS=[5,7];
+function mrOrDays_(){
+  const ex=[];
+  (_calEventsRaw||[]).forEach(e=>{
+    const id=String(e.event_id||'').trim().toUpperCase();
+    const ti=String(e.title||'').trim().toLowerCase();
+    if(id!=='OR'&&ti.indexOf('overrun')<0)return;
+    String(e.day_of_week||'').split(',').forEach(x=>{const n=+String(x).trim();if(n>=1&&n<=7)ex.push(n)});
+  });
+  return MR_OR_DAYS.concat(ex);
+}
 function mrTypeOf_(d){
+  const p=String(d||'').split('-');
+  if(p.length===3){
+    const js=new Date(+p[0],+p[1]-1,+p[2]).getDay();   /* 0 = อาทิตย์ */
+    const dw=js===0?7:js;                              /* แปลงเป็น 1=จันทร์ … 7=อาทิตย์ */
+    if(MR_GL_DAYS.indexOf(dw)>=0)return 'gl';
+    if(mrOrDays_().indexOf(dw)>=0)return 'or';
+  }
   const r=(_warLog||[]).find(x=>x.date===d);
   if(r)return r.event_type==='Overrun'?'or':'gl';
-  const p=String(d||'').split('-');
-  if(p.length!==3)return 'gl';
-  const dw=new Date(+p[0],+p[1]-1,+p[2]).getDay();   /* 0 = อาทิตย์ */
-  return dw===0?'or':'gl';
+  return 'gl';
 }
 function mrLoadOr_(date){
   const rows=(_warLog||[]).filter(x=>x.event_type==='Overrun');
@@ -3735,7 +3755,8 @@ function mrDefaultDate_(){
   const t=toDateStr(new Date());
   /* วันนี้มีนัดอยู่แล้วใช้วันนี้เลย ไม่งั้นถอยไปนัดล่าสุดที่ผ่านมา — ดูทุกชนิดวอ ไม่ใช่เฉพาะ Guild League */
   if((_warLog||[]).some(x=>x.date===t))return t;
-  if(mrTypeOf_(t)!=='gl'||new Date().getDay()===2||new Date().getDay()===4)return t;
+  const js=new Date().getDay(), dw=js===0?7:js;
+  if(MR_GL_DAYS.indexOf(dw)>=0||mrOrDays_().indexOf(dw)>=0)return t;
   const w=(_warLog||[]).filter(x=>x.date<=t).map(x=>x.date).sort().pop();
   return w||t;
 }
@@ -3771,8 +3792,8 @@ function renderMatchResult(){
       +`<div class="mr-rb"><b>${wFmt_(rw.red)}</b><span>Red / Black</span></div></div>`
       +`<div class="mr-note">คูณ ${mul} แล้ว · ปรับตัวคูณกับจำนวนของได้ที่ Guild League Reward ข้างล่าง</div>`
     :'<div class="mr-note">ยังคิดของรางวัลไม่ได้ — เลือกสนามกับอันดับให้ครบก่อน</div>';
-  /* แถบเลือกชนิดวอ — เลือกให้เองตามวัน กดเปลี่ยนเองได้ถ้าตารางไม่ตรง */
-  const tySeg=`<div class="mr-f"><span>Type</span>${seg([['gl','Guild League'],['or','Overrun']],G.type,v=>`mrType('${v}')`)}</div>`;
+  /* ชนิดวอมาจากตารางประจำสัปดาห์ ไม่ให้เลือกเอง กันกรอกผิดช่อง */
+  const tySeg=`<div class="mr-f"><span>Type</span><div class="mr-ty">${G.type==='or'?'Overrun':'Guild League'}</div></div>`;
   if(G.type==='or'){
     const grp=G.group||'Advanced';
     const orRows=_aucRewardsRef.filter(r=>r.event_type==='Overrun'&&(r.group||'')===grp);
