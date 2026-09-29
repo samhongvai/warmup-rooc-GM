@@ -3486,6 +3486,18 @@ function spreadN_(total,count,cap){
   return per;
 }
 
+/* แบ่งของแบบวนรอบ โดยแต่ละคนมีเพดานของตัวเอง — ใครเต็มก็ข้ามไปคนถัดไป
+   คืน left ด้วย เพื่อให้รู้ว่ายังเหลือของที่ไม่มีคนรับหรือไม่ */
+function spreadCaps_(total,caps){
+  var per=caps.map(function(){return 0}), left=total, guard=0;
+  while(left>0&&guard++<99999){
+    var moved=false;
+    for(var k=0;k<caps.length&&left>0;k++){if(per[k]<caps[k]){per[k]++;left--;moved=true}}
+    if(!moved)break;
+  }
+  return {per:per,left:left};
+}
+
 /* เศษขนนก — ไม่เก็บลงชีท เป็นของแถมท้ายรอบ เลือกคนกับกด Done ได้ในหน้าเว็บ รีเฟรชแล้วเริ่มใหม่ */
 /* สามอันดับแรกล็อกตามตำแหน่งในกิลด์ ไม่สุ่ม — ลดความวุ่นวาย ให้คนที่ช่วยงานกิลด์บริหารต่อได้ง่าย
    #1 Ficelle = Guild Master · #2 ไข่เน่า = Commander (Elite) · #3 JOKER888 = Commander Subbattle
@@ -3541,31 +3553,43 @@ function renderLeftover(){
   if(!wN&&!rN){body.innerHTML='<tr><td colspan="'+COLS+'" class="empty">ไม่มีของเหลือ</td></tr>';return}
   var rw=getRewardValues();
   var capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
-  var n=Math.max(Math.ceil(wN/capW),Math.ceil(rN/capR));
-  if(!n){body.innerHTML='<tr><td colspan="'+COLS+'" class="empty">ไม่มีของเหลือ</td></tr>';return}
-  var W=spreadN_(wN,n,capW), R=spreadN_(rN,n,capR);
   /* วันในเซิร์ฟ: เศษแจกให้ Guild Helper ของวันนั้นก่อน · ไม่งั้นใช้ชื่อตั้งต้น */
   var loNames=(_aucAutoWar&&String(_aucAutoWar.cross_server||'').trim()==='N')?ghHelpersForDate_(_aucAutoWar.date):[];
+  function loNameAt_(i){ return (_loPick[i]!=null)?_loPick[i]:(loNames[i]||loDefault_(i)); }
+  /* ต้องรู้ชื่อก่อน ถึงจะรู้ว่าคนนั้นรับเศษได้อีกเท่าไหร่ — คนที่อยู่ในคิวรอบนี้แล้วเพดานเหลือน้อยกว่าคนอื่น
+     ถ้าคนในตารางรับไม่หมด ก็เพิ่มแถวจนกว่าจะพอ ไม่ปล่อยให้ของหายไปเฉย ๆ */
+  var LO_MAX=20;
+  var n=Math.max(1,Math.ceil(wN/capW),Math.ceil(rN/capR));
+  var names,cw,cr,sw,sr;
+  for(;;){
+    names=[];cw=[];cr=[];sw=0;sr=0;
+    for(var i=0;i<n;i++){
+      var nm=loNameAt_(i); names.push(nm);
+      var g=loGot_(dist,nm);
+      var aw=g?Math.max(0,capW-g.w):capW, ar=g?Math.max(0,capR-g.r):capR;
+      cw.push(aw); cr.push(ar); sw+=aw; sr+=ar;
+    }
+    if((sw>=wN&&sr>=rN)||n>=LO_MAX)break;
+    n++;
+  }
+  var AW=spreadCaps_(wN,cw), AR=spreadCaps_(rN,cr);
+  var W=AW.per, R=AR.per;
   var wp=(dist?dist.n*dist.pW:0)+1;
   var rp=(dist?dist.white+dist.n*dist.pR:0)+1;
   var out=[];
   for(var k=0;k<n;k++){
     var wq=W[k],rq=R[k];
     if(!wq&&!rq)continue;
-    var name=(_loPick[k]!=null)?_loPick[k]:(loNames[k]||loDefault_(k));
-    /* ตัดเศษไม่ให้รวมกับของที่ได้จากคิวแล้วเกินเพดานของอันดับนี้ */
+    var name=names[k];
+    /* บอกเหตุผลที่คนนี้ได้น้อยกว่าคนอื่น ไม่ใช่ตัดทิ้งเงียบ ๆ */
     var got=loGot_(dist,name), warn='';
-    var wShow=wq, rShow=rq;
-    if(got){
-      var okW=Math.max(0,capW-got.w), okR=Math.max(0,capR-got.r);
-      if(wq>okW||rq>okR){
-        var msg=[];
-        if(wq>okW)msg.push('White '+got.w+'+'+wq+' เกินเพดาน '+capW+' — ตัดเหลือ '+okW);
-        if(rq>okR)msg.push('Red / Black '+got.r+'+'+rq+' เกินเพดาน '+capR+' — ตัดเหลือ '+okR);
-        warn='<tr class="lo-warn"><td colspan="'+COLS+'"><span class="wh-miss">'+esc_(name)+' อยู่ในคิวรอบนี้ · '+msg.join(' · ')+'</span></td></tr>';
-        wShow=Math.min(wq,okW); rShow=Math.min(rq,okR);
-      }
+    if(got&&(cw[k]<capW||cr[k]<capR)){
+      var msg=[];
+      if(cw[k]<capW)msg.push('White ได้จากคิวแล้ว '+got.w+' เพดาน '+capW+' รับเศษได้อีก '+cw[k]);
+      if(cr[k]<capR)msg.push('Red / Black ได้จากคิวแล้ว '+got.r+' เพดาน '+capR+' รับเศษได้อีก '+cr[k]);
+      warn='<tr class="lo-warn"><td colspan="'+COLS+'"><span class="wh-miss">'+esc_(name)+' อยู่ในคิวรอบนี้ · '+msg.join(' · ')+' · ส่วนที่เกินแจกให้คนถัดไป</span></td></tr>';
     }
+    var wShow=wq, rShow=rq;
     var ws=wp,rs=rp; wp+=wq; rp+=rq;
     var done=!!_loDone[k];
     var sel=ADMIN
@@ -3577,6 +3601,13 @@ function renderLeftover(){
     out.push('<tr'+(warn?' class="lo-row"':'')+'><td>'+sel+'</td>'
       +'<td>'+(wShow?fmtSlots(ws,wShow):'—')+'</td><td>'+(rShow?fmtSlots(rs,rShow):'—')+'</td>'
       +'<td class="lo-st">'+st+'</td></tr>'+warn);
+  }
+  /* เพิ่มแถวจนชน LO_MAX แล้วยังรับไม่หมด ต้องบอกให้เห็น ไม่ใช่เงียบ */
+  if(AW.left>0||AR.left>0){
+    var rest=[];
+    if(AW.left>0)rest.push('White '+AW.left);
+    if(AR.left>0)rest.push('Red / Black '+AR.left);
+    out.push('<tr class="lo-warn"><td colspan="'+COLS+'"><span class="wh-miss">ยังไม่มีคนรับ '+rest.join(' · ')+' — ทุกคนในตารางชนเพดานแล้ว เพิ่มคนหรือแจกเอง</span></td></tr>');
   }
   body.innerHTML=out.join('')||'<tr><td colspan="'+COLS+'" class="empty">—</td></tr>';
 }
