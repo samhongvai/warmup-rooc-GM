@@ -2132,6 +2132,13 @@ function nameBucket_(s){const c=String(s||'').trim().charAt(0);
 function nameCmp_(a,b){const x=nameBucket_(a),y=nameBucket_(b);
   if(x!==y)return x-y;
   return String(a||'').localeCompare(String(b||''),['en','th'],{sensitivity:'base',numeric:true});}
+/* ช่องค้นหาในหน้า Members — หน่วงไว้ไม่ให้วาดใหม่ทุกตัวอักษร
+   ของเดิมเรียกชื่อนี้ใน oninput แต่ไม่เคยมีฟังก์ชันอยู่จริง พิมพ์ทีไรก็ error และตารางไม่กรอง */
+let _mSearchT=null;
+function debouncedRenderMembers(){
+  clearTimeout(_mSearchT);
+  _mSearchT=setTimeout(renderMembers,150);
+}
 function renderMembers(){
   const q=(document.getElementById('search-m').value||'').toLowerCase(),fc=document.getElementById('fc').value,ft=document.getElementById('ft').value,fp=document.getElementById('fp').value;
   /* Archived กับ Waitlist เลือกได้เฉพาะตอนเปิด Edit mode — ปิดแล้วต้องล้างทิ้ง ไม่งั้นค้างกรองแบบมองไม่เห็น */
