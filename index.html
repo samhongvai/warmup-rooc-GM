@@ -1966,8 +1966,7 @@ async function loadData(){
       note:'',
       status:exact(v,'status'),
       tag:exact(v,'tag'),
-      attend:exact(v,'attend'),
-      pfixed:exact(v,'party_fixed')
+      attend:exact(v,'attend')
     }}).filter(m=>m.ign);
     if(_peLocal&&Date.now()<_peHold)members=_peLocal.map(m=>({...m}));   /* เพิ่งบันทึกตี้ — WebMaster ยังตามไม่ทัน */
     /* แท็บ Alias — ชื่อเก่าของคนที่เปลี่ยนชื่อหรือเปลี่ยนตัว
@@ -4084,7 +4083,7 @@ function peCancel(){
 function peFromWeb_(o){
   return {class_gl:o.class_gl||'',class_or:o.class_or||'',class:'',field_gl:o.field_gl||'',field_or:o.field_or||'',field:'',
     ign:o.character_name||'',char_id:o.character_id||'',discord:o.discord_id||'',party:o.party_no||'',slot:o.slot||'',
-    role:o.role||'',note:'',status:o.status||'',tag:o.tag||'',attend:o.attend||'',pfixed:o.party_fixed||''};
+    role:o.role||'',note:'',status:o.status||'',tag:o.tag||'',attend:o.attend||''};
 }
 async function peSave(){
   if(!_pe.ops.length)return;
