@@ -1972,11 +1972,12 @@ async function loadData(){
     /* แท็บ Alias — ชื่อเก่าของคนที่เปลี่ยนชื่อหรือเปลี่ยนตัว
        old_name = ชื่อที่เคยบันทึกไว้ · character_id = รหัสที่ชื่อนั้นใช้ตอนนั้น
        new_id = รหัสปัจจุบัน เว้นว่างได้ถ้าเปลี่ยนแค่ชื่อรหัสเดิม
+       changed_on = วันที่เปลี่ยนตัว (นัดแรกที่มีแต่ตัวใหม่) เว้นว่างได้
        ยังไม่มีแท็บนี้ก็ไม่เป็นไร เว็บทำงานต่อได้ตามปกติ */
     try{
       const ar=parseGviz(await fetch(mkUrlA('Alias')).then(r=>r.text()));
       const g=(o,k)=>String(o[k]==null?'':o[k]).trim();
-      _alias=ar.map(o=>({old:g(o,'old_name'),id:g(o,'character_id'),nid:g(o,'new_id')})).filter(a=>a.old);
+      _alias=ar.map(o=>{const on=g(o,'changed_on').slice(0,10);return {old:g(o,'old_name'),id:g(o,'character_id'),nid:g(o,'new_id'),on:/^\d{4}-\d{2}-\d{2}$/.test(on)?on:''}}).filter(a=>a.old);
     }catch(e){ _alias=[]; }
     _mIdx=null;
     applyMode();
@@ -2043,10 +2044,17 @@ const nmLc_=s=>String(s==null?'':s).trim().replace(/\s+/g,' ').toLowerCase();
 const nmk_=s=>{try{return nmLc_(s).replace(/[^\p{L}\p{N}]/gu,'')}catch(e){return nmLc_(s).replace(/[^a-z0-9฀-๿]/g,'')}};
 let _alias=[];
 let _mIdx=null,_mIdxN='';
+/* วันวอ → รหัสตัวละครที่มีสกอร์ในวันนั้น — ใช้ตรวจว่านัดไหนมีทั้งตัวเก่าและตัวใหม่ลงพร้อมกัน */
+function glDateIds_(){
+  const by={}; let gs=[]; try{gs=_glScore||[]}catch(e){}
+  gs.forEach(r=>{const i=String(r.character_id==null?'':r.character_id).trim(); if(!r.date||!/^\d+$/.test(i))return; (by[r.date]=by[r.date]||new Set()).add(i);});
+  return by;
+}
 function mIdx_(){
-  const stamp=(members||[]).length+'/'+(_alias||[]).length;
+  let gn=0; try{gn=(_glScore||[]).length}catch(e){}
+  const stamp=(members||[]).length+'/'+(_alias||[]).length+'/'+gn;
   if(_mIdx&&_mIdxN===stamp)return _mIdx;
-  const byId={},byEx={},byLc={},byK={},dupK={},alNm={},alId={};
+  const byId={},byEx={},byLc={},byK={},dupK={},alNm={},alNmO={},alId={},sw={};
   (members||[]).forEach(m=>{
     const id=String(m.char_id||'').trim(); if(id&&!byId[id])byId[id]=m;
     const ex=String(m.ign==null?'':m.ign).trim(); if(ex&&!byEx[ex])byEx[ex]=m;
@@ -2056,16 +2064,28 @@ function mIdx_(){
   /* แท็บ Alias — ชื่อเก่าชี้ไปหารหัสปัจจุบัน · new_id ว่าง = เปลี่ยนแค่ชื่อ รหัสเดิม */
   (_alias||[]).forEach(a=>{
     const to=String(a.nid||a.id||'').trim(); if(!to)return;
-    const k=nmk_(a.old); if(k&&!alNm[k])alNm[k]=to;
-    const oid=String(a.id||'').trim(); if(oid&&oid!==to&&!alId[oid])alId[oid]=to;
+    const oid=String(a.id||'').trim();
+    const k=nmk_(a.old); if(k&&!alNm[k]){alNm[k]=to;alNmO[k]=oid;}
+    if(oid&&oid!==to&&!alId[oid])alId[oid]=to;
+    if(oid&&oid!==to&&!sw[oid])sw[oid]={to,on:a.on||''};      /* เปลี่ยนตัว: รหัสเก่า → รหัสใหม่ + วันที่เปลี่ยน */
   });
-  _mIdx={byId,byEx,byLc,byK,dupK,alNm,alId}; _mIdxN=stamp;
+  _mIdx={byId,byEx,byLc,byK,dupK,alNm,alNmO,alId,sw,gd:glDateIds_()}; _mIdxN=stamp;
   return _mIdx;
 }
-function mFind_(name,id){
+/* เปลี่ยนตัวแล้วรวมเป็นคนเดียว ยกเว้นนัดที่ตัวเก่ากับตัวใหม่ลงพร้อมกันก่อนวันเปลี่ยนตัว
+   นัดนั้นตัวเก่าถูกแยกเป็นอีกแถว ไม่ไปทับหรือนับซ้ำในสถิติของตัวใหม่ */
+function mSep_(X,oid,date){
+  const w=X.sw[oid]; if(!w||!date)return false;
+  if(w.on&&date>=w.on)return false;
+  const ids=X.gd[date]; return !!(ids&&ids.has(oid)&&ids.has(w.to));
+}
+function mFind_(name,id,date){
   const X=mIdx_(), i=String(id==null?'':id).trim();
   if(i&&X.byId[i])return X.byId[i];
-  if(i&&X.alId[i]&&X.byId[X.alId[i]])return X.byId[X.alId[i]];   /* Alias: รหัสเก่า → รหัสปัจจุบัน */
+  if(i&&X.alId[i]&&X.byId[X.alId[i]]){   /* Alias: รหัสเก่า → รหัสปัจจุบัน */
+    if(mSep_(X,i,date))return null;
+    return X.byId[X.alId[i]];
+  }
   const nx=String(name==null?'':name).trim();
   /* ชื่อที่สะกดตรงเป๊ะกับคนในทะเบียน = คนนั้น มาก่อน Alias เสมอ (LEOD ต้องเป็น LEOD) */
   if(nx&&X.byEx[nx])return X.byEx[nx];
@@ -2073,7 +2093,11 @@ function mFind_(name,id){
   /* Alias: ชื่อเก่า — คนกรอกไว้เอง เชื่อก่อนเสมอ
      ถ้าชี้ไปที่รหัสที่ไม่มีในทะเบียนแล้ว = ตัวละครที่เลิกใช้ ให้จบตรงนี้ ห้ามถอยไปจับด้วยชื่อ
      (leod ชี้ 569266 ที่ลบไปแล้ว ต้องไม่กลายเป็น LEOD 403665) */
-  if(k&&X.alNm[k])return X.byId[X.alNm[k]]||null;
+  if(k&&X.alNm[k]){
+    const t=X.byId[X.alNm[k]]||null;
+    if(t&&mSep_(X,X.alNmO[k],date))return null;
+    return t;
+  }
   /* แถวที่มีรหัสตัวละครจริง แต่รหัสนั้นไม่อยู่ในทะเบียนและไม่มีใน Alias = ตัวละครที่เลิกใช้แล้ว
      ห้ามถอยไปจับด้วยชื่อ เพราะชื่ออาจซ้ำกับตัวที่ใช้อยู่ตอนนี้ (leod 569266 กับ LEOD 403665 คนละตัว)
      รหัสที่ไม่ใช่ตัวเลข เช่น #REF! ไม่นับ ปล่อยให้ไปจับด้วยชื่อตามเดิม */
@@ -2082,10 +2106,10 @@ function mFind_(name,id){
   if(k&&X.byK[k]&&!X.dupK[k])return X.byK[k];
   return null;
 }
-const mShow_=(name,id)=>{const m=mFind_(name,id);return m?m.ign:String(name==null?'':name).trim()};
+const mShow_=(name,id,date)=>{const m=mFind_(name,id,date);return m?m.ign:String(name==null?'':name).trim()};
 /* คีย์รวมสถิติ — คนเดียวกันได้คีย์เดียวกันไม่ว่าชีทบันทึกชื่อไว้แบบไหน */
-function mKey_(name,id){
-  const m=mFind_(name,id);
+function mKey_(name,id,date){
+  const m=mFind_(name,id,date);
   if(m)return 'id:'+(String(m.char_id||'').trim()||nmk_(m.ign));
   const i=String(id==null?'':id).trim();
   return i?('x:'+i):('n:'+nmk_(name));
@@ -4381,8 +4405,8 @@ function ccData_(){
   (_glScore||[]).filter(r=>r.date===_ccDate).forEach(r=>{
     const nm=String(r.member_name||'').trim(); if(!nm)return;
     const played=String(r.class_played||'').trim(); if(!played)return;
-    const mm=mFind_(nm,r.character_id); if(!mm)return;   /* ไม่อยู่ในกิลด์แล้ว ข้ามไป */
-    const k=mKey_(nm,r.character_id); if(seen[k])return; seen[k]=1;
+    const mm=mFind_(nm,r.character_id,r.date); if(!mm)return;   /* ไม่อยู่ในกิลด์แล้ว ข้ามไป */
+    const k=mKey_(nm,r.character_id,r.date); if(seen[k])return; seen[k]=1;
     const m={gl:mm.class||'',or:mm.class_or||'',ign:mm.ign};
     cmp[k]=1;                                           /* นับเฉพาะคนที่ยังอยู่ในทะเบียน */
     if(clsLabel_(m.gl)===clsLabel_(played))return;      /* ตรงกันแล้ว */
@@ -4436,7 +4460,7 @@ function absPlayed_(){
   (_glScore||[]).forEach(r=>{
     const d=r.date; if(!d)return;
     const o=by[d]=by[d]||{id:new Set(),nm:new Set()};
-    o.id.add(mKey_(r.member_name,r.character_id));
+    o.id.add(mKey_(r.member_name,r.character_id,d));
     const n=String(r.member_name||'').trim(); if(n)o.nm.add(nmLc_(n));
   });
   return by;
@@ -4449,15 +4473,15 @@ function absData_(){
   const played=absPlayed_();
   const camePlay=(d,name,id)=>{
     const o=played[d]; if(!o)return null;            /* ยังไม่มีสกอร์ของวอนี้ */
-    return o.id.has(mKey_(name,id))||o.nm.has(nmLc_(name));
+    return o.id.has(mKey_(name,id,d))||o.nm.has(nmLc_(name));
   };
   /* เฉพาะคนที่ยังอยู่ในกิลด์ — คนที่ออกไปแล้วไม่ต้องขึ้น
      รวมแถวลาของคนเดียวกันเข้าคีย์เดียว แม้ชีทจะบันทึกชื่อไว้คนละแบบ */
   const by={};
   (_attLog||[]).forEach(r=>{
     const nm=String(r.member_name||'').trim(); if(!nm)return;
-    const m=mFind_(nm,r.character_id); if(!m)return;
-    const k=mKey_(nm,r.character_id);
+    const m=mFind_(nm,r.character_id,r.date); if(!m)return;
+    const k=mKey_(nm,r.character_id,r.date);
     const o=by[k]=by[k]||{id:String(m.char_id||'').trim(),nm:m.ign||nm,d:{}};
     o.d[r.date]=String(r.status||'').trim().toUpperCase()==='NO_SHOW'?'NO_SHOW':'LEAVE';
   });
@@ -4678,16 +4702,16 @@ function insKeep_(m){
   return _insWho==='out'?insOut_(m):!insOut_(m);
 }
 /* ป้ายบอกว่าคนนี้ออกไปแล้ว — ขึ้นเฉพาะตอนที่ตารางมีคนออกแล้วปนอยู่ */
-function insTag_(x){ return insOut_(mFind_(x.name,x.id))?'<span class="wi-tag">ออกแล้ว</span>':''; }
+function insTag_(x){ return insOut_(x.sep?null:mFind_(x.name,x.id))?'<span class="wi-tag">ออกแล้ว</span>':''; }
 function insRounds_(){
   const dates=[...new Set(_glScore.map(r=>r.date))].sort((a,b)=>b.localeCompare(a));
   return _insRange>0?dates.slice(0,_insRange):dates;
 }
 function insAttend_(rounds){
   const byId={};
-  _glScore.forEach(r=>{const k=mKey_(r.member_name,r.character_id);
+  _glScore.forEach(r=>{const k=mKey_(r.member_name,r.character_id,r.date);
     (byId[k]=byId[k]||{})[r.date]='PRESENT';});
-  _attLog.forEach(r=>{const k=mKey_(r.member_name,r.character_id);
+  _attLog.forEach(r=>{const k=mKey_(r.member_name,r.character_id,r.date);
     const st=String(r.status||'').trim().toUpperCase();
     byId[k]=byId[k]||{}; if(byId[k][r.date]!=='PRESENT')byId[k][r.date]=st;});
   return members.map(m=>{
@@ -4703,9 +4727,9 @@ function insAttend_(rounds){
 function insScores_(rounds){
   const set=new Set(rounds), rows={};
   _glScore.filter(r=>set.has(r.date)).forEach(r=>{
-    const k=mKey_(r.member_name,r.character_id);
-    const o=rows[k]=rows[k]||{name:mShow_(r.member_name,r.character_id),id:'',n:0,score:0,kill:0,death:0,assist:0,last:0,cls:{}};
-    o.name=mShow_(r.member_name,r.character_id)||o.name;
+    const k=mKey_(r.member_name,r.character_id,r.date);
+    const o=rows[k]=rows[k]||{name:mShow_(r.member_name,r.character_id,r.date),sep:!mFind_(r.member_name,r.character_id,r.date),id:'',n:0,score:0,kill:0,death:0,assist:0,last:0,cls:{}};
+    o.name=mShow_(r.member_name,r.character_id,r.date)||o.name;
     o.id=String(r.character_id||'').trim()||o.id;   /* เก็บรหัสไว้ จับคู่กับทะเบียนได้แม่นกว่าใช้ชื่ออย่างเดียว */
     o.n++;
     o.score+=wNum_(r.score)||0; o.kill+=wNum_(r.kill)||0; o.death+=wNum_(r.death)||0; o.assist+=wNum_(r.assist)||0;
@@ -4714,7 +4738,7 @@ function insScores_(rounds){
   });
   const list=Object.keys(rows).map(k=>{const o=rows[k];
     const cls=Object.keys(o.cls).sort((a,b)=>o.cls[b]-o.cls[a])[0]||'';
-    return {name:o.name,id:o.id,n:o.n,cls,avg:Math.round(o.score/o.n),kill:+(o.kill/o.n).toFixed(1),death:+(o.death/o.n).toFixed(1),assist:+(o.assist/o.n).toFixed(1),last:o.last};});
+    return {name:o.name,id:o.id,sep:o.sep,n:o.n,cls,avg:Math.round(o.score/o.n),kill:+(o.kill/o.n).toFixed(1),death:+(o.death/o.n).toFixed(1),assist:+(o.assist/o.n).toFixed(1),last:o.last};});
   const clsAvg={};
   list.forEach(x=>{ if(!x.cls)return; (clsAvg[x.cls]=clsAvg[x.cls]||[]).push(x.avg); });
   Object.keys(clsAvg).forEach(c=>{const a=clsAvg[c];clsAvg[c]=Math.round(a.reduce((s,v)=>s+v,0)/a.length);});
@@ -4747,7 +4771,7 @@ function renderInsights(){
         <td class="n">${r.pct}%</td><td>${flag(r)}</td></tr>`).join('')}</tbody></table></div>
       <div class="in-key"><span class="p">Present</span><span class="l">Leave</span><span class="n">No-show</span><span class="x">ไม่มีข้อมูล</span></div>`;
   } else {
-    const rows=insScores_(rounds).filter(x=>insKeep_(mFind_(x.name,x.id)));
+    const rows=insScores_(rounds).filter(x=>insKeep_(x.sep?null:mFind_(x.name,x.id)));
     if(!rows.length){ box.innerHTML=head+'<div class="empty">ไม่มีใครในกลุ่มที่เลือก</div>'; return; }
     const dv=x=>x.diff==null?'':`<span class="in-fl ${x.diff>=0?'good':'warn'}">${x.diff>=0?'+':'−'}${wFmt_(x.diff)}</span>`;
     box.innerHTML=head+`<div class="tbl-wrap"><table class="rtbl in-tb">
@@ -4947,7 +4971,7 @@ function giLoad_(date){
   const sc={};
   ['Elite','Sub-battle'].forEach(f=>{
     const rows=_glScore.filter(x=>x.date===date&&x.field===f).sort((a,b)=>(wNum_(a.list_rank)??999)-(wNum_(b.list_rank)??999));
-    sc[f]={had:rows.length>0,touched:false,rows:rows.length?rows.map(x=>({name:mShow_(x.member_name,x.character_id),fort:x.fort||'',minion:x.minion||'',boss:x.boss||'',kill:x.kill||'',assist:x.assist||'',death:x.death||'',score:x.score||'',title:x.title||'',base_s:x.base_s||'',base_a:x.base_a||'',base_b:x.base_b||'',cls:x.class_played||giClassOf_(mShow_(x.member_name,x.character_id))})):giRoster_(f)};
+    sc[f]={had:rows.length>0,touched:false,rows:rows.length?rows.map(x=>({name:mShow_(x.member_name,x.character_id,x.date),fort:x.fort||'',minion:x.minion||'',boss:x.boss||'',kill:x.kill||'',assist:x.assist||'',death:x.death||'',score:x.score||'',title:x.title||'',base_s:x.base_s||'',base_a:x.base_a||'',base_b:x.base_b||'',cls:x.class_played||giClassOf_(mShow_(x.member_name,x.character_id))})):giRoster_(f)};
   });
   const g=k=>naV_(r?r[k]:'');
   _gi={date,exists:!!r,league:g('league')||naV_(prev.league)||'',cross:g('cross_server')||naV_(prev.cross_server)||'',
@@ -5013,7 +5037,7 @@ function giPasteDo(){
 /* รายชื่อให้เลือก: สมาชิกปัจจุบัน + คนที่เคยมีสกอร์ (รวมคนที่ออกกิลด์ไปแล้ว) */
 function giNames_(){
   const cur=new Set(members.map(m=>m.ign).filter(Boolean)), past=new Set();
-  _glScore.forEach(r=>{const n=mShow_(r.member_name,r.character_id); if(n&&!cur.has(n))past.add(n);});
+  _glScore.forEach(r=>{const n=mShow_(r.member_name,r.character_id,r.date); if(n&&!cur.has(n))past.add(n);});
   return {cur,past};
 }
 function giNameTag_(name){
