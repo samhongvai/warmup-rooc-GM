@@ -2541,7 +2541,7 @@ function capQueue_(){
       grp:mul==null?'one':(mul>=2?'win':(mul>1?'close':'lose'))};
   }).filter(t=>t.n>0).sort((a,b)=>a.n-b.n);
   if(!tiers.length)return '<div class="cp-none">ยังไม่รู้เพดานรางวัลของนัดถัดไป</div>';
-  /* คอลัมน์ละหนึ่งตัวคูณ — แพ้ ×1 · แพ้สูสี ×1.5 · แพ้สูสี ×1.7 · ชนะ ×2 */
+  /* คอลัมน์ละหนึ่งตัวคูณ — แพ้ ×1 · แพ้สูสี ×1.5 · ชนะ ×2 */
   const TL={lose:'แพ้',close:'แพ้สูสี',win:'ชนะ',one:'ได้รางวัล'};
   let prev=0;
   let seenClose=0;
@@ -3325,8 +3325,7 @@ function auBuildForecast_(today,rows){
   var mul=(ev==='Guild League')?2:1;
   var bc=+base.card||0;
   var tiers=(ev==='Guild League')
-    ? [{lb:'แพ้ ×1',n:Math.ceil(bc*1)},{lb:'แพ้ ×1.5',n:Math.ceil(bc*1.5)},
-       {lb:'แพ้ ×1.7',n:Math.ceil(bc*1.7)},{lb:'ชนะ ×2',n:Math.ceil(bc*2)}]
+    ? [{lb:'แพ้ ×1',n:Math.ceil(bc*1)},{lb:'แพ้ ×1.5',n:Math.ceil(bc*1.5)},{lb:'ชนะ ×2',n:Math.ceil(bc*2)}]
     : [{lb:'อันดับ '+rank,n:bc}];
   return {date:target,ev:ev,sub:(grp?grp+' · ':'')+(ev==='Overrun'?'อันดับ '+rank:rank),
     card:Math.ceil(bc*mul), white:Math.ceil((+base.feather_white||0)*mul),
