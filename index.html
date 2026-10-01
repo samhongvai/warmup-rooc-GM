@@ -1127,6 +1127,13 @@ body.is-admin .wr-adm{display:inline-block}
 .gr-bad{color:var(--red);font-weight:700}
 .gr-chip{display:inline-block;font-family:var(--font-pixel);font-size:12px;background:var(--soft,var(--card2));border-radius:6px;padding:0 7px;margin:0 2px}
 .gr-foot{font-size:12px;color:var(--faint);margin-top:4px}
+.gr-gh{font-size:12.5px;font-weight:800;color:var(--muted);padding:12px 0 2px;border-top:1px solid var(--border);letter-spacing:.2px}
+.gr-gh:first-child{border-top:0;padding-top:8px}
+.gr-ed{padding:10px 16px 14px}
+.gr-ed textarea{width:100%;min-height:260px;box-sizing:border-box;background:var(--bg,var(--card2));color:inherit;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit;font-size:13.5px;line-height:1.6}
+.gr-ed .hint{font-size:11.5px;color:var(--faint);margin:6px 0 8px;line-height:1.6}
+.gr-ed button{background:var(--green);color:#10201B;border:0;border-radius:9px;padding:8px 18px;font-weight:800;font-size:13px;cursor:pointer}
+.gr-ed button:disabled{opacity:.5}
 /* History บนมือถือ — เรียงเป็นการ์ด ไม่บีบ 5 คอลัมน์ */
 @media(max-width:640px){
   .wr-tbl>thead{display:none}
@@ -1751,7 +1758,7 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
                Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT,
-               Alias:SRC_EVENT};
+               Alias:SRC_EVENT,Rules:SRC_EVENT};
 /* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
 const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H'};
@@ -1781,6 +1788,7 @@ function edToggle(){
   if(_currentPage==='party')renderParty();
   else if(_currentPage==='members')renderMembers();
   else if(_currentPage==='auction'&&typeof renderDesignated==='function')renderDesignated();
+  else if(_currentPage==='rules')renderRules();
 }
 const ADMIN_URL='https://script.google.com/macros/s/AKfycbzTho04o8jKR9SsNH5iHUVFiplgZCxuYq9BTj7bFyYKuGQxhB6_9YrJIgVFp3toCgCb/exec';
 const SITE_URL='https://samhongvai.github.io/warmup-rooc-GM/';
@@ -4851,19 +4859,75 @@ const GR_DATA=[
     {t:'สัปดาห์ข้ามเซิร์ฟ ผู้ช่วยได้สิทธิ์ประมูลล็อกหัว วันละ 5 คน (ผู้ช่วย 4 + Ficelle 1) · ล็อกหัวได้เฉพาะวันข้ามเซิร์ฟ',tag:'new'},
     {t:'สัปดาห์ในเซิร์ฟ ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกที่เหลือจากการแจกแทน',tag:'new'}]}
 ];
-let _grSec='';
+let _grSec='',_ruRows=null,_ruLoading=false,_ruSaving=false;
+/* กฎประมูลมาจากแท็บ Rules (ชีท Warmup Event) — แก้ที่หน้านี้ในโหมดแอดมิน บอท Discord อ่านจากที่เดียวกัน
+   โหลดไม่ได้ → ใช้ข้อความสำรองใน GR_DATA */
+async function ruLoad_(force){
+  if(_ruLoading)return; _ruLoading=true;
+  try{
+    if(force)_bust=String(Date.now());
+    const rows=parseGviz(await fetch(mkUrlA('Rules')).then(r=>r.text()));
+    _ruRows=rows.map(r=>({category:String(r.category||'').trim(),group:String(r.group||'').trim(),order:Number(r.order)||0,text:String(r.text||'').trim(),tag:String(r.tag||'').trim()})).filter(r=>r.category&&r.text).sort((a,b)=>a.order-b.order);
+  }catch(e){ if(_ruRows===null)_ruRows=[]; }
+  _ruLoading=false; renderRules();
+}
+function ruGroups_(cat){
+  const g=[]; (_ruRows||[]).filter(r=>r.category===cat).forEach(r=>{
+    let x=g.find(y=>y.name===r.group); if(!x){x={name:r.group,rules:[]};g.push(x);} x.rules.push({t:r.text,tag:r.tag}); });
+  return g;
+}
+function ruToText_(cat){
+  return ruGroups_(cat).map(g=>'## '+g.name+'\n'+g.rules.map(r=>(r.tag?'['+r.tag+'] ':'')+r.t).join('\n')).join('\n\n');
+}
+function ruParse_(txt){
+  const out=[]; let grp='',n=0;
+  String(txt||'').split('\n').forEach(l=>{
+    l=l.trim(); if(!l)return;
+    if(l.slice(0,2)==='##'){grp=l.replace(/^#+\s*/,'');return;}
+    let tag=''; const m=l.match(/^\[(new|chg)\]\s*/i); if(m){tag=m[1].toLowerCase(); l=l.slice(m[0].length);}
+    out.push({group:grp,order:++n,text:l,tag:tag});
+  });
+  return out;
+}
+async function ruSave_(cat){
+  if(_ruSaving)return;
+  const ta=document.getElementById('ru-ta'); if(!ta)return;
+  const rows=ruParse_(ta.value);
+  if(!rows.length){toast('ไม่มีข้อความให้บันทึก',null,true);return;}
+  if(rows.some(r=>!r.group)){toast('ทุกข้อต้องอยู่ใต้หัวข้อ ## ก่อน',null,true);return;}
+  _ruSaving=true; renderRules();
+  try{ await admCall('admRulesSave',cat,rows); toast('บันทึกกฎแล้ว · Discord ใช้ชุดนี้ทันที'); _ruSaving=false; await ruLoad_(true); }
+  catch(e){ _ruSaving=false; renderRules(); toast('บันทึกไม่สำเร็จ: '+e,null,true); }
+}
+function grSecs_(){
+  return GR_DATA.map(x=>{
+    if(x.id!=='auction')return x;
+    const g=ruGroups_('auction'); return g.length?Object.assign({},x,{groups:g}):x;
+  });
+}
 function grPick(id){_grSec=id;renderRules();}
 function renderRules(){
   const root=document.getElementById('gr-root'); if(!root)return;
+  if(_ruRows===null&&!_ruLoading)ruLoad_(false);
   const d=document.getElementById('gr-date'); if(d)d.textContent=wDay_(GR_UPDATED)+' '+GR_UPDATED.slice(0,4);
   const tagH=r=>r.tag==='new'?'<span class="gr-tag new">New</span>':r.tag==='chg'?'<span class="gr-tag chg">Update</span>':'';
-  const secs=GR_DATA.filter(x=>!_grSec||x.id===_grSec);
-  root.innerHTML=`${GR_UPDATE.length?`<div class="gr-upd"><b>Update</b><ul>${GR_UPDATE.map(t=>`<li>${esc_(t)}</li>`).join('')}</ul></div>`:''}
-    <div class="ws-chips">${[['','All'],...GR_DATA.map(x=>[x.id,x.title])].map(([id,t])=>`<button class="ws-chip${id===_grSec?' on':''}" onclick="grPick('${id}')">${t}</button>`).join('')}</div>
-    ${secs.map(x=>`<div class="gr-sec"><div class="gr-h"><span class="gr-ic"><svg><use href="#${x.icon}"/></svg></span><b>${x.title}</b><span class="gr-sub">${x.sub}</span></div>
-      <div class="gr-list">${x.rules.map((r,i)=>`<div class="gr-r"><span class="gr-n">${i+1}</span><div>
+  const ALL=grSecs_();
+  const secs=ALL.filter(x=>!_grSec||x.id===_grSec);
+  const ruleH=(r,i)=>`<div class="gr-r"><span class="gr-n">${i+1}</span><div>
         ${r.was?`<div class="gr-was">${esc_(r.was)}</div>`:''}${r.html||esc_(r.t)}${tagH(r)}
-        ${r.pen?`<div class="gr-pen">${r.pen.map(p=>`<span class="k">${p[0]}</span><span class="${p[2]?'gr-bad':''}">${p[1]}</span>`).join('')}</div>`:''}</div></div>`).join('')}</div></div>`).join('')}
+        ${r.pen?`<div class="gr-pen">${r.pen.map(p=>`<span class="k">${p[0]}</span><span class="${p[2]?'gr-bad':''}">${p[1]}</span>`).join('')}</div>`:''}</div></div>`;
+  const body=x=>{
+    if(EDIT()&&x.id==='auction'&&_ruRows!==null)
+      return `<div class="gr-ed"><textarea id="ru-ta" spellcheck="false">${esc_(ruToText_('auction')||'')}</textarea>
+        <div class="hint">บรรทัดที่ขึ้นต้น <b>##</b> = หัวข้อกลุ่ม · บรรทัดอื่น = 1 ข้อ · ใส่ <b>[new]</b> หรือ <b>[chg]</b> หน้าข้อความเพื่อติดป้าย New / Update<br>
+        กลุ่ม <b>หลักการ</b> และ <b>วิธีการประมูล</b> มีที่ใช้พิเศษในกล่อง Discord · กฎชุดนี้ใช้กับ Discord ทันทีที่บันทึก</div>
+        <button ${_ruSaving?'disabled':''} onclick="ruSave_('auction')">${_ruSaving?'กำลังบันทึก…':'บันทึกกฎ'}</button></div>`;
+    if(x.groups){let n=0; return `<div class="gr-list">${x.groups.map(g=>`<div class="gr-gh">${esc_(g.name)}</div>`+g.rules.map(r=>ruleH(r,n++)).join('')).join('')}</div>`;}
+    return `<div class="gr-list">${x.rules.map(ruleH).join('')}</div>`;
+  };
+  root.innerHTML=`${edSwitch_('แก้กฎประมูลได้ในกล่อง Guild Auction')}${GR_UPDATE.length?`<div class="gr-upd"><b>Update</b><ul>${GR_UPDATE.map(t=>`<li>${esc_(t)}</li>`).join('')}</ul></div>`:''}
+    <div class="ws-chips">${[['','All'],...ALL.map(x=>[x.id,x.title])].map(([id,t])=>`<button class="ws-chip${id===_grSec?' on':''}" onclick="grPick('${id}')">${t}</button>`).join('')}</div>
+    ${secs.map(x=>`<div class="gr-sec"><div class="gr-h"><span class="gr-ic"><svg><use href="#${x.icon}"/></svg></span><b>${x.title}</b><span class="gr-sub">${x.sub}</span></div>${body(x)}</div>`).join('')}
     <div class="gr-foot">ระบบขึ้นป้าย "เข้าเกณฑ์..." ให้เห็นเท่านั้น คนตัดสินยังเป็นผู้จัดการกิลด์</div>`;
 }
 
