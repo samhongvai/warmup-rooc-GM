@@ -2206,7 +2206,7 @@ const CE_CLASSES=Object.keys(CLASS_TYPE).sort();
 /* ── admin: สถานะสมาชิก (ACTIVE / WAITLIST / ARCHIVED) ──
    คนที่ออกกิลด์แล้วไม่อยู่ใน Web_Members จึงต้องดึงรายชื่อทุกสถานะมาเพิ่มเฉพาะโหมดแอดมิน
    ABSENT เป็นสถานะที่คำนวณจากโน้ตการลา ไม่ได้เลือกเอง */
-const MS_ST=['ACTIVE','WAITLIST','ARCHIVED'];
+const MS_ST=['ACTIVE','ALT','WAITLIST','ARCHIVED'];
 let _msAll=null,_ms={},_msBusy=false;
 const msStatusOf=m=>{const st=String(m.status||'').trim().toUpperCase();
   if(st==='ARCHIVED'||st==='WAITLIST')return st;
@@ -2307,10 +2307,10 @@ function ceSet(name,k,v){
 }
 /* ช่อง Status — แอดมินเปลี่ยนได้ทั้ง Active / Waitlist / Archived · Absent คำนวณจากโน้ตการลา */
 function msCell_(m){
-  const st=msStatusOf(m), lbl={ACTIVE:'Active',ABSENT:'Absent',ARCHIVED:'Archived',WAITLIST:'Waitlist'};
+  const st=msStatusOf(m), lbl={ACTIVE:'Active',ALT:'Alt',ABSENT:'Absent',ARCHIVED:'Archived',WAITLIST:'Waitlist'};
   const badge=k=>`<span class="st-att ${k==='ABSENT'?'lv':k==='ACTIVE'?'ok':'ar'} en">${sb_(k,lbl[k])}</span>`;
   if(!EDIT())return badge(st==='ABSENT'?'ABSENT':'ACTIVE');
-  const cur=_ms[m.ign]||(st==='ARCHIVED'||st==='WAITLIST'?st:'ACTIVE');
+  const cur=_ms[m.ign]||(st==='ARCHIVED'||st==='WAITLIST'?st:isAlt(m)?'ALT':'ACTIVE');
   const nq=esc_(m.ign).replace(/'/g,"\\'");
   const sel=`<select class="ce-sel${_ms[m.ign]?' chg':''}" onchange="msSet('${nq}',this.value)">${MS_ST.map(v=>`<option value="${v}"${v===cur?' selected':''}>${lbl[v]}</option>`).join('')}</select>`;
   return st==='ABSENT'?sel+' '+badge('ABSENT'):sel;
@@ -2322,7 +2322,7 @@ function ceBar_(){
   if(!bar){bar=document.createElement('div');bar.id='ce-bar';tw.parentNode.insertBefore(bar,tw);}
   if(!EDIT()){ bar.innerHTML=edSwitch_(); return; }
   const list=Object.keys(_ce).flatMap(n=>Object.keys(_ce[n]).map(k=>`${esc_(n)} ${k==='gl'?'GL':'OR'} → ${esc_(_ce[n][k])}`))
-    .concat(Object.keys(_ms).map(n=>`${esc_(n)} → ${_ms[n]==='ARCHIVED'?'Archived':'Active'}`))
+    .concat(Object.keys(_ms).map(n=>`${esc_(n)} → ${({ARCHIVED:'Archived',WAITLIST:'Waitlist',ALT:'Alt'})[_ms[n]]||'Active'}`))
     .concat(Object.keys(_mn).map(n=>`${esc_(n)} → ${esc_(_mn[n])}`));
   bar.innerHTML=edSwitch_('เปิดอยู่ · แก้อาชีพและสถานะได้')+`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพที่ช่อง Class และเปลี่ยนสถานะที่ช่อง Status<span class="sp"></span>
     ${list.length?`<span class="pe-chg">แก้ไว้ ${list.length} ช่อง ยังไม่บันทึก</span><button class="adm-btn" onclick="ceCancel()">Cancel</button>`:''}
