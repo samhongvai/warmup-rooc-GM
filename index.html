@@ -1087,6 +1087,12 @@ body.is-admin .wr-adm{display:inline-block}
 .pe-swp.cand{border-color:var(--green);color:var(--green);border-style:dashed}
 .ce-sel{background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:3px 6px;font:inherit;font-size:12px;max-width:150px}
 .ce-sel.chg{border-color:var(--amber);color:var(--amber);font-weight:700}
+.gh-rk{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0 14px}.gh-rk th,.gh-rk td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:left}.gh-rk tr.cur td{background:var(--green-dim);font-weight:700}.gh-rk td.na{color:var(--faint)}
+.gh-rw{font-size:11px;color:var(--muted);display:block;margin-top:2px}.gh-chip{display:inline-block;font-size:10px;padding:1px 7px;border-radius:99px;background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b);margin-left:6px}
+.gh-tot{font-size:12px;color:var(--muted);margin:8px 0 14px}.gh-note{font-size:12px;color:var(--amber);margin:6px 0 10px}
+.gh-app{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}.gh-app summary{cursor:pointer;font-size:12px;color:var(--muted)}.gh-app-b{margin-top:10px}
+.gh-shot{position:relative;max-width:520px}.gh-shot img{width:100%;display:block;border-radius:8px}.gh-ring{position:absolute;left:1.2%;top:61.5%;width:13.4%;height:7.6%;border:2.5px solid #ff3b3b;border-radius:50%;box-shadow:0 0 0 2px rgba(255,59,59,.25)}
+.gh-steps{margin:10px 0 0 18px;font-size:12px;line-height:1.8;color:var(--muted)}
 .gh-mode{display:flex;gap:12px;align-items:flex-start;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:13px;line-height:1.65;border:1px solid}
 .gh-mode>b{white-space:nowrap}
 .gh-mode.x{background:var(--green-dim);border-color:var(--green-b)}.gh-mode.x>b{color:var(--green)}
@@ -1558,7 +1564,6 @@ body.is-admin .wr-adm{display:inline-block}
   <div id="adm-ribbon"></div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
-    <button class="au-tab" data-tab="designated" onclick="swAucTab('designated')">Guild Helper</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
   </div>
 
@@ -1639,17 +1644,32 @@ body.is-admin .wr-adm{display:inline-block}
       </div>
     </div>
 
-  </div>
-
-  <div id="auc-designated" style="display:none">
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
-      <div style="flex:1;min-width:170px">
-        <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Week</label>
-        <select id="da-week" onchange="renderDesignated()" style="width:100%"></select>
+    <div class="au-sec closed" id="au-s4">
+      <div class="au-sec-h ct" onclick="augTog('au-s4')">
+        <svg class="au-cv"><use href="#i-caret2"/></svg>
+        <b>Designated Auction (Guild Helper)</b><div class="sp"></div><span class="au-hint" id="da-count">—</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);padding-bottom:9px" id="da-count">—</div>
+      <div class="au-sec-b">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:170px">
+            <label style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:6px;font-family:var(--font-pixel)">Week</label>
+            <select id="da-week" onchange="renderDesignated()" style="width:100%"></select>
+          </div>
+        </div>
+        <div id="da-body"><div class="empty">กำลังโหลด...</div></div>
+        <details class="gh-app"><summary>Appendix · วิธีดึงของ Designated Auction ในเกม</summary>
+          <div class="gh-app-b">
+            <div class="gh-shot"><img src="guide-auction.png" alt="Guild Auction ในเกม" loading="lazy"><span class="gh-ring"></span></div>
+            <ol class="gh-steps">
+              <li>เข้า Auction แล้วกดเมนู <b>Designated Auction</b> (วงกลมในรูป)</li>
+              <li>เลือกแท็บ <b>Card</b> หรือ <b>Feather</b> ตามของที่จะดึง</li>
+              <li>เลขกล่อง/หน้านับใหม่ตั้งแต่ 1 ในแต่ละแท็บ · ของที่ดึงต้องมีคำว่า <b>กำหนด</b> อยู่ที่กล่อง</li>
+            </ol>
+          </div>
+        </details>
+      </div>
     </div>
-    <div id="da-body"><div class="empty">กำลังโหลด...</div></div>
+
   </div>
 
   <div id="auc-manage" style="display:none">
@@ -3745,35 +3765,55 @@ function populateDesignatedWeeks(){
   sel.value=weeks.includes(keep)?keep:cur;
   renderDesignated();
 }
+/* รางวัล Designated ต่อผู้ช่วย 1 คน ตามแรงค์ (ข้ามเซิร์ฟ) — ใส่เพิ่มได้ทีละแรงค์ · ไม่มีค่า = แสดง — */
+const GH_REWARD={'Omni Ruler':{card:1,white:3,red:3}};
+function ghRank_(wk){
+  const end=ghAddDays_(wk,6);
+  const r=_warLog.filter(x=>x.event_type==='Guild League'&&x.date>=wk&&x.date<=end&&String(x.rank||'').trim());
+  return r.length?String(r[0].rank).trim():'';
+}
 function renderDesignated(){
   const wk=(document.getElementById('da-week')||{}).value; const box=document.getElementById('da-body');
   if(!box||!wk)return;
   const cross=ghCross_(wk), isX=cross==='Y', isI=cross==='N';
   const all=_aucHelpers.filter(r=>r.week_start===wk&&String(r.member_name||'').trim()&&!ghIsFixed_(r)).length;
-  document.getElementById('da-count').textContent=`${all} / 8 คน`+(isX?' + Ficelle':'');
-  const mode=isX?`<div class="gh-mode x"><b>Cross-server</b><span>ผู้ช่วยได้สิทธิ์ <b>ประมูลล็อกหัว</b> วันละ 5 คน (ผู้ช่วย 4 + ${GH_FIXED} 1) · ล็อกหัวได้เฉพาะวันข้ามเซิร์ฟเท่านั้น</span></div>`
+  document.getElementById('da-count').textContent=isI?'ในเซิร์ฟ · ดูใน Leftover':`${all} / 8 คน`+(isX?' + Ficelle':'');
+  const mode=isX?`<div class="gh-mode x"><b>Cross-server</b><span>ผู้ช่วยได้สิทธิ์ <b>ประมูลล็อกหัว</b> วันละ 5 คน (ผู้ช่วย 4 + ${GH_FIXED} 1) · ล็อกหัวได้ของตามแรงค์ที่แข่ง</span></div>`
     :isI?`<div class="gh-mode i"><b>การแข่งขันภายในเซิร์ฟ (Intra-server)</b><span>สัปดาห์นี้<b>ไม่มีล็อกหัว</b> · ของรางวัลของผู้ช่วยจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ (ชื่อจะไปอยู่ในตาราง Leftover ของวันนั้น)</span></div>`
-    :`<div class="gh-mode u"><b>League</b><span>ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ — ใส่ cross_server ของนัดลีกกิลด์ใน GL_Log แล้วจะขึ้นเอง</span></div>`;
+    :`<div class="gh-mode u"><b>League</b><span>ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ — ใส่ cross_server ของนัดลีกกิลด์ใน War_Log ก่อน</span></div>`;
+  if(isI){ box.innerHTML=mode; return; }
+  const rank=ghRank_(wk), rw=GH_REWARD[rank]||null;
   const tag=r=>{const st=String(r.auction_status||'').toLowerCase().trim();
-    if(isI)return '<span class="gh-fe">ได้เศษขนนก</span>';
     const done=st==='done';
     if(!EDIT())return `<span class="gh-tag${done?' done':''}">${sb_(done?'done':'pending',done?'Done':'Pending')}</span>`;
     return `<span class="gh-tag hit${done?' done':''}" data-wk="${wk}" data-pos="${esc_(r.position)}" data-id="${esc_(String(r.character_id||'').trim())}" data-nm="${esc_(String(r.member_name||'').trim())}" onclick="ghTap(this,${done?0:1})">${sb_(done?'done':'pending',done?'Done':'Pending')}</span>`;};
+  /* ตารางรางวัลต่อผู้ช่วยตามแรงค์ (ข้ามเซิร์ฟ) */
+  const xr=_aucRewardsRef.filter(r=>r.event_type==='Guild League'&&r.cross_server==='Y');
+  const na='<td class="na">—</td>';
+  const rk=`<table class="gh-rk"><thead><tr><th>Rank</th><th>Card</th><th>White</th><th>Red / Black</th></tr></thead><tbody>`
+    +xr.map(r=>{const v=GH_REWARD[String(r.rank).trim()];
+      return `<tr${String(r.rank).trim()===rank?' class="cur"':''}><td>${esc_(r.rank)}</td>${v?`<td>${v.card}</td><td>${v.white}</td><td>${v.red}</td>`:na+na+na}</tr>`;}).join('')
+    +`</tbody></table>`;
   const day=(dow,label)=>{
     const date=ghAddDays_(wk,dow-1), rows=ghDayRows_(wk,dow);
-    const helpers=rows.filter(r=>!ghIsFixed_(r)), fixed=rows.find(ghIsFixed_);
-    const slots=[];
-    for(let i=0;i<4;i++){const r=helpers[i];
-      slots.push(r?`<div class="gh-s"><span class="gh-n">${i+1}</span><span class="gh-nm">${esc_(r.member_name)}</span><span class="sp"></span>${tag(r)}</div>`
-                :`<div class="gh-s empty"><span class="gh-n">${i+1}</span><span class="gh-nm">ยังไม่มีชื่อ</span></div>`);}
-    helpers.slice(4).forEach((r,i)=>slots.push(`<div class="gh-s"><span class="gh-n">${i+5}</span><span class="gh-nm">${esc_(r.member_name)}</span><span class="sp"></span>${tag(r)}</div>`));
-    if(!isI)slots.push(`<div class="gh-s fix"><span class="gh-n">5</span><span class="gh-nm">${GH_FIXED}</span><span class="sp"></span><span class="gh-tag fix">${sb_('fixed','Fixed')}</span></div>`);
-    const n=helpers.length+(isI?0:1), max=isI?4:5;
-    return `<div class="gh-day"><div class="gh-dh">${label}<small>${wDay_(date)}</small><span class="sp"></span><span class="gh-cnt">${n}/${max}</span></div>${slots.join('')}</div>`;
+    const helpers=rows.filter(r=>!ghIsFixed_(r)).slice(0,4);
+    const list=helpers.map(r=>({r:r,nm:r.member_name,fix:false}));
+    while(list.length<4)list.push({r:null,nm:'ยังไม่มีชื่อ',fix:false});
+    list.push({r:null,nm:GH_FIXED,fix:true});
+    const slots=list.map((x,i)=>{
+      const n=i+1;
+      const rwt=rw?`<span class="gh-rw">Card ${fmtSlots((n-1)*rw.card+1,rw.card)} · White ${fmtSlots((n-1)*rw.white+1,rw.white)} · Red/Black ${fmtSlots((n-1)*rw.red+1,rw.red)}</span>`:'';
+      const right=x.fix?`<span class="gh-tag fix">${sb_('fixed','Fixed')}</span>`:(x.r?tag(x.r):'');
+      return `<div class="gh-s${x.r||x.fix?'':' empty'}${x.fix?' fix':''}"><span class="gh-n">${n}</span><span class="gh-nm">${esc_(x.nm)}<span class="gh-chip">กำหนด</span>${rwt}</span><span class="sp"></span>${right}</div>`;
+    }).join('');
+    const got=helpers.length+1;
+    return `<div class="gh-day"><div class="gh-dh">${label}<small>${wDay_(date)}</small><span class="sp"></span><span class="gh-cnt">${got}/5</span></div>${slots}</div>`;
   };
-  const edb=isI?'':edSwitch_('เปิดอยู่ · แตะป้ายสถานะเพื่อปิดคิว');
-  if(!all){ box.innerHTML=edb+mode+'<div class="gh-none">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</div>'; return; }
-  box.innerHTML=edb+mode+`<div class="gh-days">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`;
+  const tot=rw?`<div class="gh-tot">รวมต่อวัน (5 คน): Card ${5*rw.card} · White ${5*rw.white} · Red/Black ${5*rw.red} · เลขกล่องนับใหม่ตั้งแต่ 1 ในแต่ละแท็บ (Card / Feather) และของที่ดึงต้องมีคำว่า <b>กำหนด</b> ที่กล่อง</div>`
+    :`<div class="gh-note">${rank?`ยังไม่มีค่ารางวัล Designated ของแรงค์ ${esc_(rank)} — เพิ่มใน GH_REWARD`:'ยังไม่มีแรงค์ของสัปดาห์นี้ใน War_Log'}</div>`;
+  const edb=edSwitch_('เปิดอยู่ · แตะป้ายสถานะเพื่อปิดคิว');
+  if(!all){ box.innerHTML=mode+rk+'<div class="gh-none">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</div>'; return; }
+  box.innerHTML=edb+mode+rk+tot+`<div class="gh-days">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`;
 }
 
 /** แตะป้ายสถานะคิวช่วยเหลือ — pending ↔ done · ล็อกหัวปลดไม่ได้ จึงไม่มี skipped */
@@ -5375,7 +5415,7 @@ function renderRewardsPreview(){
 
 function swAucTab(t){
   document.querySelectorAll('.au-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  ['calc','designated','manage'].forEach(k=>{
+  ['calc','manage'].forEach(k=>{
     const el=document.getElementById('auc-'+k);
     if(el)el.style.display=(k===t)?'':'none';
   });
