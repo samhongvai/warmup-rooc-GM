@@ -4915,19 +4915,19 @@ function renderInsights(){
    tag: 'new' = ข้อใหม่ · 'chg' = เปลี่ยน · was = ข้อความเดิม (ขีดฆ่าไว้ให้เห็นว่าเปลี่ยนจากอะไร)
    ข้อความกฎทั้งหมดต้องมาจากเจ้าของกิลด์เท่านั้น ห้ามแต่งเพิ่ม */
 const GR_UPDATED='2026-10-01';
-const GR_UPDATE=['แจ้งลาได้ทุกวัน (วันไม่มีกิจกรรมกิลด์แจ้งตอนไหนก็ได้) · ปุ่มในห้องลากิจ-ติดธุระ ลาให้เพื่อนและยกเลิกลาได้','วัน Guild League / Guild Overrun เหตุด่วนจริง ๆ แจ้งช้าได้ไม่เกิน 19:00 น.'];
+const GR_UPDATE=['แจ้งลาได้ทุกวัน (วันไม่มีกิจกรรมกิลด์แจ้งตอนไหนก็ได้) · ปุ่มในห้องลากิจ-ติดธุระ ลาให้เพื่อนและยกเลิกลาได้','วัน Guild League / Guild Overrun เหตุด่วนจริง ๆ แจ้งช้าได้ไม่เกิน {leave_urgent} น.'];
 const GR_DATA=[
   {id:'war',icon:'i-sword',title:'Guild War',sub:'วันและเวลาวอ',rules:[
     {t:'วอทุกวันอังคารและพฤหัส (Guild League) · วันอาทิตย์ (Overrun)'},
-    {html:'<b>Guild League</b> · ทุกคนต้องเข้าร่วมปาร์ตี้ใหญ่ และเข้า Discord แยกตามสนาม ภายใน 19:50 น.'},
+    {html:'<b>Guild League</b> · ทุกคนต้องเข้าร่วมปาร์ตี้ใหญ่ และเข้า Discord แยกตามสนาม ภายใน {party_ready} น.'},
     {html:'Elite: ขอตี้ Ficelle · <a href="https://discord.com/channels/1485287241361129512/1521484463744483442" target="_blank" rel="noopener">Discord</a>'},
     {html:'Sub-battle: ขอตี้ JoKER888 · <a href="https://discord.com/channels/1485287241361129512/1485296197328703589" target="_blank" rel="noopener">Discord</a>'},
-    {html:'<b>Overrun</b> · เข้าร่วมปาร์ตี้ใหญ่ และเข้า Discord ห้องเดียวกัน ภายใน 19:50 น. · <a href="https://discord.com/channels/1485287241361129512/1517742333641228298" target="_blank" rel="noopener">Discord</a> · แยกตี้ตามสนามเหมือนกัน · Elite: ขอตี้ Ficelle · Sub-battle: ขอตี้ JoKER888'},
+    {html:'<b>Overrun</b> · เข้าร่วมปาร์ตี้ใหญ่ และเข้า Discord ห้องเดียวกัน ภายใน {party_ready} น. · <a href="https://discord.com/channels/1485287241361129512/1517742333641228298" target="_blank" rel="noopener">Discord</a> · แยกตี้ตามสนามเหมือนกัน · Elite: ขอตี้ Ficelle · Sub-battle: ขอตี้ JoKER888'},
     {t:'ตี้อาจปรับก่อนเริ่มวอ เช็คอีกครั้งก่อนเข้าเกมนะคะ'},
     {html:'ห้อง Guild League <span class="gr-chip">ELITE-01</span><span class="gr-chip">SUB-BATTLE</span> · ห้อง Overrun <span class="gr-chip">OVERRUN</span>'}]},
   {id:'leave',icon:'i-moon',title:'Leave',sub:'การลาและการขาด',rules:[
-    {t:'วันที่มี Guild League / Guild Overrun แจ้งลาภายใน 12:00 น. ของวันนั้น',tag:'chg'},
-    {t:'มีเหตุด่วนจริง ๆ แจ้งช้าได้ไม่เกิน 19:00 น.',tag:'new'},
+    {t:'วันที่มี Guild League / Guild Overrun แจ้งลาภายใน {leave_normal} น. ของวันนั้น',tag:'chg'},
+    {t:'มีเหตุด่วนจริง ๆ แจ้งช้าได้ไม่เกิน {leave_urgent} น.',tag:'new'},
     {t:'หากไม่แจ้งลาในวัน Guild League / Guild Overrun',pen:[['ครั้งที่ 1','ตัดสิทธิ์ประมูล 1 รอบ'],['ครั้งที่ 2','ตัดสิทธิ์ประมูล 2 รอบ'],['ครั้งถัดไป','เตะออกกิลด์ทุกกรณี',1]]},
     {t:'วันที่ไม่มีกิจกรรมกิลด์ แจ้งลาตอนไหนก็ได้ แค่อย่าให้ในเกมขึ้น "1 วันก่อน" ขึ้นไป โดยไม่แจ้ง',tag:'new'},
     {t:'กิลด์รับได้สูงสุด 80 คน หากมีเพื่อนรอคิวเข้ากิลด์ ป่านขอที่ให้คนที่พร้อมแอคทีฟไปด้วยกันนะคะ',tag:'new'},
@@ -4953,6 +4953,18 @@ async function ruLoad_(force){
     _ruRows=rows.map(r=>({category:String(r.category||'').trim(),group:String(r.group||'').trim(),order:Number(r.order)||0,text:String(r.text||'').trim(),tag:String(r.tag||'').trim()})).filter(r=>r.category&&r.text).sort((a,b)=>a.order-b.order);
   }catch(e){ if(_ruRows===null)_ruRows=[]; }
   _ruLoading=false; renderRules();
+}
+/* ค่ากลางจากแท็บ Rules (category config) · ไม่มี = ค่าสำรอง · บอท Discord อ่านแท็บเดียวกัน */
+const RU_CFG_DEF={leave_normal:'12:00',leave_urgent:'19:00',party_ready:'19:50'};
+function ruCfg_(k){
+  const r=(_ruRows||[]).find(x=>x.category==='config'&&x.group===k&&/^\d{2}:\d{2}$/.test(x.text));
+  return r?r.text:RU_CFG_DEF[k];
+}
+function tok_(t){return String(t==null?'':t).replace(/\{(leave_normal|leave_urgent|party_ready)\}/g,(m,k)=>ruCfg_(k));}
+/* ข้อความกฎตี้จากแท็บ Rules (เขียนแบบ markdown ของ Discord) → HTML: **หนา** · <#id> = ลิงก์ห้อง Discord */
+function ruMd_(t){
+  return esc_(tok_(t)).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+    .replace(/(Discord\s*)?&lt;#(\d{15,25})>/g,(m,d,id)=>'<a href="https://discord.com/channels/1485287241361129512/'+id+'" target="_blank" rel="noopener">'+(d?'Discord':'เปิดห้อง')+' ↗</a>');
 }
 function ruGroups_(cat){
   const g=[]; (_ruRows||[]).filter(r=>r.category===cat).forEach(r=>{
@@ -4984,6 +4996,17 @@ async function ruSave_(cat){
 }
 function grSecs_(){
   return GR_DATA.map(x=>{
+    if(x.id==='war'){   /* เงื่อนไขตั้งตี้ GL/OR มาจากแท็บ Rules (category party) · ไม่มีแถว = ข้อความสำรองใน GR_DATA */
+      const mk=g=>(_ruRows||[]).filter(r=>r.category==='party'&&r.group===g&&r.tag!=='title').sort((a,b)=>a.order-b.order).map(r=>({html:ruMd_(r.text)}));
+      const gl=mk('gl'),or=mk('or');
+      if(!gl.length&&!or.length)return x;
+      const room=x.rules.find(r=>r.html&&r.html.indexOf('gr-chip')>=0);
+      const groups=[];
+      if(gl.length)groups.push({name:'Guild League',rules:gl});
+      if(or.length)groups.push({name:'Overrun',rules:or});
+      if(room)groups.push({name:'ห้องวอ',rules:[room]});
+      return Object.assign({},x,{groups:groups});
+    }
     if(x.id!=='auction')return x;
     const g=ruGroups_('auction'); return g.length?Object.assign({},x,{groups:g}):x;
   });
@@ -4997,7 +5020,7 @@ function renderRules(){
   const ALL=grSecs_();
   const secs=ALL.filter(x=>!_grSec||x.id===_grSec);
   const ruleH=(r,i)=>`<div class="gr-r"><span class="gr-n">${i+1}</span><div>
-        ${r.was?`<div class="gr-was">${esc_(r.was)}</div>`:''}${r.html||esc_(r.t)}${tagH(r)}
+        ${r.was?`<div class="gr-was">${esc_(r.was)}</div>`:''}${r.html?tok_(r.html):esc_(tok_(r.t))}${tagH(r)}
         ${r.pen?`<div class="gr-pen">${r.pen.map(p=>`<span class="k">${p[0]}</span><span class="${p[2]?'gr-bad':''}">${p[1]}</span>`).join('')}</div>`:''}</div></div>`;
   const body=x=>{
     if(EDIT()&&x.id==='auction'&&_ruRows!==null)
@@ -5008,7 +5031,7 @@ function renderRules(){
     if(x.groups){let n=0; return `<div class="gr-list">${x.groups.map(g=>`<div class="gr-gh">${esc_(g.name)}</div>`+g.rules.map(r=>ruleH(r,n++)).join('')).join('')}</div>`;}
     return `<div class="gr-list">${x.rules.map(ruleH).join('')}</div>`;
   };
-  root.innerHTML=`${edSwitch_('แก้กฎประมูลได้ในกล่อง Guild Auction')}${GR_UPDATE.length?`<div class="gr-upd"><b>Update</b><ul>${GR_UPDATE.map(t=>`<li>${esc_(t)}</li>`).join('')}</ul></div>`:''}
+  root.innerHTML=`${edSwitch_('แก้กฎประมูลได้ในกล่อง Guild Auction')}${GR_UPDATE.length?`<div class="gr-upd"><b>Update</b><ul>${GR_UPDATE.map(t=>`<li>${esc_(tok_(t))}</li>`).join('')}</ul></div>`:''}
     <div class="ws-chips">${[['','All'],...ALL.map(x=>[x.id,x.title])].map(([id,t])=>`<button class="ws-chip${id===_grSec?' on':''}" onclick="grPick('${id}')">${t}</button>`).join('')}</div>
     ${secs.map(x=>`<div class="gr-sec"><div class="gr-h"><span class="gr-ic"><svg><use href="#${x.icon}"/></svg></span><b>${x.title}</b><span class="gr-sub">${x.sub}</span></div>${body(x)}</div>`).join('')}
     <div class="gr-foot">ระบบขึ้นป้าย "เข้าเกณฑ์..." ให้เห็นเท่านั้น คนตัดสินยังเป็นผู้จัดการกิลด์</div>`;
