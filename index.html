@@ -2231,12 +2231,13 @@ async function rpLoad_(force){
   if(_rp&&!force)return rpDraw_();
   _rpBusy=true;
   try{ _rp=await admCall('admRegPending'); }
-  catch(e){ _rp={waitlist:[],moves:[]}; }
+  catch(e){ _rp={waitlist:[],moves:[],switches:[]}; }
   finally{ _rpBusy=false; rpDraw_(); }
 }
 function rpDraw_(){
   const box=document.getElementById('reg-pend'); if(!box)return;
-  if(!ADMIN||!_rp||(!_rp.waitlist.length&&!_rp.moves.length)){box.innerHTML='';return}
+  const sws=(_rp&&_rp.switches)||[];
+  if(!ADMIN||!_rp||(!_rp.waitlist.length&&!_rp.moves.length&&!sws.length)){box.innerHTML='';return}
   const esc=s=>esc_(String(s==null?'':s));
   let h='<div class="overview-box" style="margin-bottom:14px;border-color:var(--orange-l)">'
        +'<div style="font-weight:700;margin-bottom:8px">Pending requests</div>';
@@ -2258,7 +2259,46 @@ function rpDraw_(){
         +'<button class="btn btn-ghost" style="padding:2px 8px;font-size:11px" onclick="rpDeny(\''+idq+'\')">ปฏิเสธ</button></div>';
     }).join('');
   }
+  if(sws.length){
+    h+='<div style="font-size:12px;color:var(--muted);margin:8px 0 4px">คำขอเปลี่ยนตัว (/switch) '
+      +sws.length+' รายการ — กดรับแล้วระบบย้ายเจ้าของ ย้ายที่นั่งตี้ ตั้งตัวเดิมตามที่เลือก และลงประวัติให้ในครั้งเดียว</div>';
+    h+=sws.map((r,i)=>{
+      const mt=r.mode==='retire'?'เลิกเล่น (Archived)':'ตัวเด็ก (Alt)';
+      return '<div style="font-size:12px;margin-bottom:8px">'
+        +'<code>'+esc(r.user)+'</code> · '+esc(r.fromName)+' ('+esc(r.from)+') → <b>'+esc(r.name)+'</b> ('+esc(r.id)+')'
+        +' · ตัวเดิม: '+mt
+        +(r.held&&r.held.toLowerCase()!==String(r.user).toLowerCase()?' · ตัวใหม่ตอนนี้ผูกกับ <code>'+esc(r.held)+'</code>':'')
+        +' <button class="btn btn-ghost" style="padding:2px 8px;font-size:11px" onclick="rpSwApprove('+i+')">รับ</button> '
+        +'<button class="btn btn-ghost" style="padding:2px 8px;font-size:11px" onclick="rpSwDeny('+i+')">ปฏิเสธ</button></div>';
+    }).join('');
+  }
   box.innerHTML=h+'</div>';
+}
+async function rpSwApprove(i){
+  const r=((_rp&&_rp.switches)||[])[i]; if(!r)return;
+  const mt=r.mode==='retire'?'เลิกเล่น (Archived)':'เป็นตัวเด็ก (Alt)';
+  if(!confirm('รับคำขอเปลี่ยนตัว\n'+r.user+': '+r.fromName+' → '+r.name+'\nตัวเดิม'+mt+'\nที่นั่งตี้ของตัวเดิมจะย้ายมาให้ตัวใหม่ ใช่ไหม'))return;
+  admBusy_(true); toast('กำลังเปลี่ยนตัว… (10–20 วินาที)');
+  try{
+    const res=await admCall('admSwitchApprove',r.id,r.from,r.mode,r.user,r.uid||'');
+    if(res&&res.members&&res.members.length){
+      members=res.members.map(peFromWeb_).filter(m=>m.ign);
+      _peLocal=members.map(m=>({...m})); _peHold=Date.now()+5*60*1000;
+    }
+    if(res&&res.all)_msAll=res.all;
+    try{ applyMode(); renderMembers(); renderParty(); renderStats(); }catch(e){}
+    const w=(res&&res.warn)||[];
+    toast('เปลี่ยนตัวเรียบร้อย · '+r.name+(w.length?' · ⚠ '+w.join(' / '):''),null,w.length>0);
+  }catch(e){ toast('เปลี่ยนตัวไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
+  await rpLoad_(true);
+}
+async function rpSwDeny(i){
+  const r=((_rp&&_rp.switches)||[])[i]; if(!r)return;
+  if(!confirm('ปฏิเสธคำขอเปลี่ยนตัวของ '+r.user+' ใช่ไหม'))return;
+  try{ await admCall('admSwitchDeny',r.id); toast('ปฏิเสธคำขอแล้ว · '+r.name); }
+  catch(e){ toast('ทำรายการไม่สำเร็จ · '+e,null,true); }
+  await rpLoad_(true);
 }
 async function rpApprove(id,to){
   if(!confirm('ย้ายตัวละคร '+id+' ไปบัญชี '+to+' ใช่ไหม'))return;
