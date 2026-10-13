@@ -446,6 +446,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .mk-abs{filter:saturate(.85)}
 .pm-absent .pm-name{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
 .pm-absent .pm-cls-label{opacity:.55}
+.pm-vacant{padding:14px 12px;text-align:center;color:var(--faint);font-size:12.5px}
 .abs-panel{margin-top:18px;border:1px solid var(--line,var(--border));border-radius:10px;background:var(--card2);overflow:hidden}
 .abs-head{display:flex;align-items:center;gap:8px;padding:10px 13px;border-bottom:1px solid var(--line,var(--border))}
 .abs-ic{font-size:14px}
@@ -2436,10 +2437,12 @@ function fieldSum_(list,pts){
 }
 function renderParty(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
+  /* 13 ต.ค.: แสดงครบ 16 ตี้เสมอ — ตี้ที่ไม่มีใครเลย (เช่น 11 กับ 12) ยังต้องขึ้นเป็นช่องว่างให้แอดมินย้ายคนเข้าได้ */
+  for(let i=1;i<=16;i++){ if(!pts[i])pts[i]=[]; }
   const sorted=Object.keys(pts).sort((a,b)=>+a-+b);
   const mainPts=sorted.filter(p=>+p<=8),secPts=sorted.filter(p=>+p>8);
   const totalM=members.filter(m=>m.party).length;
-  const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.length+' ปาร์ตี้';
+  const sub=document.getElementById('party-sub');if(sub)sub.textContent=totalM+' คน · '+sorted.filter(p=>pts[p].length).length+' ปาร์ตี้';
   const typeBar=(t)=>t==='Support'?'bs':t==='All Rounder'?'ba':'bd';
   const PRIEST_CLASSES=['High Priest','Priest'];
   const BARD_CLASSES=['Minstrel','Gypsy'];
@@ -2476,7 +2479,7 @@ function renderParty(){
     const away=sortedMembers.filter(x=>isLeaveNote(x)).length;
     const noLead=EDIT()&&!pts[p].some(x=>(x.role||'')==='Leader');
     const empties=EDIT()?Array.from({length:Math.max(0,5-pts[p].length)},()=>`<div class="pe-empty${_pe.sel?' pe-cand':''}" onclick="peTapEmpty('${p}')">${_pe.sel?'+ ย้ายมาช่องนี้':'ช่องว่าง'}</div>`).join(''):'';
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here>=5?'full':''}">${here}/5${away?`<i class="pc-away" title="ลาวันนี้ ${away} คน">🌙${away}</i>`:''}</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}</div></div>`;
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here>=5?'full':''}">${here}/5${away?`<i class="pc-away" title="ลาวันนี้ ${away} คน">🌙${away}</i>`:''}</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}${(!EDIT()&&!pts[p].length)?'<div class="pm-vacant">ว่างทั้งตี้</div>':''}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
