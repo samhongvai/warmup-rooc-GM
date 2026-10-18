@@ -2470,7 +2470,7 @@ function renderParty(){
         :isLead?'<span class="pm-tag lead en">Leader</span>':'';
       const nmq=esc_(m.ign).replace(/'/g,"\\'");
       const ed=EDIT()?peRowAttr_(m):'';
-      const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
+      const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button>${leave?`<button class="pe-ic" title="เอาออกจากตี้ (ปล่อยเป็นช่องว่าง)" onclick="peRemove('${nmq}')">✕</button>`:''}<button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
       return`<div class="pm${leave?' pm-absent':''}${ed}" ${EDIT()?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${EDIT()?'':jobIcon_(m.class)}<span>${cls||''}</span></div></div>${mark}${acts}</div>`;
     }).join('');
     /* ป้ายต้องบอกจำนวน "ช่องที่ถูกใช้" เพราะฝั่งชีทนับแบบนั้น — เดิมนับเฉพาะคนที่มา
@@ -2478,8 +2478,9 @@ function renderParty(){
     const here=pts[p].length;
     const away=sortedMembers.filter(x=>isLeaveNote(x)).length;
     const noLead=EDIT()&&!pts[p].some(x=>(x.role||'')==='Leader');
+    const leadAway=EDIT()&&pts[p].some(x=>(x.role||'')==='Leader'&&isLeaveNote(x));
     const empties=EDIT()?Array.from({length:Math.max(0,5-pts[p].length)},()=>`<div class="pe-empty${_pe.sel?' pe-cand':''}" onclick="peTapEmpty('${p}')">${_pe.sel?'+ ย้ายมาช่องนี้':'ช่องว่าง'}</div>`).join(''):'';
-    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}<span class="pc-cnt num ${here>=5?'full':''}">${here}/5${away?`<i class="pc-away" title="ลาวันนี้ ${away} คน">🌙${away}</i>`:''}</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}${(!EDIT()&&!pts[p].length)?'<div class="pm-vacant">ว่างทั้งตี้</div>':''}</div></div>`;
+    return`<div class="pc"><div class="pc-head ${isM?'ph-main':'ph-sec'}"><span class="pn">Party ${p}</span>${noLead?'<span class="pe-warn">⚠ ไม่มีหัวตี้</span>':''}${leadAway?'<span class="pe-warn">⚠ หัวตี้ลา</span>':''}<span class="pc-cnt num ${here>=5?'full':''}">${here}/5${away?`<i class="pc-away" title="ลาวันนี้ ${away} คน">🌙${away}</i>`:''}</span>${EDIT()?`<button class="pe-swp${_pe.swp===String(p)?' on':(_pe.swp?' cand':'')}" title="สลับทั้งตี้" onclick="peSwapParty('${p}')">⇄</button>`:''}</div><div class="pm-body">${pmHtml}${empties}${(!EDIT()&&!pts[p].length)?'<div class="pm-vacant">ว่างทั้งตี้</div>':''}</div></div>`;
   }).join('');
   const secMax=secPts.length?secPts[secPts.length-1]:null;
   const secLabel=secMax?`Party 9–${secMax}`:'Party 9+';
@@ -4138,7 +4139,7 @@ function peTop_(){
       <button class="adm-btn" onclick="peResetAttend()" title="ล้างการลาทั้งหมด">🌙 All present</button>
       ${n?'<button class="adm-btn" onclick="peCancel()">Cancel</button>':''}
       <button class="adm-btn pri" onclick="peSave()"${n?'':' disabled'}>💾 Save${n?' ('+n+')':''}</button></div>
-    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา · กดซ้ำเพื่อยกเลิก</span><span>⇄ เลือกคน แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span></div>
+    <div class="pe-legend"><span>★ ตั้งเป็นหัวตี้</span><span>🌙 ลา · กดซ้ำเพื่อยกเลิก</span><span>✕ เอาคนลาออกจากตี้</span><span>⇄ เลือกคน แล้วกดคนอื่นเพื่อสลับ หรือกดช่องว่างเพื่อย้าย</span></div>
     ${_pe.swp?`<div class="pe-hint">⇄ เลือก <b>Party ${_pe.swp}</b> แล้ว — กด ⇄ ที่หัวตี้ที่จะสลับด้วย · กดตี้เดิมอีกครั้งเพื่อยกเลิก</div>`:''}
     ${sel?`<div class="pe-hint">⇄ เลือก <b>${esc_(sel)}</b> แล้ว — กดชื่อคนในตี้อื่นเพื่อสลับ · กดช่องว่างเพื่อย้าย · กด ⇄ อีกครั้งเพื่อยกเลิก</div>`:''}
     ${pool.length?`<div class="pe-pool"><b>ยังไม่ได้จัดเข้าตี้</b> (${pool.length}) <small>กดชื่อเพื่อเลือก แล้วกดช่องว่างในตี้</small><br>${pool.map(m=>{const q=esc_(m.ign).replace(/'/g,"\\'");return `<span class="chip${sel===m.ign?' pe-sel':''}" onclick="pePool('${q}')">${esc_(m.ign)}</span>`}).join('')}</div>`:''}`;
@@ -4185,6 +4186,17 @@ function peSwapParty(p){
   _pe.swp=null; toast(`สลับทั้งตี้ Party ${a} ⇄ Party ${b} แล้ว · กด Save เพื่อบันทึก`); renderParty();
 }
 function pePick(name){ _pe.sel=_pe.sel===name?null:name; renderParty(); }
+/* เอาคนลาออกจากตี้ ปล่อยเป็นช่องว่าง (คนนั้นไปอยู่กล่อง "ยังไม่ได้จัดเข้าตี้") */
+function peRemove(name){
+  const m=peFind_(name); if(!m||!m.party)return;
+  peBegin_();
+  if(m.role==='Leader')toast('หัวตี้ถูกเอาออก — อย่าลืมเลือกหัวตี้ใหม่');
+  m.party=''; m.role=''; m.slot='';
+  if(_pe.sel===name)_pe.sel=null;
+  _pe.dirty.add(name);
+  _pe.ops.push({t:'remove',a:name});
+  renderParty();
+}
 /* ชิปในกล่อง "ยังไม่ได้จัดเข้าตี้" — กดครั้งแรกคือเลือกคนนั้น ไม่ใช่สลับ
    เลือกแล้วไปกดช่องว่างเพื่อย้ายเข้าตี้ หรือกดชื่อคนในตี้เพื่อสลับกัน */
 function pePool(name){
@@ -4241,7 +4253,7 @@ async function peSave(){
     }
     _pe={ops:[],sel:null,snap:null,dirty:new Set(),swp:null};
     applyMode(); renderParty(); try{renderMembers();renderStats();}catch(e){}
-    toast('บันทึกแล้ว · '+res.log.length+' รายการ'+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''), null, (res.warn||[]).length>0);
+    toast('บันทึกแล้ว · '+res.log.length+' รายการ'+(res.discord==='queued'?' · ส่งคำสั่งแก้ประกาศตี้ใน Discord แล้ว (ถ้ามีกล่องของวันนี้)':'')+((res.warn||[]).length?' · ⚠ '+res.warn.join(' / '):''), null, (res.warn||[]).length>0);
   }catch(e){
     /* เซิร์ฟเวอร์ยกเลิกทั้งชุดเมื่อมีข้อผิดพลาด หน้าเว็บต้องย้อนตามให้ตรงกัน
        ของเดิมทิ้งรายการที่แก้ไว้ค้าง กด Save อีกกี่ครั้งก็เด้งข้อความเดิม */
