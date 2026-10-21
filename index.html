@@ -4017,13 +4017,20 @@ function renderMatchResult(){
   const tiers=_aucRewardsRef.filter(r=>r.event_type==='Guild League'&&(!G.cross||r.cross_server===G.cross)).map(r=>r.rank);
   const seg=(arr,cur,fn)=>`<div class="mr-seg">`+arr.map(([v,t])=>
     `<button class="${String(v)===String(cur)?'on':''}" onclick="${fn(v)}">${esc_(t)}</button>`).join('')+`</div>`;
-  const rw=getRewardValues();
-  const mul=_aucGlobalMul||1;
+  /* ของรางวัลของฟอร์มนี้ = คิดจาก Tier + Server Type ที่เลือกในฟอร์ม ไม่ใช่ของวอที่ระบบประมูลเลือกอยู่ (เดิมดึงผิดแถว) */
+  const mrBase=_aucRewardsRef.find(r=>r.event_type==='Guild League'&&String(r.rank)===String(G.rank)&&r.cross_server===G.cross);
+  const mrRow=_glLog.find(x=>x.date===G.date);
+  let mul=parseFloat(mrRow&&mrRow.mul), mulSrc='ตามผลวอที่บันทึกไว้';
+  if(!(isFinite(mul)&&mul>0)){
+    if(_aucAutoWar&&_aucAutoWar.date===G.date){mul=_aucGlobalMul||1;mulSrc='ตามตัวคูณของวอนี้ในระบบประมูล'}
+    else{mul=1;mulSrc='ยังไม่มีผลวอ แสดงค่าพื้นฐาน ×1'}
+  }
+  const rw=mrBase?{card:Math.ceil((+mrBase.card||0)*mul),white:Math.ceil((+mrBase.feather_white||0)*mul),red:Math.ceil((+mrBase.feather_red_black||0)*mul)}:null;
   const boxes=rw?`<div class="mr-rw">`
       +`<div class="mr-rb"><b>${wFmt_(rw.card)}</b><span>Card Slot</span></div>`
       +`<div class="mr-rb"><b>${wFmt_(rw.white)}</b><span>White Feather</span></div>`
       +`<div class="mr-rb"><b>${wFmt_(rw.red)}</b><span>Red / Black</span></div></div>`
-      +`<div class="mr-note">คูณ ${mul} แล้ว · ปรับตัวคูณกับจำนวนของได้ที่ Guild League Reward ข้างล่าง</div>`
+      +`<div class="mr-note">${esc_(G.rank)} · คูณ ${mul} (${mulSrc})</div>`
     :'<div class="mr-note">ยังคิดของรางวัลไม่ได้ — เลือกสนามกับอันดับให้ครบก่อน</div>';
   /* ชนิดวอมาจากตารางประจำสัปดาห์ ไม่ให้เลือกเอง กันกรอกผิดช่อง */
   const tySeg=`<div class="mr-f"><span>Type</span><div class="mr-ty">${G.type==='or'?'Overrun':'Guild League'}</div></div>`;
