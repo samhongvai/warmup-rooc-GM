@@ -1414,6 +1414,57 @@ body.is-admin .wr-adm{display:inline-block}
 .au-dupn{font-weight:400;color:var(--faint);font-size:11px;font-family:var(--font);letter-spacing:0}
 @media(max-width:700px){.au-qt td.src{display:none}.au-qt td.ct{width:auto}}
 </style>
+<style id="pe2-css">
+/* TBC · จัดตี้: แอดมินอยู่โหมดแก้เสมอ · เอาออก · ลาก · ＋ เลือกจากคนที่ยังไม่มีตี้ */
+.pe-legend,.pe-hint{display:none!important}
+.pe-bar{position:sticky;top:0;z-index:30;box-shadow:0 6px 14px -10px rgba(0,0,0,.6)}
+.pe-bar .adm-btn{min-height:40px;padding-left:14px;padding-right:14px}
+.pe2-help{color:var(--muted);font-size:12.5px;line-height:1.6;margin:0 0 10px}
+.pe2-help b{color:var(--text)}
+.pe2-edit .pe-acts{gap:3px;margin-left:4px}
+.pe2-edit .pe-ic{width:28px;height:28px;font-size:13px;border-radius:8px}
+.pe2-edit .pm{min-height:46px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pe2-edit .pm.pe-sel{background:var(--orange-dim);box-shadow:inset 0 0 0 2px var(--orange)}
+.pe2-edit .pm.pe2-over,.pe2-over.pe2-add{background:var(--blue-dim)!important;box-shadow:inset 0 0 0 2px var(--blue)!important;color:var(--blue)}
+.pe2-edit .pc.pe2-over{outline:2px solid var(--blue);outline-offset:2px}
+.pe-empty.pe2-add{min-height:46px;cursor:pointer;gap:6px;font-weight:700;color:var(--blue);background:transparent;border-top:1px dashed var(--border2)}
+.pe-empty.pe2-add:hover,.pe-empty.pe2-add:focus-visible{background:var(--blue-dim);outline:none}
+.pe-empty.pe2-add.pe-cand{background:var(--blue-dim)}
+.pe-empty.pe2-ro{min-height:46px;color:var(--faint)}
+.pe-pool .chip{min-height:36px;display:inline-flex;align-items:center;padding:4px 14px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pe2-ghost{position:fixed;z-index:2000;pointer-events:none;padding:8px 16px;border-radius:999px;background:var(--orange);color:var(--ink-on);font-weight:800;font-size:14px;box-shadow:0 8px 20px rgba(0,0,0,.45);transform:translate(-50%,-130%)}
+body.pe2-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+.pe2-dragging .pm.dragging,.pe2-dragging .chip.dragging{opacity:.35}
+#pe2-trash{display:none;position:fixed;left:0;right:0;bottom:0;z-index:1500;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));text-align:center;font-weight:800;font-size:15px;color:var(--red);background:var(--red-dim);border-top:2px dashed var(--red-b)}
+#pe2-trash.pe2-over{background:var(--red);color:#fff}
+body.pe2-dragging.pe2-has-party #pe2-trash{display:block}
+#pe2-bar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:1400;background:var(--card);border-top:2px solid var(--orange);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+#pe2-bar.on{display:block}
+body.pe2-dragging #pe2-bar{display:none!important}
+#pe2-bar .t{font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+#pe2-bar .t b{color:var(--orange);font-size:14.5px}
+#pe2-bar .row{display:flex;gap:8px;flex-wrap:wrap}
+#pe2-bar button{flex:1 1 120px;min-height:48px;border-radius:12px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+#pe2-bar button:hover{border-color:var(--orange)}
+#pe2-bar button.danger{color:var(--red);border-color:var(--red-b);background:var(--red-dim)}
+#pe2-bar button.quiet{flex:0 1 96px;color:var(--muted)}
+#party-content.pe2-pad{padding-bottom:150px}
+#pe2-sheet{position:fixed;inset:0;z-index:1800;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
+#pe2-sheet.on{display:flex}
+#pe2-sheet .box{width:100%;max-width:520px;max-height:82%;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border2);border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+@media(min-width:700px){#pe2-sheet{align-items:center}#pe2-sheet .box{border-radius:18px;max-height:70%}}
+#pe2-sheet h3{margin:0 0 4px;font-size:16px}
+#pe2-sheet .sub{color:var(--muted);font-size:12.5px;margin-bottom:10px}
+#pe2-sheet input{width:100%;min-height:44px;margin-bottom:10px;box-sizing:border-box}
+#pe2-sheet .list{overflow:auto;display:flex;flex-direction:column;gap:6px;flex:1;min-height:60px}
+#pe2-sheet .opt{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;border-radius:12px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+#pe2-sheet .opt:hover,#pe2-sheet .opt:focus-visible{border-color:var(--orange);outline:none}
+#pe2-sheet .opt b{flex:1;min-width:0;overflow-wrap:anywhere}
+#pe2-sheet .opt span{color:var(--muted);font-size:12.5px}
+#pe2-sheet .opt i{font-style:normal;font-size:10px;font-weight:800;border-radius:999px;padding:2px 7px;background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-b)}
+#pe2-sheet .none{color:var(--muted);font-size:13.5px;padding:18px 6px;line-height:1.7}
+#pe2-sheet .close{margin-top:10px;min-height:46px;border-radius:12px;border:1px solid var(--border2);background:transparent;color:var(--muted);font:inherit;font-weight:700;cursor:pointer}
+</style>
 </head>
 <body>
 <button class="hamburger" id="hbg" onclick="toggleSidebar()">☰</button>
@@ -5952,7 +6003,7 @@ function autoSkip_(){
   if(_autoBusy||document.hidden)return true;
   if(_aucUserEdited&&_currentPage==='auction')return true;     /* กำลังปรับค่าหน้าประมูลค้างอยู่ */
   if(document.body.classList.contains('adm-busy'))return true;
-  if(_pe.ops.length)return true;                                         /* แก้ตี้ค้างอยู่ ยังไม่บันทึก */
+  if(_pe.ops.length||_pe.sel||document.body.classList.contains('pe2-dragging'))return true;   /* แก้ตี้ค้างอยู่/กำลังเลือก/กำลังลาก */
   const a=document.activeElement;
   if(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))return true;
   return false;
@@ -5967,6 +6018,263 @@ setInterval(function(){ if(Date.now()-_lastAuto>=AUTO_MS)autoRefresh_() },15000)
 document.addEventListener('visibilitychange',function(){
   if(!document.hidden&&Date.now()-_lastAuto>30000)autoRefresh_();
 });
+
+
+/* ══ แก้ตี้ v2 (22 ต.ค. 69) — แอดมินเข้าโหมดแก้ไขเสมอ · เอาออกจากตี้ · ลาก · ช่อง ＋ · จับคนด้วย character_id ══
+   ops ยังมีชื่อ (a/b/name) ตามเดิม ให้ Admin.gs รุ่นเก่าอ่านได้ + เพิ่ม id/ida/idb ไว้ให้ฝั่งเซิร์ฟเวอร์ใช้ */
+
+(function(){
+if(typeof ADMIN==='undefined'){ return; }
+var isAdm=!!ADMIN;
+if(isAdm){ _edit=true; window.edSwitch_=function(){return '';}; }
+var q=function(s,r){return (r||document).querySelector(s)};
+var qa=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')};
+var lastDrag=0;
+
+
+/* ทุกอย่างอ้างด้วย character_id (ชื่อซ้ำได้) · ไม่มี id ค่อยถอยไปใช้ชื่อ */
+var K=function(m){return String(m.char_id||('n:'+m.ign))};
+window.peFind_=function(k){ k=String(k); return members.find(function(m){return K(m)===k})||members.find(function(m){return m.ign===k}); }; /* ชื่อ = ทางเก่า ให้หน้า Members (ceSet) ยังใช้ได้ */
+window.peRowAttr_=function(m){var k=K(m);return (_pe.sel===k?' pe-sel':(_pe.sel?' pe-cand':''))+(_pe.dirty.has(k)?' pe-dirty':'')+'" data-id="'+esc(k)};
+window.pePick=function(k){ _pe.sel=_pe.sel===k?null:k; renderParty(); };
+window.pePool=function(k){ var cur=_pe.sel?peFind_(_pe.sel):null; if(!cur||K(cur)===k||!cur.party){ pePick(k); return; } peTap(k); };
+window.peLeader=function(p,k){
+  peBegin_();
+  members.filter(function(m){return String(m.party)===String(p)}).forEach(function(m){ var want=K(m)===k?'Leader':'Member'; if(m.role!==want){m.role=want;_pe.dirty.add(K(m));} });
+  _pe.ops=_pe.ops.filter(function(o){return !(o.t==='leader'&&String(o.p)===String(p))});
+  var lm=peFind_(k); _pe.ops.push({t:'leader',p:+p,name:lm?lm.ign:'',id:k}); renderParty();
+};
+window.peAbsent=function(k){
+  var m=peFind_(k); if(!m)return; peBegin_();
+  var abs=!isLeaveNote(m); m.attend=abs?'ABSENT':'ACTIVE';
+  if(!abs&&String(m.status||'').toUpperCase()==='ABSENT')m.status='ACTIVE';
+  _pe.dirty.add(k); _pe.ops=_pe.ops.filter(function(o){return !(o.t==='attend'&&o.id===k)});
+  _pe.ops.push({t:'attend',name:m.ign,id:k,absent:abs}); renderParty();
+};
+window.peResetAttend=function(){
+  peBegin_();
+  members.forEach(function(m){ if(isLeaveNote(m))_pe.dirty.add(K(m)); m.attend='ACTIVE'; if(String(m.status||'').toUpperCase()==='ABSENT')m.status='ACTIVE'; });
+  _pe.ops=_pe.ops.filter(function(o){return o.t!=='attend'&&o.t!=='resetAttend'});
+  _pe.ops.push({t:'resetAttend'}); renderParty();
+};
+window.peSwapParty=function(p){
+  p=String(p);
+  if(!_pe.swp){_pe.swp=p;_pe.sel=null;renderParty();return;}
+  if(_pe.swp===p){_pe.swp=null;renderParty();return;}
+  var a=_pe.swp,b=p; peBegin_();
+  members.forEach(function(m){
+    if(String(m.party)===a){m.party=b;m.field_gl=peFieldOf_(b);_pe.dirty.add(K(m));}
+    else if(String(m.party)===b){m.party=a;m.field_gl=peFieldOf_(a);_pe.dirty.add(K(m));} });
+  applyMode(); _pe.ops.push({t:'swapParty',a:+a,b:+b});
+  _pe.swp=null; toast('สลับทั้งตี้ Party '+a+' ⇄ Party '+b+' แล้ว · กด Save เพื่อบันทึก'); renderParty();
+};
+window.peTap=function(k){
+  if(!_pe.sel||_pe.sel===k){ if(_pe.sel===k){_pe.sel=null;renderParty();} return; }
+  var a=peFind_(_pe.sel), b=peFind_(k); if(!a||!b)return;
+  if(a.party&&b.party&&String(a.party)===String(b.party)){ _pe.sel=null; renderParty(); return; }
+  peBegin_();
+  var pa=a.party,pb=b.party,ra=a.role,rb=b.role;
+  a.party=pb; b.party=pa; a.role=pb?'Member':''; b.role=pa?'Member':'';
+  if((ra==='Leader'&&pa)||(rb==='Leader'&&pb))toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
+  _pe.dirty.add(K(a)); _pe.dirty.add(K(b)); _pe.ops.push({t:'swap',a:a.ign,b:b.ign,ida:K(a),idb:K(b)});
+  _pe.sel=null; renderParty();
+};
+window.peTapEmpty=function(p){
+  if(!_pe.sel)return; var a=peFind_(_pe.sel); if(!a)return;
+  if(String(a.party||'')!==String(p)){
+    var n=members.filter(function(m){return String(m.party||'')===String(p)}).length;
+    if(n>=5){ toast('Party '+p+' เต็มแล้ว · ย้ายคนออกก่อนหรือใช้ปุ่ม ⇄ สลับตัวแทน',null,true); _pe.sel=null; renderParty(); return; }
+  }
+  peBegin_();
+  if(a.role==='Leader'&&a.party)toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
+  a.party=String(p); a.role='Member'; _pe.dirty.add(K(a)); _pe.ops.push({t:'move',a:a.ign,p:+p,id:K(a)});
+  _pe.sel=null; renderParty();
+};
+
+/* เอาออกจากตี้ — คนไปอยู่ในรายการ "ยังไม่ได้จัดเข้าตี้" ไม่ลบข้อมูลสมาชิก */
+window.peRemove=function(k){
+  var m=peFind_(k); if(!m||!m.party)return; var name=m.ign;
+  peBegin_();
+  var prev={party:m.party,role:m.role,slot:m.slot}, wasLead=m.role==='Leader', hadDirty=_pe.dirty.has(k);
+  m.party=''; m.role=''; m.slot=''; _pe.dirty.add(k);
+  var op={t:'remove',a:m.ign,id:k,p:+prev.party}; _pe.ops.push(op); _pe.sel=null;
+  renderParty();
+  toast(esc(name)+' ออกจาก Party '+prev.party+' แล้ว'+(wasLead?' · ตี้นี้ยังไม่มีหัวตี้':'')+' · กด Save เพื่อบันทึก',function(){
+    m.party=prev.party; m.role=prev.role; m.slot=prev.slot;
+    var i=_pe.ops.indexOf(op); if(i>=0)_pe.ops.splice(i,1);
+    if(!hadDirty)_pe.dirty.delete(k);
+    if(!_pe.ops.length){ _pe.snap=null; _pe.dirty=new Set(); }
+    renderParty();
+  });
+};
+function rowTap(name){
+  if(!_pe.sel){ pePick(name); return; }
+  var a=peFind_(_pe.sel), b=peFind_(name);
+  if(a&&b&&a!==b&&a.party&&String(a.party)===String(b.party)){ _pe.sel=name; renderParty(); return; }
+  peTap(name);
+}
+function addTo(p){
+  if(_pe.sel){ peTapEmpty(p); return; }
+  var n=members.filter(function(m){return String(m.party||'')===String(p)}).length;
+  if(n>=5){ toast('Party '+p+' เต็มแล้ว · เอาคนออกก่อน หรือลากคนมาสลับ',null,true); return; }
+  openSheet(p);
+}
+function pool(){ return members.filter(function(m){return !m.party&&String(m.status||'').toUpperCase()!=='ARCHIVED'}).sort(function(a,b){return String(a.ign).localeCompare(String(b.ign))}); }
+var sheet;
+function openSheet(p){
+  if(!sheet){ sheet=document.createElement('div'); sheet.id='pe2-sheet'; document.body.appendChild(sheet);
+    sheet.addEventListener('click',function(e){ if(e.target===sheet)closeSheet(); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&sheet.classList.contains('on'))closeSheet(); }); }
+  sheet.innerHTML='<div class="box" role="dialog" aria-modal="true" aria-label="เลือกคนเข้า Party '+p+'"><h3>เพิ่มคนเข้า Party '+p+'</h3><div class="sub">แสดงเฉพาะคนที่ยังไม่มีตี้ · ตัวรอง (ALT) เข้าตี้ได้ แต่ประมูลไม่ได้</div><input id="pe2-q" type="search" placeholder="ค้นหาชื่อ" autocomplete="off"><div class="list" id="pe2-list"></div><button class="close" type="button">ปิด</button></div>';
+  sheet.classList.add('on');
+  var inp=q('#pe2-q',sheet);
+  function fill(){
+    var k=inp.value.trim().toLowerCase();
+    var L=pool().filter(function(m){return !k||String(m.ign).toLowerCase().indexOf(k)>=0});
+    var box=q('#pe2-list',sheet);
+    if(!L.length){ box.innerHTML='<div class="none">'+(k?'ไม่พบชื่อนี้ในรายการคนที่ยังไม่มีตี้':'ทุกคนอยู่ในตี้แล้ว<br>ถ้าจะเอาใครมาที่นี่ ให้เอาเขาออกจากตี้เดิมก่อน หรือลากมาสลับ')+'</div>'; return; }
+    box.innerHTML=L.map(function(m){ return '<button type="button" class="opt" data-n="'+esc(K(m))+'"><b>'+esc(m.ign)+'</b><span>'+esc(classOf(m))+' · #'+esc(m.char_id)+'</span>'+(isAlt(m)?'<i>ALT</i>':'')+'</button>'; }).join('');
+  }
+  inp.addEventListener('input',fill); fill();
+  q('#pe2-list',sheet).onclick=function(e){ var b=e.target.closest('.opt'); if(!b)return; var nm=b.getAttribute('data-n'); closeSheet(); _pe.sel=nm; peTapEmpty(p); };
+  q('.close',sheet).onclick=closeSheet;
+  setTimeout(function(){ try{inp.focus({preventScroll:true})}catch(e){} },30);
+}
+function closeSheet(){ if(sheet)sheet.classList.remove('on'); }
+
+/* แถบปุ่มล่างจอ: ขึ้นเมื่อเลือกคนแล้ว */
+var bar;
+function drawBar(){
+  if(!bar){ bar=document.createElement('div'); bar.id='pe2-bar'; document.body.appendChild(bar);
+    bar.addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b||!_pe.sel)return; var nm=_pe.sel, m=peFind_(nm), a=b.getAttribute('data-a');
+      if(a==='lead'&&m&&m.party)peLeader(m.party,nm);
+      else if(a==='abs')peAbsent(nm);
+      else if(a==='rm')window.peRemove(nm);
+      else if(a==='x'){ _pe.sel=null; renderParty(); }
+    }); }
+  var on=isAdm&&EDIT()&&_pe.sel&&peFind_(_pe.sel);
+  bar.classList.toggle('on',!!on);
+  var pc=q('#party-content'); if(pc)pc.classList.toggle('pe2-pad',!!on);
+  if(!on){ bar.innerHTML=''; return; }
+  var m=peFind_(_pe.sel), inP=!!m.party, lead=m.role==='Leader', ab=isLeaveNote(m);
+  bar.innerHTML='<div class="t">เลือก <b>'+esc(m.ign)+'</b> <span style="color:var(--faint)">#'+esc(m.char_id)+'</span> · '+(inP?'Party '+esc(m.party):'ยังไม่มีตี้')+'<br>'+(inP?'แตะชื่อคนอื่นเพื่อสลับ · แตะ ＋ เพื่อย้ายไปตี้อื่น':'แตะ ＋ ในตี้ที่ต้องการ หรือแตะชื่อคนในตี้เพื่อสลับกัน')+'</div>'
+   +'<div class="row">'+(inP?'<button type="button" data-a="lead">'+(lead?'★ เป็นหัวตี้อยู่':'★ ตั้งเป็นหัวตี้')+'</button>':'')
+   +'<button type="button" data-a="abs">🌙 '+(ab?'ยกเลิกลา':'ลาวันนี้')+'</button>'
+   +(inP?'<button type="button" class="danger" data-a="rm">เอาออกจากตี้</button>':'')
+   +'<button type="button" class="quiet" data-a="x">ยกเลิกเลือก</button></div>';
+}
+
+/* ปรับ DOM หลัง renderParty */
+function enhance(){
+  var root=q('#party-content'); if(!root)return;
+  var edit=isAdm&&EDIT();
+  root.classList.toggle('pe2-edit',edit);
+  qa('.pc',root).forEach(function(pc){
+    var pn=((q('.pn',pc)||{}).textContent||'').replace(/\D/g,'');
+    pc.setAttribute('data-party',pn);
+    var body=q('.pm-body',pc); if(!body)return;
+    var rows=qa('.pm',body);
+    rows.forEach(function(r){ if(!edit)return; var id=r.getAttribute('data-id'); r.onclick=function(){ if(Date.now()-lastDrag<350)return; rowTap(id); };
+      var bs=qa('.pe-acts .pe-ic',r); if(bs[0])bs[0].onclick=function(){ peLeader(pn,id); }; if(bs[1])bs[1].onclick=function(){ peAbsent(id); }; if(bs[2])bs[2].onclick=function(){ pePick(id); }; });
+    if(edit){
+      qa('.pe-empty',body).forEach(function(e){
+        e.classList.add('pe2-add'); e.setAttribute('role','button'); e.tabIndex=0;
+        e.innerHTML=_pe.sel?'＋ ย้ายมาช่องนี้':'＋ เพิ่มคน';
+        e.onclick=function(){ if(Date.now()-lastDrag<350)return; addTo(pn); };
+        e.onkeydown=function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); addTo(pn); } };
+      });
+    } else {
+      var need=5-rows.length; for(var i=0;i<need;i++)body.insertAdjacentHTML('beforeend','<div class="pe-empty pe2-ro">ว่าง</div>');
+    }
+  });
+  if(edit){
+    var pb=q('.pe-bar',root);
+    if(pb&&!q('.pe2-help',root))pb.insertAdjacentHTML('afterend','<div class="pe2-help"><b>แตะชื่อ</b> เพื่อเลือก (หรือกดปุ่ม ★ หัวตี้ · 🌙 ลา · ⇄ เลือก ข้างชื่อ) แล้วใช้ปุ่มด้านล่าง · <b>ลากชื่อ</b> (มือถือ: กดค้างแล้วลาก) ไปวางบนอีกคนเพื่อสลับ หรือบน ＋ เพื่อย้าย · <b>แตะ ＋</b> เพื่อเลือกจากคนที่ยังไม่มีตี้ · ทุกอย่างอยู่ในเครื่องจนกว่าจะกด Save</div>');
+    var pl=q('.pe-pool',root); if(pl){ qa('.chip',pl).forEach(function(c){c.remove()}); var L=pool(); L.forEach(function(m){ var s=document.createElement('span'); s.className='chip'+(_pe.sel===K(m)?' pe-sel':''); s.setAttribute('data-id',K(m)); s.title='#'+m.char_id; s.textContent=m.ign; s.onclick=function(){ if(Date.now()-lastDrag<350)return; pePool(K(m)); }; pl.appendChild(s); }); }
+    var sm=q('.pe-pool small',root); if(sm)sm.textContent='แตะเพื่อเลือก หรือลากไปวางที่ ＋ ในตี้';
+  }
+  drawBar();
+}
+var _rp=window.renderParty;
+window.renderParty=function(){ var r=_rp.apply(this,arguments); try{enhance();}catch(e){ console.error('pe2',e); } return r; };
+var _sw=window.sw;
+window.sw=function(t){ var r=_sw.apply(this,arguments);
+  if(isAdm&&t==='members'&&typeof msLoad_==='function'){ try{msLoad_();}catch(e){} }
+  if(t!=='party'&&bar){ bar.classList.remove('on'); }
+  return r; };
+
+/* ลาก: เมาส์ลากได้ทันที · มือถือกดค้าง 0.4 วินาที */
+var D=null, trash;
+function point(e){ var t=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e; return {x:t.clientX,y:t.clientY}; }
+function clearOver(){ qa('.pe2-over').forEach(function(x){x.classList.remove('pe2-over')}); }
+function targetAt(x,y){ var el=document.elementFromPoint(x,y); if(!el)return null;
+  if(el.closest('#pe2-trash'))return {k:'trash',el:trash};
+  var pm=el.closest('.pm'); if(pm)return {k:'row',el:pm,id:pm.getAttribute('data-id')};
+  var em=el.closest('.pe-empty.pe2-add'); if(em)return {k:'empty',el:em,p:em.closest('.pc').getAttribute('data-party')};
+  var pc=el.closest('.pc'); if(pc)return {k:'card',el:pc,p:pc.getAttribute('data-party')};
+  return null; }
+function begin(x,y){
+  if(!D||D.on)return; D.on=true; clearTimeout(D.timer);
+  var m=peFind_(D.id); D.inParty=!!(m&&m.party);
+  D.ghost=document.createElement('div'); D.ghost.className='pe2-ghost'; D.ghost.textContent=(m&&m.ign)||''; document.body.appendChild(D.ghost);
+  D.el.classList.add('dragging'); document.body.classList.add('pe2-dragging'); document.body.classList.toggle('pe2-has-party',D.inParty);
+  if(!trash){ trash=document.createElement('div'); trash.id='pe2-trash'; trash.textContent='ปล่อยที่นี่เพื่อเอาออกจากตี้'; document.body.appendChild(trash); }
+  try{ if(navigator.vibrate)navigator.vibrate(15); }catch(e){}
+  place(x,y);
+}
+function place(x,y){ D.ghost.style.left=x+'px'; D.ghost.style.top=y+'px'; clearOver();
+  var t=targetAt(x,y); D.t=t; if(t&&t.el){ if(t.k==='row'&&t.id===D.id){D.t=null;return;} t.el.classList.add('pe2-over'); } }
+function finish(drop){
+  if(!D)return; var d=D; D=null; clearTimeout(d.timer);
+  if(!d.on)return;
+  lastDrag=Date.now();
+  if(d.ghost)d.ghost.remove(); d.el.classList.remove('dragging'); clearOver();
+  document.body.classList.remove('pe2-dragging','pe2-has-party');
+  var t=drop?d.t:null; if(!t)return;
+  var me=peFind_(d.id); if(!me)return;
+  if(t.k==='trash'){ window.peRemove(d.id); return; }
+  if(t.k==='row'){
+    var o=peFind_(t.id);
+    if(o&&o.party&&me.party&&String(o.party)===String(me.party)){ toast('อยู่ตี้เดียวกันอยู่แล้ว · ลากไปวางตี้อื่นเพื่อสลับ',null,true); return; }
+    _pe.sel=d.id; peTap(t.id); return;
+  }
+  if(t.k==='empty'||t.k==='card'){
+    if(String(me.party||'')===String(t.p)){ return; }
+    _pe.sel=d.id; peTapEmpty(t.p); return;
+  }
+}
+function onDown(e){
+  if(!isAdm||!EDIT())return;
+  if(e.type==='mousedown'&&e.button!==0)return;
+  var el=e.target.closest('#party-content .pm, #party-content .pe-pool .chip'); if(!el||e.target.closest('.pe-acts'))return;
+  var p=point(e), nm=el.getAttribute('data-id'); if(!nm)return;
+  D={el:el,id:nm,sx:p.x,sy:p.y,on:false,touch:e.type==='touchstart',lx:p.x,ly:p.y};
+  if(D.touch)D.timer=setTimeout(function(){ if(D)begin(D.lx,D.ly); },400);
+}
+function onMove(e){
+  if(!D)return; var p=point(e); D.lx=p.x; D.ly=p.y;
+  if(!D.on){ var dist=Math.hypot(p.x-D.sx,p.y-D.sy);
+    if(D.touch){ if(dist>10){ clearTimeout(D.timer); D=null; } }
+    else if(dist>6){ begin(p.x,p.y); }
+    return; }
+  if(e.cancelable)e.preventDefault();
+  place(p.x,p.y);
+}
+function onUp(){ finish(true); }
+document.addEventListener('mousedown',onDown);
+document.addEventListener('mousemove',onMove);
+document.addEventListener('mouseup',onUp);
+document.addEventListener('touchstart',onDown,{passive:true});
+document.addEventListener('touchmove',onMove,{passive:false});
+document.addEventListener('touchend',onUp);
+document.addEventListener('touchcancel',function(){ finish(false); });
+document.addEventListener('contextmenu',function(e){ if(isAdm&&EDIT()&&e.target.closest&&e.target.closest('#party-content .pm, #party-content .chip'))e.preventDefault(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ if(D&&D.on){ finish(false); } else if(_pe&&_pe.sel&&!(sheet&&sheet.classList.contains('on'))){ _pe.sel=null; renderParty(); } } });
+
+if(isAdm&&typeof _currentPage!=='undefined'&&_currentPage==='party'){ try{ renderParty(); }catch(e){} }
+})();
 
 admInit_();
 loadData();
