@@ -6,6 +6,94 @@ if(window.__WARMUP_ADMIN__){(function(){function show(m){try{var d=document.getE
 window.addEventListener('error',function(e){show('ERR '+e.message+' @'+(e.lineno||'?')+':'+(e.colno||'?'))});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('REJ '+(r&&r.message||r))});})()}
 </script>
+<script>
+/* ═════════ Login Gate ขั้น 1 (28 ต.ค. 69) — ต้อง login Discord เป็นสมาชิก ACTIVE ถึงเข้าเว็บสาธารณะได้
+   ทำงานเฉพาะบน samhongvai.github.io (หน้าแอดมินใน Apps Script ใช้ PIN เดิม · mockup/ทดสอบในเครื่องไม่โดน)
+   เซสชันมาจาก Worker /auth/* · เก็บโทเค็นใน localStorage · ถามสถานะสดทุกครั้งที่เปิดเว็บ · ล้มเหลว = ไม่ให้เข้า
+   ขั้น 1 = ประตูหน้าเว็บ · ข้อมูลหลังเว็บยังเป็นชีทสาธารณะ (ล็อกข้อมูลเป็นรอบแยก ดู claude/web-login-gate-plan-2026-10-14.md) ═════════ */
+(function(){
+  if(window.__WARMUP_ADMIN__) return;
+  if(location.hostname!=='samhongvai.github.io') return;
+  var W='https://warmup-discord.sdmmaruko.workers.dev',K='warmup_auth_v1';
+  window.__WARMUP_GATE__=1;
+  var root=document.documentElement,box=null,chip=null,msg='';
+  function ls(f){try{return f()}catch(e){return null}}
+  function getTok(){return ls(function(){return localStorage.getItem(K)})}
+  function setTok(t){ls(function(){t?localStorage.setItem(K,t):localStorage.removeItem(K)})}
+  var h=location.hash.replace(/^#/,'');
+  if(h.indexOf('auth=')===0){setTok(h.slice(5));history.replaceState(null,'',location.pathname+location.search)}
+  else if(h.indexOf('autherr=')===0){msg=h.slice(8);history.replaceState(null,'',location.pathname+location.search)}
+  var css=document.createElement('style');
+  css.textContent='html.wg-lock,html.wg-lock body{overflow:hidden!important}'+
+  '#wg{position:fixed;inset:0;z-index:99999;background:var(--bg,#1b1b1f);color:var(--text,#eee);display:flex;align-items:center;justify-content:center;padding:16px;font-family:var(--font,system-ui,sans-serif);font-size:15px;line-height:1.5;overflow:auto}'+
+  '#wg .wc{width:100%;max-width:420px;background:var(--card,#26262b);border:1px solid var(--border,rgba(128,128,128,.3));border-radius:14px;padding:24px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.28)}'+
+  '#wg h1{font-size:20px;margin:0 0 4px}#wg p{color:var(--muted,#999);font-size:14px;margin:8px 0}'+
+  '#wg .wb{display:block;width:100%;min-height:48px;margin:12px 0 0;border:0;border-radius:10px;font:inherit;font-weight:800;cursor:pointer;color:#fff;background:var(--orange,#B23410)}'+
+  '#wg .wb.ws{background:transparent;color:var(--text,#eee);border:1px solid var(--border2,rgba(128,128,128,.5))}'+
+  '#wg .we{color:var(--red,#e05a5a);font-size:13px;margin-top:12px}'+
+  '#wg img{max-width:100%;border-radius:10px;margin-top:12px}'+
+  '#wgc{position:fixed;right:11px;bottom:10px;z-index:400;background:var(--card,#26262b);color:var(--text,#eee);border:1px solid var(--border,rgba(128,128,128,.3));border-radius:999px;padding:6px 8px 6px 12px;font-size:12px;display:flex;gap:8px;align-items:center;box-shadow:0 1px 5px rgba(0,0,0,.2);max-width:calc(100vw - 22px)}'+
+  '#wgc span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#wgc button{border:1px solid var(--border2,rgba(128,128,128,.5));background:transparent;color:inherit;border-radius:999px;padding:4px 10px;font:inherit;cursor:pointer}';
+  root.appendChild(css);
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  function show(build){
+    if(chip){chip.remove();chip=null}
+    if(!box){box=el('div');box.id='wg';root.appendChild(box);root.classList.add('wg-lock')}
+    box.textContent='';var c=el('div','wc');build(c);box.appendChild(c);
+  }
+  function release(){if(box){box.remove();box=null}root.classList.remove('wg-lock')}
+  function login(){location.href=W+'/auth/login?return='+encodeURIComponent(location.origin+location.pathname)}
+  function logout(){setTok(null);location.replace(location.pathname)}
+  function btn(c,txt,fn,sec){var b=el('button','wb'+(sec?' ws':''),txt);b.type='button';b.onclick=fn;c.appendChild(b);return b}
+  var ERR={denied:'ยกเลิกการเข้าสู่ระบบ Discord',token:'Discord ไม่ตอบรับ ลองใหม่อีกครั้ง',user:'อ่านบัญชี Discord ไม่ได้ ลองใหม่อีกครั้ง',lookup:'เช็กทะเบียนไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง',error:'เกิดข้อผิดพลาด ลองใหม่อีกครั้ง'};
+  function gate(){
+    show(function(c){
+      c.appendChild(el('h1',0,'Warmup Guild'));
+      c.appendChild(el('p',0,'เข้าเว็บได้เฉพาะสมาชิกกิลด์'));
+      btn(c,'เป็นสมาชิกอยู่แล้ว · Login with Discord',login);
+      btn(c,'สมัครเข้ากิลด์',apply,1);
+      if(msg)c.appendChild(el('div','we',ERR[msg]||ERR.error));
+    });
+  }
+  function apply(){
+    show(function(c){
+      c.appendChild(el('h1',0,'สมัครเข้ากิลด์'));
+      c.appendChild(el('p',0,'สมัครผ่าน Discord ของกิลด์: ไปที่ห้องลงทะเบียน กดปุ่มสมัคร แล้วกรอกรหัสตัวละคร ชื่อ และอาชีพ · แอดมินอนุมัติแล้วกลับมา Login ที่หน้านี้'));
+      var im=el('img');im.src='guide-apply.png';im.alt='วิธีสมัคร';c.appendChild(im);
+      btn(c,'กลับ',gate,1);
+    });
+  }
+  function status(d){
+    show(function(c){
+      var s=d.status;
+      c.appendChild(el('h1',0,s==='WAITLIST'?'ใบสมัครรออนุมัติ':s==='ALT'?'บัญชีนี้เป็นตัวรอง':'ยังไม่พบบัญชีนี้ในทะเบียน'));
+      c.appendChild(el('p',0,s==='WAITLIST'?'แอดมินยังไม่ได้อนุมัติ เข้าเว็บได้หลังเป็นสมาชิก ACTIVE':s==='ALT'?'เข้าเว็บด้วยบัญชี Discord ของตัวหลักที่เป็น ACTIVE':'ถ้าสมัครแล้ว รอแอดมินอนุมัติ · ถ้ายังไม่ได้สมัคร กดสมัครด้านล่าง'));
+      c.appendChild(el('p',0,'Login อยู่ด้วย Discord: '+(d.discord||'—')));
+      if(s!=='WAITLIST'&&s!=='ALT')btn(c,'สมัครเข้ากิลด์',apply);
+      btn(c,'ใช้บัญชี Discord อื่น',logout,1);
+    });
+  }
+  function ok(d){
+    release();
+    chip=el('div');chip.id='wgc';
+    chip.appendChild(el('span',0,'Discord: '+(d.discord||'—')+(d.name?' · '+d.name:'')));
+    var b=el('button',0,'ออกจากระบบ');b.type='button';b.onclick=logout;chip.appendChild(b);
+    root.appendChild(chip);
+  }
+  function check(){
+    var t=getTok();
+    if(!t){gate();return}
+    show(function(c){c.appendChild(el('p',0,'กำลังตรวจสิทธิ์…'))});
+    fetch(W+'/auth/me',{headers:{authorization:'Bearer '+t}}).then(function(r){
+      if(r.status===401){setTok(null);gate();return}
+      return r.json().then(function(d){if(d&&d.ok&&d.allowed)ok(d);else if(d&&d.ok)status(d);else{gate()}});
+    }).catch(function(){
+      show(function(c){c.appendChild(el('h1',0,'ต่อระบบไม่ติด'));c.appendChild(el('p',0,'ตรวจสิทธิ์ไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง'));btn(c,'ลองใหม่',check)});
+    });
+  }
+  check();
+})();
+</script>
 <!-- Warmup build 2026-09-19 17:08 UTC -->
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache">
