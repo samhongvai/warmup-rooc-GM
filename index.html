@@ -7,6 +7,46 @@ window.addEventListener('error',function(e){show('ERR '+e.message+' @'+(e.lineno
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('REJ '+(r&&r.message||r))});})()}
 </script>
 <script>
+/* ═════════ R-025 โหมดสาธิต ?demo (1 พ.ย. 69) — ไม่ส่งคำขอออกเลย ใช้ข้อมูลสมมติล้วน (ไม่มีชื่อ/รหัสจริง)
+   เปิดได้เฉพาะนอกโฮสต์สาธารณะ (samhongvai.github.io) : เปิดไฟล์ในเครื่อง/localhost หรือหน้าแอดมินที่ส่ง prefs.demo
+   บนเว็บสาธารณะ ?demo ถูกเมินทั้งหมด ประตูล็อกอินไม่ถูกแตะ */
+(function(){
+  var d=false;
+  try{
+    var pub=location.hostname==='samhongvai.github.io';
+    var q=new URLSearchParams(location.search).has('demo');
+    var a=window.__WARMUP_ADMIN__, ap=false;
+    if(a){ if(typeof a==='string'){try{a=JSON.parse(a)}catch(e){a=null}} ap=!!(a&&a.prefs&&a.prefs.demo); }
+    d=!pub&&(q||ap);
+  }catch(e){}
+  window.__DEMO__=d;
+  if(!d)return;
+  var CL=['High Priest','Minstrel','Gypsy','Biochemist','Summoner','Lord Knight','Paladin','Mastersmith','Professor','High Wizard','Sniper','Stalker','Rebellion','Champion','Assassin Cross'];
+  var cols=['character_name','character_id','class_gl','class_or','field_gl','field_or','party_no','slot','role','status','tag','attend','discord_id'];
+  var rows=[];
+  for(var i=0;i<20;i++){
+    var c=CL[i%CL.length];
+    rows.push({c:[{v:'Demo'+(i+1<10?'0':'')+(i+1)},{v:String(900001+i)},{v:c},{v:c},{v:'Elite'},{v:'Elite'},{v:String(Math.floor(i/5)+1)},{v:String(i%5+1)},{v:i%5===0?'Leader':'Member'},{v:'ACTIVE'},{v:''},{v:''},{v:''}]});
+  }
+  var gv={table:{cols:cols.map(function(k){return{label:k}}),rows:rows}};
+  var json='/*O_o*/\ngoogle.visualization.Query.setResponse('+JSON.stringify(gv)+');';
+  function resp(u){
+    u=String(u&&u.url?u.url:u);
+    if(u.indexOf('sheet=Web_Members')>=0&&u.indexOf('out:json')>=0)return json;
+    return u.indexOf('out:csv')>=0?'':json.replace(/"rows":\[.*\]\}\}/,'"rows":[]}}');
+  }
+  window.fetch=function(u){return Promise.resolve(new Response(resp(u),{status:200}))};
+  try{navigator.sendBeacon=function(){return true}}catch(e){}
+  try{XMLHttpRequest.prototype.open=function(){};XMLHttpRequest.prototype.send=function(){};}catch(e){}
+  window.addEventListener('DOMContentLoaded',function(){
+    var b=document.createElement('div');
+    b.textContent='DEMO · ข้อมูลสมมติ · ไม่มีการส่งคำขอออกนอกหน้านี้';
+    b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99998;background:#b45309;color:#fff;font:600 12px system-ui;text-align:center;padding:4px';
+    document.body.appendChild(b);
+  });
+})();
+</script>
+<script>
 /* ═════════ Login Gate ขั้น 1 (28 ต.ค. 69) — ต้อง login Discord เป็นสมาชิก ACTIVE ถึงเข้าเว็บสาธารณะได้
    ทำงานเฉพาะบน samhongvai.github.io (หน้าแอดมินใน Apps Script ใช้ PIN เดิม · mockup/ทดสอบในเครื่องไม่โดน)
    เซสชันมาจาก Worker /auth/* · เก็บโทเค็นใน localStorage · ถามสถานะสดทุกครั้งที่เปิดเว็บ · ล้มเหลว = ไม่ให้เข้า
@@ -99,9 +139,7 @@ window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('RE
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Warmup Guild Manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400..700&family=Noto+Sans+Thai:wght@400..800&display=swap" rel="stylesheet">
+<script>if(!window.__DEMO__){document.write("<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link href=\"https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400..700&family=Noto+Sans+Thai:wght@400..800&display=swap\" rel=\"stylesheet\">")}</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1959,6 +1997,7 @@ function edToggle(){
 const ADMIN_URL='https://script.google.com/macros/s/AKfycbzTho04o8jKR9SsNH5iHUVFiplgZCxuYq9BTj7bFyYKuGQxhB6_9YrJIgVFp3toCgCb/exec';
 const SITE_URL='https://samhongvai.github.io/warmup-rooc-GM/';
 function admCall(fn){
+  if(window.__DEMO__)return Promise.resolve(fn==='admRegPending'?{waitlist:[],moves:[],switches:[]}:null);
   const args=[].slice.call(arguments,1);
   return new Promise((res,rej)=>{
     google.script.run.withSuccessHandler(res)
