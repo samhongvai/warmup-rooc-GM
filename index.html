@@ -945,6 +945,7 @@ body.is-admin .adm-only{display:table-cell}
 .adm-link{text-decoration:none}
 body.is-admin .adm-link{color:var(--green)}
 .adm-rib{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--green-dim);border:1px solid var(--green-b);border-radius:12px;padding:9px 14px;margin:0 0 14px;font-size:13px}
+.adm-prevwarn{margin:8px 0;padding:10px 12px;border:1px solid #d9a441;background:rgba(217,164,65,.12);border-radius:10px;font-size:13px;display:flex;flex-direction:column;gap:2px}.adm-prevwarn .sub{color:var(--faint);font-size:12px}
 .adm-rib b{color:var(--green)}
 .adm-rib .sp{flex:1}
 .adm-rib a{color:var(--muted);font-size:12px;font-weight:700;text-decoration:none;border:1px solid var(--border2);background:var(--card);border-radius:8px;padding:4px 10px}
@@ -1741,6 +1742,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="page-title">Guild Auction</div>
   <div class="page-sub cap-row"><span id="auc-sub">คิวประมูลและการแจกของ</span><button class="cap-btn" onclick="capOpen(capAucKind_())">📸 Capture</button></div>
   <div id="adm-ribbon"></div>
+  <div id="adm-prevwarn"></div>
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
@@ -4669,6 +4671,16 @@ function toast(msg,undo,err){
 function toastUndo_(){ const u=_toastUndo; _toastUndo=null; const t=document.getElementById('adm-toast'); if(t)t.classList.remove('on'); if(u)u(); }
 
 /* ── ตั้งค่าหน้าเว็บตามโหมด ── */
+/* R-015 (1 พ.ย. 69): แถบเตือนแอดมิน — ผู้ชนะประมูลวอก่อนหน้ายังไม่ done · อ่านอย่างเดียว คืนเฉพาะชื่อในเกม */
+async function admPrevWarn_(){
+  const el=document.getElementById('adm-prevwarn'); if(!el)return;
+  try{
+    const r=await admCall('admPrevCheck');
+    if(!r||!r.ok||!r.ready||!r.n){ el.innerHTML=''; return; }
+    const nm=(r.names||[]).map(x=>String(x).replace(/[<>&"]/g,'')).join(', ');
+    el.innerHTML=`<div class="adm-prevwarn">⚠️ <b>ผู้ชนะประมูลวอก่อนหน้า (${r.prev||''}) ยังไม่ done ${r.n} คน</b><span>${nm}</span><span class="sub">ตั้ง done จากกล่องเตือนในห้องประมูล ก่อนสุ่มคิวรอบใหม่</span></div>`;
+  }catch(e){ el.innerHTML=''; }
+}
 function admInit_(){
   const link=document.getElementById('adm-link'), t=document.getElementById('adm-link-t');
   if(ADMIN){
@@ -4678,6 +4690,7 @@ function admInit_(){
     const rb=document.getElementById('adm-ribbon');
     setTimeout(admAutoArchive_,4000);
     setTimeout(admSkipLeavers_,9000);
+    setTimeout(admPrevWarn_,2500);
     if(rb)rb.innerHTML=`<div class="adm-rib"><span>🟢 <b>โหมดแอดมิน</b> · ${ADMIN.email||''}</span>
       <span style="color:var(--faint);font-size:12px">ทุกการแก้บันทึกลงชีท + เก็บประวัติใน _Admin_Log</span>
       <span class="sp"></span><a href="${SITE_URL}" target="_top" onclick="uiGo_(this,SITE_URL)">ออกจากโหมดแอดมิน</a></div>`;
