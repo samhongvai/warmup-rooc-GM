@@ -2102,7 +2102,7 @@ function sw(t){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
-  if(t==='members'){ if(ADMIN)msLoad_(); renderMembers(); }   /* วาดใหม่ทุกครั้ง ไม่งั้นสวิตช์ Edit mode ที่เปิดจากหน้าอื่นจะไม่ติด */
+  if(t==='members'){ if(ADMIN)msRefresh_(); renderMembers(); }   /* วาดใหม่ทุกครั้ง ไม่งั้นสวิตช์ Edit mode ที่เปิดจากหน้าอื่นจะไม่ติด */
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
   if(t==='war')initWarPage();
@@ -2487,10 +2487,19 @@ async function rpDeny(id){
   catch(e){ toast('ทำรายการไม่สำเร็จ · '+e,null,true); }
   await rpLoad_(true);
 }
+/* เปิดแท็บ Members ทุกครั้งดึงรายชื่อทุกสถานะ + คำขอค้างใหม่ (ห่างกันอย่างน้อย 15 วิ)
+   เดิมโหลดครั้งเดียวต่อรอบเปิดหน้า → กดรับ Waitlist ใน Discord แล้วเว็บยังขึ้นค้างจนกว่าจะรีโหลด */
+let _msT=0;
+function msRefresh_(){
+  if(!ADMIN)return;
+  const n=Date.now();
+  if(_msAll&&n-_msT<15000)return;
+  _msT=n; _msAll=null; _rp=null; msLoad_();
+}
 async function msLoad_(){
   if(!ADMIN||_msAll||_msBusy)return;
   _msBusy=true;
-  try{ const r=await admCall('admAllMembers'); _msAll=Array.isArray(r)?r:[]; renderMembers(); rpLoad_(); }
+  try{ const r=await admCall('admAllMembers'); _msAll=Array.isArray(r)?r:[]; renderMembers(); rpLoad_(true); }
   catch(e){ _msAll=[]; }
   finally{ _msBusy=false; }
 }
