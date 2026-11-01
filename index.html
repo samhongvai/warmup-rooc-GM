@@ -2609,7 +2609,7 @@ function renderParty(){
         :isLead?'<span class="pm-tag lead en">Leader</span>':'';
       const nmq=esc_(m.ign).replace(/'/g,"\\'");
       const ed=EDIT()?peRowAttr_(m):'';
-      const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button>${leave?`<button class="pe-ic" title="เอาออกจากตี้ (ปล่อยเป็นช่องว่าง)" onclick="peRemove('${nmq}')">✕</button>`:''}<button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
+      const acts=EDIT()?`<span class="pe-acts" onclick="event.stopPropagation()"><button class="pe-ic${isLead?' on':''}" title="ตั้งเป็นหัวตี้" onclick="peLeader('${p}','${nmq}')">★</button><button class="pe-ic moon${leave?' on':''}" title="ลา / มา" onclick="peAbsent('${nmq}')">🌙</button><button class="pe-ic" title="เอาออกจากตี้ (ปล่อยเป็นช่องว่าง)" onclick="peRemove('${nmq}')">✕</button><button class="pe-ic${_pe.sel===m.ign?' on':''}" title="เลือกเพื่อย้าย/สลับ" onclick="pePick('${nmq}')">⇄</button></span>`:'';
       return`<div class="pm${leave?' pm-absent':''}${ed}" ${EDIT()?`onclick="peTap('${nmq}')"`:''}><div class="pm-bar ${tb}"></div><div class="pm-info"><div class="pm-name">${m.ign}</div><div class="pm-cls-label">${EDIT()?'':jobIcon_(m.class)}<span>${cls||''}</span></div></div>${mark}${acts}</div>`;
     }).join('');
     /* ป้ายต้องบอกจำนวน "ช่องที่ถูกใช้" เพราะฝั่งชีทนับแบบนั้น — เดิมนับเฉพาะคนที่มา
