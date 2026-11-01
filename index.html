@@ -665,6 +665,20 @@ input[type=checkbox]{accent-color:var(--orange)}
 .q-in{width:76px;padding:6px 8px;font-size:13px;text-align:right;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:var(--font)}
 .q-in.bad{border-color:var(--red)}
 .q-row .q-in{justify-self:end}
+
+/* ── Character Stats (R-067 · 2 พ.ย. 69) ── */
+.cs-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.2fr) 70px 70px minmax(0,1.3fr);gap:10px;align-items:center;padding:8px 14px;border-top:1px solid var(--border);font-size:13px;cursor:pointer}
+.cs-row.cs-head{font-size:11px;color:var(--muted);background:var(--soft);border-top:0;cursor:default}
+.cs-row>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.cs-pct{font-weight:700}.cs-pct.ok{color:var(--green)}.cs-pct.lo{color:var(--red)}.cs-pct.mid{color:var(--amber)}
+.cs-det{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;padding:10px 14px 14px;background:var(--soft);border-top:1px solid var(--border)}
+.cs-det>div{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:12px}
+.cs-det b{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.cs-det .cs-v{font-size:14px;font-weight:700}
+.cs-trow{display:grid;grid-template-columns:minmax(0,1.5fr) 110px 110px;gap:10px;align-items:center;padding:7px 14px;border-top:1px solid var(--border);font-size:13px}
+.cs-trow .q-in{width:100%}
+.cs-sel{padding:6px 8px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:var(--font);margin:0 8px 12px 0}
+@media(max-width:640px){.cs-row{grid-template-columns:minmax(0,1.5fr) 60px 60px}.cs-row>span:nth-child(2),.cs-row>span:nth-child(5){display:none}.cs-trow{grid-template-columns:minmax(0,1fr) 90px 90px}}
 .q-save{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:10px 14px;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md)}
 .q-save span{margin-right:auto;font-size:12px;color:var(--muted)}
 .q-save button{padding:7px 16px;font-size:13px;border-radius:12px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:var(--font)}
@@ -1730,6 +1744,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni"><svg><use href="#i-search"/></svg></span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" id="nav-quota" style="display:none" onclick="sw('quota');closeSidebar()"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label">Quota Settings</span><span class="nav-tip">Quota Settings</span></div>
+  <div class="nav-item" id="nav-stats" style="display:none" onclick="sw('stats');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Character Stats</span><span class="nav-tip">Character Stats</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Guild Auction</span><span class="nav-tip">Guild Auction</span></div>
@@ -1788,6 +1803,11 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="page-title">Quota Settings</div>
   <div class="page-sub">ตั้งเป้าอาชีพต่อสนามและความจุกิลด์ (เฉพาะแอดมิน)</div>
   <div id="quota-root"></div>
+</div>
+<div id="page-stats" class="page">
+  <div class="page-title">Character Stats</div>
+  <div class="page-sub">ค่าสเตตัสที่สมาชิกส่งผ่านบอท เทียบเกณฑ์ของอาชีพ (เฉพาะแอดมิน · สมาชิกดูของตัวเองด้วย /mystats ใน Discord)</div>
+  <div id="stats-root"></div>
 </div>
 
 <div id="page-search" class="page active">
@@ -2205,6 +2225,7 @@ function sw(t){
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
   if(t==='quota')renderQuotaAdmin();
+  if(t==='stats')csInit();
   if(t==='members'){ if(ADMIN)msRefresh_(); renderMembers(); }   /* วาดใหม่ทุกครั้ง ไม่งั้นสวิตช์ Edit mode ที่เปิดจากหน้าอื่นจะไม่ติด */
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
@@ -2245,7 +2266,8 @@ async function loadData(){
       status:exact(v,'status'),
       tag:exact(v,'tag'),
       attend:exact(v,'attend'),
-      build:exact(v,'build')
+      build:exact(v,'build'),
+      weapon:exact(v,'weapon')
     }}).filter(m=>m.ign);
     if(_peLocal&&Date.now()<_peHold)members=_peLocal.map(m=>({...m}));   /* เพิ่งบันทึกตี้ — WebMaster ยังตามไม่ทัน */
     /* แท็บ Alias — ชื่อเก่าของคนที่เปลี่ยนชื่อหรือเปลี่ยนตัว
@@ -2826,6 +2848,95 @@ async function qAdmSave(){
   }catch(e){ _qAdm.busy=false; toast('บันทึกไม่สำเร็จ: '+e,null,true); renderQuotaAdmin(); }
 }
 
+
+/* ══ CHARACTER STATS (R-067 · 2 พ.ย. 69) ══
+   ข้อมูลอยู่ในแท็บซ่อน _Char_Stats / _Stat_Target ของชีท Members (ไม่ผ่าน WebMaster สาธารณะ) อ่าน/เขียนผ่าน Apps Script เฉพาะแอดมิน
+   เกณฑ์ = ค่าที่แอดมินตั้ง ก่อน · ไม่มีใช้ค่ากลางของอาชีพ (ต้องมีข้อมูลสเตตัสนั้น ≥ 5 คน) · % = ค่า ÷ เกณฑ์ · เฉลี่ยตัดที่ 150% */
+let _cs={data:null,busy:false,err:'',tab:'list',cls:'',sort:'avg',open:null,tcls:'',tedit:{},saving:false};
+async function csInit(){
+  const h=document.getElementById('stats-root'); if(!h)return;
+  if(!ADMIN){ h.innerHTML='<div class="q-note">หน้านี้เฉพาะแอดมิน</div>'; return; }
+  if(window.__DEMO__){ h.innerHTML='<div class="q-note">โหมดเดโมไม่มีข้อมูลสเตตัส</div>'; return; }
+  _cs.busy=true; _cs.err=''; csRender();
+  try{ _cs.data=await admCall('admStatList'); }catch(e){ _cs.err=String(e); }
+  _cs.busy=false; csRender();
+}
+const csFmt_=n=>n==null?'—':(Math.abs(n)>=1000?Math.round(n).toLocaleString('en-US'):String(Math.round(n*10)/10));
+const csCls_=p=>p==null?'':(p>=100?'ok':(p>=85?'mid':'lo'));
+function csSet(k,v){ _cs[k]=v; if(k==='tcls')_cs.tedit={}; csRender(); }
+function csOpen(id){ _cs.open=(_cs.open===id)?null:id; csRender(); }
+function csBase_(c,k){ const b=(_cs.data.bases||[]).find(x=>x.cls===c&&x.key===k); return b||{base:0,src:'',n:0,median:0,target:0}; }
+function csRender(){
+  const h=document.getElementById('stats-root'); if(!h)return;
+  if(_cs.busy&&!_cs.data){ h.innerHTML='<div class="q-note">กำลังโหลด…</div>'; return; }
+  if(_cs.err){ h.innerHTML='<div class="q-note err">โหลดไม่สำเร็จ: '+esc_(_cs.err)+'</div><button class="q-lnk" onclick="csInit()">ลองใหม่</button>'; return; }
+  const d=_cs.data; if(!d){ h.innerHTML=''; return; }
+  const seg=(items,cur,fn)=>`<div class="q-seg">${items.map(([k,t])=>`<button class="${cur===k?'on':''}" onclick="${fn}('${k}')">${t}</button>`).join('')}</div>`;
+  const nAdmin=(d.bases||[]).filter(b=>b.src==='admin').length, nMed=(d.bases||[]).filter(b=>b.src==='median').length;
+  const met=`<div class="q-metrics"><div><span>ส่งแล้ว</span><b>${d.submitted} / ${d.total}</b></div><div><span>ยังไม่ส่ง</span><b class="${d.missing.length?'err':''}">${d.missing.length}</b></div><div><span>เกณฑ์ที่แอดมินตั้ง</span><b>${nAdmin}</b></div><div><span>เกณฑ์จากค่ากลาง</span><b>${nMed}</b></div></div>`;
+  let body='';
+  if(_cs.tab==='list')body=csList_(d);
+  else if(_cs.tab==='miss')body=csMiss_(d);
+  else body=csTarget_(d);
+  h.innerHTML=met+`<div class="q-sels">${seg([['list','รายคน'],['miss','ยังไม่ส่ง ('+d.missing.length+')'],['target','ตั้งเกณฑ์']],_cs.tab,'csTab')}<button class="q-lnk" onclick="csInit()" ${_cs.busy?'disabled':''}>รีเฟรช</button></div>`+body;
+}
+function csTab(k){ _cs.tab=k; csRender(); }
+function csList_(d){
+  const cl=_cs.cls;
+  let rows=d.rows.filter(r=>!cl||r.cls===cl);
+  const key={avg:(a,b)=>(a.avg==null)-(b.avg==null)||(a.avg||0)-(b.avg||0),name:(a,b)=>a.name.localeCompare(b.name),cls:(a,b)=>a.cls.localeCompare(b.cls)||(a.avg||0)-(b.avg||0)}[_cs.sort];
+  rows=rows.slice().sort(key);
+  const lab={}; d.keys.forEach(k=>lab[k.key]=k.label);
+  const opts=['<option value="">ทุกอาชีพ</option>'].concat(d.classes.map(c=>`<option value="${esc_(c)}"${cl===c?' selected':''}>${esc_(c)}</option>`)).join('');
+  const sopt=[['avg','เรียง: ต้องเติมก่อน'],['name','เรียง: ชื่อ'],['cls','เรียง: อาชีพ']].map(([k,t])=>`<option value="${k}"${_cs.sort===k?' selected':''}>${t}</option>`).join('');
+  const head=`<div class="cs-row cs-head"><span>ตัวละคร</span><span>อาชีพ</span><span>เฉลี่ย</span><span>ถึงเกณฑ์</span><span>ควรเติมก่อน</span></div>`;
+  const one=r=>{
+    const f=r.focus?r.items[r.focus]:null;
+    const det=_cs.open===r.id?`<div class="cs-det">${d.keys.map(k=>{const it=r.items[k.key],b=csBase_(r.cls,k.key);
+      return `<div><b>${esc_(k.label)}</b><span class="cs-v">${csFmt_(it.val)}</span> <span class="cs-pct ${csCls_(it.pct)}">${it.pct==null?'':it.pct+'%'}</span><br><span class="q-num">เกณฑ์ ${b.base>0?csFmt_(b.base)+(b.src==='admin'?' (แอดมิน)':' (ค่ากลาง n='+b.n+')'):'— ยังไม่มี'}</span></div>`}).join('')}</div>`:'';
+    return `<div class="cs-row" onclick="csOpen('${r.id}')"><span>${esc_(r.name)}</span><span>${esc_(r.cls)}</span><span class="cs-pct ${csCls_(r.avg)}">${r.avg==null?'—':r.avg+'%'}</span><span>${r.calc?r.reached+' / '+r.calc:'—'}</span><span>${f?esc_(lab[r.focus])+' '+f.pct+'%':(r.calc?'ครบเกณฑ์':'—')}</span></div>${det}`;
+  };
+  return `<div class="q-sels"><select class="cs-sel" onchange="csSet('cls',this.value)" aria-label="อาชีพ">${opts}</select><select class="cs-sel" onchange="csSet('sort',this.value)" aria-label="เรียง">${sopt}</select></div>
+  <div class="q-panel"><div class="q-ph"><h3>ผลเทียบเกณฑ์</h3><span class="q-tag">${rows.length} คน · กดแถวเพื่อดูรายสเตตัส</span></div>${head}${rows.length?rows.map(one).join(''):'<div class="q-note" style="padding:12px 14px">ยังไม่มีใครส่ง</div>'}</div>
+  <p class="q-note">เฉลี่ย = เฉลี่ย % ของทุกสเตตัสที่มีทั้งค่าและเกณฑ์ (ตัดที่ ${d.cap}%) · สเตตัสที่ยังไม่มีเกณฑ์ไม่นับ · ค่ากลางใช้เมื่ออาชีพนั้นมีข้อมูลสเตตัสนั้น ≥ ${d.minN} คน</p>`;
+}
+function csMiss_(d){
+  if(!d.missing.length)return '<div class="q-panel"><div class="q-note" style="padding:12px 14px">ทุกคนส่งแล้ว</div></div>';
+  const by={}; d.missing.forEach(m=>{(by[m.cls||'(ไม่ระบุ)']=by[m.cls||'(ไม่ระบุ)']||[]).push(m)});
+  return `<div class="q-panel"><div class="q-ph"><h3>ยังไม่ส่งค่าสเตตัส</h3><span class="q-tag">${d.missing.length} คน</span></div>${Object.keys(by).sort().map(c=>`<span class="q-grp-h">${esc_(c)} · ${by[c].length}</span>${by[c].map(m=>`<div class="q-row"><span class="q-name">${esc_(m.name)}</span><span class="q-num">${esc_(m.id)}</span><span class="q-num">${esc_(m.status)}</span></div>`).join('')}`).join('')}</div>`;
+}
+function csTarget_(d){
+  if(!d.classes.length)return '<div class="q-note">ยังไม่มีอาชีพ</div>';
+  if(!_cs.tcls||d.classes.indexOf(_cs.tcls)<0)_cs.tcls=d.classes[0];
+  const c=_cs.tcls, n=Object.keys(_cs.tedit).length;
+  const opts=d.classes.map(x=>`<option value="${esc_(x)}"${c===x?' selected':''}>${esc_(x)}</option>`).join('');
+  const rows=d.keys.map(k=>{
+    const b=csBase_(c,k.key), cur=(k.key in _cs.tedit)?_cs.tedit[k.key]:(b.target>0?String(b.target):'');
+    return `<div class="cs-trow"><span class="q-name">${esc_(k.label)}</span><span class="q-num">ค่ากลาง ${b.median>0?csFmt_(b.median):'—'} (n=${b.n})</span><input class="q-in" type="text" inputmode="decimal" value="${esc_(cur)}" placeholder="ใช้ค่ากลาง" onchange="csEdit('${k.key}',this.value)" aria-label="${esc_(k.label)}"></div>`}).join('');
+  return `<div class="q-sels"><select class="cs-sel" onchange="csSet('tcls',this.value)" aria-label="อาชีพ">${opts}</select></div>
+  <div class="q-panel"><div class="q-ph"><h3>เกณฑ์ของ ${esc_(c)}</h3><span class="q-tag">ว่าง = ใช้ค่ากลาง</span></div>
+  <div class="cs-trow q-head" style="background:var(--soft);font-size:11px;color:var(--muted);border-top:0"><span>สเตตัส</span><span>ค่ากลางตอนนี้</span><span>เกณฑ์ของแอดมิน</span></div>${rows}
+  <div class="q-save inline"><span>${n?'แก้ '+n+' ช่อง ยังไม่บันทึก':'ตรงกับที่บันทึกไว้'}</span><button onclick="csDiscard()" ${n?'':'disabled'}>Discard</button><button class="primary" onclick="csSave()" ${n&&!_cs.saving?'':'disabled'}>${_cs.saving?'กำลังบันทึก…':'Save Targets'}</button></div></div>
+  <p class="q-note">ใส่ตัวเลขเปล่า ๆ (ลูกน้ำได้) · พอใส่แล้วทุกคนในอาชีพนี้จะเทียบกับค่านี้แทนค่ากลาง · ล้างช่อง = กลับไปใช้ค่ากลาง · ระบบสำรองแท็บเกณฑ์ให้ก่อนแก้</p>`;
+}
+function csEdit(k,v){
+  const c=_cs.tcls, b=csBase_(c,k), cur=b.target>0?String(b.target):'';
+  const t=String(v).replace(/[,\s]/g,'');
+  if(t===cur)delete _cs.tedit[k]; else _cs.tedit[k]=t;
+  csRender();
+}
+function csDiscard(){ _cs.tedit={}; csRender(); }
+async function csSave(){
+  const ks=Object.keys(_cs.tedit); if(!ks.length||_cs.saving)return;
+  for(const k of ks){ const x=_cs.tedit[k]; if(x!==''&&(isNaN(Number(x))||Number(x)<0)){ toast('ค่าเกณฑ์ต้องเป็นตัวเลขไม่ติดลบ','',true); return; } }
+  _cs.saving=true; csRender();
+  try{
+    const res=await admCall('admStatTargetSave',ks.map(k=>({cls:_cs.tcls,key:k,value:_cs.tedit[k]})));
+    toast('บันทึกเกณฑ์แล้ว '+(res&&res.n!=null?res.n:ks.length)+' ช่อง'+(res&&res.backup?' · สำรอง '+res.backup:''));
+    _cs.tedit={}; _cs.saving=false;
+    _cs.data=await admCall('admStatList'); csRender();
+  }catch(e){ _cs.saving=false; toast('บันทึกไม่สำเร็จ: '+e,null,true); csRender(); }
+}
 
 /* ── Summoner Build (ATK / MATK) · dropdown ในหน้า Quota Settings · ว่าง = ยังไม่ระบุ ── */
 let _qBld={edits:{},busy:false};
@@ -4917,7 +5028,7 @@ function admInit_(){
   const link=document.getElementById('adm-link'), t=document.getElementById('adm-link-t');
   if(ADMIN){
     document.body.classList.add('is-admin');
-    const nq=document.getElementById('nav-quota'); if(nq)nq.style.display='';
+    const nq=document.getElementById('nav-quota'); if(nq)nq.style.display=''; const ns=document.getElementById('nav-stats'); if(ns)ns.style.display='';
     if(link){ link.style.display=''; link.href=SITE_URL; link.onclick=()=>uiGo_(link,SITE_URL); }
     if(t)t.textContent='ออกจากโหมดแอดมิน';
     const rb=document.getElementById('adm-ribbon');
