@@ -22,11 +22,11 @@ window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('RE
   window.__DEMO__=d;
   if(!d)return;
   var CL=['High Priest','Minstrel','Gypsy','Biochemist','Summoner','Lord Knight','Paladin','Mastersmith','Professor','High Wizard','Sniper','Stalker','Rebellion','Champion','Assassin Cross'];
-  var cols=['character_name','character_id','class_gl','class_or','field_gl','field_or','party_no','slot','role','status','tag','attend','discord_id'];
+  var cols=['character_name','character_id','class_gl','class_or','field_gl','field_or','party_no','slot','role','status','tag','attend','discord_id','build'];
   var rows=[];
   for(var i=0;i<20;i++){
     var c=CL[i%CL.length];
-    rows.push({c:[{v:'Demo'+(i+1<10?'0':'')+(i+1)},{v:String(900001+i)},{v:c},{v:c},{v:'Elite'},{v:'Elite'},{v:String(Math.floor(i/5)+1)},{v:String(i%5+1)},{v:i%5===0?'Leader':'Member'},{v:'ACTIVE'},{v:''},{v:''},{v:''}]});
+    rows.push({c:[{v:'Demo'+(i+1<10?'0':'')+(i+1)},{v:String(900001+i)},{v:c},{v:c},{v:'Elite'},{v:'Elite'},{v:String(Math.floor(i/5)+1)},{v:String(i%5+1)},{v:i%5===0?'Leader':'Member'},{v:'ACTIVE'},{v:''},{v:''},{v:''},{v:c==='Summoner'?'ATK':''}]});
   }
   var gv={table:{cols:cols.map(function(k){return{label:k}}),rows:rows}};
   var json='/*O_o*/\ngoogle.visualization.Query.setResponse('+JSON.stringify(gv)+');';
@@ -622,6 +622,59 @@ input[type=checkbox]{accent-color:var(--orange)}
 .abs2-once-l span{font-size:12px;background:var(--card);border:1px solid var(--border2);border-radius:999px;padding:3px 11px}
 .abs2-ft{margin-top:10px;font-size:11.5px;color:var(--faint)}
 @media(max-width:560px){.abs2-g{grid-template-columns:1fr}}
+
+/* ── Class Quota (R-041/R-066) ── */
+/* ══ CLASS QUOTA (R-041 · R-066) ══ */
+.q-seg{display:inline-flex;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;margin:0 8px 12px 0}
+.q-seg button{padding:7px 14px;font-size:12px;font-weight:600;background:transparent;border:0;color:var(--muted);cursor:pointer;font-family:var(--font)}
+.q-seg button.on{background:var(--orange);color:var(--ink-on)}
+.q-sels{margin-bottom:4px}
+.q-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.q-metrics>div{background:var(--soft);border:1px solid var(--border);border-radius:13px;padding:10px 12px}
+.q-metrics span{display:block;font-size:11px;color:var(--muted)}
+.q-metrics b{font-size:20px;font-weight:800}
+.q-metrics b.err,.err{color:var(--red)}
+.q-note{font-size:12px;color:var(--muted);margin:6px 0 12px}
+.q-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:14px;overflow:hidden}
+.q-ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.q-ph h3{font-size:13px;margin:0;font-weight:700}
+.q-tag{font-size:11px;color:var(--muted);border:1px solid var(--border2);border-radius:20px;padding:1px 9px}
+.q-lnk{font-size:12px;background:transparent;border:1px solid var(--orange-border);color:var(--orange);border-radius:var(--radius-sm);padding:4px 10px;cursor:pointer;font-family:var(--font)}
+.q-grp-h{display:block;padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--soft)}
+.q-grp-h.q-s{color:var(--green)}.q-grp-h.q-a{color:var(--amber)}.q-grp-h.q-d{color:var(--red)}
+.q-row{display:grid;grid-template-columns:1fr 130px 90px;gap:10px;align-items:center;padding:8px 14px;border-top:1px solid var(--border);font-size:13px}
+.q-row.q-head,.q-row.q-rhead{font-size:11px;color:var(--muted);background:var(--soft);border-top:0}
+.q-num{color:var(--muted)}.q-num b{color:var(--text)}
+.q-pill{justify-self:start;font-size:11px;font-weight:700;border-radius:20px;padding:1px 10px;background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
+.q-pill.met{background:var(--green-dim);color:var(--green);border-color:var(--green-b)}
+.q-pill.over{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-b)}
+.q-r{grid-template-columns:28px 1fr 70px 80px 120px}
+.q-r.done{opacity:.55}
+.q-rank{color:var(--muted);font-size:12px}.q-n{text-align:right}
+.q-gap{display:flex;align-items:center;gap:8px}.q-gap i{flex:1;height:6px;background:var(--card2);border-radius:4px;overflow:hidden}.q-gap i b{display:block;height:100%;background:var(--red)}
+.q-gap em{font-style:normal;font-weight:700;min-width:18px;text-align:right}.q-gap em.muted{color:var(--muted);font-weight:500}
+.q-decision{border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--radius-md);background:var(--card);padding:12px 14px;margin-bottom:14px}
+.q-decision p{margin:0 0 8px;font-size:13px}
+.q-bar{display:grid;grid-template-columns:100px 1fr 34px;gap:10px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.q-bar i{height:7px;background:var(--card2);border-radius:5px;overflow:hidden}.q-bar i b{display:block;height:100%;background:var(--red)}
+.q-bar.slot i b{background:var(--green)}.q-bar em{font-style:normal;text-align:right;color:var(--text);font-weight:700}
+.q-chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}
+.q-chip{display:inline-flex;gap:8px;align-items:center;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;background:var(--soft);font-size:13px}
+.q-chip em{font-style:normal;color:var(--orange);font-weight:800}
+.q-cap{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:12px 14px}
+.q-in{width:76px;padding:6px 8px;font-size:13px;text-align:right;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:var(--font)}
+.q-in.bad{border-color:var(--red)}
+.q-row .q-in{justify-self:end}
+.q-save{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:10px 14px;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md)}
+.q-save span{margin-right:auto;font-size:12px;color:var(--muted)}
+.q-save button{padding:7px 16px;font-size:13px;border-radius:12px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:var(--font)}
+.q-save button.primary{background:var(--orange);color:var(--ink-on);border-color:var(--orange);font-weight:700}
+.q-save button:disabled{opacity:.4;cursor:default}
+@media(max-width:640px){.q-row{grid-template-columns:1fr 90px 70px;padding:8px 10px}.q-r{grid-template-columns:22px 1fr 40px 50px 80px}.q-bar{grid-template-columns:78px 1fr 30px}}
+
+.q-row select.q-in{width:auto;max-width:150px;text-align:left}
+.q-save.inline{position:static;margin:0}
+.q-unk{opacity:.85}
 </style>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -1676,6 +1729,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="nav-sep"></div>
   <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni"><svg><use href="#i-search"/></svg></span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
+  <div class="nav-item" id="nav-quota" style="display:none" onclick="sw('quota');closeSidebar()"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label">Quota Settings</span><span class="nav-tip">Quota Settings</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Guild Auction</span><span class="nav-tip">Guild Auction</span></div>
@@ -1725,8 +1779,15 @@ body.pe2-dragging #pe2-bar{display:none!important}
     <button data-mode="GL" onclick="setMode('GL')">⚔ Guild League</button>
     <button data-mode="OR" onclick="setMode('OR')">🌐 Overrun</button>
   </div>
+  <div class="au-tabs" id="pq-tabs"></div>
   <div class="page-sub cap-row"><span id="party-sub"></span><button class="cap-btn" onclick="capOpen()">📸 Capture</button></div>
   <div id="party-content"><div class="loading">Loading...</div></div>
+</div>
+
+<div id="page-quota" class="page">
+  <div class="page-title">Quota Settings</div>
+  <div class="page-sub">ตั้งเป้าอาชีพต่อสนามและความจุกิลด์ (เฉพาะแอดมิน)</div>
+  <div id="quota-root"></div>
 </div>
 
 <div id="page-search" class="page active">
@@ -1964,7 +2025,7 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
                Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT,
-               Alias:SRC_EVENT,Rules:SRC_EVENT};
+               Alias:SRC_EVENT,Rules:SRC_EVENT,Class_Quota:SRC_EVENT};
 /* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
 const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H'};
@@ -2143,6 +2204,7 @@ function sw(t){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
+  if(t==='quota')renderQuotaAdmin();
   if(t==='members'){ if(ADMIN)msRefresh_(); renderMembers(); }   /* วาดใหม่ทุกครั้ง ไม่งั้นสวิตช์ Edit mode ที่เปิดจากหน้าอื่นจะไม่ติด */
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
   if(t==='auction')initAuctionPage();
@@ -2182,7 +2244,8 @@ async function loadData(){
       note:'',
       status:exact(v,'status'),
       tag:exact(v,'tag'),
-      attend:exact(v,'attend')
+      attend:exact(v,'attend'),
+      build:exact(v,'build')
     }}).filter(m=>m.ign);
     if(_peLocal&&Date.now()<_peHold)members=_peLocal.map(m=>({...m}));   /* เพิ่งบันทึกตี้ — WebMaster ยังตามไม่ทัน */
     /* แท็บ Alias — ชื่อเก่าของคนที่เปลี่ยนชื่อหรือเปลี่ยนตัว
@@ -2200,6 +2263,7 @@ async function loadData(){
     document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode));
     setS(true,`Loaded · ${members.length} members`);
     stampUpdated();
+    await loadQuota_();
     buildFilters();renderStats();renderMembers();
     _searchCacheLoaded=false;
   }catch(e){setS(false,'Load failed','var(--red)');document.getElementById('m-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1.5rem">Cannot load data</td></tr>'}
@@ -2624,7 +2688,175 @@ function fieldSum_(list,pts){
   const rows=clsCount_(ms,m=>classOf(m));
   return `<div class="field-sum">${clsChips_(rows)}<span class="fs-total">${ms.length} คน</span></div>`;
 }
+/* ══ CLASS QUOTA · เป้าอาชีพต่อสนาม + รับสมัคร (R-041 · R-066 · 2 พ.ย. 69) ══
+   ต้นทางเดียว = แท็บ Class_Quota ในชีท Event (board · field · class · target) + แถวความจุกิลด์ (class = guild_capacity)
+   Field Seats / Recruitment = อ่านอย่างเดียว ทุกคนดูได้ · แก้ได้เฉพาะหน้า Quota Settings (โหมดแอดมิน) ผ่าน admQuotaSave
+   หน้า Party เดิมไม่เปลี่ยน · Summoner แยกเป็น ATK / MATK ตามช่อง build ของตัวละคร (ว่าง = Unknown Build ไม่นับกับเป้าใด) */
+const Q_CLASSES=[['High Priest','Support'],['Minstrel / Gypsy','Support'],['Lord Knight','All Rounder'],['Paladin','All Rounder'],['Biochemist','All Rounder'],['Mastersmith','All Rounder'],['Summoner · ATK','All Rounder'],['Summoner · MATK','All Rounder'],['High Wizard','Attack'],['Professor','Attack'],['Sniper','Attack'],['Assassin Cross','Attack'],['Stalker','Attack'],['Rebellion','Attack'],['Champion','Attack']];
+const Q_NAMES=Q_CLASSES.map(c=>c[0]);
+const Q_FIELD_MAX=40, Q_CAP_DEFAULT=80;
+const qKey_=c=>{const t=String(c||'').trim();return (t==='Minstrel'||t==='Gypsy')?'Minstrel / Gypsy':t};
+const Q_UNK='Summoner · Unknown Build';
+const qBuild_=m=>{const b=String(m.build||'').trim().toUpperCase();return b==='ATK'||b==='MATK'?b:''};
+let _quota={cap:Q_CAP_DEFAULT,has:false,t:{GL:{Main:{},Sub:{}},OR:{Main:{},Sub:{}}}};
+let _qTab='party',_qField='Main',_qAdm=null;
+const qFieldName_=f=>f==='Main'?'Elite':'Sub-battle';
+function qParse_(rows){
+  const q={cap:Q_CAP_DEFAULT,has:false,t:{GL:{Main:{},Sub:{}},OR:{Main:{},Sub:{}}}};
+  rows.forEach(o=>{
+    const b=String(o.board||'').trim(),f=String(o.field||'').trim(),c=String(o.class||'').trim(),n=Number(String(o.target||'').trim());
+    if(c==='guild_capacity'){ if(Number.isInteger(n)&&n>0)q.cap=n; return; }
+    if(!q.t[b]||!q.t[b][f]||!Q_NAMES.includes(c)||!Number.isInteger(n)||n<0)return;
+    q.t[b][f][c]=n; q.has=true;
+  });
+  return q;
+}
+async function loadQuota_(){
+  try{
+    const rows=parseGviz(await fetch(mkUrlA('Class_Quota')).then(r=>r.text()));
+    const q=qParse_(rows);
+    if(window.__DEMO__&&!q.has){ Q_NAMES.forEach((c,i)=>{ ['GL','OR'].forEach(b=>{ q.t[b].Main[c]=2+(i%3); q.t[b].Sub[c]=2+((i+1)%3); }); }); q.has=true; }
+    _quota=q;
+  }catch(e){ /* ไม่มีแท็บ/อ่านไม่ได้ = ใช้ค่าเดิม ไม่ทำให้หน้าอื่นพัง */ }
+  _guildCap=_quota.cap;
+}
+const qTarget_=(b,f,c)=>{const v=_quota.t[b]&&_quota.t[b][f]&&_quota.t[b][f][c];return Number.isInteger(v)?v:0};
+const qGuildList_=()=>members.filter(m=>!isAlt(m));
+const qCls_=(m,b)=>{const c=qKey_(b==='OR'?(m.class_or||m.class_gl):m.class_gl);return c==='Summoner'?(qBuild_(m)?'Summoner · '+qBuild_(m):Q_UNK):c};
+const qUnkGuild_=()=>qGuildList_().filter(m=>qCls_(m,'GL')===Q_UNK).length;
+const qUnkReady_=(b,f)=>{const fn=qFieldName_(f);return members.filter(m=>!isAlt(m)&&qCls_(m,b)===Q_UNK&&qFld_(m,b)===fn&&!isLeaveNote(m)).length};
+const qUnkRow_=(n,tail)=>n>0?`<div class="q-row q-unk"><span class="q-name">${Q_UNK}</span><span class="q-num">${n}</span>${tail}</div>`:'';
+const qFld_=(m,b)=>normField(b==='OR'?(m.field_or||m.field_gl):(m.field_gl||m.field_or));
+function qReady_(b,f,c){ const fn=qFieldName_(f); return members.filter(m=>!isAlt(m)&&qCls_(m,b)===c&&qFld_(m,b)===fn&&!isLeaveNote(m)).length; }
+function qAway_(b,f){ const fn=qFieldName_(f); return members.filter(m=>!isAlt(m)&&qFld_(m,b)===fn&&isLeaveNote(m)).length; }
+const qGuild_=c=>qGuildList_().filter(m=>qCls_(m,'GL')===c).length;
+const qGoal_=c=>qTarget_('GL','Main',c)+qTarget_('GL','Sub',c);
+const qShort_=c=>Math.max(0,qGoal_(c)-qGuild_(c));
+const qShortTotal_=()=>Q_NAMES.reduce((n,c)=>n+qShort_(c),0);
+function qAlloc_(){
+  const total=qGuildList_().length,cap=_quota.cap,slots=cap-total,a=qShortTotal_();
+  if(!_quota.has)return{code:'empty',text:'ยังไม่ได้ตั้งเป้าอาชีพ แอดมินตั้งได้ที่ Quota Settings'};
+  if(slots<0)return{code:'over-capacity',text:`คนในกิลด์เกินความจุอยู่ ${-slots} คน เช็กข้อมูลก่อนรับเพิ่ม`};
+  if(slots===0)return{code:'full',text:'กิลด์เต็มแล้ว ไม่มีช่องรับเพิ่ม'};
+  if(a===slots)return{code:'equal',text:`ขาด ${a} คน พอดีกับช่องรับ ${slots} ที่`};
+  if(a>slots)return{code:'greater',text:`ขาด ${a} คน แต่มีช่องรับแค่ ${slots} ที่ ดูอาชีพที่ต้องการด้านล่าง`};
+  return{code:'less',text:`ขาด ${a} คน ช่องรับ ${slots} ที่ เหลืออีก ${slots-a} ที่ที่ยังไม่ได้กำหนดอาชีพ`};
+}
+const qPill_=(t,n)=>{const g=t-n;return `<span class="q-pill ${g>0?'':g<0?'over':'met'}">${g>0?'ขาด '+g:g<0?'เกิน '+(-g):'ครบ'}</span>`};
+const qGroups_=fn=>['Support','All Rounder','Attack'].map(t=>`<div class="q-grp"><span class="q-grp-h q-${t==='Support'?'s':t==='All Rounder'?'a':'d'}">${t}</span>${Q_CLASSES.filter(c=>c[1]===t).map(c=>fn(c[0])).join('')}</div>`).join('');
+
 function renderParty(){
+  const tabs=document.getElementById('pq-tabs'),sub=document.getElementById('party-sub');
+  if(tabs)tabs.innerHTML=[['party','Party'],['seats','Field Seats'],['recruit','Recruitment']].map(([k,n])=>`<button class="au-tab${_qTab===k?' active':''}" onclick="qTab('${k}')">${n}</button>`).join('');
+  const modeSeg=document.getElementById('mode-seg');
+  if(modeSeg)modeSeg.style.display=(_qTab==='recruit')?'none':'';
+  if(_qTab==='party'){ renderPartyBoard(); return; }
+  if(sub)sub.textContent=_qTab==='seats'?'ที่นั่งสนามเทียบกับเป้า (อ่านอย่างเดียว)':'รับสมัครอาชีพไหน เหลือช่องกี่ที่ (อ่านอย่างเดียว)';
+  document.getElementById('party-content').innerHTML=_qTab==='seats'?qViewSeats_():qViewRecruit_();
+}
+function qTab(k){ _qTab=k; renderParty(); }
+function qFieldSet(f){ _qField=f; renderParty(); }
+function qViewSeats_(){
+  const b=_mode,f=_qField;
+  const tgt=Q_NAMES.reduce((n,c)=>n+qTarget_(b,f,c),0),rdy=Q_NAMES.reduce((n,c)=>n+qReady_(b,f,c),0),away=qAway_(b,f);
+  const short=Q_NAMES.reduce((n,c)=>n+Math.max(0,qTarget_(b,f,c)-qReady_(b,f,c)),0);
+  const seg=`<div class="q-seg">${['Main','Sub'].map(x=>`<button class="${f===x?'on':''}" onclick="qFieldSet('${x}')">${x==='Main'?'Elite · Main':'Sub-battle · Sub'}</button>`).join('')}</div>`;
+  const row=c=>{const n=qReady_(b,f,c),t=qTarget_(b,f,c);return `<div class="q-row"><span class="q-name">${c}</span><span class="q-num">${n} / <b>${t}</b></span>${qPill_(t,n)}</div>`};
+  return `${seg}<div class="q-metrics"><div><span>Field Ready</span><b>${rdy}</b></div><div><span>Field Away</span><b>${away}</b></div><div><span>Field Target</span><b>${tgt} / ${Q_FIELD_MAX}</b></div><div><span>Field Shortage</span><b class="${short?'err':''}">${short}</b></div></div>
+  <p class="q-note">เทียบคนที่พร้อมลงของสนามที่เลือก กับเป้าของสนามเดียวกัน คนที่ลาไม่นับว่าพร้อมลง${qUnkReady_(b,f)?` · มี Summoner ที่ยังไม่ระบุสาย ${qUnkReady_(b,f)} คน (ยังไม่นับกับเป้า)`:''}</p>
+  <div class="q-panel"><div class="q-ph"><h3>Field Seats</h3>${ADMIN?'<button class="q-lnk" onclick="sw(\'quota\')">Edit in Quota Settings</button>':''}</div><div class="q-row q-head"><span>Class</span><span>Ready / Target</span><span>Gap</span></div>${qGroups_(row)}${qUnkRow_(qUnkReady_(b,f),'<span class="q-pill met">ไม่นับเป้า</span>')}</div>`;
+}
+function qViewRecruit_(){
+  const a=qAlloc_(),total=qGuildList_().length,cap=_quota.cap,slots=Math.max(0,cap-total),ok=_quota.has;
+  const list=Q_NAMES.map((c,i)=>({c,i,sh:ok?qShort_(c):0})).sort((x,y)=>y.sh-x.sh||x.i-y.i),mx=Math.max(1,...list.map(x=>x.sh));
+  const need=list.filter(x=>x.sh>0);
+  const den=Math.max(1,qShortTotal_(),slots);
+  return `<div class="q-metrics"><div><span>Guild Members</span><b>${total}</b></div><div><span>Guild Capacity</span><b>${cap}</b></div><div><span>Open Slots</span><b>${slots}</b></div><div><span>Total Shortage</span><b class="${ok&&qShortTotal_()?'err':''}">${ok?qShortTotal_():'—'}</b></div></div>
+  <div class="q-decision" data-state="${a.code}"><p>${a.text}</p>${ok?`<div class="q-bar"><span>Total Shortage</span><i><b style="width:${qShortTotal_()/den*100}%"></b></i><em>${qShortTotal_()}</em></div><div class="q-bar slot"><span>Open Slots</span><i><b style="width:${slots/den*100}%"></b></i><em>${slots}</em></div>`:''}</div>
+  ${need.length?`<div class="q-panel"><div class="q-ph"><h3>Needed Classes</h3><span class="q-tag">${a.code==='greater'?'ขาดมากกว่าช่องรับ':'ขาดอยู่'}</span></div><div class="q-chips">${need.map(x=>`<span class="q-chip"><b>${x.c}</b><em>+${x.sh}</em></span>`).join('')}</div></div>`:''}
+  <div class="q-panel"><div class="q-ph"><h3>Guild Recruitment</h3>${ADMIN?'<button class="q-lnk" onclick="sw(\'quota\')">Edit in Quota Settings</button>':''}</div>
+  <div class="q-row q-rhead"><span>#</span><span>Class</span><span>Members</span><span>GL Target</span><span>Shortage</span></div>
+  ${list.map((x,n)=>`<div class="q-row q-r${ok&&!x.sh?' done':''}"><span class="q-rank">${x.sh?n+1:''}</span><span class="q-name">${x.c}</span><span class="q-n">${qGuild_(x.c)}</span><span class="q-n">${ok?qGoal_(x.c):'—'}</span><span class="q-gap">${x.sh?`<i><b style="width:${x.sh/mx*100}%"></b></i><em class="err">${x.sh}</em>`:`<em class="muted">${ok?'ครบ':'—'}</em>`}</span></div>`).join('')}</div>
+  <p class="q-note">นับ "คนในกิลด์" เฉพาะตัวหลัก (ไม่รวม Alt) รวมคนที่ลา${qUnkGuild_()?` · มี Summoner ที่ยังไม่ระบุสาย ${qUnkGuild_()} คน นับในจำนวนคนทั้งกิลด์ แต่ยังไม่นับกับเป้า ATK/MATK`:''}</p>`;
+}
+
+/* ── Quota Settings (เฉพาะโหมดแอดมิน) ── */
+const qClone_=o=>JSON.parse(JSON.stringify(o));
+const qInt_=v=>v!==''&&v!==null&&Number.isInteger(Number(v))&&Number(v)>=0;
+function qAdmInit_(){ if(!_qAdm||_qAdm.fresh){ _qAdm={cap:_quota.cap,t:qClone_(_quota.t),board:'GL',field:'Main',base:JSON.stringify({cap:_quota.cap,t:_quota.t}),busy:false}; } }
+const qAdmDirty_=()=>_qAdm&&JSON.stringify({cap:_qAdm.cap,t:_qAdm.t})!==_qAdm.base;
+function qAdmValid_(){
+  if(!_qAdm)return false;
+  if(!Number.isInteger(Number(_qAdm.cap))||Number(_qAdm.cap)<1||Number(_qAdm.cap)>200)return false;
+  return ['GL','OR'].every(b=>['Main','Sub'].every(f=>{const s=Q_NAMES.reduce((n,c)=>n+(qInt_(_qAdm.t[b][f][c])?Number(_qAdm.t[b][f][c]):0),0);return Q_NAMES.every(c=>qInt_(_qAdm.t[b][f][c]))&&s<=Q_FIELD_MAX}));
+}
+function renderQuotaAdmin(){
+  const host=document.getElementById('quota-root'); if(!host)return;
+  if(!ADMIN){ host.innerHTML='<div class="q-note">หน้านี้เฉพาะแอดมิน</div>'; return; }
+  qAdmInit_();
+  const d=_qAdm,b=d.board,f=d.field,v=x=>(x===undefined||x===null)?'':x;
+  const sum=ff=>Q_NAMES.reduce((n,c)=>n+(qInt_(d.t[b][ff][c])?Number(d.t[b][ff][c]):0),0);
+  const members=qGuildList_().length,slots=Number(d.cap)-members;
+  const seg=(items,cur,fn)=>`<div class="q-seg">${items.map(([k,t])=>`<button class="${cur===k?'on':''}" onclick="${fn}('${k}')">${t}</button>`).join('')}</div>`;
+  const row=c=>`<div class="q-row"><span class="q-name">${c}</span><span class="q-num">พร้อมลง ${qReady_(b,f,c)}</span><input class="q-in${qInt_(d.t[b][f][c])?'':' bad'}" type="number" min="0" step="1" inputmode="numeric" value="${v(d.t[b][f][c])}" onchange="qAdmSet('${c.replace(/'/g,"\\'")}',this.value)" aria-label="${c} target"></div>`;
+  host.innerHTML=`<div class="q-panel"><div class="q-ph"><h3>Guild Capacity</h3><span class="q-tag">ค่าตั้งใหม่ค่าเดียว</span></div>
+    <div class="q-cap"><label>จำนวนคนสูงสุดของกิลด์ <input id="q-cap" class="q-in" type="number" min="1" max="200" step="1" inputmode="numeric" value="${v(d.cap)}" onchange="qAdmCap(this.value)"></label><span class="q-note">คนตอนนี้ <b>${members}</b> · ช่องรับเหลือ <b>${Number.isInteger(Number(d.cap))?slots:'—'}</b></span></div></div>
+  <div class="q-panel"><div class="q-ph"><h3>Field Quota Editor</h3><span class="q-tag">${b} · ${f==='Main'?'Elite · Main':'Sub-battle · Sub'}</span></div>
+    <div class="q-sels">${seg([['GL','Guild League'],['OR','Overrun']],b,'qAdmBoard')}${seg([['Main','Main'],['Sub','Sub']],f,'qAdmField')}</div>
+    <div class="q-metrics"><div><span>Main Target</span><b class="${sum('Main')>Q_FIELD_MAX?'err':''}">${sum('Main')} / ${Q_FIELD_MAX}</b></div><div><span>Sub Target</span><b class="${sum('Sub')>Q_FIELD_MAX?'err':''}">${sum('Sub')} / ${Q_FIELD_MAX}</b></div></div>
+    <div class="q-row q-head"><span>Class</span><span>Ready</span><span>Target</span></div>${qGroups_(row)}</div>
+  ${qBuildPanel_()}
+  <p class="q-note${qAdmValid_()?'':' err'}">${qAdmValid_()?'กดบันทึกแล้ว Field Seats กับ Recruitment ใช้เป้าชุดใหม่ ไม่กระทบสมาชิก ที่นั่ง การลา หรือสิทธิ์':'กรอกเลขจำนวนเต็มตั้งแต่ 0 ขึ้นไป ความจุต้องอยู่ระหว่าง 1–200 และเป้ารวมของแต่ละสนามต้องไม่เกิน '+Q_FIELD_MAX}</p>
+  <div class="q-save"><span>${qAdmDirty_()?'Unsaved Changes':'ตรงกับที่บันทึกไว้'}</span><button onclick="qAdmDiscard()" ${qAdmDirty_()?'':'disabled'}>Discard</button><button class="primary" onclick="qAdmSave()" ${qAdmDirty_()&&qAdmValid_()&&!d.busy?'':'disabled'}>${d.busy?'กำลังบันทึก…':'Save'}</button></div>`;
+}
+function qAdmBoard(k){ _qAdm.board=k; renderQuotaAdmin(); }
+function qAdmField(k){ _qAdm.field=k; renderQuotaAdmin(); }
+function qAdmSet(c,val){ const t=_qAdm.t[_qAdm.board][_qAdm.field]; t[c]=qInt_(val)?Number(val):val; renderQuotaAdmin(); }
+function qAdmCap(val){ _qAdm.cap=(val!==''&&Number.isInteger(Number(val)))?Number(val):val; renderQuotaAdmin(); }
+function qAdmDiscard(){ _qAdm.fresh=true; qAdmInit_(); renderQuotaAdmin(); }
+async function qAdmSave(){
+  if(!qAdmDirty_()||!qAdmValid_()||_qAdm.busy)return;
+  _qAdm.busy=true; renderQuotaAdmin();
+  const rows=[]; ['GL','OR'].forEach(b=>['Main','Sub'].forEach(f=>Q_NAMES.forEach(c=>rows.push({board:b,field:f,cls:c,target:Number(_qAdm.t[b][f][c])}))));
+  try{
+    const res=await admCall('admQuotaSave',{capacity:Number(_qAdm.cap),rows:rows});
+    _quota={cap:Number(_qAdm.cap),has:true,t:qClone_(_qAdm.t)}; _guildCap=_quota.cap;
+    _qAdm.base=JSON.stringify({cap:_quota.cap,t:_quota.t}); _qAdm.busy=false;
+    toast('บันทึกเป้าอาชีพแล้ว'+(res&&res.backup?' · สำรอง '+res.backup:'')); renderStats(); renderQuotaAdmin();
+  }catch(e){ _qAdm.busy=false; toast('บันทึกไม่สำเร็จ: '+e,null,true); renderQuotaAdmin(); }
+}
+
+
+/* ── Summoner Build (ATK / MATK) · dropdown ในหน้า Quota Settings · ว่าง = ยังไม่ระบุ ── */
+let _qBld={edits:{},busy:false};
+const qSummoners_=()=>qGuildList_().filter(m=>qKey_(m.class_gl)==='Summoner'||qKey_(m.class_or)==='Summoner').sort((a,b)=>String(a.ign).localeCompare(String(b.ign)));
+function qBuildPanel_(){
+  const list=qSummoners_(),n=Object.keys(_qBld.edits).length;
+  if(!list.length)return '';
+  const opt=(cur,v,t)=>`<option value="${v}"${cur===v?' selected':''}>${t}</option>`;
+  return `<div class="q-panel"><div class="q-ph"><h3>Summoner Build</h3><span class="q-tag">${list.length} คน · ว่าง = ยังไม่ระบุ</span></div>
+  ${list.map(m=>{const cur=(m.char_id in _qBld.edits)?_qBld.edits[m.char_id]:qBuild_(m);const id=String(m.char_id).replace(/'/g,'');
+    return `<div class="q-row"><span class="q-name">${esc_(m.ign)}</span><span class="q-num">${esc_(m.char_id)}</span><select class="q-in" onchange="qBldSet('${id}',this.value)" aria-label="${esc_(m.ign)} build">${opt(cur,'','— ยังไม่ระบุ')}${opt(cur,'ATK','ATK')}${opt(cur,'MATK','MATK')}</select></div>`}).join('')}
+  <div class="q-save inline"><span>${n?'แก้ '+n+' คน ยังไม่บันทึก':'ตรงกับที่บันทึกไว้'}</span><button class="primary" onclick="qBldSave()" ${n&&!_qBld.busy?'':'disabled'}>${_qBld.busy?'กำลังบันทึก…':'Save Builds'}</button></div></div>`;
+}
+function qBldSet(id,v){
+  const m=members.find(x=>String(x.char_id)===String(id)); if(!m)return;
+  if(v===qBuild_(m))delete _qBld.edits[id]; else _qBld.edits[id]=v;
+  renderQuotaAdmin();
+}
+async function qBldSave(){
+  const ch=Object.keys(_qBld.edits).map(id=>({id:id,build:_qBld.edits[id]}));
+  if(!ch.length||_qBld.busy)return;
+  _qBld.busy=true; renderQuotaAdmin();
+  try{
+    const res=await admCall('admBuildSave',ch);
+    ch.forEach(c=>{const m=members.find(x=>String(x.char_id)===c.id); if(m)m.build=c.build;});
+    _qBld.edits={}; _qBld.busy=false;
+    toast('บันทึกสายแล้ว '+ch.length+' คน'+(res&&res.backup?' · สำรอง '+res.backup:'')); renderStats(); renderQuotaAdmin();
+  }catch(e){ _qBld.busy=false; toast('บันทึกไม่สำเร็จ: '+e,null,true); renderQuotaAdmin(); }
+}
+
+function renderPartyBoard(){
   const pts={};members.forEach(m=>{if(!m.party)return;if(!pts[m.party])pts[m.party]=[];pts[m.party].push(m)});
   /* 13 ต.ค.: แสดงครบ 16 ตี้เสมอ — ตี้ที่ไม่มีใครเลย (เช่น 11 กับ 12) ยังต้องขึ้นเป็นช่องว่างให้แอดมินย้ายคนเข้าได้ */
   for(let i=1;i<=16;i++){ if(!pts[i])pts[i]=[]; }
@@ -4685,6 +4917,7 @@ function admInit_(){
   const link=document.getElementById('adm-link'), t=document.getElementById('adm-link-t');
   if(ADMIN){
     document.body.classList.add('is-admin');
+    const nq=document.getElementById('nav-quota'); if(nq)nq.style.display='';
     if(link){ link.style.display=''; link.href=SITE_URL; link.onclick=()=>uiGo_(link,SITE_URL); }
     if(t)t.textContent='ออกจากโหมดแอดมิน';
     const rb=document.getElementById('adm-ribbon');
