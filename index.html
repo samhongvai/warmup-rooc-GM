@@ -3826,7 +3826,7 @@ function applyAutoWar(){
   if(!forced&&_aucMode==='live'&&pick){
     var adjCard=_aucAdjRow?String(_aucAdjRow.card==null?'':_aucAdjRow.card).trim():'';
     var slots=Number(String(adjCard!==''?adjCard:(pick.card||'')).replace(/,/g,''))||0;
-    if(slots>0&&auDrawnToday_()>=slots)_aucMode='done';
+    if(auClosedLocal_(pick.date))_aucMode='done';   /* ครบแล้วไม่ปิดเอง · ปิดเมื่อแอดมินกด ปิดประมูล หรือข้ามวัน */
   }
   _aucFc=(_aucMode==='live')?null:auBuildForecast_(today,rows);
   _aucAutoWar=pick;
@@ -5013,6 +5013,13 @@ function aucAfterQueueChange_(){
 }
 
 /* ── admin: แถบบนหัวข้อรางวัล (เลือกวันวอ + บันทึกค่าที่ปรับ) ── */
+function auClosedLocal_(d){ try{return localStorage.getItem('auc-closed:'+d)==='1'}catch(e){return false} }
+function admCloseAuc(on){
+  var w=_aucAutoWar; if(!w)return;
+  try{ if(on)localStorage.setItem('auc-closed:'+w.date,'1'); else localStorage.removeItem('auc-closed:'+w.date); }catch(e){}
+  applyAutoWar(); renderRewardInputs(); renderDistribution(); renderQueueManager(); renderAdmAucBar_();
+  toast(on?'ปิดประมูลแล้ว (เฉพาะเบราว์เซอร์นี้) · ตารางยังอยู่':'เปิดประมูลกลับแล้ว');
+}
 function renderAdmAucBar_(){
   const el=document.getElementById('adm-aucbar'); if(!el)return;
   if(!ADMIN){el.innerHTML='';return}
@@ -5029,6 +5036,7 @@ function renderAdmAucBar_(){
     <span class="sp"></span>
     <span class="adm-st">${adj?'ใช้ค่าที่บันทึกไว้':'ใช้ค่าตามสูตร'}</span>
     ${adj?'<button class="adm-btn" onclick="admClearAdj()">↺ กลับค่าตามสูตร</button>':''}
+    ${w?(auClosedLocal_(w.date)?'<button class="adm-btn" onclick="admCloseAuc(false)">↺ เปิดประมูลกลับ</button>':'<button class="adm-btn" onclick="admCloseAuc(true)">🔒 ปิดประมูล</button>'):''}
     <button class="adm-btn pri" onclick="admSaveAdj()"${w?'':' disabled'}>💾 บันทึกค่าที่ปรับ</button>
   </div>`;
 }
