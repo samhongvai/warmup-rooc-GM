@@ -1184,6 +1184,7 @@ body.is-admin .wr-adm{display:inline-block}
 .cp-g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
 .cp-g5{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}
 .cp-g6{display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start}
+.cp-g6.one{grid-template-columns:1fr}
 .cp-s{display:flex;align-items:center;gap:8px;padding:3px 0}
 .cp-sn{width:18px;height:18px;border-radius:5px;background:var(--card2);color:var(--muted);font-size:10.5px;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
 .cp-sm{font-size:13px;font-weight:600}.cp-sm.dim{color:var(--faint);font-weight:500}.cp-sm.fx{color:var(--blue)}
@@ -3034,7 +3035,7 @@ function renderPartyBoard(){
    5 หน้า party · helper · queue · war · rewards · แผ่นกว้างคงที่ 1100px แล้วแปลงเป็น PNG ด้วย html2canvas */
 let _capBusy=false,_capKind='party',_capFmt='png';
 function capFmt(f){_capFmt=f;capOpen(_capKind);}
-const CAP_M={party:['⚔','Party'],helper:['🎲','Special Auction'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards'],cls:['🧭','Class check']};
+const CAP_M={party:['⚔','Party'],helper:['🎲','Special Auction'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards'],leftover:['🪶','Leftover'],cls:['🧭','Class check']};
 const capNow_=()=>{const d=new Date();return{day:d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}),hm:('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};};
 function capTop_(kind,sub,rb,rs){const m=CAP_M[kind]||['⚔',''],n=capNow_();
   return `<div class="cp-top"><div class="cp-lg">${m[0]}</div><div><div class="cp-t1">WARMUP · ${m[1]}</div><div class="cp-t2">${sub||''}</div></div>
@@ -3183,14 +3184,24 @@ function capRewards_(){
     return `<tr><td class="n">${i+1}</td><td><b>${esc_(r.name)}</b></td><td class="mu">Page${c.page}(${c.box})</td>
       <td class="n">${esc_(fmtSlots(r.wStart,r.white))}</td><td class="n">${esc_(fmtSlots(r.rStart,r.red))}</td>
       <td class="n">${r.done?'ดึงแล้ว':'รอ'}</td></tr>`;}).join('');
-  const lo=document.getElementById('lo-body');
-  const loRows=lo&&!/class="empty"|au-empty2/.test(lo.innerHTML)?lo.innerHTML.replace(/<button[\s\S]*?<\/button>/g,''):'';
-  const loH=loRows?`<div class="cp-lo"><h4>Leftover</h4><table class="cp-tb"><thead><tr><th>Name</th><th class="n">White</th><th class="n">Red / Black</th></tr></thead><tbody>${loRows}</tbody></table></div>`:'';
   const w=_aucAutoWar||{};
   return capTop_('rewards',[rw.event_name,rw.rank,'แจก '+dist.n+' คน'].filter(Boolean).join(' · '),w.date?wDay_(w.date)+' '+String(w.date).slice(0,4):null,'ขาว '+dist.pW+'/คน · ดำแดง '+dist.pR+'/คน')
     +`<div class="cp-g5">${cards}</div>`
-    +`<div class="cp-g6"><table class="cp-tb"><thead><tr><th class="n">คิว</th><th>Name</th><th>Card Slot</th><th class="n">White</th><th class="n">Red / Black</th><th class="n">Status</th></tr></thead><tbody>${body}</tbody></table>${loH}</div>`
+    +`<div class="cp-g6 one"><table class="cp-tb"><thead><tr><th class="n">คิว</th><th>Name</th><th>Card Slot</th><th class="n">White</th><th class="n">Red / Black</th><th class="n">Status</th></tr></thead><tbody>${body}</tbody></table></div>`
     +capFoot_(['เพดานต่อคนมาจาก Rewards_Ref']);
+}
+/* 5b · Leftover / Designated Auction — รูปแยกจากตารางแจกการ์ดปกติ (R-088 · 5 พ.ย.) */
+function capLeftover_(){
+  try{renderLeftover();}catch(e){}
+  const lo=document.getElementById('lo-body');
+  const loRows=lo&&!/class="empty"|au-empty2/.test(lo.innerHTML)?lo.innerHTML.replace(/<button[\s\S]*?<\/button>/g,''):'';
+  const w=_aucAutoWar||{};
+  const body=loRows
+    ?`<div class="cp-lo"><h4>Leftover · Designated Auction</h4><table class="cp-tb"><thead><tr><th>Name</th><th class="n">White</th><th class="n">Red / Black</th></tr></thead><tbody>${loRows}</tbody></table></div>`
+    :`<div class="cp-lo"><h4>Leftover · Designated Auction</h4><div class="cp-none">ไม่มีเศษขนนกเหลือรอบนี้</div></div>`;
+  return capTop_('leftover','Leftover · Designated Auction',w.date?wDay_(w.date)+' '+String(w.date).slice(0,4):null,'ผู้รับเศษขนนกตามผลสุ่มพิเศษ')
+    +`<div class="cp-g6 one">${body}</div>`
+    +capFoot_(['แถวแรกคือ Auction Admin ตามด้วยผู้ที่สุ่มได้ตามคิว']);
 }
 
 /* 6 · อาชีพที่ไม่ตรงกับทะเบียน */
@@ -3208,7 +3219,7 @@ function capCls_(){
   return capTop_('cls',sub,null,'วอ '+wDay_(D.date))+body
     +capFoot_(['ซ้ายคืออาชีพในทะเบียน ขวาคืออาชีพที่เล่นจริง','ใครมีชื่อในภาพช่วยแจ้งกลับเพื่อแก้ทะเบียน']);
 }
-const CAP_B={party:capParty_,helper:capHelper_,queue:capQueue_,war:capWar_,rewards:capRewards_,cls:capCls_};
+const CAP_B={party:capParty_,helper:capHelper_,queue:capQueue_,war:capWar_,rewards:capRewards_,leftover:capLeftover_,cls:capCls_};
 /* หน้า Guild Auction กับ Guild War มีหลายแท็บ — ดูว่าอยู่แท็บไหนแล้วแคปของแท็บนั้น */
 function capAucKind_(){const b=document.querySelector('#page-auction .au-tab.active');
   const t=b?b.dataset.tab:'calc'; return t==='designated'?'helper':t==='manage'?'queue':'rewards';}
@@ -4198,8 +4209,10 @@ function renderLeftover(){
   /* วันในเซิร์ฟ: เศษแจกให้ Guild Helper ของวันนั้นก่อน · ไม่งั้นใช้ชื่อตั้งต้น */
   var loNames=(_aucAutoWar&&String(_aucAutoWar.cross_server||'').trim()==='N')?ghHelpersForDate_(_aucAutoWar.date):[];
   /* R-088: วันในเซิร์ฟ — ช่อง 1-4 = ผู้ที่ถูกสุ่มพิเศษ · ช่อง 5 = Auction Admin (ป้ายคงที่ ไม่ผ่านการสุ่ม) · มีรายชื่อสุ่มแล้วเท่านั้น */
-  if(loNames.length){ while(loNames.length<4)loNames.push(''); loNames=loNames.slice(0,4); loNames.push(GH_FIXED); }
-  function loNameAt_(i){ return (_loPick[i]!=null)?_loPick[i]:(loNames[i]||loDefault_(i)); }
+  /* ล็อกแถวแรก = Auction Admin เสมอ (ค่าไม่ดิ้น) ตามด้วยผู้ที่สุ่มได้เรียงตามคิว · ทุกบรรทัดต้องมีเจ้าของจากการสุ่ม ไม่มีช่องว่าง/ชื่อตั้งต้น */
+  var loDrawn=loNames.length>0;
+  if(loDrawn){ loNames=[GH_FIXED].concat(loNames); } /* จำนวนบรรทัดตามสูตรเพดาน (Auction Admin นับเป็นบรรทัดที่ 1) · คนสุ่มที่เกินเป็นตัวสำรองเมื่อมีคน Skip */
+  function loNameAt_(i){ return (_loPick[i]!=null)?_loPick[i]:(loDrawn?(loNames[i]||''):(loNames[i]||loDefault_(i))); }
   /* รายชื่อผู้รับ = ไล่ตามลำดับ ข้ามคนที่กด Skip จนครบจำนวนที่ต้องหาร (คนที่ Skip ยังแสดงให้เห็นเพื่อคืนได้)
      ไม่ใส่จำนวนคน = ระบบหาให้พอรับเศษหมดเหมือนเดิม · ต้องรู้ชื่อก่อน ถึงรู้ว่าคนนั้นรับเศษได้อีกเท่าไหร่
      (คนที่อยู่ในคิวรอบนี้แล้วเพดานเหลือน้อยกว่าคนอื่น) */
@@ -4293,7 +4306,11 @@ function ghDayRows_(wk,dow){
 function ghHelpersForDate_(date){
   if(!date)return [];
   const d=new Date(date+'T00:00:00').getDay(); if(d!==2&&d!==4)return [];
-  return ghDayRows_(mondayOfDate(date),d).filter(r=>!ghIsFixed_(r)).map(r=>String(r.member_name).trim());
+  /* Leftover อ่านกว้างกว่าแถว Designated: อังคาร 1–5 + สุ่มเพิ่ม 11–20 · พฤหัส 6–10 + สุ่มเพิ่ม 21–30 (แยกตามวัน ไม่ปนวันอื่น) */
+  const wk=mondayOfDate(date), lo=d===2?1:6, hi=d===2?5:10, xlo=d===2?11:21, xhi=d===2?20:30;
+  const seen={};
+  return _aucHelpers.filter(r=>r.week_start===wk&&String(r.member_name||'').trim()&&!ghIsFixed_(r)&&((+r.position>=lo&&+r.position<=hi)||(+r.position>=xlo&&+r.position<=xhi)))
+    .sort((a,b)=>(+a.position||0)-(+b.position||0)).map(r=>String(r.member_name).trim()).filter(n=>seen[n]?false:(seen[n]=1));
 }
 function populateDesignatedWeeks(){
   const sel=document.getElementById('da-week');
@@ -5515,14 +5532,12 @@ const GR_DATA=[
     {t:'กิลด์รับได้สูงสุด 80 คน หากมีเพื่อนรอคิวเข้ากิลด์ ป่านขอที่ให้คนที่พร้อมแอคทีฟไปด้วยกันนะคะ',tag:'new'},
     {t:'แจ้งลาในห้องลากิจ-ติดธุระ กดปุ่ม ลาให้ตัวเอง หรือพิมพ์ /leave · ลาให้เพื่อนได้ที่ปุ่ม ลาให้เพื่อน · เปลี่ยนใจมาวอได้กดปุ่ม ยกเลิกการลา หรือพิมพ์ /leave-cancel'}]},
   {id:'auction',icon:'i-hammer',title:'Guild Auction',sub:'กฎการประมูล',groups:[{name:"หลักการ",rules:[{t:"เพื่อให้ทุกคนได้ทรัพยากรในราคาที่ต่ำที่สุด และเติบโตไปพร้อมๆ กัน ʕ•ᴥ•ʔっ♡"},{t:"ทุกคนต้องทำตามเงื่อนไขการประมูลของกิลด์นะคะ :)"}]},{name:"เงื่อนไขการประมูล 📜",rules:[{t:"ประมูลตามข้อมูลที่ประกาศ หากประมูลไม่เป็นหรือไม่แน่ใจ ให้สตรีมจอ"},{t:"ห้าม BUYOUT / FLASH DEAL ทุกกรณี เพราะจะทำให้ของในการประมูลหาย"},{t:"หากอยู่ในคิวแล้วดึงผิด ให้แจ้งทันทีว่าทับของใคร และเคลียร์กับเพื่อนที่ถูกดึงทับ"},{t:"ไม่ต้องออกเกมหลังประมูล ตีบอสกิลได้เลยหลังแชร์โลให้เพื่อน"}]},{name:"กรณีทำผิดกฎ 🚫",rules:[{t:"BUYOUT / FLASH DEAL → เตะออกกิลด์ทุกกรณี"},{t:"ดึงของผิดแล้วไม่แจ้ง → ตัดสิทธิ์การประมูล 2 รอบ · หากทำซ้ำ เตะออกกิลด์ทุกกรณี"}]},{name:"เงื่อนไขการสุ่มคิว 🎲",rules:[{t:"สุ่มรายชื่อใหม่ทุกครั้งที่วนครบทุกคน"},{t:"หากชื่อใครซ้ำเกิน 1 คิวในการประมูลเดียวกัน ระบบจะข้าม 1 คิวไปประมูลในรอบถัดไป (เพื่อไม่ชนข้อจำกัดการประมูล)"},{t:"จำนวนคนที่ได้ประมูลในแต่ละรอบ ขึ้นอยู่กับจำนวนการ์ดที่ได้ในรอบนั้น"},{t:"ทรัพยากรอื่นๆ แบ่งเท่ากันทุกคนในคิว เศษที่หารไม่ลงตัวปัดตามที่ป่านประกาศในรอบนั้น"}]},{name:"วิธีการประมูล 📸",rules:[{t:"เลือกที่ Guild Auction ทุกครั้ง"},{t:"เลือกหัวข้อ Feather ตอนดึงขนนก"},{t:"เลือกหัวข้อ Card ตอนดึงการ์ด"}]}],rules:[]},
-  {id:'helper',icon:'i-party',title:'Guild Helper',sub:'การช่วยเหลือ',rules:[
-    {t:'ช่วยเหลือทุก อังคาร + พฤหัส เวลา 21:00–22:00 (หลังจบวอ) · ผู้ลงชื่อต้องเตรียมพร้อมช่วยเพื่อนให้ครบทั้ง 2 วัน',tag:'chg'},
-    {t:'ลงชื่อในห้อง Discord ช่วยเหลือ เปิดรับทุกวันศุกร์ 08:00 สำหรับสัปดาห์จันทร์–อาทิตย์ถัดไป · ปิดรับวันอังคาร 18:00 หรือเมื่อครบ 8 คน',tag:'new'},
-    {t:'สัปดาห์ละ 8 คน · ใครลงก่อนได้คิวก่อน (คิว 1–4 = อังคาร · 5–8 = พฤหัส) · ลงชื่อได้เฉพาะตัวหลัก ไม่รับ ALT',tag:'chg'},
-    {t:'ผู้ที่เพิ่งช่วยสัปดาห์ก่อนจะอยู่รายชื่อสำรอง คนที่ยังไม่เคยช่วยได้ที่ก่อน · เมื่อปิดรับแล้วยังไม่ครบ 8 คน รายชื่อสำรองจะถูกดึงขึ้นมาตามลำดับ',tag:'new'},
-    {t:'อาชีพที่ต้องมี: Priest อย่างน้อย 1 · Bard / Gypsy อย่างน้อย 1 · Priest + Bard / Gypsy รวมกันไม่เกิน 3 · Lord Knight / Paladin 1 · DPS 4 (ต้องเปลี่ยนอาชีพเป็น Sniper ตอนช่วย) · ที่เหลืออีก 1 เป็นอาชีพอะไรก็ได้ ยกเว้น Lord Knight / Paladin',tag:'new'},
-    {t:'สัปดาห์ข้ามเซิร์ฟ ผู้ช่วยได้สิทธิ์ประมูลล็อกหัว วันละ 5 คน (ผู้ช่วย 4 + Ficelle 1) · ล็อกหัวได้เฉพาะวันข้ามเซิร์ฟ'},
-    {t:'สัปดาห์ในเซิร์ฟ ไม่มีล็อกหัว เนื่องจากเป็นการแข่งขันภายในเซิร์ฟ (Intra-server) ของรางวัลของผู้ช่วยจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ',tag:'chg'}]}
+  {id:'special',icon:'i-party',title:'คิวประมูลพิเศษ',sub:'สุ่มพิเศษ',rules:[
+    {t:'วัน Guild League มีกล่อง คิวประมูลพิเศษ 5 ช่อง · ช่อง 1–4 ระบบสุ่มจากสมาชิก ACTIVE แบบหมุนเวียนไม่ซ้ำจนครบรอบ · ช่อง 5 เป็นป้าย Auction Admin (ไม่สุ่ม ไม่แท็ก)',tag:'new'},
+    {t:'ไม่ตัดคนลาหรือขาดออกจากพูลสุ่ม · ตัวรอง (ALT) ไม่เข้าพูล',tag:'new'},
+    {t:'ผู้ที่ได้จากสุ่มพิเศษไม่นับเป็นการใช้สิทธิ์ประมูลในคิวหลัก',tag:'new'},
+    {t:'GL ในเซิร์ฟ (เศษขนนก): ใช้ขีดจำกัดประมูลร่วมกับคิวหลัก จึงไม่ซ้ำกับผู้ชนะคิวหลักของวันนั้น',tag:'new'},
+    {t:'GL ข้ามเซิร์ฟ (ประมูลล็อกหัว): ขีดจำกัดแยกจากคิวหลัก ชื่อซ้ำกับคิวหลักได้',tag:'new'}]}
 ];
 let _grSec='',_ruRows=null,_ruLoading=false,_ruSaving=false;
 /* กฎประมูลมาจากแท็บ Rules (ชีท Warmup Event) — แก้ที่หน้านี้ในโหมดแอดมิน บอท Discord อ่านจากที่เดียวกัน
