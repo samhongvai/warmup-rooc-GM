@@ -3084,8 +3084,8 @@ function capHelper_(){
     hp.slice(4).forEach((r,i)=>sl.push(`<div class="cp-s"><span class="cp-sn">${i+5}</span><span class="cp-sm">${esc_(r.member_name)}</span>${tag(r)}</div>`));
     if(!isI)sl.push(`<div class="cp-s"><span class="cp-sn">5</span><span class="cp-sm fx">${GH_FIXED}</span><span class="cp-tg x">Fixed</span></div>`);
     return `<div class="cp-c1"><div class="cp-h"><b>${lb}</b><small>${wDay_(date)}</small><span>${hp.length+(isI?0:1)}/${isI?4:5}</span></div>${sl.join('')}</div>`;};
-  const mode=isX?('Cross-server · ผู้ช่วยได้สิทธิ์ประมูลล็อกหัววันละ 5 คน ผู้ช่วย 4 คนและ '+GH_FIXED)
-    :isI?'Intra-server · สัปดาห์นี้ไม่มีล็อกหัว · เนื่องจากเป็นการแข่งขันภายในเซิร์ฟ ของรางวัลของผู้ช่วยจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ'
+  const mode=isX?('Cross-server · ผู้ที่ถูกสุ่มพิเศษได้สิทธิ์ประมูลล็อกหัววันละ 5 ช่อง (สุ่ม 4 คน + '+GH_FIXED+')')
+    :isI?'Intra-server · สัปดาห์นี้ไม่มีล็อกหัว · เนื่องจากเป็นการแข่งขันภายในเซิร์ฟ ของรางวัลของผู้ที่ถูกสุ่มพิเศษจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ'
     :'ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ';
   return capTop_('helper',`${wRange_(wk,ghAddDays_(wk,6))} · ช่วยเหลือ 21:00–22:00`,null,isX?'Cross-server':isI?'Intra-server':'')
     +`<div class="cp-mode">${mode}</div>`
@@ -4197,6 +4197,8 @@ function renderLeftover(){
   var capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
   /* วันในเซิร์ฟ: เศษแจกให้ Guild Helper ของวันนั้นก่อน · ไม่งั้นใช้ชื่อตั้งต้น */
   var loNames=(_aucAutoWar&&String(_aucAutoWar.cross_server||'').trim()==='N')?ghHelpersForDate_(_aucAutoWar.date):[];
+  /* R-088: วันในเซิร์ฟ — ช่อง 1-4 = ผู้ที่ถูกสุ่มพิเศษ · ช่อง 5 = Auction Admin (ป้ายคงที่ ไม่ผ่านการสุ่ม) · มีรายชื่อสุ่มแล้วเท่านั้น */
+  if(loNames.length){ while(loNames.length<4)loNames.push(''); loNames=loNames.slice(0,4); loNames.push(GH_FIXED); }
   function loNameAt_(i){ return (_loPick[i]!=null)?_loPick[i]:(loNames[i]||loDefault_(i)); }
   /* รายชื่อผู้รับ = ไล่ตามลำดับ ข้ามคนที่กด Skip จนครบจำนวนที่ต้องหาร (คนที่ Skip ยังแสดงให้เห็นเพื่อคืนได้)
      ไม่ใส่จำนวนคน = ระบบหาให้พอรับเศษหมดเหมือนเดิม · ต้องรู้ชื่อก่อน ถึงรู้ว่าคนนั้นรับเศษได้อีกเท่าไหร่
@@ -4272,9 +4274,9 @@ function renderLeftover(){
 
 /* ══ GUILD HELPER (เดิมชื่อ Designated) ══ อ่านจาก Helper_Log
    สัปดาห์ละ 8 คน · ลำดับ 1–5 = อังคาร · 6–10 = พฤหัส (ตามที่ชีทใช้อยู่)
-   ข้ามเซิร์ฟ = ประมูลล็อกหัว วันละ 5 คน (ผู้ช่วย 4 + Ficelle) · ในเซิร์ฟ = ไม่มีล็อกหัว ผู้ช่วยได้เศษขนนกแทน (ไปโผล่ในตาราง Leftover) */
-const GH_FIXED='Ficelle';
-const ghIsFixed_=r=>String(r.member_name||'').trim()===GH_FIXED||/fixed/i.test(String(r.note||''));
+   ข้ามเซิร์ฟ = ประมูลล็อกหัว วันละ 5 คน (สุ่มพิเศษ 4 + Auction Admin) · ในเซิร์ฟ = ไม่มีล็อกหัว ผู้ที่ถูกสุ่มพิเศษได้เศษขนนกแทน (ไปโผล่ในตาราง Leftover) */
+const GH_FIXED='Auction Admin';   /* R-088 (5 พ.ย.): ช่อง 5 ที่ไม่ผ่านการสุ่ม · แถวเก่าชื่อ Ficelle ยังนับเป็นช่องคงที่ */
+const ghIsFixed_=r=>{const n=String(r.member_name||'').trim();return n===GH_FIXED||n==='Ficelle'||/fixed/i.test(String(r.note||''));};
 function ghAddDays_(d,n){const x=new Date(d+'T00:00:00');x.setDate(x.getDate()+n);return toDateStr(x);}
 /* ลีกของสัปดาห์นั้น: Y = ข้ามเซิร์ฟ · N = ในเซิร์ฟ · '' = ยังไม่รู้ */
 function ghCross_(wk){
@@ -4315,9 +4317,9 @@ function renderDesignated(){
   if(!box||!wk)return;
   const cross=ghCross_(wk), isX=cross==='Y', isI=cross==='N';
   const all=_aucHelpers.filter(r=>r.week_start===wk&&String(r.member_name||'').trim()&&!ghIsFixed_(r)).length;
-  document.getElementById('da-count').textContent=isI?'ในเซิร์ฟ · ดูใน Leftover':`${all} / 8 คน`+(isX?' + Ficelle':'');
-  const mode=isX?`<div class="gh-mode x"><b>Cross-server</b><span>ผู้ช่วยได้สิทธิ์ <b>ประมูลล็อกหัว</b> วันละ 5 คน (ผู้ช่วย 4 + ${GH_FIXED} 1) · ล็อกหัวได้ของตามแรงค์ที่แข่ง</span></div>`
-    :isI?`<div class="gh-mode i"><b>การแข่งขันภายในเซิร์ฟ (Intra-server)</b><span>สัปดาห์นี้<b>ไม่มีล็อกหัว</b> · ของรางวัลของผู้ช่วยจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ (ชื่อจะไปอยู่ในตาราง Leftover ของวันนั้น)</span></div>`
+  document.getElementById('da-count').textContent=isI?'ในเซิร์ฟ · ดูใน Leftover':`${all} / 8 คน`+(isX?' + '+GH_FIXED:'');
+  const mode=isX?`<div class="gh-mode x"><b>Cross-server</b><span>ผู้ที่ถูกสุ่มพิเศษได้สิทธิ์ <b>ประมูลล็อกหัว</b> วันละ 5 ช่อง (สุ่ม 4 คน + ${GH_FIXED} 1) · ล็อกหัวได้ของตามแรงค์ที่แข่ง</span></div>`
+    :isI?`<div class="gh-mode i"><b>การแข่งขันภายในเซิร์ฟ (Intra-server)</b><span>สัปดาห์นี้<b>ไม่มีล็อกหัว</b> · ของรางวัลของผู้ที่ถูกสุ่มพิเศษจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ (ชื่อจะไปอยู่ในตาราง Leftover ของวันนั้น)</span></div>`
     :`<div class="gh-mode u"><b>League</b><span>ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ — ใส่ cross_server ของนัดลีกกิลด์ใน War_Log ก่อน</span></div>`;
   if(isI){ box.innerHTML=mode; return; }
   const rank=ghRank_(wk), rw=GH_REWARD[rank]||null;
@@ -6249,7 +6251,7 @@ function getHelperClass(name,sheetClass){
 function renderHelperStrip(rows){
   const el=document.getElementById('cal-helper-chips');
   if(!el)return;
-  const helpers=(rows||[]).filter(r=>r.member_name&&r.member_name!=='Ficelle');
+  const helpers=(rows||[]).filter(r=>r.member_name&&!ghIsFixed_(r));
   if(!helpers.length){el.innerHTML='<span style="font-size:11.5px;color:var(--muted)">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</span>';return}
   el.innerHTML=helpers.map(r=>{
     const cls=getHelperClass(r.member_name,r.class);
