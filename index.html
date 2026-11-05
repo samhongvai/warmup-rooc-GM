@@ -1909,7 +1909,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
     <div class="au-sec closed" id="au-s4">
       <div class="au-sec-h ct" onclick="augTog('au-s4')">
         <svg class="au-cv"><use href="#i-caret2"/></svg>
-        <b>Designated Auction (Guild Helper)</b><div class="sp"></div><span class="au-hint" id="da-count">—</span>
+        <b>Designated Auction (Special Auction)</b><div class="sp"></div><span class="au-hint" id="da-count">—</span>
       </div>
       <div class="au-sec-b">
         <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
@@ -2022,7 +2022,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="cal-legend" id="cal-legend"></div>
   <div id="cal-day"></div>
   <div class="helper-strip" id="cal-helper-strip">
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">🤝 Guild Helper this week</div>
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-pixel)">🎲 Special Auction this week</div>
     <div class="helper-chips" id="cal-helper-chips"><span style="font-size:11px;color:var(--faint)">Loading...</span></div>
   </div>
 </div>
@@ -3034,7 +3034,7 @@ function renderPartyBoard(){
    5 หน้า party · helper · queue · war · rewards · แผ่นกว้างคงที่ 1100px แล้วแปลงเป็น PNG ด้วย html2canvas */
 let _capBusy=false,_capKind='party',_capFmt='png';
 function capFmt(f){_capFmt=f;capOpen(_capKind);}
-const CAP_M={party:['⚔','Party'],helper:['🤝','Guild Helper'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards'],cls:['🧭','Class check']};
+const CAP_M={party:['⚔','Party'],helper:['🎲','Special Auction'],queue:['🎴','Auction queue'],war:['🏆','War result'],rewards:['🎁','Rewards'],cls:['🧭','Class check']};
 const capNow_=()=>{const d=new Date();return{day:d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}),hm:('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};};
 function capTop_(kind,sub,rb,rs){const m=CAP_M[kind]||['⚔',''],n=capNow_();
   return `<div class="cp-top"><div class="cp-lg">${m[0]}</div><div><div class="cp-t1">WARMUP · ${m[1]}</div><div class="cp-t2">${sub||''}</div></div>
@@ -3071,7 +3071,7 @@ function capParty_(){
 /* 2 · ผู้ช่วยประจำสัปดาห์ */
 function capHelper_(){
   const sel=document.getElementById('da-week'), wk=sel&&sel.value;
-  if(!wk)return '<div class="cp-none">ยังไม่มีข้อมูลผู้ช่วย</div>';
+  if(!wk)return '<div class="cp-none">ยังไม่มีข้อมูลคิวประมูลพิเศษ</div>';
   const cross=ghCross_(wk), isX=cross==='Y', isI=cross==='N';
   const tag=r=>{const st=String(r.auction_status||'').toLowerCase().trim();
     if(isI)return '<span class="cp-tg f">ได้เศษขนนก</span>';
@@ -3087,10 +3087,10 @@ function capHelper_(){
   const mode=isX?('Cross-server · ผู้ที่ถูกสุ่มพิเศษได้สิทธิ์ประมูลล็อกหัววันละ 5 ช่อง (สุ่ม 4 คน + '+GH_FIXED+')')
     :isI?'Intra-server · สัปดาห์นี้ไม่มีล็อกหัว · เนื่องจากเป็นการแข่งขันภายในเซิร์ฟ ของรางวัลของผู้ที่ถูกสุ่มพิเศษจึงเป็นเศษขนนกที่เหลือจากประมูลรอบปกติ'
     :'ยังไม่รู้ว่าสัปดาห์นี้ข้ามเซิร์ฟหรือในเซิร์ฟ';
-  return capTop_('helper',`${wRange_(wk,ghAddDays_(wk,6))} · ช่วยเหลือ 21:00–22:00`,null,isX?'Cross-server':isI?'Intra-server':'')
+  return capTop_('helper',`${wRange_(wk,ghAddDays_(wk,6))} · คิวประมูลพิเศษ`,null,isX?'Cross-server':isI?'Intra-server':'')
     +`<div class="cp-mode">${mode}</div>`
-    +(total?`<div class="cp-g2">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`:'<div class="cp-none">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</div>')
-    +capFoot_(['Done ช่วยแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
+    +(total?`<div class="cp-g2">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`:'<div class="cp-none">สัปดาห์นี้ไม่มีคิวประมูลพิเศษ</div>')
+    +capFoot_(['Done ประมูลแล้ว','Pending ยังไม่ถึงวัน','Fixed ประจำทุกวัน']);
 }
 
 /* 3 · คิวประมูล — เฉพาะคนที่ยังไม่ได้ดึง เรียงใหม่ตั้งแต่ 1 · แบ่งกลุ่มบนลงล่างตามตัวคูณ แพ้ · แพ้สูสี · ชนะ */
@@ -4352,7 +4352,7 @@ function renderDesignated(){
   const tot=rw?`<div class="gh-tot">รวมต่อวัน (5 คน): Card ${5*rw.card} · White ${5*rw.white} · Red/Black ${5*rw.red} · เลขกล่องนับใหม่ตั้งแต่ 1 ในแต่ละแท็บ (Card / Feather) และของที่ดึงต้องมีคำว่า <b>กำหนด</b> ที่กล่อง</div>`
     :`<div class="gh-note">${rank?`ยังไม่มีค่ารางวัล Designated ของแรงค์ ${esc_(rank)} — เพิ่มใน GH_REWARD`:'ยังไม่มีแรงค์ของสัปดาห์นี้ใน War_Log'}</div>`;
   const edb=edSwitch_('เปิดอยู่ · แตะป้ายสถานะเพื่อปิดคิว');
-  if(!all){ box.innerHTML=mode+rk+'<div class="gh-none">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</div>'; return; }
+  if(!all){ box.innerHTML=mode+rk+'<div class="gh-none">สัปดาห์นี้ไม่มีคิวประมูลพิเศษ</div>'; return; }
   box.innerHTML=edb+mode+rk+tot+`<div class="gh-days">${day(2,'Tuesday')}${day(4,'Thursday')}</div>`;
 }
 
@@ -6252,7 +6252,7 @@ function renderHelperStrip(rows){
   const el=document.getElementById('cal-helper-chips');
   if(!el)return;
   const helpers=(rows||[]).filter(r=>r.member_name&&!ghIsFixed_(r));
-  if(!helpers.length){el.innerHTML='<span style="font-size:11.5px;color:var(--muted)">สัปดาห์นี้ไม่มีคิวช่วยเหลือ</span>';return}
+  if(!helpers.length){el.innerHTML='<span style="font-size:11.5px;color:var(--muted)">สัปดาห์นี้ไม่มีคิวประมูลพิเศษ</span>';return}
   el.innerHTML=helpers.map(r=>{
     const cls=getHelperClass(r.member_name,r.class);
     return `<span class="hchip hchip-${cls}">${r.member_name}</span>`;
@@ -6329,11 +6329,11 @@ function calRenderDay_(){
   let hUsed=false;
   const cards=evts.map(e=>{
     let sub=CAL_KIND_SUB[e.kind]||'';
-    if(e.kind==='hp'){ hUsed=true; sub=hNames||'สัปดาห์นี้ไม่มีคิวช่วยเหลือ'; }
+    if(e.kind==='hp'){ hUsed=true; sub=hNames||'สัปดาห์นี้ไม่มีคิวประมูลพิเศษ'; }
     return `<div class="cal-card cal-k-${e.kind}"><div class="cal-card-t"><b>${esc_(e.title)}</b><span class="cal-pill">${calTimeText_(e)}</span></div>${sub?`<span>${sub}</span>`:''}</div>`;
   });
   if(!hUsed&&hRows.length){
-    cards.push(`<div class="cal-card cal-k-hp"><div class="cal-card-t"><b>Guild Helper</b><span class="cal-pill">${hRows.length} คน</span></div><span>${hNames}</span></div>`);
+    cards.push(`<div class="cal-card cal-k-hp"><div class="cal-card-t"><b>Special Auction</b><span class="cal-pill">${hRows.length} คน</span></div><span>${hNames}</span></div>`);
   }
   box.innerHTML=head+(cards.length?cards.join(''):'<div class="cal-empty">วันนี้ไม่มีกิจกรรมของกิลด์</div>');
 }
