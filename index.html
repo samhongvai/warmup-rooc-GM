@@ -4174,7 +4174,6 @@ function loSync_(){
     _loKey=d;
     try{var v=JSON.parse(localStorage.getItem('lo:'+d)||'{}'); _loPick=v.p||{}; _loDone=v.d||{}; _loSkip=v.s||{};}catch(e){_loPick={};_loDone={};_loSkip={};}
   }
-  if(_aucStateOk){ var c=asCur_(d); _loDone=c.d; _loSkip=c.s; }  /* สถานะกลางชนะค่าในเบราว์เซอร์ */
 }
 /* ── สถานะกลาง Auction_State (R-095) ── */
 function asCur_(d){
@@ -4188,10 +4187,10 @@ function asCur_(d){
   return o;
 }
 var _asBusy=0;
-function asWrite_(kind,keys,action,okMsg){
+function asWrite_(kind,keys,action,okMsg,notes){
   var d=(_aucAutoWar&&_aucAutoWar.date)||''; if(!d||!keys.length)return Promise.resolve();
   if(_asBusy){toast('กำลังบันทึก รอสักครู่');return Promise.resolve()}
-  var rows=keys.map(function(k){return {war_date:d,kind:kind,key:String(k),action:action}});
+  var rows=keys.map(function(k,i){return {war_date:d,kind:kind,key:String(k),action:action,note:(notes&&notes[i])||''}});
   _asBusy=1; toast('กำลังบันทึก…');
   return admCall('admAucState',rows).then(function(res){
     res=res||{applied:keys.map(String),rejected:[]};
@@ -4206,10 +4205,13 @@ function asWrite_(kind,keys,action,okMsg){
 }
 function loSave_(){ try{ if(_loKey)localStorage.setItem('lo:'+_loKey,JSON.stringify({p:_loPick,d:_loDone,s:_loSkip})); }catch(e){} }
 function loPick(k,v){ _loPick[k]=v||''; loSave_(); renderLeftover(); }
-function loTap(k){ if(_aucStateOk||_aucState.length){ asWrite_('lo',[k],_loDone[k]?'undo':'done'); return } _loDone[k]=!_loDone[k]; loSave_(); renderLeftover(); }
-function loDoneAll(){ if(_aucStateOk){ var ks=_loSlots.filter(function(k){return !_loDone[k]}); asWrite_('lo',ks,'done','Leftover · Done ทั้งหมด '+ks.length+' คน'); return } _loSlots.forEach(function(k){_loDone[k]=1}); loSave_(); renderLeftover(); toast('Leftover · Done ทั้งหมด '+_loSlots.length+' คน'); }
+/* สถานะกลางผูกกับ "ตัวบุคคล" (mKey_ ของชื่อ) ไม่ผูกเลขช่อง — ลำดับช่องเปลี่ยนตามคิวสุ่ม/คนที่ถูกคืนคิวได้ ไม่ให้ Done ไปตกที่คนผิด */
+var _loNames=[];
+function loKey_(k){ var nm=_loNames[k]; return nm?mKey_(nm,''):''; }
+function loTap(k){ if(_aucStateOk){ var kk=loKey_(k); if(!kk){toast('เลือกชื่อก่อน');return} asWrite_('lo',[kk],_loDone[k]?'undo':'done',null,[_loNames[k]]); return } _loDone[k]=!_loDone[k]; loSave_(); renderLeftover(); }
+function loDoneAll(){ if(_aucStateOk){ var ks=_loSlots.filter(function(k){return !_loDone[k]&&loKey_(k)}); asWrite_('lo',ks.map(loKey_),'done','Leftover · Done ทั้งหมด '+ks.length+' คน',ks.map(function(k){return _loNames[k]})); return } _loSlots.forEach(function(k){_loDone[k]=1}); loSave_(); renderLeftover(); toast('Leftover · Done ทั้งหมด '+_loSlots.length+' คน'); }
 /* Skip = คนนั้นออก คนถัดไปรับแทน จำนวนคนที่หารไม่เปลี่ยน · ไม่บันทึกลงชีท */
-function loSkip(k,on){ if(_aucStateOk){ asWrite_('lo',[k],on?'skip':'unskip'); return } if(on)_loSkip[k]=1; else delete _loSkip[k]; loSave_(); renderLeftover(); }
+function loSkip(k,on){ if(_aucStateOk){ var kk=loKey_(k); if(!kk){toast('เลือกชื่อก่อน');return} asWrite_('lo',[kk],on?'skip':'unskip',null,[_loNames[k]]); return } if(on)_loSkip[k]=1; else delete _loSkip[k]; loSave_(); renderLeftover(); }
 /* ชื่อที่เลือกได้ = คนที่ยังอยู่ในกิลด์ เรียงแบบเดียวกับหน้า Members */
 /* ชื่อที่อ่านผิดกันได้ (JOKER888 / J0KER888 · l กับ 1) ให้ต่อท้ายด้วยอาชีพ เพื่อเลือกไม่ผิดตัว */
 function loConfuse_(){
@@ -4273,6 +4275,13 @@ function renderLeftover(){
      ไม่ใส่จำนวนคน = ระบบหาให้พอรับเศษหมดเหมือนเดิม · ต้องรู้ชื่อก่อน ถึงรู้ว่าคนนั้นรับเศษได้อีกเท่าไหร่
      (คนที่อยู่ในคิวรอบนี้แล้วเพดานเหลือน้อยกว่าคนอื่น) */
   var LO_MAX=20;
+  /* สถานะกลาง → แปลงเป็นเลขช่องของตารางนี้ตามชื่อคนที่อยู่ในช่องตอนนี้ */
+  _loNames=[];
+  for(var _i=0;_i<LO_MAX+30;_i++)_loNames[_i]=loNameAt_(_i)||'';
+  if(_aucStateOk){
+    var _c=asCur_((_aucAutoWar&&_aucAutoWar.date)||''); _loDone={}; _loSkip={};
+    for(var _j=0;_j<_loNames.length;_j++){ if(!_loNames[_j])continue; var _kk=mKey_(_loNames[_j],''); if(_c.d[_kk])_loDone[_j]=1; if(_c.s[_kk])_loSkip[_j]=1; }
+  }
   function slotsFor_(T){
     var s=[],act=0;
     for(var i=0;i<LO_MAX+30&&act<T;i++){
