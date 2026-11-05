@@ -6698,10 +6698,11 @@ window.peSwapParty=function(p){
   if(!_pe.swp){_pe.swp=p;_pe.sel=null;renderParty();return;}
   if(_pe.swp===p){_pe.swp=null;renderParty();return;}
   var a=_pe.swp,b=p; peBegin_();
+  var ids_=function(pp){return members.filter(function(m){return String(m.party)===pp}).map(K).sort().join(',')}, ka_=ids_(a), kb_=ids_(b);
   members.forEach(function(m){
     if(String(m.party)===a){m.party=b;peSetField_(m,b);_pe.dirty.add(K(m));}
     else if(String(m.party)===b){m.party=a;peSetField_(m,a);_pe.dirty.add(K(m));} });
-  applyMode(); _pe.ops.push({t:'swapParty',a:+a,b:+b});
+  applyMode(); _pe.ops.push({t:'swapParty',a:+a,b:+b,ka:ka_,kb:kb_});
   _pe.swp=null; toast('สลับทั้งตี้ Party '+a+' ⇄ Party '+b+' แล้ว · กด Save เพื่อบันทึก'); renderParty();
 };
 window.peTap=function(k){
@@ -6712,7 +6713,7 @@ window.peTap=function(k){
   var pa=a.party,pb=b.party,ra=a.role,rb=b.role;
   a.party=pb; b.party=pa; a.role=pb?'Member':''; b.role=pa?'Member':'';
   if((ra==='Leader'&&pa)||(rb==='Leader'&&pb))toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
-  _pe.dirty.add(K(a)); _pe.dirty.add(K(b)); _pe.ops.push({t:'swap',a:a.ign,b:b.ign,ida:K(a),idb:K(b)});
+  _pe.dirty.add(K(a)); _pe.dirty.add(K(b)); _pe.ops.push({t:'swap',a:a.ign,b:b.ign,ida:K(a),idb:K(b),pa:+pa||0,pb:+pb||0});
   _pe.sel=null; renderParty();
 };
 window.peTapEmpty=function(p){
@@ -6723,7 +6724,7 @@ window.peTapEmpty=function(p){
   }
   peBegin_();
   if(a.role==='Leader'&&a.party)toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
-  a.party=String(p); a.role='Member'; _pe.dirty.add(K(a)); _pe.ops.push({t:'move',a:a.ign,p:+p,id:K(a)});
+  var fp_=+a.party||0; a.party=String(p); a.role='Member'; _pe.dirty.add(K(a)); _pe.ops.push({t:'move',a:a.ign,p:+p,id:K(a),fp:fp_});
   _pe.sel=null; renderParty();
 };
 
