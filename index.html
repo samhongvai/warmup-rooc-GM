@@ -3970,7 +3970,7 @@ function renderWarLine(){
   var quiet=(_aucMode==='wait'||_aucMode==='done');   /* \u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e23\u0e39\u0e49\u0e1c\u0e25 / \u0e1b\u0e23\u0e30\u0e21\u0e39\u0e25\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27 */
   if(sec)sec.classList.toggle('ro',_aucMode==='closed'||_aucMode==='done');
   if(cfg)cfg.style.display=quiet?'none':'';
-  if(dist)dist.style.display=quiet?'none':'';   /* \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e34\u0e27\u0e43\u0e2b\u0e49\u0e41\u0e08\u0e01 \u0e0b\u0e48\u0e2d\u0e19\u0e17\u0e31\u0e49\u0e07 section */
+  if(dist)dist.style.display=(_aucMode==='wait'||(_aucMode==='done'&&!ADMIN))?'none':'';   /* done+แอดมิน = โชว์ตารางแจกไว้ให้กด ↺ ย้อนเป็นรอได้ */   /* \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e34\u0e27\u0e43\u0e2b\u0e49\u0e41\u0e08\u0e01 \u0e0b\u0e48\u0e2d\u0e19\u0e17\u0e31\u0e49\u0e07 section */
 
   if(_aucMode==='wait'){
     box.innerHTML='';
