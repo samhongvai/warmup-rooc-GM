@@ -2104,31 +2104,19 @@ function normField(f){const t=String(f||'').trim();
   if(t==='หลัก')return 'Elite';
   if(t==='รอง')return 'Sub-battle';
   return t}
-/* R-096: ผังตี้แยก 2 ชุด — GL (party_no/slot/role) กับ Overrun (party_no_or/slot_or/role_or) · m.party/slot/role คือชุดที่เลือกตามโหมดตอนนี้
-   ยังไม่มีคอลัมน์ OR (hasOr=false) = ใช้ผัง GL · ระหว่างแก้ตี้ที่ยังไม่บันทึกไม่เขียนทับ m.party */
 function applyMode(){
-  let editing=false; try{editing=!!(_pe&&_pe.ops&&_pe.ops.length)}catch(e){}
   members.forEach(m=>{
-    if(m.p_gl===undefined){m.p_gl=m.party||'';m.s_gl=m.slot||'';m.r_gl=m.role||'';}
-    const useOr=_mode==='OR'&&!!m.hasOr;
-    if(!editing){
-      m.party=useOr?(m.p_or||''):m.p_gl; m.slot=useOr?(m.s_or||''):m.s_gl; m.role=useOr?(m.r_or||''):m.r_gl;
-    }
     m.class=m.class_gl||'';
-    m.field=useOr?(normField(m.field_or)||normField(m.field_gl)):(normField(m.field_gl)||normField(m.field_or));
+    m.field=normField(m.field_gl)||normField(m.field_or);
   });
 }
-const peSetField_=(m,p)=>{ if(_mode==='OR'&&m.hasOr)m.field_or=peFieldOf_(p); else m.field_gl=peFieldOf_(p); };
 function classOf(m){return(_mode==='OR'?(m.class_or||m.class_gl):m.class_gl)||''}
 function setMode(mode){
   if(mode===_mode)return;
-  let editing=false; try{editing=!!(_pe&&_pe.ops&&_pe.ops.length)}catch(e){}
-  if(editing){ toast('มีการแก้ตี้ที่ยังไม่บันทึก · กด Save หรือ Cancel ก่อนสลับ GL / Overrun',null,true);
-    document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===_mode)); return; }
   _mode=mode;
   try{localStorage.setItem('warmup_mode',mode)}catch(e){}
   document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
-  applyMode(); renderParty();
+  renderParty();
 }
 function getFieldCode(f){if(!f)return '';const t=String(f).trim();
   if(t==='Elite')return 'E';if(t==='Sub-battle')return 'S';return t.charAt(0)}
@@ -2275,9 +2263,6 @@ async function loadData(){
       party:exact(v,'party_no'),
       slot:exact(v,'slot'),
       role:exact(v,'role'),
-      p_gl:exact(v,'party_no'),s_gl:exact(v,'slot'),r_gl:exact(v,'role'),
-      hasOr:idxOf('party_no_or')>=0,
-      p_or:exact(v,'party_no_or'),s_or:exact(v,'slot_or'),r_or:exact(v,'role_or'),
       note:'',
       status:exact(v,'status'),
       tag:exact(v,'tag'),
@@ -4779,7 +4764,7 @@ function peTop_(){
   const n=_pe.ops.length;
   const pool=members.filter(m=>!m.party&&String(m.status||'').toUpperCase()!=='ARCHIVED');
   const sel=_pe.sel;
-  return `<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · กำลังแก้ผัง <b>${_mode==='OR'?'Overrun':'Guild League'}</b> · แก้หัวตี้ · ลา · ย้าย/สลับคน<span class="sp"></span>
+  return `<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · แก้หัวตี้ · ลา · ย้าย/สลับคน<span class="sp"></span>
       ${n?`<span class="pe-chg">แก้ไว้ ${n} จุด ยังไม่บันทึก</span>`:''}
       <button class="adm-btn" onclick="peResetAttend()" title="ล้างการลาทั้งหมด">🌙 All present</button>
       ${n?'<button class="adm-btn" onclick="peCancel()">Cancel</button>':''}
@@ -4823,8 +4808,8 @@ function peSwapParty(p){
   const a=_pe.swp, b=p;
   peBegin_();
   members.forEach(m=>{
-    if(String(m.party)===a){m.party=b;peSetField_(m,b);_pe.dirty.add(m.ign);}
-    else if(String(m.party)===b){m.party=a;peSetField_(m,a);_pe.dirty.add(m.ign);}
+    if(String(m.party)===a){m.party=b;m.field_gl=peFieldOf_(b);_pe.dirty.add(m.ign);}
+    else if(String(m.party)===b){m.party=a;m.field_gl=peFieldOf_(a);_pe.dirty.add(m.ign);}
   });
   applyMode();
   _pe.ops.push({t:'swapParty',a:+a,b:+b});
@@ -4884,15 +4869,14 @@ function peCancel(){
 function peFromWeb_(o){
   return {class_gl:o.class_gl||'',class_or:o.class_or||'',class:'',field_gl:o.field_gl||'',field_or:o.field_or||'',field:'',
     ign:o.character_name||'',char_id:o.character_id||'',discord:o.discord_id||'',party:o.party_no||'',slot:o.slot||'',
-    role:o.role||'',p_gl:o.party_no||'',s_gl:o.slot||'',r_gl:o.role||'',
-    hasOr:('party_no_or' in o),p_or:o.party_no_or||'',s_or:o.slot_or||'',r_or:o.role_or||'',note:'',status:o.status||'',tag:o.tag||'',attend:o.attend||''};
+    role:o.role||'',note:'',status:o.status||'',tag:o.tag||'',attend:o.attend||''};
 }
 async function peSave(){
   if(!_pe.ops.length)return;
   admBusy_(true);
   toast('กำลังบันทึก… (10–20 วินาที)');
   try{
-    const res=await admCall('admPartySave',_pe.ops,_mode);
+    const res=await admCall('admPartySave',_pe.ops);
     if(res.members&&res.members.length){
       members=res.members.map(peFromWeb_).filter(m=>m.ign);
       _peLocal=members.map(m=>({...m})); _peHold=Date.now()+5*60*1000;  /* WebMaster ดึงตามทีหลัง — ใช้ข้อมูลนี้ไปก่อน */
@@ -5974,8 +5958,7 @@ const giKeys_=(league,field)=>giCols_(league,field).map(c=>c[0]).concat(giBoss_(
 /* อาชีพอย่างเดียวไม่นับว่ากรอกแล้ว — ไม่งั้นทุกคนในรายชื่อจะถูกบันทึกหมด */
 /* คนที่แจ้งลาไว้ในหน้าปาร์ตี้ของสนามนั้น */
 const giLeaveOf_=field=>members.filter(m=>(m.field_gl||'')===field&&isLeaveNote(m)).map(m=>m.ign);
-/* no-show ของ GL_Score ยึดผัง GL เสมอ แม้หน้าเว็บเปิดโหมด Overrun (R-096) */
-const giPartyOf_=name=>{const m=mFind_(name,'');return m?String((m.p_gl!==undefined?m.p_gl:m.party)||''):'';};
+const giPartyOf_=name=>{const m=mFind_(name,'');return m?String(m.party||''):'';};
 const giHasData_=(r,keys)=>(keys||['fort','minion','boss','kill','assist','death','score','title','base_s','base_a','base_b']).filter(k=>k!=='cls').some(k=>String(r[k]||'').trim()!=='');
 function renderGlInput(){
   const box=document.getElementById('war-glin'); if(!box||!_gi)return;
@@ -6698,11 +6681,10 @@ window.peSwapParty=function(p){
   if(!_pe.swp){_pe.swp=p;_pe.sel=null;renderParty();return;}
   if(_pe.swp===p){_pe.swp=null;renderParty();return;}
   var a=_pe.swp,b=p; peBegin_();
-  var ids_=function(pp){return members.filter(function(m){return String(m.party)===pp}).map(K).sort().join(',')}, ka_=ids_(a), kb_=ids_(b);
   members.forEach(function(m){
-    if(String(m.party)===a){m.party=b;peSetField_(m,b);_pe.dirty.add(K(m));}
-    else if(String(m.party)===b){m.party=a;peSetField_(m,a);_pe.dirty.add(K(m));} });
-  applyMode(); _pe.ops.push({t:'swapParty',a:+a,b:+b,ka:ka_,kb:kb_});
+    if(String(m.party)===a){m.party=b;m.field_gl=peFieldOf_(b);_pe.dirty.add(K(m));}
+    else if(String(m.party)===b){m.party=a;m.field_gl=peFieldOf_(a);_pe.dirty.add(K(m));} });
+  applyMode(); _pe.ops.push({t:'swapParty',a:+a,b:+b});
   _pe.swp=null; toast('สลับทั้งตี้ Party '+a+' ⇄ Party '+b+' แล้ว · กด Save เพื่อบันทึก'); renderParty();
 };
 window.peTap=function(k){
@@ -6713,7 +6695,7 @@ window.peTap=function(k){
   var pa=a.party,pb=b.party,ra=a.role,rb=b.role;
   a.party=pb; b.party=pa; a.role=pb?'Member':''; b.role=pa?'Member':'';
   if((ra==='Leader'&&pa)||(rb==='Leader'&&pb))toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
-  _pe.dirty.add(K(a)); _pe.dirty.add(K(b)); _pe.ops.push({t:'swap',a:a.ign,b:b.ign,ida:K(a),idb:K(b),pa:+pa||0,pb:+pb||0});
+  _pe.dirty.add(K(a)); _pe.dirty.add(K(b)); _pe.ops.push({t:'swap',a:a.ign,b:b.ign,ida:K(a),idb:K(b)});
   _pe.sel=null; renderParty();
 };
 window.peTapEmpty=function(p){
@@ -6724,7 +6706,7 @@ window.peTapEmpty=function(p){
   }
   peBegin_();
   if(a.role==='Leader'&&a.party)toast('หัวตี้ถูกย้ายออก — อย่าลืมเลือกหัวตี้ใหม่');
-  var fp_=+a.party||0; a.party=String(p); a.role='Member'; _pe.dirty.add(K(a)); _pe.ops.push({t:'move',a:a.ign,p:+p,id:K(a),fp:fp_});
+  a.party=String(p); a.role='Member'; _pe.dirty.add(K(a)); _pe.ops.push({t:'move',a:a.ign,p:+p,id:K(a)});
   _pe.sel=null; renderParty();
 };
 
