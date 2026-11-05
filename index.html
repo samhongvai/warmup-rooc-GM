@@ -1879,7 +1879,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
     <div class="au-sec" id="au-s2">
       <div class="au-sec-h ct" onclick="augTog('au-s2')">
         <svg class="au-cv"><use href="#i-caret2"/></svg>
-        <b>Distribution</b><div class="sp"></div>
+        <b>Distribution</b><div class="sp"></div><span id="dist-allbtn"></span>
         <span class="au-hint" id="auc-per-person-summary">—</span></div>
       <div class="au-sec-b">
         <div class="au-tblx"><table class="au-tbl">
@@ -1892,7 +1892,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
     <div class="au-sec" id="au-s3">
       <div class="au-sec-h ct" onclick="augTog('au-s3')">
         <svg class="au-cv"><use href="#i-caret2"/></svg>
-        <b>Leftover</b><div class="sp"></div>
+        <b>Leftover</b><div class="sp"></div><span id="lo-allbtn"></span>
       </div>
       <div class="au-sec-b">
         <div class="au-g3">
@@ -2045,7 +2045,7 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
    gviz คืนเฉพาะแถวที่มองเห็น แถวที่ถูกกรองจะหายจากเว็บ — ใช้ Filter views แทน (2026-09-22) */
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
-               Auction_Adjust:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT,Leave_Log:SRC_EVENT,
+               Auction_Adjust:SRC_AUCTION,Special_Draw:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT,Leave_Log:SRC_EVENT,
                Alias:SRC_EVENT,Rules:SRC_EVENT,Class_Quota:SRC_EVENT};
 /* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
@@ -3518,7 +3518,7 @@ function normDate(v){
 const fmtShort=ds=>{const p=String(ds||'').split('-');return p.length===3?`${p[2]}/${p[1]}`:(ds||'—')};
 
 let _aucLoaded=false,_aucLoadPromise=null;
-let _aucQueue=[],_aucHelpers=[],_aucRewardsRef=[],_warLog=[];
+let _aucSpecial=[],_aucQueue=[],_aucHelpers=[],_aucRewardsRef=[],_warLog=[];
 let _aucQueueArchive=[],_aucArchiveLoaded=false,_aucArchiveLoadPromise=null;
 
 async function loadAuctionData(){
@@ -3529,9 +3529,11 @@ async function loadAuctionData(){
       try{return parseGviz(await fetch(mkUrlA(tab)).then(r=>r.text()))}
       catch(e){console.warn('โหลด',tab,'ไม่สำเร็จ',e);return []}
     };
-    const [q,hl,rw,wl,cf,aj]=await Promise.all([
-      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log'),get('Config'),get('Auction_Adjust')
+    const [q,hl,rw,wl,cf,aj,spd]=await Promise.all([
+      get('Auction_Queue'),get('Helper_Log'),get('Rewards_Ref'),get('War_Log'),get('Config'),get('Auction_Adjust'),get('Special_Draw')
     ]);
+    /* คิวสุ่มพิเศษ (C1): ใช้ดึงคนถัดไปมาแทนเมื่อกด Skip ใน Leftover */
+    _aucSpecial=(spd||[]).filter(r=>('position' in r)&&('member_name' in r)&&('cycle_id' in r));
     /* ค่าที่แอดมินบันทึกไว้ต่อวันวอ — ถ้ายังไม่มีแท็บ gviz อาจคืนแท็บอื่นมา จึงเช็คหัวคอลัมน์ก่อนใช้ */
     _aucAdjust={};
     (aj||[]).forEach(r=>{
@@ -4095,6 +4097,7 @@ function renderDistribution(){
     return;
   }
   const nDone=dist.rows.filter(r=>r.done).length;
+  { const b=document.getElementById('dist-allbtn'); if(b)b.innerHTML=(ADMIN&&nDone<dist.n)?'<button class="adm-btn" onclick="event.stopPropagation();distDoneAll()">✓ Done ทั้งหมด ('+(dist.n-nDone)+')</button>':''; }
   if(perSum)perSum.textContent=`ดึงแล้ว ${nDone}/${dist.n} · ขาว ${dist.pW}/คน · ดำแดง ${dist.pR}/คน`;
   distAutoFold_(nDone>0&&nDone>=dist.n);
   _distRows=dist.rows;
@@ -4159,11 +4162,19 @@ function loDefault_(k){
   var m=mIdx_().byId[id];
   return (m&&m.ign)||LO_DEFAULT[k]||'';
 }
-var _loPick={}, _loDone={}, _loSkip={};
-function loPick(k,v){ _loPick[k]=v||''; renderLeftover(); }
-function loTap(k){ _loDone[k]=!_loDone[k]; renderLeftover(); }
+var _loPick={}, _loDone={}, _loSkip={}, _loSlots=[], _loKey='';
+/* จำสถานะ Done / Skip / ชื่อที่เลือกของ Leftover ต่อวันวอ ในเบราว์เซอร์ (ไม่หายตอนรีเฟรช) */
+function loSync_(){
+  var d=(_aucAutoWar&&_aucAutoWar.date)||''; if(!d||d===_loKey)return;
+  _loKey=d;
+  try{var v=JSON.parse(localStorage.getItem('lo:'+d)||'{}'); _loPick=v.p||{}; _loDone=v.d||{}; _loSkip=v.s||{};}catch(e){_loPick={};_loDone={};_loSkip={};}
+}
+function loSave_(){ try{ if(_loKey)localStorage.setItem('lo:'+_loKey,JSON.stringify({p:_loPick,d:_loDone,s:_loSkip})); }catch(e){} }
+function loPick(k,v){ _loPick[k]=v||''; loSave_(); renderLeftover(); }
+function loTap(k){ _loDone[k]=!_loDone[k]; loSave_(); renderLeftover(); }
+function loDoneAll(){ _loSlots.forEach(function(k){_loDone[k]=1}); loSave_(); renderLeftover(); toast('Leftover · Done ทั้งหมด '+_loSlots.length+' คน'); }
 /* Skip = คนนั้นออก คนถัดไปรับแทน จำนวนคนที่หารไม่เปลี่ยน · ไม่บันทึกลงชีท */
-function loSkip(k,on){ if(on)_loSkip[k]=1; else delete _loSkip[k]; renderLeftover(); }
+function loSkip(k,on){ if(on)_loSkip[k]=1; else delete _loSkip[k]; loSave_(); renderLeftover(); }
 /* ชื่อที่เลือกได้ = คนที่ยังอยู่ในกิลด์ เรียงแบบเดียวกับหน้า Members */
 /* ชื่อที่อ่านผิดกันได้ (JOKER888 / J0KER888 · l กับ 1) ให้ต่อท้ายด้วยอาชีพ เพื่อเลือกไม่ผิดตัว */
 function loConfuse_(){
@@ -4198,7 +4209,8 @@ function renderLeftover(){
   var body=document.getElementById('lo-body');
   if(!body)return;
   var COLS=4;
-  if(_aucMode==='wait'||_aucMode==='done'){body.innerHTML='<tr><td colspan="'+COLS+'" class="au-empty2">'+(_aucMode==='done'?'ประมูลรอบนี้ครบแล้ว':'รอกรอกผลวอก่อน')+'</td></tr>';return}
+  loSync_();
+  if(_aucMode==='wait'){body.innerHTML='<tr><td colspan="'+COLS+'" class="au-empty2">รอกรอกผลวอก่อน</td></tr>';_loSlots=[];loBtn_();return}
   var dist=computeDistribution();
   var wN=Math.max(0,+(document.getElementById('lo-w')||{}).value||0);
   var rN=Math.max(0,+(document.getElementById('lo-r')||{}).value||0);
@@ -4212,7 +4224,16 @@ function renderLeftover(){
   /* ล็อกแถวแรก = Auction Admin เสมอ (ค่าไม่ดิ้น) ตามด้วยผู้ที่สุ่มได้เรียงตามคิว · ทุกบรรทัดต้องมีเจ้าของจากการสุ่ม ไม่มีช่องว่าง/ชื่อตั้งต้น */
   var loDrawn=loNames.length>0;
   if(loDrawn){ loNames=[GH_FIXED].concat(loNames); } /* จำนวนบรรทัดตามสูตรเพดาน (Auction Admin นับเป็นบรรทัดที่ 1) · คนสุ่มที่เกินเป็นตัวสำรองเมื่อมีคน Skip */
-  function loNameAt_(i){ return (_loPick[i]!=null)?_loPick[i]:(loDrawn?(loNames[i]||''):(loNames[i]||loDefault_(i))); }
+  /* คนสำรอง = คิวสุ่มพิเศษที่ยัง pending เรียงตามลำดับ · ข้ามคนที่ได้คิวหลักวันนี้ (กันซ้ำ) และคนที่อยู่ในรายชื่อแล้ว · ใช้เมื่อกด Skip */
+  var loRes=[];
+  if(loDrawn){
+    var _in={}; loNames.forEach(function(n){_in[mKey_(n,'')]=1});
+    loRes=(_aucSpecial||[]).filter(function(r){return String(r.status||'').trim()==='pending'&&String(r.member_name||'').trim()})
+      .sort(function(a,b){return (+a.position||0)-(+b.position||0)})
+      .map(function(r){return String(r.member_name).trim()})
+      .filter(function(n){var k=mKey_(n,''); if(_in[k]||loGot_(dist,n))return false; _in[k]=1; return true});
+  }
+  function loNameAt_(i){ if(i===0&&loDrawn)return GH_FIXED; if(_loPick[i]!=null)return _loPick[i]; if(loDrawn)return (i<loNames.length)?loNames[i]:(loRes[i-loNames.length]||''); return loNames[i]||loDefault_(i); }
   /* รายชื่อผู้รับ = ไล่ตามลำดับ ข้ามคนที่กด Skip จนครบจำนวนที่ต้องหาร (คนที่ Skip ยังแสดงให้เห็นเพื่อคืนได้)
      ไม่ใส่จำนวนคน = ระบบหาให้พอรับเศษหมดเหมือนเดิม · ต้องรู้ชื่อก่อน ถึงรู้ว่าคนนั้นรับเศษได้อีกเท่าไหร่
      (คนที่อยู่ในคิวรอบนี้แล้วเพดานเหลือน้อยกว่าคนอื่น) */
@@ -4241,7 +4262,7 @@ function renderLeftover(){
   var W=AW.per, R=AR.per;
   var wp=(dist?dist.n*dist.pW:0)+1;
   var rp=(dist?dist.white+dist.n*dist.pR:0)+1;
-  var out=[], ai=0;
+  var out=[], ai=0; _loSlots=act.map(function(x){return x.i});
   slots.forEach(function(x){
     var k=x.i, name=x.name;
     if(x.skip){
@@ -4262,13 +4283,14 @@ function renderLeftover(){
     }
     var ws=wp,rs=rp; wp+=wq; rp+=rq;
     var done=!!_loDone[k];
-    var sel=ADMIN
+    var sel=(k===0&&loDrawn)
+      ? '<b>'+esc_(GH_FIXED)+'</b>'
+      : ADMIN
       ? '<select class="lo-sel'+(name?'':' empty')+'" onchange="loPick('+k+',this.value)">'+loNameOpts_(name)+'</select>'
       : '<b>'+(name?esc_(name):'#'+(k+1))+'</b>';
     var st=ADMIN
-      ? '<span class="gh-tag hit'+(done?' done':'')+'" onclick="loTap('+k+')">'+sb_(done?'done':'pending',done?'Done':'Pending')+'</span>'
-        +(done?'':'<button class="sk" onclick="loSkip('+k+',1)">'+sb_('skipped','Skip')+'</button>')
-      : '<span class="gh-tag'+(done?' done':'')+'">'+sb_(done?'done':'pending',done?'Done':'Pending')+'</span>';
+      ? '<span class="dd-act">'+(done?'<button class="u" title="ย้อนเป็นรอ" onclick="loTap('+k+')">↺</button>':'<button onclick="loTap('+k+')">'+sb_('done','Done')+'</button><button class="sk" onclick="loSkip('+k+',1)">'+sb_('skipped','Skip')+'</button>')+'</span>'
+      : (done?'<span class="dd-st y">'+sb_('done','ดึงแล้ว')+'</span>':'<span class="dd-st">'+sb_('pending','รอ')+'</span>');
     out.push('<tr'+(warn?' class="lo-row"':'')+'><td>'+sel+'</td>'
       +'<td>'+(wq?fmtSlots(ws,wq):'—')+'</td><td>'+(rq?fmtSlots(rs,rq):'—')+'</td>'
       +'<td class="lo-st">'+st+'</td></tr>'+warn);
@@ -4281,6 +4303,12 @@ function renderLeftover(){
     out.push('<tr class="lo-warn"><td colspan="'+COLS+'"><span class="wh-miss">ยังไม่มีคนรับ '+rest.join(' · ')+' — ทุกคนในตารางชนเพดานแล้ว '+(nIn>0?'เพิ่มจำนวนคนหรือแจกเอง':'เพิ่มคนหรือแจกเอง')+'</span></td></tr>');
   }
   body.innerHTML=out.join('')||'<tr><td colspan="'+COLS+'" class="empty">—</td></tr>';
+  loBtn_();
+}
+function loBtn_(){
+  var e=document.getElementById('lo-allbtn'); if(!e)return;
+  var pend=_loSlots.filter(function(k){return !_loDone[k]}).length;
+  e.innerHTML=(ADMIN&&pend)?'<button class="adm-btn" onclick="event.stopPropagation();loDoneAll()">✓ Done ทั้งหมด ('+pend+')</button>':'';
 }
 
 
@@ -4923,6 +4951,21 @@ async function distConfirmSkip(i){
   const oldWhy=(String(before.note).match(/skip:\s*([^·]*)/)||[])[1]||'';
   toast(r.member_name+' → Skipped · '+why+' · คำนวณจำนวนต่อคนใหม่แล้ว',
         ()=>admRowStatus_(r,String(before.status).toLowerCase(),oldWhy.trim()));
+}
+async function distDoneAll(){
+  if(!ADMIN)return;
+  const rows=(_distRows||[]).filter(r=>!r.done).map(r=>r.q).filter(Boolean);
+  if(!rows.length)return;
+  admBusy_(true);
+  try{
+    const res=await admCall('admBulkDone',rows.map(qmKey_));
+    const hit=new Set((res.done||[]).map(k=>k.date+'#'+k.pos+'#'+k.id));
+    rows.forEach(r=>{ const k=qmKey_(r); if(hit.has(k.date+'#'+k.pos+'#'+k.id)){ r.status='done'; r.drawn_date=res.date; } });
+    admApplyDups_(res.dups);
+    aucAfterQueueChange_();
+    toast('Distribution · Done ทั้งหมด '+(res.done||[]).length+' คน');
+  }catch(e){ toast('บันทึกไม่สำเร็จ · '+e,null,true); }
+  finally{ admBusy_(false); }
 }
 async function distDone(i,on){
   const r=_distRows[i]&&_distRows[i].q; if(!r||!ADMIN)return;
