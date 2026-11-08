@@ -6702,7 +6702,7 @@ window.peSwapParty=function(p){
   members.forEach(function(m){
     if(String(m.party)===a){m.party=b;peSetField_(m,b);_pe.dirty.add(K(m));}
     else if(String(m.party)===b){m.party=a;peSetField_(m,a);_pe.dirty.add(K(m));} });
-  applyMode(); _pe.ops.push({t:'swapParty',a:+a,b:+b,ka:ka_,kb:kb_});
+  _pe.ops.push({t:'swapParty',a:+a,b:+b,ka:ka_,kb:kb_}); applyMode();   /* 8 พ.ย.: push ก่อน applyMode — ไม่งั้นสลับเป็นรายการแรกแล้วจอย้อนกลับ ทำให้สลับซ้ำแล้วโดนกันบันทึกเก่า */
   _pe.swp=null; toast('สลับทั้งตี้ Party '+a+' ⇄ Party '+b+' แล้ว · กด Save เพื่อบันทึก'); renderParty();
 };
 window.peTap=function(k){
