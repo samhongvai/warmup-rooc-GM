@@ -3677,8 +3677,9 @@ function getRewardValues(){
     card:  ov.card!=null              ? ov.card              : Math.ceil((+base.card||0)*m),
     white: ov.feather_white!=null     ? ov.feather_white     : Math.ceil((+base.feather_white||0)*m),
     red:   ov.feather_red_black!=null ? ov.feather_red_black : Math.ceil((+base.feather_red_black||0)*m),
-    limWhite: +base.lim_light_dark || 0,
-    limRed:   +base.lim_time_space || 0,
+    /* R-110: เพดานต่อคนใช้ค่าจริงของวอวันนั้น (War_Log) ก่อน · ไม่มี = ใช้แถว Rewards_Ref (วันในเซิร์ฟไม่มีแถว Overrun N จึงตกไปอันดับ 1 ผิด) */
+    limWhite: (_aucAutoWar&&+_aucAutoWar.lim_light_dark>0)?+_aucAutoWar.lim_light_dark:(+base.lim_light_dark || 0),
+    limRed:   (_aucAutoWar&&+_aucAutoWar.lim_time_space>0)?+_aucAutoWar.lim_time_space:(+base.lim_time_space || 0),
     event_name:base.event_type,
     rank:base.rank
   };
@@ -4392,9 +4393,9 @@ function ghDayRows_(wk,dow){
 /* ชื่อผู้ช่วยของวันวอนั้น (ไม่รวม Ficelle) — ใช้ใส่ชื่อในตาราง Leftover ของวันในเซิร์ฟ */
 function ghHelpersForDate_(date){
   if(!date)return [];
-  const d=new Date(date+'T00:00:00').getDay(); if(d!==2&&d!==4)return [];
-  /* Leftover อ่านกว้างกว่าแถว Designated: อังคาร 1–5 + สุ่มเพิ่ม 11–20 · พฤหัส 6–10 + สุ่มเพิ่ม 21–30 (แยกตามวัน ไม่ปนวันอื่น) */
-  const wk=mondayOfDate(date), lo=d===2?1:6, hi=d===2?5:10, xlo=d===2?11:21, xhi=d===2?20:30;
+  const d=new Date(date+'T00:00:00').getDay(); if(d!==2&&d!==4&&d!==0)return [];
+  /* Leftover อ่านกว้างกว่าแถว Designated: อังคาร 1–5 + สุ่มเพิ่ม 11–20 · พฤหัส 6–10 + สุ่มเพิ่ม 21–30 · อาทิตย์(OR · R-110) 31–35 + สุ่มเพิ่ม 41–50 (แยกตามวัน ไม่ปนวันอื่น) */
+  const wk=mondayOfDate(date), lo=d===2?1:d===4?6:31, hi=d===2?5:d===4?10:35, xlo=d===2?11:d===4?21:41, xhi=d===2?20:d===4?30:50;
   const seen={};
   return _aucHelpers.filter(r=>r.week_start===wk&&String(r.member_name||'').trim()&&!ghIsFixed_(r)&&((+r.position>=lo&&+r.position<=hi)||(+r.position>=xlo&&+r.position<=xhi)))
     .sort((a,b)=>(+a.position||0)-(+b.position||0)).map(r=>String(r.member_name).trim()).filter(n=>seen[n]?false:(seen[n]=1));
