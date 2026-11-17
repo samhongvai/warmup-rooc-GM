@@ -1628,6 +1628,20 @@ body.is-admin .wr-adm{display:inline-block}
 .pe-empty.pe2-ro{min-height:46px;color:var(--faint)}
 .pe-pool .chip{min-height:36px;display:inline-flex;align-items:center;padding:4px 14px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .pe2-ghost{position:fixed;z-index:2000;pointer-events:none;padding:8px 16px;border-radius:999px;background:var(--orange);color:var(--ink-on);font-weight:800;font-size:14px;box-shadow:0 8px 20px rgba(0,0,0,.45);transform:translate(-50%,-130%)}
+/* มือถือ (17 พ.ย. 69 · #ซ้ำ): แถวละ 2 ตี้ · ชื่อเต็มไม่ถูกตัด · ปุ่ม 4 ปุ่มแยกบรรทัดใต้ชื่อ กดง่าย */
+@media(max-width:700px){
+.pe2-edit .party-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pe2-help{display:none}
+.pe2-edit .pc-head{flex-wrap:wrap;gap:4px 6px;padding:8px 9px}
+.pe2-edit .pe-warn{margin-left:0;font-size:9.5px;padding:1px 6px}
+.pe2-edit .pm{flex-wrap:wrap;padding:8px 9px 6px;gap:4px 6px;min-height:0}
+.pe2-edit .pm-info{flex:1 1 0;min-width:0}
+.pe2-edit .pm-name{white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word;font-size:13px;line-height:1.25}
+.pe2-edit .pm-cls-label{font-size:10.5px;white-space:normal;line-height:1.25}
+.pe2-edit .pe-acts{flex:1 1 100%;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:2px 0 0}
+.pe2-edit .pe-ic{width:100%;height:34px;font-size:15px}
+.pe2-edit .pe-empty{min-height:44px}
+}
 body.pe2-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .pe2-dragging .pm.dragging,.pe2-dragging .chip.dragging{opacity:.35}
 #pe2-trash{display:none;position:fixed;left:0;right:0;bottom:0;z-index:1500;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));text-align:center;font-weight:800;font-size:15px;color:var(--red);background:var(--red-dim);border-top:2px dashed var(--red-b)}
