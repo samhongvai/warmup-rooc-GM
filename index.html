@@ -299,7 +299,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 .party-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
 @media(max-width:2100px){.party-grid{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:1500px){.party-grid{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:700px){.party-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px),(hover:none) and (pointer:coarse){.party-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.party-grid{grid-template-columns:1fr}.pm-name{font-size:13px}}
 .pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-out-sm)}
 .pc-head{padding:10px 13px;display:flex;justify-content:space-between;align-items:center;background:var(--card2);border-bottom:3px solid}
@@ -1629,7 +1629,7 @@ body.is-admin .wr-adm{display:inline-block}
 .pe-pool .chip{min-height:36px;display:inline-flex;align-items:center;padding:4px 14px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .pe2-ghost{position:fixed;z-index:2000;pointer-events:none;padding:8px 16px;border-radius:999px;background:var(--orange);color:var(--ink-on);font-weight:800;font-size:14px;box-shadow:0 8px 20px rgba(0,0,0,.45);transform:translate(-50%,-130%)}
 /* มือถือ (17 พ.ย. 69 · #ซ้ำ): แถวละ 2 ตี้ · ชื่อเต็มไม่ถูกตัด · ปุ่ม 4 ปุ่มแยกบรรทัดใต้ชื่อ กดง่าย */
-@media(max-width:700px){
+@media(max-width:700px),(hover:none) and (pointer:coarse){
 .pe2-edit .party-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .pe2-help{display:none}
 .pe2-edit .pc-head{flex-wrap:wrap;gap:4px 6px;padding:8px 9px}
