@@ -1658,6 +1658,21 @@ body.pe2-dragging #pe2-bar{display:none!important}
 #pe2-bar button.danger{color:var(--red);border-color:var(--red-b);background:var(--red-dim)}
 #pe2-bar button.quiet{flex:0 1 96px;color:var(--muted)}
 #party-content.pe2-pad{padding-bottom:150px}
+#ma-sheet{position:fixed;inset:0;z-index:1900;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
+#ma-sheet.on{display:flex}
+#ma-sheet .box{width:100%;max-width:520px;max-height:92%;overflow:auto;background:var(--card);border:1px solid var(--border2);border-radius:18px 18px 0 0;padding:16px 16px 20px}
+@media(min-width:700px){#ma-sheet{align-items:center}#ma-sheet .box{border-radius:18px}}
+#ma-sheet h3{margin:0 0 4px;font-size:16px}
+#ma-sheet .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#ma-sheet label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px}
+#ma-sheet input,#ma-sheet select{width:100%;box-sizing:border-box;min-height:42px;font-size:15px;font-family:inherit;border:1px solid var(--border2);border-radius:9px;background:var(--bg);color:var(--text);padding:6px 10px}
+#ma-sheet .seg{display:flex;gap:6px}
+#ma-sheet .seg button{flex:1;min-height:42px;border:1px solid var(--border2);border-radius:9px;background:var(--card);color:var(--text);font-weight:700;font-family:inherit;cursor:pointer}
+#ma-sheet .seg button.on{background:var(--green);border-color:var(--green);color:var(--ink-on)}
+#ma-sheet .hint{font-size:11.5px;color:var(--muted);margin-top:4px}
+#ma-sheet .row2{display:flex;gap:8px}#ma-sheet .row2>div{flex:1}
+#ma-sheet .act{display:flex;gap:8px;margin-top:16px}#ma-sheet .act .adm-btn{flex:1;min-height:44px}
+#ma-sheet .err{color:#ff8a8a;font-size:12.5px;margin-top:8px;min-height:16px}
 #pe2-sheet{position:fixed;inset:0;z-index:1800;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
 #pe2-sheet.on{display:flex}
 #pe2-sheet .box{width:100%;max-width:520px;max-height:82%;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border2);border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
@@ -2707,10 +2722,77 @@ function ceBar_(){
     .concat(Object.keys(_mn).map(n=>`${esc_(n)} → ${esc_(_mn[n])}`));
   bar.innerHTML=edSwitch_('เปิดอยู่ · แก้อาชีพและสถานะได้')+`<div class="pe-bar">🟢 <b>โหมดแอดมิน</b> · เปลี่ยนอาชีพที่ช่อง Class และเปลี่ยนสถานะที่ช่อง Status<span class="sp"></span>
     ${list.length?`<span class="pe-chg">แก้ไว้ ${list.length} ช่อง ยังไม่บันทึก</span><button class="adm-btn" onclick="ceCancel()">Cancel</button>`:''}
+    <button class="adm-btn" onclick="maOpen()">＋ เพิ่มสมาชิก</button>
     <button class="adm-btn pri" onclick="ceSave()"${list.length?'':' disabled'}>💾 Save${list.length?' ('+list.length+')':''}</button></div>
     ${list.length?`<div class="pe-hint">${list.join(' · ')}</div>`:''}`;
 }
 function ceCancel(){_ce={};_ms={};_mn={};renderMembers();}
+/* ══ เพิ่มสมาชิกเองจากหน้าแอดมิน (R-042 · 17 พ.ย. 69) · ACTIVE/WAITLIST กรอกครบ · ALT ผูกตัวหลัก ไม่ต้องมีรหัสเกม ══ */
+const MA_CLS=['High Priest','Minstrel','Gypsy','Biochemist','Summoner','Lord Knight','Paladin','Mastersmith','Professor','High Wizard','Sniper','Stalker','Rebellion','Champion','Assassin Cross'];
+let _ma={st:'ACTIVE'},_maBusy=false;
+function maOpen(){
+  if(!ADMIN)return;
+  if(!_msAll)msLoad_();
+  _ma={st:'ACTIVE'};
+  let sh=document.getElementById('ma-sheet');
+  if(!sh){ sh=document.createElement('div'); sh.id='ma-sheet'; document.body.appendChild(sh);
+    sh.addEventListener('click',e=>{ if(e.target===sh)maClose(); }); }
+  sh.classList.add('on'); maDraw_();
+}
+function maClose(){ const sh=document.getElementById('ma-sheet'); if(sh)sh.classList.remove('on'); }
+function maSt(st){ maRead_(); _ma.st=st; maDraw_(); }
+function maRead_(){
+  const g=id=>{const e=document.getElementById(id);return e?e.value:''};
+  ['name','id','gl','or','build','main','dc','uid'].forEach(k=>{ const e=document.getElementById('ma-'+k); if(e)_ma[k]=e.value; });
+}
+function maDraw_(){
+  const sh=document.getElementById('ma-sheet'); if(!sh)return;
+  const st=_ma.st, alt=st==='ALT';
+  const opt=(arr,v,ph)=>'<option value="">'+ph+'</option>'+arr.map(c=>'<option'+(c===v?' selected':'')+'>'+esc_(c)+'</option>').join('');
+  const mains=(_msAll||[]).filter(r=>String(r.status||'').toUpperCase()==='ACTIVE'&&r.character_id&&r.character_name)
+    .sort((a,b)=>String(a.character_name).localeCompare(String(b.character_name)));
+  const v=k=>esc_(_ma[k]||'');
+  const sm=(_ma.gl==='Summoner'||_ma.or==='Summoner');
+  sh.innerHTML='<div class="box" role="dialog" aria-modal="true" aria-label="เพิ่มสมาชิก">'
+   +'<h3>เพิ่มสมาชิก</h3><div class="sub">เพิ่มแถวใหม่ต่อท้ายเท่านั้น ไม่แตะข้อมูลเดิม · เสร็จแล้วชื่อขึ้นให้เลือกจัดตี้ได้ทันที</div>'
+   +'<div class="seg">'+['ACTIVE','WAITLIST','ALT'].map(x=>'<button type="button" class="'+(st===x?'on':'')+'" onclick="maSt(\''+x+'\')">'+(x==='ALT'?'ตัวเด็ก (ALT)':x==='ACTIVE'?'ตัวหลัก (ACTIVE)':'รอคิว (WAITLIST)')+'</button>').join('')+'</div>'
+   +(alt?'<label>ตัวหลักของตัวเด็กนี้</label><select id="ma-main">'+'<option value="">เลือกตัวหลัก (ACTIVE)</option>'+mains.map(r=>'<option value="'+esc_(r.character_id)+'"'+(String(r.character_id)===String(_ma.main||'')?' selected':'')+'>'+esc_(r.character_name)+' · '+esc_(r.character_id)+'</option>').join('')+'</select>':'')
+   +'<label>ชื่อตัวละคร</label><input id="ma-name" value="'+v('name')+'" maxlength="40" autocomplete="off">'
+   +'<label>รหัสตัวละคร'+(alt?' (ไม่บังคับ)':' (ตัวเลข 5–7 หลัก)')+'</label><input id="ma-id" inputmode="numeric" value="'+v('id')+'" autocomplete="off">'
+   +(alt?'<div class="hint">ไม่ใส่ ระบบตั้งรหัสภายในให้ (ALT-0001…) · ตัวเด็กใช้บัญชี Discord เดียวกับตัวหลัก</div>':'')
+   +'<div class="row2"><div><label>อาชีพ GL</label><select id="ma-gl" onchange="maRead_();maDraw_()">'+opt(MA_CLS,_ma.gl,'เลือก')+'</select></div>'
+   +'<div><label>อาชีพ OR</label><select id="ma-or" onchange="maRead_();maDraw_()">'+opt(MA_CLS,_ma.or,'เหมือน GL')+'</select></div></div>'
+   +(sm?'<label>สาย Summoner</label><select id="ma-build"><option value="">ยังไม่ระบุ</option><option'+(_ma.build==='ATK'?' selected':'')+'>ATK</option><option'+(_ma.build==='MATK'?' selected':'')+'>MATK</option></select>':'')
+   +(alt?'':'<label>ชื่อ Discord (ไม่บังคับ)</label><input id="ma-dc" value="'+v('dc')+'" maxlength="40" autocomplete="off">'
+        +'<label>Discord uid (ไม่บังคับ)</label><input id="ma-uid" inputmode="numeric" value="'+v('uid')+'" autocomplete="off">'
+        +'<div class="hint">ไม่ทราบให้เว้นว่าง · ให้สมาชิกกด "เป็นสมาชิกอยู่แล้ว" ในห้องลงทะเบียนพร้อมรหัสเพื่อผูกบัญชีและรับยศ</div>')
+   +'<div class="err" id="ma-err"></div>'
+   +'<div class="act"><button type="button" class="adm-btn" onclick="maClose()">ยกเลิก</button><button type="button" class="adm-btn pri" onclick="maSave()"'+(_maBusy?' disabled':'')+'>เพิ่มสมาชิก</button></div></div>';
+}
+async function maSave(){
+  if(_maBusy)return; maRead_();
+  const e=m=>{const x=document.getElementById('ma-err'); if(x)x.textContent=m; return false;};
+  const p={status:_ma.st,name:(_ma.name||'').trim(),id:(_ma.id||'').trim(),class_gl:_ma.gl||'',class_or:_ma.or||'',build:_ma.build||'',main:_ma.main||'',discord:(_ma.dc||'').trim(),uid:(_ma.uid||'').trim()};
+  if(p.status==='ALT'&&!p.main)return e('เลือกตัวหลักก่อน');
+  if(!p.name)return e('ใส่ชื่อตัวละคร');
+  if(p.status!=='ALT'&&!/^\d{5,7}$/.test(p.id))return e('รหัสตัวละครต้องเป็นตัวเลข 5–7 หลัก');
+  if(p.status==='ALT'&&p.id&&!/^\d{5,7}$/.test(p.id))return e('รหัสต้องเป็นตัวเลข 5–7 หลัก หรือเว้นว่าง');
+  if(!p.class_gl)return e('เลือกอาชีพ GL');
+  _maBusy=true; maDraw_(); admBusy_(true); toast('กำลังเพิ่มสมาชิก… (10–20 วินาที)');
+  try{
+    const res=await admCall('admMemberAdd',p);
+    if(res&&res.members&&res.members.length){
+      members=res.members.map(peFromWeb_).filter(m=>m.ign);
+      _peLocal=members.map(m=>({...m})); _peHold=Date.now()+5*60*1000;
+    }
+    if(res&&res.all)_msAll=res.all;
+    maClose();
+    try{ applyMode(); renderMembers(); renderParty(); renderStats(); }catch(x){}
+    const w=(res&&res.warn)||[];
+    toast('เพิ่มแล้ว · '+res.name+' ('+res.id+') '+res.status+(w.length?' · ⚠ '+w.join(' / '):''),null,w.length>0);
+  }catch(x){ _maBusy=false; admBusy_(false); maDraw_(); e(String(x)); toast('เพิ่มไม่สำเร็จ · '+x,null,true); return; }
+  _maBusy=false; admBusy_(false);
+}
 async function ceSave(){
   const ch=Object.keys(_ce).map(n=>({name:n,gl:_ce[n].gl||'',or:_ce[n].or||''}));
   const st=Object.keys(_ms).map(n=>({name:n,status:_ms[n]}));
