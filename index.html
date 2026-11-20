@@ -72,6 +72,7 @@ window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('RE
   '#wg .wb.ws{background:transparent;color:var(--text,#eee);border:1px solid var(--border2,rgba(128,128,128,.5))}'+
   '#wg .we{color:var(--red,#e05a5a);font-size:13px;margin-top:12px}'+
   '#wg img{max-width:100%;border-radius:10px;margin-top:12px}'+
+  '#wg .wf{text-align:left}#wg .wf h1,#wg .wf>p{text-align:center}#wg .wl{display:block;margin-top:12px;font-weight:700;font-size:13px}#wg .wl input,#wg .wl select{display:block;box-sizing:border-box;width:100%;min-height:44px;margin-top:4px;padding:8px 10px;border:1px solid var(--border2,rgba(128,128,128,.5));border-radius:8px;background:var(--bg,#1b1b1f);color:var(--text,#eee);font:inherit;font-weight:400}#wg .wh{color:var(--muted,#999);font-size:12px;margin-top:2px}#wg .we{overflow-wrap:anywhere}#wg .wb:disabled{opacity:.6;cursor:default}'+
   '#wgc{position:fixed;right:11px;bottom:10px;z-index:400;background:var(--card,#26262b);color:var(--text,#eee);border:1px solid var(--border,rgba(128,128,128,.3));border-radius:999px;padding:6px 8px 6px 12px;font-size:12px;display:flex;gap:8px;align-items:center;box-shadow:0 1px 5px rgba(0,0,0,.2);max-width:calc(100vw - 22px)}'+
   '#wgc span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#wgc button{border:1px solid var(--border2,rgba(128,128,128,.5));background:transparent;color:inherit;border-radius:999px;padding:4px 10px;font:inherit;cursor:pointer}';
   root.appendChild(css);
@@ -95,12 +96,72 @@ window.addEventListener('unhandledrejection',function(e){var r=e.reason;show('RE
       if(msg)c.appendChild(el('div','we',ERR[msg]||ERR.error));
     });
   }
-  function apply(){
+  /* R-098 (20 พ.ย. 69 v2): ฟอร์มสมัครบนเว็บ → Worker POST /auth/apply → Register เดิม (เข้าคิว WAITLIST · แอดมินรับเข้าเอง)
+     แก้ตามผลตรวจ ChatGPT 20 พ.ย. (build ค้าง · 401 ไปหน้าล็อกอินตรง · กันส่งซ้ำ · หัวข้อผลตามผลลัพธ์ · โฟกัสข้อความผิดพลาด) · Claude ตรวจกับ Worker v206 แล้ว
+     รายชื่ออาชีพ = สำเนาของ CLASSES ใน Worker · เพิ่มอาชีพใหม่ต้องแก้ทั้งสองที่ */
+  var CLS=['High Priest','Minstrel','Gypsy','Professor','Biochemist','Summoner','Lord Knight','Paladin','Sniper','Stalker','Mastersmith','Rebellion','High Wizard','Assassin Cross','Champion'];
+  function fld(c,lab,node,hint){var l=el('label','wl',lab);l.appendChild(node);c.appendChild(l);if(hint)c.appendChild(el('div','wh',hint));return l}
+  function inp(type,ph,mx){var i=el('input');i.type=type;i.placeholder=ph||'';i.maxLength=mx||40;i.autocomplete='off';return i}
+  function sel(opts,first){var s=el('select');if(first!=null){var o=el('option',0,first);o.value='';s.appendChild(o)}opts.forEach(function(x){var o=el('option',0,x);o.value=x;s.appendChild(o)});return s}
+  var applyBusy=false;
+  function applyLogin(msg){
     show(function(c){
       c.appendChild(el('h1',0,'สมัครเข้ากิลด์'));
-      c.appendChild(el('p',0,'สมัครผ่าน Discord ของกิลด์: ไปที่ห้องลงทะเบียน กดปุ่มสมัคร แล้วกรอกรหัสตัวละคร ชื่อ และอาชีพ · แอดมินอนุมัติแล้วกลับมา Login ที่หน้านี้'));
-      var im=el('img');im.src='guide-apply.png';im.alt='วิธีสมัคร';c.appendChild(im);
-      btn(c,'กลับ',gate,1);
+      c.appendChild(el('p',0,msg));
+      btn(c,'Login with Discord',login);btn(c,'กลับ',gate,1);
+    });
+  }
+  function apply(){
+    applyBusy=false;
+    if(!getTok()){applyLogin('ล็อกอินด้วย Discord ก่อน เพื่อให้ระบบรู้ว่าใบสมัครเป็นของบัญชีไหน');return}
+    show(function(c){
+      c.classList.add('wf');
+      c.appendChild(el('h1',0,'สมัครเข้ากิลด์'));
+      c.appendChild(el('p',0,'ใบสมัครเข้าคิวรออนุมัติ · แอดมินเป็นคนรับเข้ากิลด์'));
+      var kind=sel(['main','alt']);kind.options[0].textContent='ตัวหลัก';kind.options[1].textContent='ตัวรอง (ALT)';
+      var ign=inp('text','ตามที่ตั้งไว้ในเกม',40),cid=inp('text','ดูรหัสตัวละครในเกม',12);cid.inputMode='numeric';
+      var cgl=sel(CLS,'เลือกอาชีพ'),cor=sel(CLS,'เหมือน GL'),bld=sel(['ATK','MATK'],'เลือกสาย');
+      fld(c,'ประเภทตัว',kind,'ตัวรอง: ต้องมีตัวหลักในทะเบียนแล้ว');
+      fld(c,'ชื่อตัวละคร',ign);fld(c,'รหัสตัวละคร (ตัวเลข 6–7 หลัก)',cid);
+      fld(c,'อาชีพ Guild League',cgl);fld(c,'อาชีพ Overrun',cor);
+      var bl=fld(c,'สาย (Summoner ต้องเลือก)',bld);
+      function needB(){return cgl.value==='Summoner'||cor.value==='Summoner'}
+      function sm(){bl.style.display=needB()?'':'none'}
+      cgl.onchange=sm;cor.onchange=sm;sm();
+      var er=el('div','we');er.style.display='none';er.tabIndex=-1;c.appendChild(er);
+      function fail(t){er.textContent=t;er.style.display='';er.focus();if(er.scrollIntoView)er.scrollIntoView({block:'nearest'})}
+      function busy(b){applyBusy=b;go.disabled=b;back.disabled=b;go.textContent=b?'กำลังส่ง…':'ส่งใบสมัคร'}
+      function submit(){
+        if(applyBusy)return;
+        er.style.display='none';
+        var nm=ign.value.trim(),v=cid.value.trim();
+        if(!nm||!v||!cgl.value){fail('กรอกให้ครบ: ชื่อตัวละคร · รหัสตัวละคร · อาชีพ GL');return}
+        if(!/^\d{6,7}$/.test(v)){fail('รหัสตัวละครต้องเป็นตัวเลข 6–7 หลัก (ดูได้ในเกม)');return}
+        if(needB()&&!bld.value){fail('Summoner ต้องเลือกสาย ATK หรือ MATK');return}
+        var tk=getTok();
+        if(!tk){applyLogin('กรุณาล็อกอินด้วย Discord อีกครั้ง');return}
+        busy(true);
+        fetch(W+'/auth/apply',{method:'POST',headers:{authorization:'Bearer '+tk,'content-type':'application/json'},
+          body:JSON.stringify({kind:kind.value,ign:nm,id:v,class_gl:cgl.value,class_or:cor.value,build:needB()?bld.value:''})
+        }).then(function(r){
+          if(r.status===401){busy(false);setTok(null);applyLogin('การล็อกอินหมดอายุหรือใช้ไม่ได้ กรุณาล็อกอินด้วย Discord อีกครั้ง');return}
+          return r.json().then(function(d){
+            busy(false);
+            if(r.status===200&&d&&d.ok===true){
+              var ttl={waitlist:'เข้าคิวรออนุมัติแล้ว',alt:'ลงทะเบียนตัวรองแล้ว',pending_move:'ส่งคำขอย้ายบัญชีแล้ว'}[d.result]||'ผลการดำเนินการ';
+              show(function(c2){
+                c2.appendChild(el('h1',0,ttl));
+                if(typeof d.text==='string'&&d.text)c2.appendChild(el('p',0,d.text));
+                btn(c2,'ตรวจสถานะ',check);
+              });
+              return;
+            }
+            fail(d&&typeof d.text==='string'&&d.text?d.text:'ยืนยันผลการส่งไม่ได้ กรุณาตรวจสถานะก่อนส่งอีกครั้ง');
+          },function(){busy(false);fail('อ่านผลจากระบบไม่ได้ กรุณาตรวจสถานะก่อนส่งอีกครั้ง')});
+        },function(){busy(false);fail('การเชื่อมต่อขัดข้อง กรุณาตรวจสถานะก่อนส่งอีกครั้ง')});
+      }
+      var go=btn(c,'ส่งใบสมัคร',submit);
+      var back=btn(c,'กลับ',function(){if(!applyBusy)check()},1);
     });
   }
   function status(d){
