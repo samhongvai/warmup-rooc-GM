@@ -4435,7 +4435,7 @@ function renderLeftover(){
   var rw=getRewardValues();
   var capW=Math.max(1,(rw&&rw.limWhite)||1), capR=Math.max(1,(rw&&rw.limRed)||1);
   /* วันในเซิร์ฟ: เศษแจกให้ Guild Helper ของวันนั้นก่อน · ไม่งั้นใช้ชื่อตั้งต้น */
-  var loNames=(_aucAutoWar&&String(_aucAutoWar.cross_server||'').trim()==='N')?ghHelpersForDate_(_aucAutoWar.date):[];
+  var loNames=(_aucAutoWar&&(String(_aucAutoWar.cross_server||'').trim()==='N'||new Date(_aucAutoWar.date+'T00:00:00').getDay()===0))?ghHelpersForDate_(_aucAutoWar.date):[]; /* 22 พ.ย.: วัน Overrun (อาทิตย์) ข้ามเซิร์ฟเสมอ แต่ Leftover ใช้ Auction Admin + ผู้ที่สุ่มพิเศษตามคิว · ห้ามตกไปชื่อตั้งต้น */
   /* R-088: วันในเซิร์ฟ — ช่อง 1-4 = ผู้ที่ถูกสุ่มพิเศษ · ช่อง 5 = Auction Admin (ป้ายคงที่ ไม่ผ่านการสุ่ม) · มีรายชื่อสุ่มแล้วเท่านั้น */
   /* ล็อกแถวแรก = Auction Admin เสมอ (ค่าไม่ดิ้น) ตามด้วยผู้ที่สุ่มได้เรียงตามคิว · ทุกบรรทัดต้องมีเจ้าของจากการสุ่ม ไม่มีช่องว่าง/ชื่อตั้งต้น */
   var loDrawn=loNames.length>0;
