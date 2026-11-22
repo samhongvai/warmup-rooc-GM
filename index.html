@@ -4445,6 +4445,7 @@ function renderLeftover(){
   if(loDrawn){
     var _in={}; loNames.forEach(function(n){_in[mKey_(n,'')]=1});
     loRes=(_aucSpecial||[]).filter(function(r){return String(r.status||'').trim()==='pending'&&String(r.member_name||'').trim()})
+      .filter(function(r){ /* 22 พ.ย.: ตัดคนออกกิลด์/ไม่ใช่ ACTIVE ออกจากตัวสำรอง (ไม่มีรายชื่อสมาชิก = ไม่กรอง) */ if(typeof members==='undefined'||!members||!members.length)return true; var k=mKey_(String(r.member_name||'').trim(),''); return members.some(function(m){var st=String(m.status||'').toUpperCase(); return (st==='ACTIVE'||st==='ABSENT')&&mKey_(String(m.ign||'').trim(),'')===k}); })
       .sort(function(a,b){return (+a.position||0)-(+b.position||0)})
       .map(function(r){return String(r.member_name).trim()})
       .filter(function(n){var k=mKey_(n,''); if(_in[k]||loGot_(dist,n))return false; _in[k]=1; return true});
