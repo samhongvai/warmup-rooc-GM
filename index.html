@@ -3923,6 +3923,12 @@ var AU_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ
 function auISO_(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(x<10?'0':'')+x}
 function auThai_(iso){var d=new Date(iso+'T00:00:00');return AU_DOW[d.getDay()]+' '+d.getDate()+' '+AU_MON[d.getMonth()]}
 
+/* วันงดวอ (ไม่มี GL/OR วันนั้น) · ต้นทางเดียว = แท็บ Rules (ชีท Warmup Event) category config · group no_war · text = YYYY-MM-DD คั่นด้วย , · บอท Discord อ่านแท็บเดียวกัน (Worker v208) */
+function ruNoWar_(){
+  var r=(_ruRows||[]).find(function(x){return x.category==='config'&&x.group==='no_war'});
+  return r?String(r.text||'').split(/[\s,;]+/).filter(function(v){return /^\d{4}-\d{2}-\d{2}$/.test(v)}):[];
+}
+function isNoWar_(iso){return ruNoWar_().indexOf(String(iso||''))>=0}
 /* วันในสัปดาห์ที่มีวอ อ่านจาก Events ถ้าโหลดแล้ว ไม่งั้นใช้ อังคาร/พฤหัส/อาทิตย์ */
 function auWarDays_(){
   var set={};
@@ -3938,11 +3944,11 @@ function auWarDays_(){
   if(!Object.keys(set).length){set[2]=1;set[4]=1;set[0]=1}
   return set;
 }
-function auIsWarDay_(iso){return !!auWarDays_()[new Date(iso+'T00:00:00').getDay()]}
+function auIsWarDay_(iso){return !!auWarDays_()[new Date(iso+'T00:00:00').getDay()]&&!isNoWar_(iso)}
 function auNextWarDay_(fromIso,inclusive){
   var wd=auWarDays_(), d=new Date(fromIso+'T00:00:00');
   if(!inclusive)d.setDate(d.getDate()+1);
-  for(var i=0;i<14;i++){ if(wd[d.getDay()])return auISO_(d); d.setDate(d.getDate()+1) }
+  for(var i=0;i<14;i++){ if(wd[d.getDay()]&&!isNoWar_(auISO_(d)))return auISO_(d); d.setDate(d.getDate()+1) }
   return null;
 }
 
@@ -4792,7 +4798,7 @@ function mrDefaultDate_(){
   /* วันนี้มีนัดอยู่แล้วใช้วันนี้เลย ไม่งั้นถอยไปนัดล่าสุดที่ผ่านมา — ดูทุกชนิดวอ ไม่ใช่เฉพาะ Guild League */
   if((_warLog||[]).some(x=>x.date===t))return t;
   const js=new Date().getDay(), dw=js===0?7:js;
-  if(MR_GL_DAYS.indexOf(dw)>=0||mrOrDays_().indexOf(dw)>=0)return t;
+  if((MR_GL_DAYS.indexOf(dw)>=0||mrOrDays_().indexOf(dw)>=0)&&!isNoWar_(t))return t;
   const w=(_warLog||[]).filter(x=>x.date<=t).map(x=>x.date).sort().pop();
   return w||t;
 }
@@ -6424,6 +6430,8 @@ async function loadCalEvents(){
   _calEventsPromise=(async()=>{
     try{ _calEventsRaw=parseGviz(await fetch(mkUrlA('Events')).then(r=>r.text())) }
     catch(e){ console.warn('โหลด Events ไม่สำเร็จ',e); _calEventsRaw=[] }
+    /* 24 พ.ย.: วันงดวอ (แท็บ Rules · config · no_war) ต้องรู้ก่อนวาดปฏิทิน */
+    if(_ruRows===null&&!_ruLoading){ try{ await ruLoad_(false) }catch(e){} }
     _calEventsLoaded=true;_calEventsPromise=null;
   })();
   return _calEventsPromise;
@@ -6462,11 +6470,13 @@ const CAL_KIND_SUB={
 function calEventsOn_(dateStr){
   const dow=calDow_(dateStr)+1;
   const out=[];
+  const noWar=isNoWar_(dateStr);
   (_calEventsRaw||[]).forEach(ev=>{
     const days=String(ev.day_of_week||'').split(',').map(d=>parseInt(String(d).trim(),10)).filter(d=>d>=1&&d<=7);
     if(days.indexOf(dow)===-1)return;
     const anchor=normDate(ev.anchor_date);
     if(anchor&&dateStr<anchor)return;
+    if(noWar&&['GUILDWAR','AUCTION','HELPER'].indexOf(String(ev.tag||'').trim().toUpperCase())>=0)return;   /* วันงดวอ: ไม่แสดงวอ/ประมูล/ผู้ช่วยของวันนั้น */
     out.push({
       event_id:ev.event_id||'',
       title:ev.title||'',
@@ -6478,6 +6488,7 @@ function calEventsOn_(dateStr){
       date:dateStr
     });
   });
+  if(noWar)out.push({event_id:'NOWAR',title:'งดวอ · วันนี้ไม่มี Guild League',time:'allday',end_time:'',tag:'SPECIAL',kind:'ot',color:colorForTag('SPECIAL'),date:dateStr});
   return out.sort((a,b)=>String(a.time||'zz').localeCompare(String(b.time||'zz')));
 }
 
