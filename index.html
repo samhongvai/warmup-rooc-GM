@@ -738,6 +738,19 @@ input[type=checkbox]{accent-color:var(--orange)}
 .cs-det .cs-v{font-size:14px;font-weight:700}
 .cs-trow{display:grid;grid-template-columns:minmax(0,1.5fr) 110px 110px;gap:10px;align-items:center;padding:7px 14px;border-top:1px solid var(--border);font-size:13px}
 .cs-trow .q-in{width:100%}
+.csm-hero{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.csm-hero b{font-size:18px;font-weight:800}.csm-hero span{font-size:12px;color:var(--muted)}
+.csm-focus{background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:13px;padding:12px 14px;margin:0 0 14px}
+.csm-focus .t{font-size:11px;color:var(--muted);font-weight:600}.csm-focus .n{font-size:16px;font-weight:800;margin:2px 0}.csm-focus .d{font-size:12px;color:var(--muted)}
+.csm-list{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.csm-r{padding:10px 14px;border-top:1px solid var(--border)}.csm-r:first-child{border-top:0}
+.csm-h{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:6px}
+.csm-h b{font-weight:700}.csm-h .v{color:var(--muted);font-size:12px}
+.csm-bar{position:relative;height:8px;border-radius:6px;background:var(--card2);overflow:visible}
+.csm-bar i{display:block;height:100%;border-radius:6px;background:var(--faint)}
+.csm-bar i.ok{background:var(--green)}.csm-bar i.mid{background:var(--amber)}.csm-bar i.lo{background:var(--red)}
+.csm-bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text);left:66.67%;opacity:.55}
+.csm-s{font-size:11px;color:var(--muted);margin-top:5px}
 .cs-sel{padding:6px 8px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:var(--font);margin:0 8px 12px 0}
 @media(max-width:640px){.cs-row{grid-template-columns:minmax(0,1.5fr) 60px 60px}.cs-row>span:nth-child(2),.cs-row>span:nth-child(5){display:none}.cs-trow{grid-template-columns:minmax(0,1fr) 90px 90px}}
 .q-save{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:10px 14px;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md)}
@@ -1836,7 +1849,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" id="nav-quota" style="display:none" onclick="sw('quota');closeSidebar()"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label">Quota Settings</span><span class="nav-tip">Quota Settings</span></div>
   <div class="nav-item" id="nav-config" style="display:none" onclick="sw('config');closeSidebar()"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label">Config</span><span class="nav-tip">Config</span></div>
-  <div class="nav-item" id="nav-stats" style="display:none" onclick="sw('stats');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Character Stats</span><span class="nav-tip">Character Stats</span></div>
+  <div class="nav-item" id="nav-stats" onclick="sw('stats');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Character Stats</span><span class="nav-tip">Character Stats</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
   <div class="nav-item" onclick="sw('auction');closeSidebar()"><span class="ni"><svg><use href="#i-hammer"/></svg></span><span class="nav-label">Guild Auction</span><span class="nav-tip">Guild Auction</span></div>
@@ -3145,7 +3158,7 @@ async function qAdmSave(){
 let _cs={data:null,busy:false,err:'',tab:'list',cls:'',sort:'avg',open:null,tcls:'',tedit:{},saving:false};
 async function csInit(){
   const h=document.getElementById('stats-root'); if(!h)return;
-  if(!ADMIN){ h.innerHTML='<div class="q-note">หน้านี้เฉพาะแอดมิน</div>'; return; }
+  if(!ADMIN){ return csMemberInit(); }
   if(window.__DEMO__){ h.innerHTML='<div class="q-note">โหมดเดโมไม่มีข้อมูลสเตตัส</div>'; return; }
   _cs.busy=true; _cs.err=''; csRender();
   try{ _cs.data=await admCall('admStatList'); }catch(e){ _cs.err=String(e); }
@@ -3169,6 +3182,54 @@ function csRender(){
   else if(_cs.tab==='miss')body=csMiss_(d);
   else body=csTarget_(d);
   h.innerHTML=met+`<div class="q-sels">${seg([['list','รายคน'],['miss','ยังไม่ส่ง ('+d.missing.length+')'],['target','ตั้งเกณฑ์']],_cs.tab,'csTab')}<button class="q-lnk" onclick="csInit()" ${_cs.busy?'disabled':''}>รีเฟรช</button></div>`+body;
+}
+/* v81 (28 พ.ย. 69) Character Stats ฝั่งสมาชิก · A "Focus First" · ข้อมูลตัวหลักของเจ้าของบัญชีเท่านั้น (Worker /auth/mystats ตรวจโทเค็น · ไม่รับ uid จากหน้าเว็บ) */
+let _csm={data:null,busy:false,err:''};
+async function csMemberInit(){
+  const h=document.getElementById('stats-root'); if(!h)return;
+  const sub=document.querySelector('#page-stats .page-sub'); if(sub)sub.textContent='ค่าสเตตัสของตัวหลักคุณ เทียบเกณฑ์ของอาชีพ · เห็นเฉพาะของตัวเอง';
+  if(window.__DEMO__){ h.innerHTML='<div class="q-note">โหมดเดโมไม่มีข้อมูลสเตตัส</div>'; return; }
+  let tk=null; try{ tk=localStorage.getItem('warmup_auth_v1'); }catch(e){}
+  if(!tk){ h.innerHTML='<div class="q-note">ต้องเข้าสู่ระบบด้วย Discord ก่อนจึงจะเห็นสเตตัสของตัวเอง</div>'; return; }
+  _csm.busy=true; _csm.err=''; csMemberRender();
+  try{
+    const r=await fetch('https://warmup-discord.sdmmaruko.workers.dev/auth/mystats',{headers:{authorization:'Bearer '+tk}});
+    if(r.status===401){ _csm.err='เซสชันหมดอายุ · รีเฟรชหน้าแล้วเข้าสู่ระบบใหม่'; }
+    else{
+      const d=await r.json();
+      if(d&&d.ok){ _csm.data=d; }
+      else if(d&&d.reason==='not_active'){ _csm.err='สเตตัสแสดงเฉพาะสมาชิกที่สถานะ ACTIVE'; }
+      else if(d&&d.reason==='denied_unknown'){ _csm.err='ยังไม่พบตัวหลักที่ผูกกับบัญชี Discord นี้'; }
+      else{ _csm.err='โหลดไม่สำเร็จ ลองใหม่อีกครั้ง'; }
+    }
+  }catch(e){ _csm.err='ต่อระบบไม่ติด ลองใหม่อีกครั้ง'; }
+  _csm.busy=false; csMemberRender();
+}
+function csMemberRender(){
+  const h=document.getElementById('stats-root'); if(!h)return;
+  if(_csm.busy&&!_csm.data){ h.innerHTML='<div class="q-note">กำลังโหลด…</div>'; return; }
+  if(_csm.err){ h.innerHTML='<div class="q-note err">'+esc_(_csm.err)+'</div><button class="q-lnk" onclick="csMemberInit()">ลองใหม่</button>'; return; }
+  const d=_csm.data; if(!d){ h.innerHTML=''; return; }
+  const hero='<div class="csm-hero"><b>'+esc_(d.name||'')+'</b><span>'+esc_(d.cls||'')+'</span></div>';
+  if(d.empty){ h.innerHTML=hero+'<div class="q-note">ยังไม่มีข้อมูลสเตตัสของตัวหลัก · ส่งรูปสเตตัสตามกล่องที่แอดมินโพสต์ใน Discord แล้วค่าจะขึ้นที่นี่</div>'; return; }
+  const items=d.items||[], cap=d.cap||150;
+  const avg=d.avg==null?'—':Math.round(d.avg)+'%';
+  const noBase=items.filter(x=>x.val!=null&&x.pct==null).length;
+  const met='<div class="q-metrics"><div><span>เฉลี่ยเทียบเกณฑ์</span><b>'+avg+'</b></div><div><span>ถึงเกณฑ์</span><b>'+d.reached+' / '+d.calc+'</b></div><div><span>ยังไม่มีฐานเทียบ</span><b>'+noBase+'</b></div></div>';
+  const f=items.find(x=>x.key===d.focus);
+  let focus;
+  if(f){ const gap=Math.max(0,f.base-f.val);
+    focus='<div class="csm-focus"><div class="t">ควรเสริมก่อน</div><div class="n">'+esc_(f.label)+' · '+csFmt_(f.pct)+'%</div><div class="d">ตอนนี้ '+csFmt_(f.val)+' จากเกณฑ์ '+csFmt_(f.base)+' · ขาดอีก '+csFmt_(gap)+'</div></div>'; }
+  else if(d.calc>0){ focus='<div class="csm-focus"><div class="t">ผลรวม</div><div class="n">ถึงเกณฑ์ครบทุกค่าที่เทียบได้</div></div>'; }
+  else{ focus='<div class="csm-focus"><div class="t">ผลรวม</div><div class="n">ยังไม่มีฐานเปรียบเทียบ</div><div class="d">รอแอดมินตั้งเกณฑ์ หรือรอให้อาชีพนี้มีคนส่งสเตตัสครบ '+(d.min_n||5)+' คน</div></div>'; }
+  const rows=items.map(x=>{
+    if(x.val==null) return '<div class="csm-r"><div class="csm-h"><b>'+esc_(x.label)+'</b><span class="v">ยังไม่ได้ส่ง</span></div></div>';
+    if(x.pct==null) return '<div class="csm-r"><div class="csm-h"><b>'+esc_(x.label)+'</b><span class="v">'+csFmt_(x.val)+'</span></div><div class="csm-s">ยังไม่มีฐานเปรียบเทียบ</div></div>';
+    const w=Math.min(x.pct,cap)/cap*100;
+    const src=x.src==='admin'?'เกณฑ์แอดมิน':'ค่ากลางอาชีพ (n='+x.n+')';
+    return '<div class="csm-r"><div class="csm-h"><b>'+esc_(x.label)+'</b><span class="v">'+csFmt_(x.val)+' / '+csFmt_(x.base)+' · <span class="cs-pct '+csCls_(x.pct)+'">'+csFmt_(x.pct)+'%</span></span></div><div class="csm-bar"><i class="'+csCls_(x.pct)+'" style="width:'+w+'%"></i><u></u></div><div class="csm-s">100% = '+src+'</div></div>';
+  }).join('');
+  h.innerHTML=hero+met+focus+'<div class="csm-list">'+rows+'</div><div class="q-note">แถบเต็มที่ '+cap+'% (ค่าจริงยังแสดงเป็นตัวเลข) · อัปเดต '+esc_(d.upd||'—')+(d.pages?' · จาก '+d.pages+' รูป':'')+'</div>';
 }
 function csTab(k){ _cs.tab=k; csRender(); }
 function csList_(d){
