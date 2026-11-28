@@ -2063,12 +2063,14 @@ body.pe2-dragging #pe2-bar{display:none!important}
     <button class="au-tab wr-tab" data-wt="insight" onclick="swWarTab('insight')">Insights</button>
     <button class="au-tab wr-tab" data-wt="absence" onclick="swWarTab('absence')">Absence</button>
     <button class="au-tab wr-tab" data-wt="cls" onclick="swWarTab('cls')">Class check</button>
+    <button class="au-tab wr-tab" data-wt="mix" onclick="swWarTab('mix')">Class mix</button>
     <button class="au-tab wr-tab" data-wt="rewards" onclick="swWarTab('rewards')">Rewards</button>
   </div>
   <div id="war-stats" style="display:none"></div>
   <div id="war-insight" style="display:none"></div>
   <div id="war-absence" style="display:none"></div>
   <div id="war-cls" style="display:none"></div>
+  <div id="war-mix" style="display:none"></div>
   <div id="war-glin" style="display:none"></div>
   <div id="war-orin" style="display:none"></div>
   <div id="war-hist">
@@ -2136,7 +2138,7 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Auction_Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
                Auction_Adjust:SRC_AUCTION,Special_Draw:SRC_AUCTION,Auction_State:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT,Leave_Log:SRC_EVENT,
-               Alias:SRC_EVENT,Rules:SRC_EVENT,Class_Quota:SRC_EVENT};
+               Alias:SRC_EVENT,Rules:SRC_EVENT,Class_Quota:SRC_EVENT,War_Class:SRC_EVENT};
 /* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
 const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H',Leave_Log:'A:F'};
@@ -2306,7 +2308,7 @@ async function winOpen(date,type){
   _winPanel=gl?'glin':'orin';
   try{ await loadWarData(); }catch(e){}
   try{ await loadAuctionData(); }catch(e){}
-  ['hist','stats','rewards','insight','absence','cls'].forEach(k=>{
+  ['hist','stats','rewards','insight','absence','cls','mix'].forEach(k=>{
     const el=document.getElementById('war-'+k); if(el)el.style.display='none';});
   const show=gl?'war-glin':'war-orin', hide=gl?'war-orin':'war-glin';
   const hd=document.getElementById(hide); if(hd)hd.style.display='none';
@@ -5408,10 +5410,113 @@ function swWarTab(t){
   if(t==='glin'||t==='orin')t='hist';
   _warTab=t;
   document.querySelectorAll('.wr-tab').forEach(b=>b.classList.toggle('active',b.dataset.wt===t));
-  ['hist','stats','rewards','insight','absence','cls'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
+  ['hist','stats','rewards','insight','absence','cls','mix'].forEach(k=>{const el=document.getElementById('war-'+k); if(el)el.style.display=k===t?'':'none';});
   if(t==='insight')renderInsights();
   if(t==='absence')renderAbsence();
   if(t==='cls')renderClsCheck();
+  if(t==='mix')mixOpen_();
+}
+/* ══ CLASS MIX ══ (read-only · แท็บ War_Class ใน Event · ไม่เขียนข้อมูล)
+   ต้นทาง = War_Class (war_date game side class count field) · คีย์รอบ = war_date+game
+   โหลดแยกจาก loadWarData: ล้ม/ว่าง/หัวผิด ไม่กระทบ History/Stats เดิม · ลองใหม่เฉพาะแท็บนี้
+   ⚠️ gviz ถ้าชื่อแท็บผิดจะตอบ 200 พร้อมข้อมูลแท็บแรก → ต้องเช็กหัวตารางทุกครั้ง */
+const WC_NEED=['war_date','game','side','class','count','field'];
+const WC_OUR='warmup';
+let _wcRows=[], _wcState='idle', _wcWhy='', _wcPromise=null, _wcRound='', _wcField='all', _wcView='mix';
+function wcParse_(text){
+  const rows=parseGviz(text);
+  if(!rows||!rows.length)return {state:'empty',rows:[]};
+  const keys=Object.keys(rows[0]||{}).map(k=>String(k).trim().toLowerCase());
+  const miss=WC_NEED.filter(h=>keys.indexOf(h)<0);
+  if(miss.length)return {state:'schema',why:'ไม่พบหัวคอลัมน์: '+miss.join(', '),rows:[]};
+  const rawH=(parseCsvRows(text)[0]||[]).map(c=>String(c||'').trim().toLowerCase()).filter(Boolean);
+  if(new Set(rawH).size!==rawH.length)return {state:'schema',why:'หัวคอลัมน์ซ้ำ',rows:[]};
+  const out=[];
+  rows.forEach(r0=>{
+    const r={}; Object.keys(r0).forEach(k=>{r[String(k).trim().toLowerCase()]=r0[k];});
+    const date=normDate(r.war_date), game=String(r.game||'').trim().toUpperCase(), side=String(r.side||'').trim();
+    const cls=clsLabel_(r.class), n=parseInt(String(r.count||'').replace(/[^0-9-]/g,''),10);
+    const field=String(r.field||'').trim();
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!game||!side||!cls||!(n>=0))return;
+    out.push({date,game,side,cls,n,field});
+  });
+  return out.length?{state:'ok',rows:out}:{state:'empty',rows:[]};
+}
+function loadWarClass_(force){
+  if(_wcState==='ok'&&!force)return Promise.resolve();
+  if(_wcPromise)return _wcPromise;
+  _wcState='loading'; _wcWhy='';
+  _wcPromise=(async()=>{
+    try{
+      const r=await fetch(mkUrlA('War_Class'));
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const t=await r.text();
+      if(/^\s*<(!doctype|html)/i.test(t))throw new Error('ได้หน้าเข้าสู่ระบบแทนข้อมูล');
+      const x=wcParse_(t); _wcRows=x.rows; _wcState=x.state; _wcWhy=x.why||'';
+    }catch(e){ _wcState='error'; _wcWhy=String(e&&e.message||e).slice(0,120); }
+    finally{ _wcPromise=null; }
+  })();
+  return _wcPromise;
+}
+async function mixOpen_(){
+  const box=document.getElementById('war-mix'); if(!box)return;
+  if(_wcState!=='ok'){ box.innerHTML='<div class="empty">กำลังโหลด...</div>'; await loadWarClass_(); }
+  renderMix();
+}
+function mixSet(k,v){ if(k==='round')_wcRound=v; else if(k==='field')_wcField=v; else if(k==='view')_wcView=v; renderMix(); }
+function mixRetry(){ _wcState='idle'; mixOpen_(); }
+function mixRounds_(){
+  const m={}; _wcRows.forEach(r=>{ m[r.date+'|'+r.game]=1; });
+  return Object.keys(m).sort().reverse().map(k=>{const a=k.split('|'); return {key:k,date:a[0],game:a[1]};});
+}
+function mixAgg_(rows){
+  const a={}; rows.forEach(r=>{
+    const o=a[r.cls]||(a[r.cls]={cls:r.cls,us:0,opp:0}); if(r.side.toLowerCase()===WC_OUR)o.us+=r.n; else o.opp+=r.n; });
+  return Object.values(a).sort((x,y)=>(y.us+y.opp)-(x.us+x.opp)||x.cls.localeCompare(y.cls));
+}
+function renderMix(){
+  const box=document.getElementById('war-mix'); if(!box)return;
+  if(_wcState==='error'||_wcState==='schema'){
+    box.innerHTML='<div class="empty">โหลดข้อมูลอาชีพไม่สำเร็จ ('+esc_(_wcWhy||_wcState)+')<br><button class="btn-sm" style="margin-top:10px" onclick="mixRetry()">ลองใหม่</button></div>'; return; }
+  if(_wcState!=='ok'){ box.innerHTML='<div class="empty">ยังไม่มีข้อมูลอาชีพของวอ</div>'; return; }
+  const rounds=mixRounds_();
+  if(!_wcRound||!rounds.some(r=>r.key===_wcRound))_wcRound=rounds[0].key;
+  const seg=(arr,cur,k)=>`<div class="wi-seg">${arr.map(([v,t])=>`<button class="${String(v)===String(cur)?'on':''}" onclick="mixSet('${k}','${v}')">${t}</button>`).join('')}</div>`;
+  const fields=[['all','All']].concat([...new Set(_wcRows.map(r=>r.field).filter(Boolean))].sort().map(f=>[f,esc_(f)]));
+  const last=rounds[0].date;
+  const hist=(typeof _glLog!=='undefined'&&_glLog||[]).map(r=>r.date).sort().slice(-1)[0]||'';
+  const stale=hist&&hist>last?`<div class="wi-st" style="margin-top:8px">มีวอใหม่กว่านี้ (${esc_(hist)}) ที่ยังไม่ได้ลงข้อมูลอาชีพ</div>`:'';
+  const head=`<div class="wi-row" style="align-items:flex-end">
+    <div class="wi-f"><span>View</span>${seg([['mix','Mix'],['trend','Trend']],_wcView,'view')}</div>
+    <div class="wi-f"><span>Field</span>${seg(fields,_wcField,'field')}</div>
+    <span class="wi-st">ข้อมูลล่าสุด ${esc_(last)} · ${rounds.length} วอ</span></div>${stale}`;
+  const inF=r=>_wcField==='all'||r.field===_wcField;
+  if(_wcView==='trend'){
+    const rs=rounds.slice(0,6).reverse();
+    const per=rs.map(R=>{ const rows=_wcRows.filter(r=>r.date===R.date&&r.game===R.game&&inF(r)&&r.side.toLowerCase()===WC_OUR);
+      const tot=rows.reduce((s,r)=>s+r.n,0); const m={}; rows.forEach(r=>{m[r.cls]=(m[r.cls]||0)+r.n;}); return {R,tot,m}; });
+    const cls=[...new Set(per.flatMap(p=>Object.keys(p.m)))].sort((a,b)=>per.reduce((s,p)=>s+(p.m[b]||0),0)-per.reduce((s,p)=>s+(p.m[a]||0),0));
+    if(!cls.length){ box.innerHTML=head+'<div class="empty">ไม่มีข้อมูลของ Warmup ในช่วงที่เลือก</div>'; return; }
+    box.innerHTML=head+`<div class="tbl-wrap"><table class="rtbl in-tb"><thead><tr><th>Class</th>${per.map(p=>`<th class="n">${esc_(p.R.date.slice(5))}</th>`).join('')}</tr></thead>
+      <tbody>${cls.map(c=>`<tr><td class="en"><b>${esc_(c)}</b></td>${per.map(p=>`<td class="n">${p.tot?Math.round((p.m[c]||0)*100/p.tot)+'%':'–'}</td>`).join('')}</tr>`).join('')}
+      <tr><td><b>Total</b></td>${per.map(p=>`<td class="n">${p.tot}</td>`).join('')}</tr></tbody></table></div>
+      <div class="wi-st" style="margin-top:8px">สัดส่วนของ Warmup ต่อวอ (% ของจำนวนที่นับได้ในรอบนั้น)</div>`;
+    return;
+  }
+  const cur=rounds.find(r=>r.key===_wcRound);
+  const rows=_wcRows.filter(r=>r.date===cur.date&&r.game===cur.game&&inF(r));
+  const agg=mixAgg_(rows); const tu=agg.reduce((s,x)=>s+x.us,0), to=agg.reduce((s,x)=>s+x.opp,0);
+  const opps=[...new Set(rows.filter(r=>r.side.toLowerCase()!==WC_OUR).map(r=>r.side))].join(', ');
+  const mx=Math.max(1,...agg.map(x=>Math.max(x.us,x.opp)));
+  const bar=(v,c)=>`<div style="height:6px;border-radius:3px;background:${c};width:${Math.round(v*100/mx)}%;min-width:${v?3:0}px;margin-top:4px;margin-left:auto"></div>`;
+  box.innerHTML=head+`<div class="wi-row" style="margin-top:10px"><div class="wi-f"><span>Round</span>
+    <select onchange="mixSet('round',this.value)">${rounds.map(r=>`<option value="${esc_(r.key)}"${r.key===_wcRound?' selected':''}>${esc_(r.date)} · ${esc_(r.game)}</option>`).join('')}</select></div>
+    <span class="wi-st">คู่ต่อสู้: ${esc_(opps||'–')}</span></div>`
+    +(agg.length?`<div class="tbl-wrap"><table class="rtbl in-tb"><thead><tr><th>Class</th><th class="n">Warmup</th><th class="n">Opponent</th><th class="n">Diff</th></tr></thead>
+      <tbody>${agg.map(x=>`<tr><td class="en"><b>${esc_(x.cls)}</b></td><td class="n" style="min-width:84px">${x.us}${bar(x.us,'var(--orange)')}</td><td class="n" style="min-width:84px">${x.opp}${bar(x.opp,'var(--muted)')}</td><td class="n">${x.us-x.opp>0?'+':''}${x.us-x.opp}</td></tr>`).join('')}
+      <tr><td><b>Total</b></td><td class="n"><b>${tu}</b></td><td class="n"><b>${to}</b></td><td class="n">${tu-to>0?'+':''}${tu-to}</td></tr></tbody></table></div>`
+      :'<div class="empty">ไม่มีข้อมูลในรอบ/สนามที่เลือก</div>')
+    +'<div class="wi-st" style="margin-top:8px">นับจากภาพผลวอ · ตัวเลขนี้คือจำนวนที่ลงวอจริง ไม่ใช่โควตา</div>';
 }
 /* ══ CLASS CHECK ══ เทียบอาชีพที่ลงทะเบียนไว้กับอาชีพที่กรอกไว้ตอนวอ
    ใช้สำหรับแคปโพสต์ให้เจ้าตัวมาอัปเดตทะเบียนให้ตรง */
