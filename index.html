@@ -1924,6 +1924,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="au-tabs">
     <button class="au-tab active" data-tab="calc" onclick="swAucTab('calc')">Guild Auction</button>
     <button class="au-tab" data-tab="manage" onclick="swAucTab('manage')">Queue</button>
+    <button class="au-tab" data-tab="pen" onclick="swAucTab('pen')">Penalties</button>
   </div>
 
   <div id="auc-calc">
@@ -2031,6 +2032,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
 
   </div>
 
+  <div id="auc-pen" style="display:none"><div id="pen-root"><div class="loading">Loading...</div></div></div>
   <div id="auc-manage" style="display:none">
     <div id="adm-qbar"></div>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
@@ -2144,7 +2146,7 @@ const SRC_EVENT='1s-IVYhRI_0bREC-qJk-3DLDseMnA_hb21YqTy5XDnJQ';   // Warmup Even
 const TAB_SRC={Auction_Queue:SRC_AUCTION,Queue_Archive:SRC_AUCTION,Helper_Log:SRC_AUCTION,Auction_Config:SRC_AUCTION,
                War_Log:SRC_EVENT,Rewards_Ref:SRC_EVENT,Events:SRC_EVENT,GL_Score:SRC_EVENT,
                Auction_Adjust:SRC_AUCTION,Special_Draw:SRC_AUCTION,Auction_State:SRC_AUCTION,GL_Log:SRC_EVENT,OR_Rank:SRC_EVENT,Attend_Log:SRC_EVENT,Leave_Log:SRC_EVENT,
-               Alias:SRC_EVENT,Rules:SRC_EVENT,Class_Quota:SRC_EVENT,War_Class:SRC_EVENT};
+               Alias:SRC_EVENT,Rules:SRC_EVENT,Class_Quota:SRC_EVENT,War_Class:SRC_EVENT,Penalty_Ledger:SRC_EVENT};
 /* GL_Score อยู่ใน TAB_SRC แล้วด้านบน (SRC_EVENT) */
 /* GL_Log มีบล็อกซ่อนด้านขวาที่หัวคอลัมน์ชื่อซ้ำ (rank/status/diff) — อ่านเฉพาะช่วงข้อมูลจริง */
 const TAB_RANGE={GL_Log:'A:K',OR_Rank:'A:L',GL_Score:'A:Q',Attend_Log:'A:H',Leave_Log:'A:F'};
@@ -2984,6 +2986,41 @@ function qViewRecruit_(){
   <p class="q-note">นับ "คนในกิลด์" เฉพาะตัวหลัก (ไม่รวม Alt) รวมคนที่ลา${qUnkGuild_()?` · มี Summoner ที่ยังไม่ระบุสาย ${qUnkGuild_()} คน นับในจำนวนคนทั้งกิลด์ แต่ยังไม่นับกับเป้า ATK/MATK`:''}</p>`;
 }
 
+
+
+/* ── Penalties (ดูอย่างเดียว · ทุกคนดูได้) · ต้นทาง = แท็บ Penalty_Ledger (Event) · ไม่เขียนอะไร · โชว์เฉพาะ ชื่อ/ครั้งที่/ค้างตัด/เหตุ/อัปเดต (ไม่แสดง note) ── */
+let _penRows=null,_penLoading=false;
+async function penInit_(){
+  const root=document.getElementById('pen-root'); if(!root)return;
+  if(_penRows===null&&!_penLoading){
+    _penLoading=true;
+    try{
+      if(_ruRows===null&&!_ruLoading){ try{ await ruLoad_(false) }catch(e){} }
+      const rows=parseGviz(await fetch(mkUrlA('Penalty_Ledger')).then(r=>r.text()));
+      /* ชื่อแท็บผิด gviz คืนแท็บแรกแทน → ต้องมีหัวที่ถูกต้องเท่านั้น */
+      _penRows=rows.length&&!('offences' in rows[0]&&'owed' in rows[0])?false:rows;
+    }catch(e){ _penRows=false; }
+    _penLoading=false;
+  }
+  penRender_();
+}
+function penRender_(){
+  const root=document.getElementById('pen-root'); if(!root)return;
+  const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  if(_penRows===false){ root.innerHTML='<div class="card" style="padding:16px">โหลดข้อมูลโทษไม่สำเร็จ ลองรีเฟรชอีกครั้ง</div>'; return; }
+  const kr=(_ruRows||[]).find(x=>x.category==='config'&&x.group==='skip_kick_at');
+  const kick=Math.min(20,Math.max(1,parseInt(kr&&kr.text,10)||3));
+  const list=(_penRows||[]).filter(r=>String(r.character_id||'').trim()&&((+r.offences||0)>0||(+r.owed||0)>0))
+    .sort((a,b)=>(+b.offences||0)-(+a.offences||0)||(+b.owed||0)-(+a.owed||0));
+  const dt=v=>{ const m=String(v||'').match(/(\d{4})-(\d{2})-(\d{2})/); return m?(m[3]+'/'+m[2]+'/'+m[1]):esc(v||''); };
+  let h='<div style="display:flex;flex-direction:column;gap:12px;max-width:1000px">'+
+   '<div class="card" style="padding:14px;font-size:13px;line-height:1.7"><b>ตัดสิทธิ์ประมูลจากการไม่แจ้งลา</b> · ครั้งที่ 1 ตัด 1 รอบ · ครั้งที่ 2 ตัด 2 รอบ · ครั้งที่ '+kick+' เตะออกกิลด์ · "ค้างตัด" = รอบที่ยังไม่ได้ตัดเพราะคิวไม่พอ จะตามไปตัดรอบใหม่<br><span style="opacity:.75">ดูอย่างเดียว · แก้โทษทำที่ชีทโดยแอดมินเท่านั้น</span></div>';
+  if(!list.length) h+='<div class="card" style="padding:16px">ตอนนี้ไม่มีโทษที่ค้างอยู่</div>';
+  else h+='<div class="card" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px"><thead><tr style="text-align:left;opacity:.75"><th style="padding:10px 12px">ตัวละคร</th><th style="padding:10px 8px">ครั้งที่</th><th style="padding:10px 8px">ค้างตัด</th><th style="padding:10px 8px">เหตุ</th><th style="padding:10px 8px">อัปเดต</th></tr></thead><tbody>'+
+    list.map(r=>{ const o=+r.offences||0; const warn=o>=kick-1?'color:var(--orange)':'';
+      return '<tr style="border-top:1px solid var(--border)"><td style="padding:10px 12px;font-weight:700">'+esc(r.member_name||r.character_id)+'</td><td style="padding:10px 8px;'+warn+'">'+o+'</td><td style="padding:10px 8px">'+(+r.owed||0)+'</td><td style="padding:10px 8px">'+esc(r.reasons||'-')+'</td><td style="padding:10px 8px;opacity:.8">'+dt(r.updated_at)+'</td></tr>'; }).join('')+'</tbody></table></div>';
+  root.innerHTML=h+'</div>';
+}
 
 /* ── Config (ดูอย่างเดียว · เฉพาะแอดมิน) · อ่านค่าสดจากแท็บ Rules category config · ไม่เขียนอะไรลงชีท ── */
 const CFG_ITEMS=[
@@ -6484,7 +6521,7 @@ function renderRewardsPreview(){
 
 function swAucTab(t){
   document.querySelectorAll('.au-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  ['calc','manage'].forEach(k=>{
+  ['calc','manage','pen'].forEach(k=>{
     const el=document.getElementById('auc-'+k);
     if(el)el.style.display=(k===t)?'':'none';
   });
@@ -6493,6 +6530,7 @@ function swAucTab(t){
     if(cnt)cnt.textContent='กำลังโหลดประวัติ...';
     loadQueueArchive().then(populateQueueRounds);
   }
+  if(t==='pen')penInit_();
 }
 
 async function preloadSearchCache(){
