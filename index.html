@@ -3010,16 +3010,48 @@ function penRender_(){
   if(_penRows===false){ root.innerHTML='<div class="card" style="padding:16px">โหลดข้อมูลโทษไม่สำเร็จ ลองรีเฟรชอีกครั้ง</div>'; return; }
   const kr=(_ruRows||[]).find(x=>x.category==='config'&&x.group==='skip_kick_at');
   const kick=Math.min(20,Math.max(1,parseInt(kr&&kr.text,10)||3));
-  const list=(_penRows||[]).filter(r=>String(r.character_id||'').trim()&&((+r.offences||0)>0||(+r.owed||0)>0))
+  const list=(_penRows||[]).filter(r=>String(r.character_id||'').trim()&&(ADMIN||(+r.offences||0)>0||(+r.owed||0)>0))
     .sort((a,b)=>(+b.offences||0)-(+a.offences||0)||(+b.owed||0)-(+a.owed||0));
   const dt=v=>{ const m=String(v||'').match(/(\d{4})-(\d{2})-(\d{2})/); return m?(m[3]+'/'+m[2]+'/'+m[1]):esc(v||''); };
   let h='<div style="display:flex;flex-direction:column;gap:12px;max-width:1000px">'+
-   '<div class="card" style="padding:14px;font-size:13px;line-height:1.7"><b>ตัดสิทธิ์ประมูลจากการไม่แจ้งลา</b> · ครั้งที่ 1 ตัด 1 รอบ · ครั้งที่ 2 ตัด 2 รอบ · ครั้งที่ '+kick+' เตะออกกิลด์ · "ค้างตัด" = รอบที่ยังไม่ได้ตัดเพราะคิวไม่พอ จะตามไปตัดรอบใหม่<br><span style="opacity:.75">ดูอย่างเดียว · แก้โทษทำที่ชีทโดยแอดมินเท่านั้น</span></div>';
+   '<div class="card" style="padding:14px;font-size:13px;line-height:1.7"><b>ตัดสิทธิ์ประมูลจากการไม่แจ้งลา</b> · ครั้งที่ 1 ตัด 1 รอบ · ครั้งที่ 2 ตัด 2 รอบ · ครั้งที่ '+kick+' เตะออกกิลด์ · "ค้างตัด" = รอบที่ยังไม่ได้ตัดเพราะคิวไม่พอ จะตามไปตัดรอบใหม่<br><span style="opacity:.75">'+(ADMIN?'แอดมิน: แก้ตัวเลขแล้วกดบันทึกที่แถวนั้น · ระบบสำรองชีทและลงบันทึกให้ · ไม่แตะคิวประมูล':'ดูอย่างเดียว · แก้โทษทำโดยแอดมินเท่านั้น')+'</span></div>';
   if(!list.length) h+='<div class="card" style="padding:16px">ตอนนี้ไม่มีโทษที่ค้างอยู่</div>';
-  else h+='<div class="card" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px"><thead><tr style="text-align:left;opacity:.75"><th style="padding:10px 12px">ตัวละคร</th><th style="padding:10px 8px">ครั้งที่</th><th style="padding:10px 8px">ค้างตัด</th><th style="padding:10px 8px">เหตุ</th><th style="padding:10px 8px">อัปเดต</th></tr></thead><tbody>'+
+  else h+='<div class="card" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px"><thead><tr style="text-align:left;opacity:.75"><th style="padding:10px 12px">ตัวละคร</th><th style="padding:10px 8px">ครั้งที่</th><th style="padding:10px 8px">ค้างตัด</th><th style="padding:10px 8px">เหตุ</th><th style="padding:10px 8px">อัปเดต</th>'+(ADMIN?'<th style="padding:10px 8px">แก้ (แอดมิน)</th>':'')+'</tr></thead><tbody>'+
     list.map(r=>{ const o=+r.offences||0; const warn=o>=kick-1?'color:var(--orange)':'';
-      return '<tr style="border-top:1px solid var(--border)"><td style="padding:10px 12px;font-weight:700">'+esc(r.member_name||r.character_id)+'</td><td style="padding:10px 8px;'+warn+'">'+o+'</td><td style="padding:10px 8px">'+(+r.owed||0)+'</td><td style="padding:10px 8px">'+esc(r.reasons||'-')+'</td><td style="padding:10px 8px;opacity:.8">'+dt(r.updated_at)+'</td></tr>'; }).join('')+'</tbody></table></div>';
+      return '<tr style="border-top:1px solid var(--border)"><td style="padding:10px 12px;font-weight:700">'+esc(r.member_name||r.character_id)+'</td><td style="padding:10px 8px;'+warn+'">'+o+'</td><td style="padding:10px 8px">'+(+r.owed||0)+'</td><td style="padding:10px 8px">'+esc(r.reasons||'-')+'</td><td style="padding:10px 8px;opacity:.8">'+dt(r.updated_at)+'</td>'+(ADMIN?penEdit_(r):'')+'</tr>'; }).join('')+'</tbody></table></div>';
   root.innerHTML=h+'</div>';
+}
+
+
+/* แถวแก้โทษของแอดมิน (C2) · ส่งเฉพาะ character_id + ค่าใหม่ + ค่าเดิมที่เห็น (กันแก้ชน) */
+function penEdit_(r){
+  const id=String(r.character_id).trim(), o=+r.offences||0, w=+r.owed||0;
+  const inp=(k,v)=>'<input id="pen-'+k+'-'+id+'" type="number" min="0" max="20" value="'+v+'" style="width:52px" oninput="penDirty_(\''+id+'\')">';
+  return '<td style="padding:8px"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">ครั้งที่ '+inp('o',o)+' ค้าง '+inp('w',w)+
+    ' <input id="pen-n-'+id+'" placeholder="เหตุ (ไม่บังคับ)" style="width:130px" oninput="penDirty_(\''+id+'\')">'+
+    ' <button id="pen-b-'+id+'" class="cap-btn" style="display:none" onclick="penSave_(\''+id+'\')">บันทึก</button></div></td>';
+}
+function penDirty_(id){
+  const r=(_penRows||[]).find(x=>String(x.character_id).trim()===id); if(!r)return;
+  const g=k=>document.getElementById('pen-'+k+'-'+id);
+  const dirty=(g('o').value!==String(+r.offences||0))||(g('w').value!==String(+r.owed||0))||g('n').value.trim()!=='';
+  g('b').style.display=dirty?'':'none';
+}
+async function penSave_(id){
+  if(!ADMIN)return;
+  const r=(_penRows||[]).find(x=>String(x.character_id).trim()===id); if(!r)return;
+  const g=k=>document.getElementById('pen-'+k+'-'+id);
+  const row={character_id:id,offences:g('o').value,owed:g('w').value,exp_offences:+r.offences||0,exp_owed:+r.owed||0,note:g('n').value.trim()};
+  if(!/^\d{1,2}$/.test(String(row.offences))||!/^\d{1,2}$/.test(String(row.owed))){ toast('ใส่ตัวเลข 0–20',null,true); return; }
+  if(!confirm('แก้โทษ '+(r.member_name||id)+'\nครั้งที่ '+row.exp_offences+' → '+row.offences+' · ค้าง '+row.exp_owed+' → '+row.owed+'\nยืนยัน?'))return;
+  g('b').disabled=true; toast('กำลังบันทึก…');
+  try{
+    const res=await admCall('admPenSave',[row]);
+    const rj=(res&&res.rejected)||[];
+    if(rj.length){ toast('ไม่บันทึก: '+rj[0].why,null,true); g('b').disabled=false; return; }
+    r.offences=row.offences; r.owed=row.owed; r.updated_at=new Date().toISOString().slice(0,10);
+    toast('บันทึกแล้ว'); penRender_();
+  }catch(e){ toast('บันทึกไม่สำเร็จ: '+e,null,true); g('b').disabled=false; }
 }
 
 /* ── Config (ดูอย่างเดียว · เฉพาะแอดมิน) · อ่านค่าสดจากแท็บ Rules category config · ไม่เขียนอะไรลงชีท ── */
