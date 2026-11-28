@@ -1835,6 +1835,7 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="nav-item active" onclick="sw('search');closeSidebar()"><span class="ni"><svg><use href="#i-search"/></svg></span><span class="nav-label">Search</span><span class="nav-tip">Search</span></div>
   <div class="nav-item" onclick="sw('party');closeSidebar()"><span class="ni"><svg><use href="#i-party"/></svg></span><span class="nav-label">Party</span><span class="nav-tip">Party</span></div>
   <div class="nav-item" id="nav-quota" style="display:none" onclick="sw('quota');closeSidebar()"><span class="ni"><svg><use href="#i-lock"/></svg></span><span class="nav-label">Quota Settings</span><span class="nav-tip">Quota Settings</span></div>
+  <div class="nav-item" id="nav-config" style="display:none" onclick="sw('config');closeSidebar()"><span class="ni"><svg><use href="#i-gear"/></svg></span><span class="nav-label">Config</span><span class="nav-tip">Config</span></div>
   <div class="nav-item" id="nav-stats" style="display:none" onclick="sw('stats');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Character Stats</span><span class="nav-tip">Character Stats</span></div>
   <div class="nav-item" onclick="sw('members');closeSidebar()"><span class="ni"><svg><use href="#i-member"/></svg></span><span class="nav-label">Members</span><span class="nav-tip">Members</span></div>
   <div class="nav-item" onclick="sw('war');closeSidebar()"><span class="ni"><svg><use href="#i-sword"/></svg></span><span class="nav-label">Guild War</span><span class="nav-tip">Guild War</span></div>
@@ -1894,6 +1895,11 @@ body.pe2-dragging #pe2-bar{display:none!important}
   <div class="page-title">Quota Settings</div>
   <div class="page-sub">ตั้งเป้าอาชีพต่อสนามและความจุกิลด์ (เฉพาะแอดมิน)</div>
   <div id="quota-root"></div>
+</div>
+<div id="page-config" class="page">
+  <div class="page-title">Config</div>
+  <div class="page-sub">ค่าตั้งของระบบที่อ่านจากแท็บ Rules (ดูอย่างเดียว · เฉพาะแอดมิน · แก้ในชีทไปก่อน)</div>
+  <div id="config-root"></div>
 </div>
 <div id="page-stats" class="page">
   <div class="page-title">Character Stats</div>
@@ -2330,6 +2336,7 @@ function sw(t){
   document.getElementById('page-'+t).classList.add('active');
   if(t==='party')renderParty();
   if(t==='quota')renderQuotaAdmin();
+  if(t==='config')cfgInit_();
   if(t==='stats')csInit();
   if(t==='members'){ if(ADMIN)msRefresh_(); renderMembers(); }   /* วาดใหม่ทุกครั้ง ไม่งั้นสวิตช์ Edit mode ที่เปิดจากหน้าอื่นจะไม่ติด */
   /* ไม่โหลดข้อมูลคิวตอนกดเข้าแท็บ Search — รอจนพิมพ์ค้นหาจริงถึงจะโหลด (searchMain) */
@@ -2977,6 +2984,45 @@ function qViewRecruit_(){
   <p class="q-note">นับ "คนในกิลด์" เฉพาะตัวหลัก (ไม่รวม Alt) รวมคนที่ลา${qUnkGuild_()?` · มี Summoner ที่ยังไม่ระบุสาย ${qUnkGuild_()} คน นับในจำนวนคนทั้งกิลด์ แต่ยังไม่นับกับเป้า ATK/MATK`:''}</p>`;
 }
 
+
+/* ── Config (ดูอย่างเดียว · เฉพาะแอดมิน) · อ่านค่าสดจากแท็บ Rules category config · ไม่เขียนอะไรลงชีท ── */
+const CFG_ITEMS=[
+ ['Leave','leave_normal','Leave notice deadline (normal)','t','12:00',1,'Rules › config'],
+ ['Leave','leave_urgent','Leave notice deadline (urgent)','t','19:00',1,'Rules › config'],
+ ['Auction','skip_kick_at','Skips before kick (times, 1–20)','t','3',1,'Rules › config · Worker อ่าน'],
+ ['Auction','auc_next','Next-queue announcement time','t','08:00',0,'ฝังในโค้ด Worker · ต้องให้อ่านจาก config'],
+ ['Auction','auc_close','Auction auto-close time','t','22:00',0,'ฝังในโค้ด Worker · ต้องให้อ่านจาก config'],
+ ['War / Party','party_ready','Party ready time','t','19:50',1,'Rules › config'],
+ ['War / Party','no_war','No-war days (YYYY-MM-DD, comma separated)','s','',1,'Rules › config · ทุกระบบอ่านที่เดียว'],
+ ['Bot / Quiet Hours','quiet_hours','Quiet hours (no tagging · start-end hour, e.g. 22-8)','t','22-8',1,'Rules › config · Worker v209 อ่านที่เดียว'],
+ ['Bot / Quiet Hours','bot_pause','Pause bot (admin room still posts)','s','off',1,'Rules › config · Worker อ่านทุก 5 นาที'],
+ ['New Members','apply_open','Open web signup','s','on',0,'ตัวแปร Worker APPLY_OPEN · ยังแก้จากเว็บไม่ได้']
+];
+let _cfgLoaded=false;
+async function cfgInit_(){
+  const root=document.getElementById('config-root'); if(!root)return;
+  if(!ADMIN){ root.innerHTML='<div class="card" style="padding:16px">Config is admin only</div>'; return; }
+  if(_ruRows===null&&!_ruLoading){ root.innerHTML='<div class="loading">Loading...</div>'; await ruLoad_(false); }
+  cfgRender_();
+}
+function cfgRender_(){
+  const root=document.getElementById('config-root'); if(!root||!ADMIN)return;
+  const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const rows=_ruRows||[];
+  const val=k=>{ const r=rows.find(x=>x.category==='config'&&x.group===k); return r?r.text:null; };
+  const groups=[]; CFG_ITEMS.forEach(it=>{ let g=groups.find(x=>x.n===it[0]); if(!g){ g={n:it[0],a:[]}; groups.push(g); } g.a.push(it); });
+  root.innerHTML='<div style="display:flex;flex-direction:column;gap:14px;max-width:1000px">'+
+   '<div class="card" style="padding:14px;font-size:13px;line-height:1.6">Live = ค่านี้อยู่ในแท็บ Rules แล้วและระบบอ่านจริง · Backlog = ยังฝังในโค้ด ต้องแก้ Worker หรือเว็บก่อน · ว่าง = ยังไม่ตั้ง ระบบใช้ค่าตั้งต้น</div>'+
+   groups.map(g=>'<div class="card" style="padding:14px"><div style="font-weight:800;font-size:15px;margin-bottom:8px">'+esc(g.n)+'</div>'+
+     g.a.map(it=>{
+       const v=it[5]?val(it[1]):null;
+       const shown=it[5]?(v!==null&&v!==''?esc(v):'<span style="opacity:.7">ยังไม่ตั้ง'+(it[4]?' · ค่าตั้งต้น '+esc(it[4]):'')+'</span>'):'<span style="opacity:.7">'+(it[4]?'ค่าปัจจุบันในโค้ด '+esc(it[4]):'-')+'</span>';
+       const bd=it[5]?'<span style="font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;border:1px solid var(--green);color:var(--green)">Live</span>':'<span style="font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;border:1px solid var(--orange);color:var(--orange)">Backlog</span>';
+       return '<div style="border-top:1px solid var(--border);padding:10px 0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-family:monospace;font-size:12px;padding:2px 8px;border-radius:6px;background:var(--card2)">'+esc(it[1])+'</span>'+bd+'</div><div style="font-weight:700;margin:4px 0">'+esc(it[2])+'</div><div style="font-size:15px">'+shown+'</div><div style="font-size:11px;opacity:.7;margin-top:2px">'+esc(it[6])+'</div></div>';
+     }).join('')+'</div>').join('')+
+   '<div class="card" style="padding:14px;font-size:13px;line-height:1.7"><div style="font-weight:800;margin-bottom:6px">Where each config lives</div>Quota/Wanted Classes: หน้า Quota Settings · กล่องข้อความตี้: หน้า Party · กฎประมูลและข้อความกล่อง: หน้า Guild Auction · Character Stats: หน้าเดิม</div>'+
+   '</div>';
+}
 /* ── Quota Settings (เฉพาะโหมดแอดมิน) ── */
 const qClone_=o=>JSON.parse(JSON.stringify(o));
 const qInt_=v=>v!==''&&v!==null&&Number.isInteger(Number(v))&&Number(v)>=0;
@@ -5342,7 +5388,7 @@ function admInit_(){
   const link=document.getElementById('adm-link'), t=document.getElementById('adm-link-t');
   if(ADMIN){
     document.body.classList.add('is-admin');
-    const nq=document.getElementById('nav-quota'); if(nq)nq.style.display=''; const ns=document.getElementById('nav-stats'); if(ns)ns.style.display='';
+    const nq=document.getElementById('nav-quota'); if(nq)nq.style.display=''; const ns=document.getElementById('nav-stats'); if(ns)ns.style.display=''; const ncf=document.getElementById('nav-config'); if(ncf)ncf.style.display='';
     if(link){ link.style.display=''; link.href=SITE_URL; link.onclick=()=>uiGo_(link,SITE_URL); }
     if(t)t.textContent='ออกจากโหมดแอดมิน';
     const rb=document.getElementById('adm-ribbon');
